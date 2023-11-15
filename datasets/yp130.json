@@ -1,154 +1,672 @@
 {
-  "id": "yp130",
-  "metadata": {
-	"urls": [
-	  ""
-	],
-	"paper": {
-	  "title": "Verb similarity on the taxonomy of WordNet",
-	  "url": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-VerbSimWN.pdf"
+	"id": "yp130",
+	"metadata": {
+		"urls": [],
+		"paper": {
+			"title": "Verb similarity on the taxonomy of WordNet",
+			"url": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-VerbSimWN.pdf"
+		},
+		"date": "2005",
+		"description": "",
+		"downloadUrl": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-130verbpairs.txt",
+		"measureType": "similarity"
 	},
-	"date": "2005",
-	"description": "",
-	"downloadUrl": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-130verbpairs.txt",
-	"measureType": "similarity"
-  },
-  "partitions": [
-	{
-	  "id": "verbpairs",
-	  "data": [
-{"word1": "brag", "word2": "boast", "value": 4.000},
-{"word1": "concoct", "word2": "devise", "value": 4.000},
-{"word1": "divide", "word2": "split", "value": 4.000},
-{"word1": "build", "word2": "construct", "value": 4.000},
-{"word1": "end", "word2": "terminate", "value": 4.000},
-{"word1": "accentuate", "word2": "highlight", "value": 4.000},
-{"word1": "demonstrate", "word2": "show", "value": 3.833},
-{"word1": "solve", "word2": "figure out", "value": 3.833},
-{"word1": "consume", "word2": "eat", "value": 3.833},
-{"word1": "position", "word2": "situate", "value": 3.833},
-{"word1": "swear", "word2": "vow", "value": 3.833},
-{"word1": "furnish", "word2": "supply", "value": 3.833},
-{"word1": "merit", "word2": "deserve", "value": 3.667},
-{"word1": "submit", "word2": "yield", "value": 3.667},
-{"word1": "seize", "word2": "take", "value": 3.667},
-{"word1": "spin", "word2": "twirl", "value": 3.500},
-{"word1": "enlarge", "word2": "swell", "value": 3.500},
-{"word1": "swing", "word2": "sway", "value": 3.500},
-{"word1": "circulate", "word2": "distribute", "value": 3.500},
-{"word1": "recognize", "word2": "acknowledge", "value": 3.333},
-{"word1": "resolve", "word2": "settle", "value": 3.333},
-{"word1": "prolong", "word2": "sustain", "value": 3.333},
-{"word1": "tap", "word2": "knock", "value": 3.333},
-{"word1": "block", "word2": "hinder", "value": 3.167},
-{"word1": "arrange", "word2": "plan", "value": 3.167},
-{"word1": "twist", "word2": "curl", "value": 3.167},
-{"word1": "hail", "word2": "acclaim", "value": 3.000},
-{"word1": "dissipate", "word2": "disperse", "value": 3.000},
-{"word1": "approve", "word2": "support", "value": 3.000},
-{"word1": "impose", "word2": "levy", "value": 3.000},
-{"word1": "hasten", "word2": "accelerate", "value": 2.833},
-{"word1": "rap", "word2": "tap", "value": 2.833},
-{"word1": "lean", "word2": "rest", "value": 2.833},
-{"word1": "make", "word2": "earn", "value": 2.833},
-{"word1": "show", "word2": "publish", "value": 2.833},
-{"word1": "sell", "word2": "market", "value": 2.833},
-{"word1": "weave", "word2": "intertwine", "value": 2.667},
-{"word1": "refer", "word2": "direct", "value": 2.667},
-{"word1": "distribute", "word2": "commercialize", "value": 2.500},
-{"word1": "twist", "word2": "intertwine", "value": 2.500},
-{"word1": "drain", "word2": "tap", "value": 2.500},
-{"word1": "depict", "word2": "recognize", "value": 2.500},
-{"word1": "build", "word2": "organize", "value": 2.500},
-{"word1": "hail", "word2": "address", "value": 2.333},
-{"word1": "call", "word2": "refer", "value": 2.167},
-{"word1": "swing", "word2": "bounce", "value": 2.167},
-{"word1": "yield", "word2": "seize", "value": 2.000},
-{"word1": "split", "word2": "crush", "value": 2.000},
-{"word1": "challenge", "word2": "yield", "value": 2.000},
-{"word1": "hinder", "word2": "assist", "value": 2.000},
-{"word1": "welcome", "word2": "recognize", "value": 2.000},
-{"word1": "need", "word2": "deserve", "value": 1.833},
-{"word1": "refer", "word2": "explain", "value": 1.833},
-{"word1": "finance", "word2": "build", "value": 1.667},
-{"word1": "expect", "word2": "deserve", "value": 1.667},
-{"word1": "terminate", "word2": "postpone", "value": 1.667},
-{"word1": "yell", "word2": "boast", "value": 1.667},
-{"word1": "swell", "word2": "curl", "value": 1.667},
-{"word1": "rotate", "word2": "situate", "value": 1.500},
-{"word1": "seize", "word2": "request", "value": 1.500},
-{"word1": "approve", "word2": "scorn", "value": 1.500},
-{"word1": "supply", "word2": "consume", "value": 1.500},
-{"word1": "clip", "word2": "twist", "value": 1.500},
-{"word1": "divide", "word2": "figure out", "value": 1.333},
-{"word1": "advise", "word2": "furnish", "value": 1.333},
-{"word1": "complain", "word2": "boast", "value": 1.333},
-{"word1": "want", "word2": "deserve", "value": 1.333},
-{"word1": "twist", "word2": "fasten", "value": 1.333},
-{"word1": "swing", "word2": "crash", "value": 1.167},
-{"word1": "make", "word2": "trade", "value": 1.167},
-{"word1": "hinder", "word2": "yield", "value": 1.167},
-{"word1": "build", "word2": "propose", "value": 1.167},
-{"word1": "express", "word2": "figure out", "value": 1.167},
-{"word1": "resolve", "word2": "examine", "value": 1.167},
-{"word1": "bruise", "word2": "split", "value": 1.167},
-{"word1": "swing", "word2": "break", "value": 1.167},
-{"word1": "catch", "word2": "consume", "value": 1.000},
-{"word1": "swear", "word2": "explain", "value": 1.000},
-{"word1": "request", "word2": "levy", "value": 1.000},
-{"word1": "arrange", "word2": "study", "value": 1.000},
-{"word1": "relieve", "word2": "hinder", "value": 1.000},
-{"word1": "move", "word2": "swell", "value": 1.000},
-{"word1": "weave", "word2": "print", "value": 0.833},
-{"word1": "swear", "word2": "think", "value": 0.833},
-{"word1": "forget", "word2": "resolve", "value": 0.833},
-{"word1": "supervise", "word2": "concoct", "value": 0.833},
-{"word1": "situate", "word2": "isolate", "value": 0.667},
-{"word1": "explain", "word2": "boast", "value": 0.667},
-{"word1": "ache", "word2": "spin", "value": 0.667},
-{"word1": "evaluate", "word2": "terminate", "value": 0.667},
-{"word1": "recognize", "word2": "succeed", "value": 0.667},
-{"word1": "dilute", "word2": "market", "value": 0.667},
-{"word1": "hasten", "word2": "permit", "value": 0.667},
-{"word1": "scorn", "word2": "yield", "value": 0.667},
-{"word1": "swear", "word2": "describe", "value": 0.667},
-{"word1": "arrange", "word2": "explain", "value": 0.667},
-{"word1": "discard", "word2": "arrange", "value": 0.667},
-{"word1": "list", "word2": "figure out", "value": 0.667},
-{"word1": "stamp", "word2": "weave", "value": 0.500},
-{"word1": "market", "word2": "sweeten", "value": 0.500},
-{"word1": "boil", "word2": "tap", "value": 0.500},
-{"word1": "sustain", "word2": "lower", "value": 0.500},
-{"word1": "resolve", "word2": "publicize", "value": 0.500},
-{"word1": "dissipate", "word2": "isolate", "value": 0.500},
-{"word1": "anger", "word2": "approve", "value": 0.500},
-{"word1": "approve", "word2": "boast", "value": 0.500},
-{"word1": "research", "word2": "distribute", "value": 0.500},
-{"word1": "request", "word2": "concoct", "value": 0.500},
-{"word1": "boast", "word2": "yield", "value": 0.500},
-{"word1": "furnish", "word2": "impress", "value": 0.333},
-{"word1": "refine", "word2": "sustain", "value": 0.333},
-{"word1": "acknowledge", "word2": "distribute", "value": 0.333},
-{"word1": "clean", "word2": "concoct", "value": 0.333},
-{"word1": "lean", "word2": "grate", "value": 0.333},
-{"word1": "postpone", "word2": "show", "value": 0.333},
-{"word1": "hail", "word2": "judge", "value": 0.333},
-{"word1": "remember", "word2": "hail", "value": 0.333},
-{"word1": "scrape", "word2": "lean", "value": 0.333},
-{"word1": "sweat", "word2": "spin", "value": 0.333},
-{"word1": "highlight", "word2": "restore", "value": 0.333},
-{"word1": "seize", "word2": "refer", "value": 0.167},
-{"word1": "levy", "word2": "believe", "value": 0.167},
-{"word1": "alter", "word2": "highlight", "value": 0.167},
-{"word1": "refer", "word2": "carry", "value": 0.167},
-{"word1": "empty", "word2": "situate", "value": 0.167},
-{"word1": "flush", "word2": "spin", "value": 0.167},
-{"word1": "shake", "word2": "swell", "value": 0.167},
-{"word1": "imitate", "word2": "highlight", "value": 0.167},
-{"word1": "correlate", "word2": "levy", "value": 0.000},
-{"word1": "refer", "word2": "lean", "value": 0.000}
-	  ]
-	}
-  ],
-  "originalInstructions": ""
+	"partitions": [
+		{
+			"id": "verbpairs",
+			"data": [
+				{
+					"word1": "brag",
+					"word2": "boast",
+					"value": 4.000
+				},
+				{
+					"word1": "concoct",
+					"word2": "devise",
+					"value": 4.000
+				},
+				{
+					"word1": "divide",
+					"word2": "split",
+					"value": 4.000
+				},
+				{
+					"word1": "build",
+					"word2": "construct",
+					"value": 4.000
+				},
+				{
+					"word1": "end",
+					"word2": "terminate",
+					"value": 4.000
+				},
+				{
+					"word1": "accentuate",
+					"word2": "highlight",
+					"value": 4.000
+				},
+				{
+					"word1": "demonstrate",
+					"word2": "show",
+					"value": 3.833
+				},
+				{
+					"word1": "solve",
+					"word2": "figure out",
+					"value": 3.833
+				},
+				{
+					"word1": "consume",
+					"word2": "eat",
+					"value": 3.833
+				},
+				{
+					"word1": "position",
+					"word2": "situate",
+					"value": 3.833
+				},
+				{
+					"word1": "swear",
+					"word2": "vow",
+					"value": 3.833
+				},
+				{
+					"word1": "furnish",
+					"word2": "supply",
+					"value": 3.833
+				},
+				{
+					"word1": "merit",
+					"word2": "deserve",
+					"value": 3.667
+				},
+				{
+					"word1": "submit",
+					"word2": "yield",
+					"value": 3.667
+				},
+				{
+					"word1": "seize",
+					"word2": "take",
+					"value": 3.667
+				},
+				{
+					"word1": "spin",
+					"word2": "twirl",
+					"value": 3.500
+				},
+				{
+					"word1": "enlarge",
+					"word2": "swell",
+					"value": 3.500
+				},
+				{
+					"word1": "swing",
+					"word2": "sway",
+					"value": 3.500
+				},
+				{
+					"word1": "circulate",
+					"word2": "distribute",
+					"value": 3.500
+				},
+				{
+					"word1": "recognize",
+					"word2": "acknowledge",
+					"value": 3.333
+				},
+				{
+					"word1": "resolve",
+					"word2": "settle",
+					"value": 3.333
+				},
+				{
+					"word1": "prolong",
+					"word2": "sustain",
+					"value": 3.333
+				},
+				{
+					"word1": "tap",
+					"word2": "knock",
+					"value": 3.333
+				},
+				{
+					"word1": "block",
+					"word2": "hinder",
+					"value": 3.167
+				},
+				{
+					"word1": "arrange",
+					"word2": "plan",
+					"value": 3.167
+				},
+				{
+					"word1": "twist",
+					"word2": "curl",
+					"value": 3.167
+				},
+				{
+					"word1": "hail",
+					"word2": "acclaim",
+					"value": 3.000
+				},
+				{
+					"word1": "dissipate",
+					"word2": "disperse",
+					"value": 3.000
+				},
+				{
+					"word1": "approve",
+					"word2": "support",
+					"value": 3.000
+				},
+				{
+					"word1": "impose",
+					"word2": "levy",
+					"value": 3.000
+				},
+				{
+					"word1": "hasten",
+					"word2": "accelerate",
+					"value": 2.833
+				},
+				{
+					"word1": "rap",
+					"word2": "tap",
+					"value": 2.833
+				},
+				{
+					"word1": "lean",
+					"word2": "rest",
+					"value": 2.833
+				},
+				{
+					"word1": "make",
+					"word2": "earn",
+					"value": 2.833
+				},
+				{
+					"word1": "show",
+					"word2": "publish",
+					"value": 2.833
+				},
+				{
+					"word1": "sell",
+					"word2": "market",
+					"value": 2.833
+				},
+				{
+					"word1": "weave",
+					"word2": "intertwine",
+					"value": 2.667
+				},
+				{
+					"word1": "refer",
+					"word2": "direct",
+					"value": 2.667
+				},
+				{
+					"word1": "distribute",
+					"word2": "commercialize",
+					"value": 2.500
+				},
+				{
+					"word1": "twist",
+					"word2": "intertwine",
+					"value": 2.500
+				},
+				{
+					"word1": "drain",
+					"word2": "tap",
+					"value": 2.500
+				},
+				{
+					"word1": "depict",
+					"word2": "recognize",
+					"value": 2.500
+				},
+				{
+					"word1": "build",
+					"word2": "organize",
+					"value": 2.500
+				},
+				{
+					"word1": "hail",
+					"word2": "address",
+					"value": 2.333
+				},
+				{
+					"word1": "call",
+					"word2": "refer",
+					"value": 2.167
+				},
+				{
+					"word1": "swing",
+					"word2": "bounce",
+					"value": 2.167
+				},
+				{
+					"word1": "yield",
+					"word2": "seize",
+					"value": 2.000
+				},
+				{
+					"word1": "split",
+					"word2": "crush",
+					"value": 2.000
+				},
+				{
+					"word1": "challenge",
+					"word2": "yield",
+					"value": 2.000
+				},
+				{
+					"word1": "hinder",
+					"word2": "assist",
+					"value": 2.000
+				},
+				{
+					"word1": "welcome",
+					"word2": "recognize",
+					"value": 2.000
+				},
+				{
+					"word1": "need",
+					"word2": "deserve",
+					"value": 1.833
+				},
+				{
+					"word1": "refer",
+					"word2": "explain",
+					"value": 1.833
+				},
+				{
+					"word1": "finance",
+					"word2": "build",
+					"value": 1.667
+				},
+				{
+					"word1": "expect",
+					"word2": "deserve",
+					"value": 1.667
+				},
+				{
+					"word1": "terminate",
+					"word2": "postpone",
+					"value": 1.667
+				},
+				{
+					"word1": "yell",
+					"word2": "boast",
+					"value": 1.667
+				},
+				{
+					"word1": "swell",
+					"word2": "curl",
+					"value": 1.667
+				},
+				{
+					"word1": "rotate",
+					"word2": "situate",
+					"value": 1.500
+				},
+				{
+					"word1": "seize",
+					"word2": "request",
+					"value": 1.500
+				},
+				{
+					"word1": "approve",
+					"word2": "scorn",
+					"value": 1.500
+				},
+				{
+					"word1": "supply",
+					"word2": "consume",
+					"value": 1.500
+				},
+				{
+					"word1": "clip",
+					"word2": "twist",
+					"value": 1.500
+				},
+				{
+					"word1": "divide",
+					"word2": "figure out",
+					"value": 1.333
+				},
+				{
+					"word1": "advise",
+					"word2": "furnish",
+					"value": 1.333
+				},
+				{
+					"word1": "complain",
+					"word2": "boast",
+					"value": 1.333
+				},
+				{
+					"word1": "want",
+					"word2": "deserve",
+					"value": 1.333
+				},
+				{
+					"word1": "twist",
+					"word2": "fasten",
+					"value": 1.333
+				},
+				{
+					"word1": "swing",
+					"word2": "crash",
+					"value": 1.167
+				},
+				{
+					"word1": "make",
+					"word2": "trade",
+					"value": 1.167
+				},
+				{
+					"word1": "hinder",
+					"word2": "yield",
+					"value": 1.167
+				},
+				{
+					"word1": "build",
+					"word2": "propose",
+					"value": 1.167
+				},
+				{
+					"word1": "express",
+					"word2": "figure out",
+					"value": 1.167
+				},
+				{
+					"word1": "resolve",
+					"word2": "examine",
+					"value": 1.167
+				},
+				{
+					"word1": "bruise",
+					"word2": "split",
+					"value": 1.167
+				},
+				{
+					"word1": "swing",
+					"word2": "break",
+					"value": 1.167
+				},
+				{
+					"word1": "catch",
+					"word2": "consume",
+					"value": 1.000
+				},
+				{
+					"word1": "swear",
+					"word2": "explain",
+					"value": 1.000
+				},
+				{
+					"word1": "request",
+					"word2": "levy",
+					"value": 1.000
+				},
+				{
+					"word1": "arrange",
+					"word2": "study",
+					"value": 1.000
+				},
+				{
+					"word1": "relieve",
+					"word2": "hinder",
+					"value": 1.000
+				},
+				{
+					"word1": "move",
+					"word2": "swell",
+					"value": 1.000
+				},
+				{
+					"word1": "weave",
+					"word2": "print",
+					"value": 0.833
+				},
+				{
+					"word1": "swear",
+					"word2": "think",
+					"value": 0.833
+				},
+				{
+					"word1": "forget",
+					"word2": "resolve",
+					"value": 0.833
+				},
+				{
+					"word1": "supervise",
+					"word2": "concoct",
+					"value": 0.833
+				},
+				{
+					"word1": "situate",
+					"word2": "isolate",
+					"value": 0.667
+				},
+				{
+					"word1": "explain",
+					"word2": "boast",
+					"value": 0.667
+				},
+				{
+					"word1": "ache",
+					"word2": "spin",
+					"value": 0.667
+				},
+				{
+					"word1": "evaluate",
+					"word2": "terminate",
+					"value": 0.667
+				},
+				{
+					"word1": "recognize",
+					"word2": "succeed",
+					"value": 0.667
+				},
+				{
+					"word1": "dilute",
+					"word2": "market",
+					"value": 0.667
+				},
+				{
+					"word1": "hasten",
+					"word2": "permit",
+					"value": 0.667
+				},
+				{
+					"word1": "scorn",
+					"word2": "yield",
+					"value": 0.667
+				},
+				{
+					"word1": "swear",
+					"word2": "describe",
+					"value": 0.667
+				},
+				{
+					"word1": "arrange",
+					"word2": "explain",
+					"value": 0.667
+				},
+				{
+					"word1": "discard",
+					"word2": "arrange",
+					"value": 0.667
+				},
+				{
+					"word1": "list",
+					"word2": "figure out",
+					"value": 0.667
+				},
+				{
+					"word1": "stamp",
+					"word2": "weave",
+					"value": 0.500
+				},
+				{
+					"word1": "market",
+					"word2": "sweeten",
+					"value": 0.500
+				},
+				{
+					"word1": "boil",
+					"word2": "tap",
+					"value": 0.500
+				},
+				{
+					"word1": "sustain",
+					"word2": "lower",
+					"value": 0.500
+				},
+				{
+					"word1": "resolve",
+					"word2": "publicize",
+					"value": 0.500
+				},
+				{
+					"word1": "dissipate",
+					"word2": "isolate",
+					"value": 0.500
+				},
+				{
+					"word1": "anger",
+					"word2": "approve",
+					"value": 0.500
+				},
+				{
+					"word1": "approve",
+					"word2": "boast",
+					"value": 0.500
+				},
+				{
+					"word1": "research",
+					"word2": "distribute",
+					"value": 0.500
+				},
+				{
+					"word1": "request",
+					"word2": "concoct",
+					"value": 0.500
+				},
+				{
+					"word1": "boast",
+					"word2": "yield",
+					"value": 0.500
+				},
+				{
+					"word1": "furnish",
+					"word2": "impress",
+					"value": 0.333
+				},
+				{
+					"word1": "refine",
+					"word2": "sustain",
+					"value": 0.333
+				},
+				{
+					"word1": "acknowledge",
+					"word2": "distribute",
+					"value": 0.333
+				},
+				{
+					"word1": "clean",
+					"word2": "concoct",
+					"value": 0.333
+				},
+				{
+					"word1": "lean",
+					"word2": "grate",
+					"value": 0.333
+				},
+				{
+					"word1": "postpone",
+					"word2": "show",
+					"value": 0.333
+				},
+				{
+					"word1": "hail",
+					"word2": "judge",
+					"value": 0.333
+				},
+				{
+					"word1": "remember",
+					"word2": "hail",
+					"value": 0.333
+				},
+				{
+					"word1": "scrape",
+					"word2": "lean",
+					"value": 0.333
+				},
+				{
+					"word1": "sweat",
+					"word2": "spin",
+					"value": 0.333
+				},
+				{
+					"word1": "highlight",
+					"word2": "restore",
+					"value": 0.333
+				},
+				{
+					"word1": "seize",
+					"word2": "refer",
+					"value": 0.167
+				},
+				{
+					"word1": "levy",
+					"word2": "believe",
+					"value": 0.167
+				},
+				{
+					"word1": "alter",
+					"word2": "highlight",
+					"value": 0.167
+				},
+				{
+					"word1": "refer",
+					"word2": "carry",
+					"value": 0.167
+				},
+				{
+					"word1": "empty",
+					"word2": "situate",
+					"value": 0.167
+				},
+				{
+					"word1": "flush",
+					"word2": "spin",
+					"value": 0.167
+				},
+				{
+					"word1": "shake",
+					"word2": "swell",
+					"value": 0.167
+				},
+				{
+					"word1": "imitate",
+					"word2": "highlight",
+					"value": 0.167
+				},
+				{
+					"word1": "correlate",
+					"word2": "levy",
+					"value": 0.000
+				},
+				{
+					"word1": "refer",
+					"word2": "lean",
+					"value": 0.000
+				}
+			]
+		}
+	],
+	"originalInstructions": ""
 }

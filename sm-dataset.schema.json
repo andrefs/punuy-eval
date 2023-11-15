@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrefs.com/sm-dataset.schema.json",
+  "title": "Semantic Measure Dataset",
+  "description": "A dataset containing semantic measures",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The dataset identifier",
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "papers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "title": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "downloadUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "measureType": {
+          "type": "string",
+          "enum": [
+            "similarity",
+            "relatedness"
+          ]
+        }
+      }
+    },
+    "partitions": {}
+  }
+}

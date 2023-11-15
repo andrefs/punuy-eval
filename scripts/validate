@@ -1,0 +1,9 @@
+#!/bin/sh 
+
+cd datasets
+ajv \
+  --spec draft2020 \
+  -c ajv-formats \
+  -s sm-dataset.schema.json \
+  -d  "datasets/*.json"
+

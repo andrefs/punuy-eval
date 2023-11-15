@@ -1,0 +1,1459 @@
+{
+	"id": "",
+	"metadata": {
+		"urls": [
+			"http://www.kiraradinsky.com/Datasets.html"
+		],
+		"paper": {
+			"title": "A Word at a Time: Computing Word Relatedness using Temporal Semantic Analysis",
+			"url": "http://www.kiraradinsky.com/files/Radinsky-TemporalSemantics.pdf"
+		},
+		"date": "2011",
+		"description": "Human labeled examples of word semantic relatedness. The data pairs were generated using an algorithm as described in the paper by [K. Radinsky, E. Agichtein, E. Gabrilovich, S. Markovitch.]. Each pair of words was evaluated by 10 people on a scale of 1-5.",
+		"downloadUrl": "http://www.kiraradinsky.com/files/Mtruk.csv",
+		"measureType": "relatedness"
+	},
+	"partitions": [
+		{
+			"id": "mturk",
+			"data": [
+				{
+					"word1": "episcopal",
+					"word2": "russia",
+					"value": 2.75
+				},
+				{
+					"word1": "water",
+					"word2": "shortage",
+					"value": 2.714285714
+				},
+				{
+					"word1": "horse",
+					"word2": "wedding",
+					"value": 2.266666667
+				},
+				{
+					"word1": "plays",
+					"word2": "losses",
+					"value": 3.2
+				},
+				{
+					"word1": "classics",
+					"word2": "advertiser",
+					"value": 2.25
+				},
+				{
+					"word1": "latin",
+					"word2": "credit",
+					"value": 2.0625
+				},
+				{
+					"word1": "ship",
+					"word2": "ballots",
+					"value": 2.3125
+				},
+				{
+					"word1": "mistake",
+					"word2": "error",
+					"value": 4.352941176
+				},
+				{
+					"word1": "disease",
+					"word2": "plague",
+					"value": 4.117647059
+				},
+				{
+					"word1": "sake",
+					"word2": "shade",
+					"value": 2.529411765
+				},
+				{
+					"word1": "saints",
+					"word2": "observatory",
+					"value": 1.9375
+				},
+				{
+					"word1": "treaty",
+					"word2": "wheat",
+					"value": 1.8125
+				},
+				{
+					"word1": "texas",
+					"word2": "death",
+					"value": 1.533333333
+				},
+				{
+					"word1": "republicans",
+					"word2": "challenge",
+					"value": 2.3125
+				},
+				{
+					"word1": "body",
+					"word2": "peaceful",
+					"value": 2.058823529
+				},
+				{
+					"word1": "admiralty",
+					"word2": "intensity",
+					"value": 2.647058824
+				},
+				{
+					"word1": "body",
+					"word2": "improving",
+					"value": 2.117647059
+				},
+				{
+					"word1": "heroin",
+					"word2": "marijuana",
+					"value": 3.375
+				},
+				{
+					"word1": "scottish",
+					"word2": "commuters",
+					"value": 2.6875
+				},
+				{
+					"word1": "apollo",
+					"word2": "myth",
+					"value": 2.6
+				},
+				{
+					"word1": "film",
+					"word2": "cautious",
+					"value": 2.125
+				},
+				{
+					"word1": "exhibition",
+					"word2": "art",
+					"value": 4.117647059
+				},
+				{
+					"word1": "chocolate",
+					"word2": "candy",
+					"value": 3.764705882
+				},
+				{
+					"word1": "republic",
+					"word2": "candidate",
+					"value": 2.8125
+				},
+				{
+					"word1": "gospel",
+					"word2": "church",
+					"value": 4.0625
+				},
+				{
+					"word1": "momentum",
+					"word2": "desirable",
+					"value": 2.4
+				},
+				{
+					"word1": "singapore",
+					"word2": "sanctions",
+					"value": 2.117647059
+				},
+				{
+					"word1": "english",
+					"word2": "french",
+					"value": 3.823529412
+				},
+				{
+					"word1": "exile",
+					"word2": "church",
+					"value": 2.941176471
+				},
+				{
+					"word1": "navy",
+					"word2": "coordinator",
+					"value": 2.235294118
+				},
+				{
+					"word1": "adventure",
+					"word2": "flood",
+					"value": 2.4375
+				},
+				{
+					"word1": "radar",
+					"word2": "plane",
+					"value": 3.235294118
+				},
+				{
+					"word1": "pacific",
+					"word2": "ocean",
+					"value": 4.266666667
+				},
+				{
+					"word1": "scotch",
+					"word2": "liquor",
+					"value": 4.571428571
+				},
+				{
+					"word1": "kennedy",
+					"word2": "gun",
+					"value": 3
+				},
+				{
+					"word1": "garfield",
+					"word2": "cat",
+					"value": 2.866666667
+				},
+				{
+					"word1": "scale",
+					"word2": "budget",
+					"value": 3.5
+				},
+				{
+					"word1": "rhythm",
+					"word2": "blues",
+					"value": 3.071428571
+				},
+				{
+					"word1": "rich",
+					"word2": "privileges",
+					"value": 3.2
+				},
+				{
+					"word1": "navy",
+					"word2": "withdrawn",
+					"value": 1.571428571
+				},
+				{
+					"word1": "marble",
+					"word2": "marching",
+					"value": 2.615384615
+				},
+				{
+					"word1": "polo",
+					"word2": "charged",
+					"value": 2.125
+				},
+				{
+					"word1": "mark",
+					"word2": "missing",
+					"value": 2.333333333
+				},
+				{
+					"word1": "battleship",
+					"word2": "army",
+					"value": 4.235294118
+				},
+				{
+					"word1": "medium",
+					"word2": "organization",
+					"value": 2.5625
+				},
+				{
+					"word1": "pennsylvania",
+					"word2": "writer",
+					"value": 1.466666667
+				},
+				{
+					"word1": "hamlet",
+					"word2": "poet",
+					"value": 3.882352941
+				},
+				{
+					"word1": "battle",
+					"word2": "prisoners",
+					"value": 3.705882353
+				},
+				{
+					"word1": "guild",
+					"word2": "smith",
+					"value": 2.75
+				},
+				{
+					"word1": "mud",
+					"word2": "soil",
+					"value": 4.235294118
+				},
+				{
+					"word1": "crime",
+					"word2": "assaulted",
+					"value": 3.941176471
+				},
+				{
+					"word1": "mussolini",
+					"word2": "stability",
+					"value": 2.133333333
+				},
+				{
+					"word1": "lincoln",
+					"word2": "division",
+					"value": 2.4375
+				},
+				{
+					"word1": "slaves",
+					"word2": "insured",
+					"value": 2.2
+				},
+				{
+					"word1": "summer",
+					"word2": "winter",
+					"value": 4.375
+				},
+				{
+					"word1": "integration",
+					"word2": "dignity",
+					"value": 3.058823529
+				},
+				{
+					"word1": "money",
+					"word2": "quota",
+					"value": 2.5
+				},
+				{
+					"word1": "honolulu",
+					"word2": "vacation",
+					"value": 3.6875
+				},
+				{
+					"word1": "libya",
+					"word2": "forged",
+					"value": 2.461538462
+				},
+				{
+					"word1": "cheers",
+					"word2": "musician",
+					"value": 2.823529412
+				},
+				{
+					"word1": "session",
+					"word2": "surprises",
+					"value": 1.8125
+				},
+				{
+					"word1": "billion",
+					"word2": "campaigning",
+					"value": 2.571428571
+				},
+				{
+					"word1": "perjury",
+					"word2": "soybean",
+					"value": 2.0625
+				},
+				{
+					"word1": "forswearing",
+					"word2": "perjury",
+					"value": 3.3125
+				},
+				{
+					"word1": "costume",
+					"word2": "halloween",
+					"value": 3.4375
+				},
+				{
+					"word1": "bulgarian",
+					"word2": "nurses",
+					"value": 1.941176471
+				},
+				{
+					"word1": "costume",
+					"word2": "ultimate",
+					"value": 2.5
+				},
+				{
+					"word1": "faith",
+					"word2": "judging",
+					"value": 2.235294118
+				},
+				{
+					"word1": "france",
+					"word2": "bridges",
+					"value": 2.235294118
+				},
+				{
+					"word1": "citizenship",
+					"word2": "casey",
+					"value": 2.2
+				},
+				{
+					"word1": "recreation",
+					"word2": "dish",
+					"value": 1.4
+				},
+				{
+					"word1": "intelligence",
+					"word2": "troubles",
+					"value": 1.625
+				},
+				{
+					"word1": "germany",
+					"word2": "worst",
+					"value": 1.4375
+				},
+				{
+					"word1": "chaos",
+					"word2": "death",
+					"value": 2.75
+				},
+				{
+					"word1": "sydney",
+					"word2": "hancock",
+					"value": 2.857142857
+				},
+				{
+					"word1": "sabbath",
+					"word2": "stevenson",
+					"value": 2.214285714
+				},
+				{
+					"word1": "espionage",
+					"word2": "passport",
+					"value": 2.3125
+				},
+				{
+					"word1": "political",
+					"word2": "today",
+					"value": 1.6875
+				},
+				{
+					"word1": "pipe",
+					"word2": "convertible",
+					"value": 2
+				},
+				{
+					"word1": "scouting",
+					"word2": "demonstrate",
+					"value": 2.5625
+				},
+				{
+					"word1": "salute",
+					"word2": "patterns",
+					"value": 2.235294118
+				},
+				{
+					"word1": "reichstag",
+					"word2": "germany",
+					"value": 2.285714286
+				},
+				{
+					"word1": "radiation",
+					"word2": "costumes",
+					"value": 1.5625
+				},
+				{
+					"word1": "horace",
+					"word2": "grief",
+					"value": 1.764705882
+				},
+				{
+					"word1": "sale",
+					"word2": "rental",
+					"value": 3.470588235
+				},
+				{
+					"word1": "open",
+					"word2": "close",
+					"value": 4.058823529
+				},
+				{
+					"word1": "photography",
+					"word2": "proving",
+					"value": 2.375
+				},
+				{
+					"word1": "propaganda",
+					"word2": "germany",
+					"value": 1.705882353
+				},
+				{
+					"word1": "assassination",
+					"word2": "forbes",
+					"value": 2.071428571
+				},
+				{
+					"word1": "mirror",
+					"word2": "duel",
+					"value": 1.928571429
+				},
+				{
+					"word1": "probability",
+					"word2": "hanging",
+					"value": 2.058823529
+				},
+				{
+					"word1": "africa",
+					"word2": "theater",
+					"value": 1.5
+				},
+				{
+					"word1": "hell",
+					"word2": "heaven",
+					"value": 4.117647059
+				},
+				{
+					"word1": "mussolini",
+					"word2": "italy",
+					"value": 3
+				},
+				{
+					"word1": "composer",
+					"word2": "beethoven",
+					"value": 3.647058824
+				},
+				{
+					"word1": "minister",
+					"word2": "forthcoming",
+					"value": 1.764705882
+				},
+				{
+					"word1": "brussels",
+					"word2": "sweden",
+					"value": 3.176470588
+				},
+				{
+					"word1": "neutral",
+					"word2": "parish",
+					"value": 1.6
+				},
+				{
+					"word1": "emotion",
+					"word2": "taxation",
+					"value": 1.733333333
+				},
+				{
+					"word1": "louisiana",
+					"word2": "simple",
+					"value": 2
+				},
+				{
+					"word1": "quarantine",
+					"word2": "disease",
+					"value": 3
+				},
+				{
+					"word1": "cannon",
+					"word2": "imprisoned",
+					"value": 2.625
+				},
+				{
+					"word1": "bronze",
+					"word2": "suspicion",
+					"value": 2
+				},
+				{
+					"word1": "pearl",
+					"word2": "interim",
+					"value": 2.352941176
+				},
+				{
+					"word1": "artist",
+					"word2": "paint",
+					"value": 4.117647059
+				},
+				{
+					"word1": "relay",
+					"word2": "family",
+					"value": 2.0625
+				},
+				{
+					"word1": "art",
+					"word2": "mortality",
+					"value": 2.294117647
+				},
+				{
+					"word1": "food",
+					"word2": "investment",
+					"value": 2.25
+				},
+				{
+					"word1": "alt",
+					"word2": "tenor",
+					"value": 2.692307692
+				},
+				{
+					"word1": "catholics",
+					"word2": "protestant",
+					"value": 3.5625
+				},
+				{
+					"word1": "militia",
+					"word2": "landlord",
+					"value": 3.0625
+				},
+				{
+					"word1": "battle",
+					"word2": "warships",
+					"value": 4.176470588
+				},
+				{
+					"word1": "alcohol",
+					"word2": "fleeing",
+					"value": 2.5625
+				},
+				{
+					"word1": "coil",
+					"word2": "ashes",
+					"value": 3.117647059
+				},
+				{
+					"word1": "poland",
+					"word2": "russia",
+					"value": 4
+				},
+				{
+					"word1": "explosive",
+					"word2": "builders",
+					"value": 2.4375
+				},
+				{
+					"word1": "aeronautics",
+					"word2": "plane",
+					"value": 4.277777778
+				},
+				{
+					"word1": "charge",
+					"word2": "sentence",
+					"value": 3.133333333
+				},
+				{
+					"word1": "pet",
+					"word2": "retiring",
+					"value": 2
+				},
+				{
+					"word1": "drink",
+					"word2": "alcohol",
+					"value": 4.352941176
+				},
+				{
+					"word1": "stability",
+					"word2": "species",
+					"value": 2.375
+				},
+				{
+					"word1": "colonies",
+					"word2": "depression",
+					"value": 2
+				},
+				{
+					"word1": "easter",
+					"word2": "preference",
+					"value": 2.0625
+				},
+				{
+					"word1": "genius",
+					"word2": "intellect",
+					"value": 4.090909091
+				},
+				{
+					"word1": "diamond",
+					"word2": "killed",
+					"value": 1.555555556
+				},
+				{
+					"word1": "slavery",
+					"word2": "african",
+					"value": 2.8
+				},
+				{
+					"word1": "jurisdiction",
+					"word2": "law",
+					"value": 4.454545455
+				},
+				{
+					"word1": "saints",
+					"word2": "repeal",
+					"value": 1.555555556
+				},
+				{
+					"word1": "conspiracy",
+					"word2": "campaign",
+					"value": 2.166666667
+				},
+				{
+					"word1": "operator",
+					"word2": "extracts",
+					"value": 2.214285714
+				},
+				{
+					"word1": "physician",
+					"word2": "action",
+					"value": 2.153846154
+				},
+				{
+					"word1": "electronics",
+					"word2": "guess",
+					"value": 1.916666667
+				},
+				{
+					"word1": "slavery",
+					"word2": "diamond",
+					"value": 2.285714286
+				},
+				{
+					"word1": "quarterback",
+					"word2": "sport",
+					"value": 3.142857143
+				},
+				{
+					"word1": "assassination",
+					"word2": "killed",
+					"value": 4.285714286
+				},
+				{
+					"word1": "slavery",
+					"word2": "klan",
+					"value": 2.230769231
+				},
+				{
+					"word1": "heroin",
+					"word2": "shoot",
+					"value": 2.692307692
+				},
+				{
+					"word1": "birds",
+					"word2": "disturbances",
+					"value": 1.692307692
+				},
+				{
+					"word1": "palestinians",
+					"word2": "turks",
+					"value": 2.5
+				},
+				{
+					"word1": "citizenship",
+					"word2": "court",
+					"value": 2.5
+				},
+				{
+					"word1": "immunity",
+					"word2": "violation",
+					"value": 2.076923077
+				},
+				{
+					"word1": "alternative",
+					"word2": "contend",
+					"value": 2.461538462
+				},
+				{
+					"word1": "chile",
+					"word2": "plates",
+					"value": 2.692307692
+				},
+				{
+					"word1": "abraham",
+					"word2": "stranger",
+					"value": 1.846153846
+				},
+				{
+					"word1": "kansas",
+					"word2": "city",
+					"value": 3.769230769
+				},
+				{
+					"word1": "month",
+					"word2": "year",
+					"value": 3.857142857
+				},
+				{
+					"word1": "month",
+					"word2": "day",
+					"value": 3.857142857
+				},
+				{
+					"word1": "amateur",
+					"word2": "actor",
+					"value": 2.333333333
+				},
+				{
+					"word1": "afghanistan",
+					"word2": "war",
+					"value": 3.384615385
+				},
+				{
+					"word1": "transmission",
+					"word2": "maxwell",
+					"value": 2.25
+				},
+				{
+					"word1": "manchester",
+					"word2": "ambitious",
+					"value": 1.923076923
+				},
+				{
+					"word1": "program",
+					"word2": "battered",
+					"value": 1.928571429
+				},
+				{
+					"word1": "drawing",
+					"word2": "music",
+					"value": 2.583333333
+				},
+				{
+					"word1": "exile",
+					"word2": "pledges",
+					"value": 2.307692308
+				},
+				{
+					"word1": "adventure",
+					"word2": "sixteen",
+					"value": 1.538461538
+				},
+				{
+					"word1": "exile",
+					"word2": "threats",
+					"value": 2.166666667
+				},
+				{
+					"word1": "concrete",
+					"word2": "wings",
+					"value": 1.428571429
+				},
+				{
+					"word1": "seizure",
+					"word2": "bishops",
+					"value": 2
+				},
+				{
+					"word1": "submarine",
+					"word2": "sea",
+					"value": 3.857142857
+				},
+				{
+					"word1": "villa",
+					"word2": "mayor",
+					"value": 2.25
+				},
+				{
+					"word1": "trade",
+					"word2": "farley",
+					"value": 2.375
+				},
+				{
+					"word1": "nature",
+					"word2": "forest",
+					"value": 3.636363636
+				},
+				{
+					"word1": "chronicle",
+					"word2": "young",
+					"value": 1.9
+				},
+				{
+					"word1": "radical",
+					"word2": "bishops",
+					"value": 1.818181818
+				},
+				{
+					"word1": "pakistan",
+					"word2": "radical",
+					"value": 2.875
+				},
+				{
+					"word1": "fire",
+					"word2": "water",
+					"value": 4.266666667
+				},
+				{
+					"word1": "gossip",
+					"word2": "nuisance",
+					"value": 3.0625
+				},
+				{
+					"word1": "con",
+					"word2": "examiner",
+					"value": 2.266666667
+				},
+				{
+					"word1": "satellite",
+					"word2": "space",
+					"value": 3.75
+				},
+				{
+					"word1": "essay",
+					"word2": "boston",
+					"value": 2
+				},
+				{
+					"word1": "miniature",
+					"word2": "statue",
+					"value": 3.6
+				},
+				{
+					"word1": "spill",
+					"word2": "pollution",
+					"value": 3.5
+				},
+				{
+					"word1": "minister",
+					"word2": "council",
+					"value": 3.5625
+				},
+				{
+					"word1": "landscape",
+					"word2": "mountain",
+					"value": 3.5625
+				},
+				{
+					"word1": "religion",
+					"word2": "remedy",
+					"value": 2.5625
+				},
+				{
+					"word1": "ship",
+					"word2": "storm",
+					"value": 3.5
+				},
+				{
+					"word1": "college",
+					"word2": "scientist",
+					"value": 2.8125
+				},
+				{
+					"word1": "crystal",
+					"word2": "oldest",
+					"value": 2.5625
+				},
+				{
+					"word1": "afghanistan",
+					"word2": "wise",
+					"value": 2.066666667
+				},
+				{
+					"word1": "trinity",
+					"word2": "religion",
+					"value": 3.133333333
+				},
+				{
+					"word1": "homer",
+					"word2": "odyssey",
+					"value": 2.857142857
+				},
+				{
+					"word1": "parish",
+					"word2": "clue",
+					"value": 2.4375
+				},
+				{
+					"word1": "actress",
+					"word2": "actor",
+					"value": 4.0625
+				},
+				{
+					"word1": "patent",
+					"word2": "professionals",
+					"value": 2.375
+				},
+				{
+					"word1": "chaos",
+					"word2": "horrible",
+					"value": 3.066666667
+				},
+				{
+					"word1": "acre",
+					"word2": "earthquake",
+					"value": 2.125
+				},
+				{
+					"word1": "goverment",
+					"word2": "immunity",
+					"value": 2
+				},
+				{
+					"word1": "football",
+					"word2": "justice",
+					"value": 1.8
+				},
+				{
+					"word1": "gambling",
+					"word2": "money",
+					"value": 3.75
+				},
+				{
+					"word1": "corruption",
+					"word2": "nervous",
+					"value": 1.875
+				},
+				{
+					"word1": "cardinals",
+					"word2": "villages",
+					"value": 2.375
+				},
+				{
+					"word1": "life",
+					"word2": "death",
+					"value": 4.103448276
+				},
+				{
+					"word1": "artillery",
+					"word2": "sanctions",
+					"value": 2.428571429
+				},
+				{
+					"word1": "jerusalem",
+					"word2": "murdered",
+					"value": 2.357142857
+				},
+				{
+					"word1": "cell",
+					"word2": "brick",
+					"value": 3.285714286
+				},
+				{
+					"word1": "knowledge",
+					"word2": "promoter",
+					"value": 2.642857143
+				},
+				{
+					"word1": "adventure",
+					"word2": "rails",
+					"value": 2.571428571
+				},
+				{
+					"word1": "houston",
+					"word2": "crash",
+					"value": 2.357142857
+				},
+				{
+					"word1": "oxford",
+					"word2": "subcommittee",
+					"value": 2.642857143
+				},
+				{
+					"word1": "militia",
+					"word2": "weapon",
+					"value": 3.785714286
+				},
+				{
+					"word1": "manufacturer",
+					"word2": "meat",
+					"value": 1.857142857
+				},
+				{
+					"word1": "damages",
+					"word2": "reaction",
+					"value": 3.071428571
+				},
+				{
+					"word1": "sea",
+					"word2": "fishing",
+					"value": 4.357142857
+				},
+				{
+					"word1": "atomic",
+					"word2": "clash",
+					"value": 2.785714286
+				},
+				{
+					"word1": "broadcasting",
+					"word2": "athletics",
+					"value": 3
+				},
+				{
+					"word1": "mystery",
+					"word2": "expedition",
+					"value": 2.538461538
+				},
+				{
+					"word1": "kremlin",
+					"word2": "soviets",
+					"value": 3.166666667
+				},
+				{
+					"word1": "pig",
+					"word2": "blaze",
+					"value": 1.75
+				},
+				{
+					"word1": "riverside",
+					"word2": "vietnamese",
+					"value": 2.25
+				},
+				{
+					"word1": "bitter",
+					"word2": "protective",
+					"value": 1.923076923
+				},
+				{
+					"word1": "disaster",
+					"word2": "announced",
+					"value": 2.384615385
+				},
+				{
+					"word1": "pork",
+					"word2": "blaze",
+					"value": 2.230769231
+				},
+				{
+					"word1": "feet",
+					"word2": "international",
+					"value": 1.916666667
+				},
+				{
+					"word1": "radical",
+					"word2": "uniform",
+					"value": 2.5
+				},
+				{
+					"word1": "gossip",
+					"word2": "condemned",
+					"value": 2.692307692
+				},
+				{
+					"word1": "mozart",
+					"word2": "wagner",
+					"value": 3.166666667
+				},
+				{
+					"word1": "soccer",
+					"word2": "boxing",
+					"value": 3.4
+				},
+				{
+					"word1": "radical",
+					"word2": "roles",
+					"value": 2.75
+				},
+				{
+					"word1": "rescued",
+					"word2": "slaying",
+					"value": 3
+				},
+				{
+					"word1": "researchers",
+					"word2": "tested",
+					"value": 3.538461538
+				},
+				{
+					"word1": "sales",
+					"word2": "season",
+					"value": 2.307692308
+				},
+				{
+					"word1": "homeless",
+					"word2": "refugees",
+					"value": 3.615384615
+				},
+				{
+					"word1": "pakistan",
+					"word2": "repair",
+					"value": 1.75
+				},
+				{
+					"word1": "athens",
+					"word2": "painting",
+					"value": 2.294117647
+				},
+				{
+					"word1": "tiger",
+					"word2": "woods",
+					"value": 3.375
+				},
+				{
+					"word1": "aircraft",
+					"word2": "plane",
+					"value": 4.473684211
+				},
+				{
+					"word1": "solar",
+					"word2": "carbon",
+					"value": 2.842105263
+				},
+				{
+					"word1": "enterprise",
+					"word2": "bankruptcy",
+					"value": 2.5
+				},
+				{
+					"word1": "homer",
+					"word2": "springfield",
+					"value": 2.833333333
+				},
+				{
+					"word1": "coin",
+					"word2": "awards",
+					"value": 2.166666667
+				},
+				{
+					"word1": "rhodes",
+					"word2": "native",
+					"value": 2.25
+				},
+				{
+					"word1": "soccer",
+					"word2": "curator",
+					"value": 2.125
+				},
+				{
+					"word1": "gasoline",
+					"word2": "stock",
+					"value": 2.888888889
+				},
+				{
+					"word1": "guilt",
+					"word2": "extended",
+					"value": 2.105263158
+				},
+				{
+					"word1": "rapid",
+					"word2": "singapore",
+					"value": 1.764705882
+				},
+				{
+					"word1": "coin",
+					"word2": "banker",
+					"value": 3.631578947
+				},
+				{
+					"word1": "london",
+					"word2": "correspondence",
+					"value": 1.944444444
+				},
+				{
+					"word1": "pop",
+					"word2": "sex",
+					"value": 2.6
+				},
+				{
+					"word1": "medicine",
+					"word2": "bread",
+					"value": 2.176470588
+				},
+				{
+					"word1": "asia",
+					"word2": "animal",
+					"value": 1.555555556
+				},
+				{
+					"word1": "pop",
+					"word2": "clubhouse",
+					"value": 3.210526316
+				},
+				{
+					"word1": "nazi",
+					"word2": "defensive",
+					"value": 2.055555556
+				},
+				{
+					"word1": "earth",
+					"word2": "poles",
+					"value": 3.421052632
+				},
+				{
+					"word1": "thailand",
+					"word2": "crowded",
+					"value": 2.166666667
+				},
+				{
+					"word1": "day",
+					"word2": "independence",
+					"value": 3.473684211
+				},
+				{
+					"word1": "controversy",
+					"word2": "pitch",
+					"value": 2.375
+				},
+				{
+					"word1": "stock",
+					"word2": "gasoline",
+					"value": 3.166666667
+				},
+				{
+					"word1": "composers",
+					"word2": "mozart",
+					"value": 3.833333333
+				},
+				{
+					"word1": "tone",
+					"word2": "piano",
+					"value": 3.722222222
+				},
+				{
+					"word1": "paris",
+					"word2": "chef",
+					"value": 2.111111111
+				},
+				{
+					"word1": "profession",
+					"word2": "responsible",
+					"value": 2.722222222
+				},
+				{
+					"word1": "bankruptcy",
+					"word2": "chronicle",
+					"value": 2
+				},
+				{
+					"word1": "lebanon",
+					"word2": "war",
+					"value": 2.722222222
+				},
+				{
+					"word1": "israel",
+					"word2": "terror",
+					"value": 3.055555556
+				},
+				{
+					"word1": "angola",
+					"word2": "military",
+					"value": 2.941176471
+				},
+				{
+					"word1": "chemistry",
+					"word2": "patients",
+					"value": 2.357142857
+				},
+				{
+					"word1": "munich",
+					"word2": "constitution",
+					"value": 3.071428571
+				},
+				{
+					"word1": "piano",
+					"word2": "theater",
+					"value": 3.266666667
+				},
+				{
+					"word1": "poetry",
+					"word2": "artist",
+					"value": 3.8
+				},
+				{
+					"word1": "acre",
+					"word2": "burned",
+					"value": 1.769230769
+				},
+				{
+					"word1": "religion",
+					"word2": "abortion",
+					"value": 2.076923077
+				},
+				{
+					"word1": "jazz",
+					"word2": "music",
+					"value": 4.533333333
+				},
+				{
+					"word1": "government",
+					"word2": "transportation",
+					"value": 3
+				},
+				{
+					"word1": "color",
+					"word2": "wine",
+					"value": 2.533333333
+				},
+				{
+					"word1": "jackson",
+					"word2": "quota",
+					"value": 1.692307692
+				},
+				{
+					"word1": "shariff",
+					"word2": "deputy",
+					"value": 3.642857143
+				},
+				{
+					"word1": "boat",
+					"word2": "negroes",
+					"value": 2
+				},
+				{
+					"word1": "shooting",
+					"word2": "sentenced",
+					"value": 2.933333333
+				},
+				{
+					"word1": "republicans",
+					"word2": "friedman",
+					"value": 2.416666667
+				},
+				{
+					"word1": "politics",
+					"word2": "brokerage",
+					"value": 2.5
+				},
+				{
+					"word1": "russian",
+					"word2": "stalin",
+					"value": 3.357142857
+				},
+				{
+					"word1": "love",
+					"word2": "philip",
+					"value": 2.5
+				},
+				{
+					"word1": "nuclear",
+					"word2": "plant",
+					"value": 3.733333333
+				},
+				{
+					"word1": "jamaica",
+					"word2": "queens",
+					"value": 3.076923077
+				},
+				{
+					"word1": "dollar",
+					"word2": "asylum",
+					"value": 1.846153846
+				},
+				{
+					"word1": "bridge",
+					"word2": "rowing",
+					"value": 2.785714286
+				},
+				{
+					"word1": "berlin",
+					"word2": "germany",
+					"value": 4
+				},
+				{
+					"word1": "funeral",
+					"word2": "death",
+					"value": 4.714285714
+				},
+				{
+					"word1": "albert",
+					"word2": "einstein",
+					"value": 4.266666667
+				},
+				{
+					"word1": "gulf",
+					"word2": "shore",
+					"value": 3.857142857
+				},
+				{
+					"word1": "ecuador",
+					"word2": "argentina",
+					"value": 3.266666667
+				},
+				{
+					"word1": "britain",
+					"word2": "france",
+					"value": 3.714285714
+				},
+				{
+					"word1": "sports",
+					"word2": "score",
+					"value": 3.866666667
+				},
+				{
+					"word1": "socialism",
+					"word2": "capitalism",
+					"value": 3.785714286
+				},
+				{
+					"word1": "treaty",
+					"word2": "peace",
+					"value": 4.166666667
+				},
+				{
+					"word1": "exchange",
+					"word2": "market",
+					"value": 4.266666667
+				},
+				{
+					"word1": "marriage",
+					"word2": "anniversary",
+					"value": 4.333333333
+				}
+			]
+		}
+	],
+	"originalInstructions": ""
+}
