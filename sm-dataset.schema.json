@@ -62,6 +62,9 @@
         }
       }
     },
+    "originalInstructions": {
+      "type": "string"
+    },
     "partitions": {
       "type": "array",
       "items": {
