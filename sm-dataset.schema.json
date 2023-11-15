@@ -4,6 +4,11 @@
   "title": "Semantic Measure Dataset",
   "description": "A dataset containing semantic measures",
   "type": "object",
+  "required": [
+    "id",
+    "metadata",
+    "partitions"
+  ],
   "properties": {
     "id": {
       "description": "The dataset identifier",
@@ -57,6 +62,59 @@
         }
       }
     },
-    "partitions": {}
+    "partitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "word1",
+                "word2"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "value"
+                  ]
+                },
+                {
+                  "required": [
+                    "values"
+                  ]
+                }
+              ],
+              "properties": {
+                "word1": {
+                  "type": "string"
+                },
+                "word2": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

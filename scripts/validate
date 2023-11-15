@@ -1,6 +1,5 @@
 #!/bin/sh 
 
-cd datasets
 ajv \
   --spec draft2020 \
   -c ajv-formats \
