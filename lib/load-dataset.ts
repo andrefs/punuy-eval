@@ -8,7 +8,7 @@ addFormats(ajv);
 import schemas from '../schema.json';
 ajv.addSchema(schemas)
 
-const validate = ajv.compile<Dataset>(schemas.definitions.Dataset)
+const validate = ajv.compile<Dataset>(schemas.definitions.Dataset);
 
 
 
