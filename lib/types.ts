@@ -60,7 +60,7 @@ interface Metadata {
 }
 
 
-interface Paper {
+export interface Paper {
   /**
    * The title of the paper
    */
