@@ -3,4 +3,4 @@
 typescript-json-schema \
   --required \
   -o schema.json \
-  scripts/types.ts Dataset
+  lib/types.ts "*"

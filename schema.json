@@ -1,6 +1,30 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
+        "Dataset": {
+            "properties": {
+                "metadata": {
+                    "$ref": "#/definitions/Metadata",
+                    "description": "An identifier for the dataset\n\nid: string,\n\n/**\nMetadata for the dataset"
+                },
+                "originalInstructions": {
+                    "description": "The original instructions given to the annotators",
+                    "type": "string"
+                },
+                "partitions": {
+                    "description": "The partitions containing the dataset data",
+                    "items": {
+                        "$ref": "#/definitions/Partition"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "metadata",
+                "partitions"
+            ],
+            "type": "object"
+        },
         "Metadata": {
             "properties": {
                 "date": {
@@ -163,28 +187,6 @@
                 }
             ]
         }
-    },
-    "properties": {
-        "metadata": {
-            "$ref": "#/definitions/Metadata",
-            "description": "An identifier for the dataset\n\nid: string,\n\n/**\nMetadata for the dataset"
-        },
-        "originalInstructions": {
-            "description": "The original instructions given to the annotators",
-            "type": "string"
-        },
-        "partitions": {
-            "description": "The partitions containing the dataset data",
-            "items": {
-                "$ref": "#/definitions/Partition"
-            },
-            "type": "array"
-        }
-    },
-    "required": [
-        "metadata",
-        "partitions"
-    ],
-    "type": "object"
+    }
 }
 
