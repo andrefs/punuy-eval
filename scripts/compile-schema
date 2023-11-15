@@ -1,0 +1,6 @@
+#!/bin/sh
+
+typescript-json-schema \
+  --required \
+  -o schema.json \
+  scripts/types.ts Dataset

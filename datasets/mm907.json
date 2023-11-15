@@ -4,10 +4,12 @@
 		"urls": [
 			"https://conservancy.umn.edu/handle/11299/196265"
 		],
-		"paper": {
-			"title": "Corpus domain effects on distributional semantic modeling of medical terms",
-			"url": "https://academic.oup.com/bioinformatics/article/32/23/3635/2525643"
-		},
+		"papers": [
+			{
+				"title": "Corpus domain effects on distributional semantic modeling of medical terms",
+				"url": "https://academic.oup.com/bioinformatics/article/32/23/3635/2525643"
+			}
+		],
 		"date": "2016",
 		"description": "",
 		"downloadUrls": [

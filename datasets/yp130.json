@@ -2,13 +2,17 @@
 	"id": "yp130",
 	"metadata": {
 		"urls": [],
-		"paper": {
-			"title": "Verb similarity on the taxonomy of WordNet",
-			"url": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-VerbSimWN.pdf"
-		},
+		"papers": [
+			{
+				"title": "Verb similarity on the taxonomy of WordNet",
+				"url": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-VerbSimWN.pdf"
+			}
+		],
 		"date": "2005",
 		"description": "",
-		"downloadUrl": "http://david.wardpowers.info/Research/AI/papers/200601-GWC-130verbpairs.txt",
+		"downloadUrls": [
+			"http://david.wardpowers.info/Research/AI/papers/200601-GWC-130verbpairs.txt"
+		],
 		"measureType": "similarity"
 	},
 	"partitions": [
