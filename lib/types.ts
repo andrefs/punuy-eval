@@ -1,8 +1,8 @@
 
-interface Dataset {
+export interface Dataset {
   /**
    * An identifier for the dataset
-   *
+   */
   id: string,
 
   /**
