@@ -31,9 +31,8 @@ const resultSchema = {
   }
 }
 
-async function run(this: Experiment, ds: DatasetProfile, model: Model) {
-  const prompt = genPrompt(ds);
-  const result = await model.makeRequest(prompt, { schema: this.schema });
+async function run(prompt: string, schema: any, ds: DatasetProfile, model: Model) {
+  const result = await model.makeRequest(prompt, { schema });
   return result;
 }
 

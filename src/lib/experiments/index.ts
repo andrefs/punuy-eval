@@ -18,14 +18,19 @@ class Experiment {
     name: string, description: string,
     genPrompt: (ds: DatasetProfile) => string,
     schema: any,
-    run: (this: Experiment, ds: DatasetProfile, model: Model) => Promise<ExperimentResult>,
+    run: (prompt: string, schema: any, ds: DatasetProfile, model: Model) => Promise<ExperimentResult>,
     validate: (ds: DatasetProfile, result: ExperimentResult) => Promise<ValidationResult>,
   ) {
     this.name = name;
     this.description = description;
     this.genPrompt = genPrompt;
     this.schema = schema;
-    this.run = run;
+    this.run = async function(this: Experiment, ds: DatasetProfile, model: Model) {
+      const prompt = this.genPrompt(ds);
+      console.warn(`Running experiment ${this.name} on model (${model.modelId}).`);
+      console.warn(`Prompt: ${prompt}`);
+      return run(prompt, this.schema, ds, model);
+    }
     this.validate = validate;
   }
 }
