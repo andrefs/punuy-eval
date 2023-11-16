@@ -1,7 +1,9 @@
 import OpenAI from "openai";
 import 'dotenv/config';
+import loadDataset from "./lib/load-dataset";
+import { DatasetProfile } from "./lib/types";
 
-const dsName = 'rg65';
+const dsId = 'rg65';
 
 
 const configuration = {
@@ -33,8 +35,12 @@ const askCompletion = async (openai: OpenAI, model: string, prompt: string, sche
   return completion;
 }
 
-const expDatasetAwaremess = async () => {
-  const prompt = 'There is a semantic measure gold standard dataset, built by Rubenstein and Goodenough in 1965, composed of pairs of concepts and their relatedness score. Please list 5 pairs of words included in that dataset.'
+const genPrompt = (ds: DatasetProfile) => {
+  const year = ds.metadata.date.split('-')[0];
+  return `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. It is composed of pairs of concepts and their semantic ${ds.metadata.measureType} score as reported by humans. Please list 5 pairs of words included in this dataset.`
+}
+
+const expDatasetAwaremess = async (prompt: string) => {
   const schema = {
     "type": "object",
     "properties": {
@@ -63,15 +69,6 @@ const expDatasetAwaremess = async () => {
 
 
 
-expDatasetAwaremess().then(({ gpt35_turbo1106, gpt4_0613, gpt4_1106preview }) => {
-  console.log('XXXXXXXXXXXX', { gpt35_turbo1106, gpt4_0613, gpt4_1106preview })
-  console.log('GPT-3.5 Turbo 1106');
-  console.log(JSON.parse(gpt35_turbo1106.choices[0].message.function_call?.arguments || ''));
-  console.log('GPT-4 0613');
-  console.log(JSON.parse(gpt4_0613.choices[0].message.function_call?.arguments || ''));
-  console.log('GPT-4 1106 Preview');
-  console.log(JSON.parse(gpt4_1106preview.choices[0].message.function_call?.arguments || ''));
-});
 
 //const run = async () => {
 //  loadDataset(dsName).then((ds) => {
@@ -86,7 +83,18 @@ expDatasetAwaremess().then(({ gpt35_turbo1106, gpt4_0613, gpt4_1106preview }) =>
 //});
 
 const run = async () => {
-  await expDatasetAwaremess();
+  const ds = await loadDataset(dsId);
+  const prompt = genPrompt(ds);
+  await expDatasetAwaremess(prompt);
+
+  const { gpt35_turbo1106, gpt4_0613, gpt4_1106preview } = await expDatasetAwaremess(genPrompt(ds));
+  console.log('XXXXXXXXXXXX', { gpt35_turbo1106, gpt4_0613, gpt4_1106preview })
+  console.log('GPT-3.5 Turbo 1106');
+  console.log(JSON.parse(gpt35_turbo1106.choices[0].message.function_call?.arguments || ''));
+  console.log('GPT-4 0613');
+  console.log(JSON.parse(gpt4_0613.choices[0].message.function_call?.arguments || ''));
+  console.log('GPT-4 1106 Preview');
+  console.log(JSON.parse(gpt4_1106preview.choices[0].message.function_call?.arguments || ''));
 }
 
 run().then(() => {

@@ -23,6 +23,11 @@ export interface DatasetProfile {
 
 interface Metadata {
   /**
+   * The name of the dataset
+   */
+  name: string;
+
+  /**
    * Web sites containing information about the dataset
    *
    * @items {"type": "string", "format": "uri"}
@@ -56,7 +61,7 @@ interface Metadata {
   /**
    * Which type of measure is used to compare the words
    */
-  measureType?: 'similarity' | 'relatedness',
+  measureType: 'similarity' | 'relatedness',
 }
 
 

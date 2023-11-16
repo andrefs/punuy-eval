@@ -1,6 +1,7 @@
 {
       "id": "rg65",
       "metadata": {
+            "name": "Rubenstein and Goodenough (1965)",
             "urls": [
                   "https://dl.acm.org/doi/pdf/10.1145/365628.365657"
             ],

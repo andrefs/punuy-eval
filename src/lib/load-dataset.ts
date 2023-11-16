@@ -8,7 +8,7 @@ addFormats(ajv);
 import schemas from '../../schema.json';
 ajv.addSchema(schemas)
 
-const validate = ajv.compile<DatasetProfile>(schemas.definitions.Dataset);
+const validate = ajv.compile<DatasetProfile>(schemas.definitions.DatasetProfile);
 
 
 
@@ -22,8 +22,7 @@ export default async function loadDataset(name: string) {
     console.log(validate.errors);
     throw 'Dataset is invalid';
   }
-  console.log('Dataset is valid');
-  console.log(dataset);
+
 
   return dataset;
 }

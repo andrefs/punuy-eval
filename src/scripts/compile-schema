@@ -4,4 +4,4 @@ typescript-json-schema \
   --required \
   --id 'https://andrefs.com/schemas/2023/SemMeasures' \
   -o schema.json \
-  lib/types.ts "*"
+  src/lib/types.ts "*"

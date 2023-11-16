@@ -2,7 +2,7 @@
     "$id": "https://andrefs.com/schemas/2023/SemMeasures",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
-        "Dataset": {
+        "DatasetProfile": {
             "properties": {
                 "id": {
                     "description": "An identifier for the dataset",
@@ -58,6 +58,10 @@
                     ],
                     "type": "string"
                 },
+                "name": {
+                    "description": "The name of the dataset",
+                    "type": "string"
+                },
                 "papers": {
                     "description": "Information about the scientific papers describing the dataset",
                     "items": {
@@ -78,6 +82,8 @@
                 "date",
                 "description",
                 "downloadUrls",
+                "measureType",
+                "name",
                 "papers",
                 "urls"
             ],
