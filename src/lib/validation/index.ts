@@ -1,34 +1,54 @@
+export class ValidationResult {
+  type: string;
+  ok: boolean;
 
-export interface JsonSyntaxError {
-  type: 'json-syntax-error',
+  constructor(type: string, ok: boolean) {
+    this.type = type;
+    this.ok = ok;
+  }
 }
 
-export interface JsonSchemaError {
-  type: 'json-schema-error',
+
+export class JsonSyntaxError extends ValidationResult {
+  constructor() {
+    super('json-syntax-error', false);
+  }
 }
 
-export interface DataIncomplete {
-  type: 'data-incomplete',
-  percentage: number,
+export class JsonSchemaError extends ValidationResult {
+  constructor() {
+    super('json-schema-error', false);
+  }
 }
 
-export interface DataPartiallyIncorrect {
-  type: 'data-partially-incorrect',
-  percentage: number,
+export class DataIncomplete extends ValidationResult {
+  percentage: number;
+
+  constructor(percentage: number) {
+    super('data-incomplete', false);
+    this.percentage = percentage;
+  }
 }
 
-export interface DataIncorrect {
-  type: 'data-incorrect',
+export class DataPartiallyIncorrect extends ValidationResult {
+  percentage: number;
+
+  constructor(percentage: number) {
+    super('data-partially-incorrect', false);
+    this.percentage = percentage;
+  }
 }
 
-export interface DataCorrect {
-  type: 'data-correct',
+export class DataIncorrect extends ValidationResult {
+  constructor() {
+    super('data-incorrect', false);
+  }
 }
 
-export type ValidationResult =
-  JsonSyntaxError
-  | JsonSchemaError
-  | DataIncomplete
-  | DataPartiallyIncorrect
-  | DataIncorrect
-  | DataCorrect;
+export class DataCorrect extends ValidationResult {
+  constructor() {
+    super('data-correct', true);
+  }
+}
+
+

@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import 'dotenv/config';
 import loadDataset from "./lib/load-dataset";
 import { DatasetProfile } from "./lib/types";
+import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError } from "./lib/validation";
 
 const dsId = 'rg65';
 
@@ -71,29 +72,49 @@ const expDatasetAwaremess = async (prompt: string) => {
 
 
 const validate = (ds: DatasetProfile, result: OpenAI.Chat.Completions.ChatCompletion) => {
-  const got = JSON.parse(result.choices[0].message.function_call?.arguments || '');
-  const expected: { [word: string]: { [word: string]: boolean } } = {};
-  for (let { word1, word2 } of ds.partitions[0].data) {
-    const w1 = word1.toLowerCase();
-    const w2 = word2.toLowerCase();
+  try {
+    const got = JSON.parse(result.choices[0].message.function_call?.arguments || '');
+    const expected: { [word: string]: { [word: string]: boolean } } = {};
 
-    expected[w1] = expected[w1] || {};
-    expected[w1][w2] = true;
-    expected[w2] = expected[w2] || {};
-    expected[w2][w1] = true;
-  }
-  let i = 0;
-  for (let { word1, word2 } of got.entries) {
-    const w1 = word1.toLowerCase();
-    const w2 = word2.toLowerCase();
+    for (let { word1, word2 } of ds.partitions[0].data) {
+      const w1 = word1.toLowerCase();
+      const w2 = word2.toLowerCase();
 
-    if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
-      i++;
-    } else {
-      console.log(`XXXXXXXXX pair ${w1} ${w2} not found in dataset`);
+      expected[w1] = expected[w1] || {};
+      expected[w1][w2] = true;
+      expected[w2] = expected[w2] || {};
+      expected[w2][w1] = true;
     }
+    let i = 0;
+    let dataIncorrect = false;
+    for (let { word1, word2 } of got.entries) {
+      const w1 = word1.toLowerCase();
+      const w2 = word2.toLowerCase();
+
+      if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
+        i++;
+        expected[w1][w2] = false;
+        expected[w2][w1] = false;
+      } else {
+        dataIncorrect = true;
+      }
+    }
+
+    if (i === 0) {
+      return new DataIncorrect();
+    }
+    if (dataIncorrect) {
+      return new DataPartiallyIncorrect(i / 5);
+    }
+    if (i < 5) {
+      return new DataIncomplete(i / 5);
+    }
+    return new DataCorrect();
+
+  } catch (e) {
+    return new JsonSyntaxError();
   }
-  console.log(`Found ${i} pairs`);
+
 }
 
 const run = async () => {
@@ -103,12 +124,18 @@ const run = async () => {
   await expDatasetAwaremess(prompt);
 
   const { gpt35_turbo1106, gpt4_0613, gpt4_1106preview } = await expDatasetAwaremess(genPrompt(ds));
+
   console.log('GPT-3.5 Turbo 1106');
-  validate(ds, gpt35_turbo1106);
+  let res = validate(ds, gpt35_turbo1106);
+  console.log(res);
+
   console.log('GPT-4 0613');
-  validate(ds, gpt4_0613);
+  res = validate(ds, gpt4_0613);
+  console.log(res);
+
   console.log('GPT-4 1106 Preview');
-  validate(ds, gpt4_1106preview);
+  res = validate(ds, gpt4_1106preview);
+  console.log(res);
 }
 
 run().then(() => {
