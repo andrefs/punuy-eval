@@ -70,31 +70,45 @@ const expDatasetAwaremess = async (prompt: string) => {
 
 
 
-//const run = async () => {
-//  loadDataset(dsName).then((ds) => {
-//    console.log(ds);
-//  });
-//
-//}
-//
-//
-//run().then(() => {
-//  console.log('Done');
-//});
+const validate = (ds: DatasetProfile, result: OpenAI.Chat.Completions.ChatCompletion) => {
+  const got = JSON.parse(result.choices[0].message.function_call?.arguments || '');
+  const expected: { [word: string]: { [word: string]: boolean } } = {};
+  for (let { word1, word2 } of ds.partitions[0].data) {
+    const w1 = word1.toLowerCase();
+    const w2 = word2.toLowerCase();
+
+    expected[w1] = expected[w1] || {};
+    expected[w1][w2] = true;
+    expected[w2] = expected[w2] || {};
+    expected[w2][w1] = true;
+  }
+  let i = 0;
+  for (let { word1, word2 } of got.entries) {
+    const w1 = word1.toLowerCase();
+    const w2 = word2.toLowerCase();
+
+    if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
+      i++;
+    } else {
+      console.log(`XXXXXXXXX pair ${w1} ${w2} not found in dataset`);
+    }
+  }
+  console.log(`Found ${i} pairs`);
+}
 
 const run = async () => {
   const ds = await loadDataset(dsId);
   const prompt = genPrompt(ds);
+  console.log(prompt);
   await expDatasetAwaremess(prompt);
 
   const { gpt35_turbo1106, gpt4_0613, gpt4_1106preview } = await expDatasetAwaremess(genPrompt(ds));
-  console.log('XXXXXXXXXXXX', { gpt35_turbo1106, gpt4_0613, gpt4_1106preview })
   console.log('GPT-3.5 Turbo 1106');
-  console.log(JSON.parse(gpt35_turbo1106.choices[0].message.function_call?.arguments || ''));
+  validate(ds, gpt35_turbo1106);
   console.log('GPT-4 0613');
-  console.log(JSON.parse(gpt4_0613.choices[0].message.function_call?.arguments || ''));
+  validate(ds, gpt4_0613);
   console.log('GPT-4 1106 Preview');
-  console.log(JSON.parse(gpt4_1106preview.choices[0].message.function_call?.arguments || ''));
+  validate(ds, gpt4_1106preview);
 }
 
 run().then(() => {
