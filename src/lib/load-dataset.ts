@@ -1,4 +1,4 @@
-import { Dataset } from './types';
+import { DatasetProfile } from './types';
 
 import Ajv from "ajv";
 import addFormats from "ajv-formats"
@@ -8,7 +8,7 @@ addFormats(ajv);
 import schemas from '../../schema.json';
 ajv.addSchema(schemas)
 
-const validate = ajv.compile<Dataset>(schemas.definitions.Dataset);
+const validate = ajv.compile<DatasetProfile>(schemas.definitions.Dataset);
 
 
 

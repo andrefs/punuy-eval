@@ -1,5 +1,5 @@
 
-export interface Dataset {
+export interface DatasetProfile {
   /**
    * An identifier for the dataset
    */
