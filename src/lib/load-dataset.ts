@@ -5,7 +5,7 @@ import addFormats from "ajv-formats"
 const ajv = new Ajv();
 addFormats(ajv);
 
-import schemas from '../schema.json';
+import schemas from '../../schema.json';
 ajv.addSchema(schemas)
 
 const validate = ajv.compile<Dataset>(schemas.definitions.Dataset);
@@ -14,7 +14,7 @@ const validate = ajv.compile<Dataset>(schemas.definitions.Dataset);
 
 export default async function loadDataset(name: string) {
   const fileName = /\.json$/.test(name) ? name : `${name}.json`;
-  const { default: dataset } = await import(`../datasets/${fileName}`, { assert: { type: 'json' } });
+  const { default: dataset } = await import(`../../datasets/${fileName}`, { assert: { type: 'json' } });
 
 
   if (!validate(dataset)) {
@@ -28,4 +28,3 @@ export default async function loadDataset(name: string) {
   return dataset;
 }
 
-loadDataset('rg65').then(() => console.log('done')).catch(console.error);
