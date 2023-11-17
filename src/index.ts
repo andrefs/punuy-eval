@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import loadDataset from "./lib/load-dataset";
-import datasetAwareness from "./lib/experiments/datasetAwareness";
+import { datasetAwareness } from "./lib/experiments";
 import { gpt4, gpt4turbo, gpt35turbo } from './lib/models';
 
 const dsId = 'rg65';

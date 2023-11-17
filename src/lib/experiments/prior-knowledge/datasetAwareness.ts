@@ -1,15 +1,16 @@
 import OpenAI from "openai";
-import Experiment, { ExperimentResult } from ".";
-import { Model } from "../models";
-import { DatasetProfile } from "../types";
-import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError } from "../validation";
+import Experiment, { ExperimentResult } from "..";
+import { Model } from "../../models";
+import { DatasetProfile } from "../../types";
+import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError } from "../../validation";
 
 
 const name = 'datasetAwareness';
 const description = 'Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset';
 const genPrompt = (ds: DatasetProfile) => {
   const year = ds.metadata.date.split('-')[0];
-  return `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. It is composed of pairs of concepts and their semantic ${ds.metadata.measureType} score as reported by humans. Please list 5 pairs of words included in this dataset.`
+  const measureTypes = ds.metadata.measureTypes.join(' and ');
+  return `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans. Please list 5 pairs of words included in this dataset.`
 }
 const resultSchema = {
   "type": "object",

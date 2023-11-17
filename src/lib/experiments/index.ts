@@ -3,7 +3,8 @@ import { Model } from "../models";
 import { DatasetProfile } from "../types";
 import { ValidationResult } from "../validation";
 
-export * from './datasetAwareness';
+import datasetAwareness from "./prior-knowledge/datasetAwareness";
+export { datasetAwareness };
 
 
 class Experiment {
