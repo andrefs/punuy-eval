@@ -32,9 +32,9 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 }
 
 
-async function validate(ds: DatasetProfile, result: ExperimentResult) {
+async function validate(ds: DatasetProfile, data: string) {
   try {
-    const got = JSON.parse(result.choices[0].message.tool_calls?.[0].function.arguments || '');
+    const got = JSON.parse(data);
     const expected = ds.metadata.papers.map(p => ({ title: p.title }));
 
     let bestScore = 1;
@@ -56,7 +56,7 @@ async function validate(ds: DatasetProfile, result: ExperimentResult) {
     }
     return new DataIncorrect(got[bestIndex]);
   } catch (e) {
-    return new JsonSyntaxError(result.choices[0].message.function_call?.arguments);
+    return new JsonSyntaxError(data);
   }
 }
 

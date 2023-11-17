@@ -40,9 +40,9 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 }
 
 
-async function validate(ds: DatasetProfile, result: ExperimentResult) {
+async function validate(ds: DatasetProfile, data: string) {
   try {
-    const got = JSON.parse(result.choices[0].message.tool_calls?.[0].function.arguments || '');
+    const got = JSON.parse(data);
     const expected: { [word: string]: { [word: string]: boolean } } = {};
 
     for (let { word1, word2 } of ds.partitions[0].data) {
@@ -81,7 +81,7 @@ async function validate(ds: DatasetProfile, result: ExperimentResult) {
     return new DataCorrect(got);
 
   } catch (e) {
-    return new JsonSyntaxError(result.choices[0].message.function_call?.arguments);
+    return new JsonSyntaxError(data);
   }
 
 }

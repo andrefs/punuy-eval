@@ -9,17 +9,16 @@ class Experiment {
   description: string;
   genPrompt: (ds: DatasetProfile) => string;
   schema: any; // TODO
-  run: (this: Experiment, ds: DatasetProfile, model: Model) => Promise<ExperimentResult>;
-  validate: (ds: DatasetProfile, result: ExperimentResult) => Promise<ValidationResult>;
+  run: (this: Experiment, ds: DatasetProfile, model: Model) => Promise<string>;
+  validate: (ds: DatasetProfile, data: string) => Promise<ValidationResult>;
 
   constructor(
-
     name: string,
     description: string,
     genPrompt: (ds: DatasetProfile) => string,
     schema: any,
     run: (prompt: string, schema: any, ds: DatasetProfile, model: Model) => Promise<ExperimentResult>,
-    validate: (ds: DatasetProfile, result: ExperimentResult) => Promise<ValidationResult>,
+    validate: (ds: DatasetProfile, data: string) => Promise<ValidationResult>,
   ) {
     this.name = name;
     this.description = description;
@@ -29,13 +28,20 @@ class Experiment {
       const prompt = this.genPrompt(ds);
       console.warn(`Running experiment ${this.name} on model (${model.modelId}).`);
       console.warn(`Prompt: ${prompt}`);
-      return run(prompt, this.schema, ds, model);
+      const res = await run(prompt, this.schema, ds, model);
+      if (res.type === 'openai') {
+        return res.data.choices[0].message.tool_calls?.[0].function.arguments || '';
+      }
+      return '';
     }
     this.validate = validate;
   }
 }
 
-export type ExperimentResult = OpenAI.Chat.Completions.ChatCompletion;
+export type ExperimentResult = {
+  type: 'openai';
+  data: OpenAI.Chat.Completions.ChatCompletion;
+}
 
 export default Experiment;
 

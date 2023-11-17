@@ -30,7 +30,7 @@ const buildModel = (openai: OpenAI, modelId: string) => {
       ],
       tools: [{
         type: 'function',
-        // omitting desription seems to yield better results
+        // omitting description seems to yield better results
         function: {
           name: params.function.name,
           parameters: params.function.parameters
@@ -41,7 +41,7 @@ const buildModel = (openai: OpenAI, modelId: string) => {
         function: { name: params.function.name }
       },
     });
-    return completion;
+    return { type: 'openai' as const, data: completion };
   };
 
   return new Model(modelId, makeRequest);
