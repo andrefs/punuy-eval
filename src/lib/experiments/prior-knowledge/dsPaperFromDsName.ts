@@ -35,18 +35,29 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 async function validate(ds: DatasetProfile, result: ExperimentResult) {
   try {
     const got = JSON.parse(result.choices[0].message.tool_calls?.[0].function.arguments || '');
-    const expected = ds.metadata.papers.map(p => p.title.toLowerCase());
+    const expected = ds.metadata.papers.map(p => ({ title: p.title }));
 
-    const scores = expected.map(e => distance(e, got.title.toLowerCase()));
+    let bestScore = 1;
+    let bestIndex = -1;
 
-    console.log('XXXXXXXXXXXXXX titles', { expected, got, scores })
+    for (const [i, exp] of expected.entries()) {
+      const e = exp.title.toLowerCase().trim();
+      const g = got.title.toLowerCase().trim();
+      const d = distance(e, g) / ((e.length + g.length) / 2);
+      if (d < bestScore) {
+        bestScore = d;
+        bestIndex = i;
+      }
+    }
 
-    return new DataCorrect(got);
-
+    const threshold = 0.2;
+    if (bestScore < threshold) {
+      return new DataCorrect(got[bestIndex]);
+    }
+    return new DataIncorrect(got[bestIndex]);
   } catch (e) {
     return new JsonSyntaxError(result.choices[0].message.function_call?.arguments);
   }
-
 }
 
 export default new Experiment(
