@@ -49,6 +49,13 @@ export class DataIncorrect extends ValidationResult {
   }
 }
 
+export class NoData extends ValidationResult {
+  constructor() {
+    super('no-data', false);
+  }
+}
+
+
 export class DataCorrect extends ValidationResult {
   constructor(data?: any) {
     super('data-correct', true, data);

@@ -1,7 +1,7 @@
 import Experiment, { ExperimentResult } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
-import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError } from "../../validation";
+import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError, NoData } from "../../validation";
 import { distance } from 'fastest-levenshtein';
 
 
@@ -33,6 +33,7 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 
 
 async function validate(ds: DatasetProfile, data: string) {
+  if (!data.trim()) { return new NoData(); }
   try {
     const got = JSON.parse(data);
     const expected = ds.metadata.papers.map(p => ({ title: p.title }));
