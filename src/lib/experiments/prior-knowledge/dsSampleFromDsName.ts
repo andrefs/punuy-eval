@@ -9,22 +9,19 @@ const description = 'Check if LLM knows a dataset by asking it to list 5 pairs i
 const genPrompt = (ds: DatasetProfile) => {
   const year = ds.metadata.date.split('-')[0];
   const measureTypes = ds.metadata.measureTypes.join(' and ');
-  return `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans. Please list 5 pairs of words included in this dataset.`
+  return `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. ` +
+    `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
+    `Please list 5 pairs of concepts sampled from this dataset.`
 }
 const resultSchema = {
   "type": "object",
   "properties": {
-    "entries": {
+    "pairs": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "word1": {
-            "type": "string",
-          },
-          "word2": {
-            "type": "string"
-          }
+        "type": "array",
+        items: {
+          type: 'string'
         }
       }
     }
@@ -33,8 +30,8 @@ const resultSchema = {
 
 async function run(prompt: string, schema: any, _: DatasetProfile, model: Model) {
   const f = {
-    name: 'return_sampled_entries',
-    description: 'Returns a sample of entries from the dataset',
+    name: 'validate_sample',
+    description: 'Validates the pairs sampled from the dataset.',
     parameters: schema
   };
 
@@ -45,7 +42,7 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 
 async function validate(ds: DatasetProfile, result: ExperimentResult) {
   try {
-    const got = JSON.parse(result.choices[0].message.function_call?.arguments || '');
+    const got = JSON.parse(result.choices[0].message.tool_calls?.[0].function.arguments || '');
     const expected: { [word: string]: { [word: string]: boolean } } = {};
 
     for (let { word1, word2 } of ds.partitions[0].data) {
@@ -59,7 +56,7 @@ async function validate(ds: DatasetProfile, result: ExperimentResult) {
     }
     let i = 0;
     let dataIncorrect = false;
-    for (let { word1, word2 } of got.entries) {
+    for (let [word1, word2] of got.pairs) {
       const w1 = word1.toLowerCase();
       const w2 = word2.toLowerCase();
 

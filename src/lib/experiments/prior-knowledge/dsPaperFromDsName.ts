@@ -34,7 +34,7 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 
 async function validate(ds: DatasetProfile, result: ExperimentResult) {
   try {
-    const got = JSON.parse(result.choices[0].message.function_call?.arguments || '');
+    const got = JSON.parse(result.choices[0].message.tool_calls?.[0].function.arguments || '');
     const expected = ds.metadata.papers.map(p => p.title.toLowerCase());
 
     const scores = expected.map(e => distance(e, got.title.toLowerCase()));
