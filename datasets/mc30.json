@@ -1,0 +1,176 @@
+{
+  "id": "mc30",
+  "metadata": {
+    "name": "Miller and Charles (1991)",
+    "urls": [],
+    "papers": [
+      {
+        "title": "Contextual correlates of semantic similarity"
+      }
+    ],
+    "date": "1991",
+    "description": "",
+    "downloadUrls": [],
+    "measureTypes": [
+      "similarity"
+    ]
+  },
+  "partitions": [
+    {
+      "id": "table1",
+      "measureType": "similarity",
+      "data": [
+        {
+          "word1": "car",
+          "word2": "automobile",
+          "value": 3.92
+        },
+        {
+          "word1": "gem",
+          "word2": "jewel",
+          "value": 3.84
+        },
+        {
+          "word1": "journey",
+          "word2": "voyage",
+          "value": 3.84
+        },
+        {
+          "word1": "boy",
+          "word2": "lad",
+          "value": 3.76
+        },
+        {
+          "word1": "coast",
+          "word2": "shore",
+          "value": 3.70
+        },
+        {
+          "word1": "asylum",
+          "word2": "madhouse",
+          "value": 3.61
+        },
+        {
+          "word1": "magician",
+          "word2": "wizard",
+          "value": 3.50
+        },
+        {
+          "word1": "midday",
+          "word2": "noon",
+          "value": 3.42
+        },
+        {
+          "word1": "furnace",
+          "word2": "stove",
+          "value": 3.11
+        },
+        {
+          "word1": "food",
+          "word2": "fruit",
+          "value": 3.08
+        },
+        {
+          "word1": "bird",
+          "word2": "cock",
+          "value": 3.05
+        },
+        {
+          "word1": "bird",
+          "word2": "crane",
+          "value": 2.97
+        },
+        {
+          "word1": "tool",
+          "word2": "implement",
+          "value": 2.95
+        },
+        {
+          "word1": "brother",
+          "word2": "monk",
+          "value": 2.82
+        },
+        {
+          "word1": "lad",
+          "word2": "brother",
+          "value": 1.66
+        },
+        {
+          "word1": "crane",
+          "word2": "implement",
+          "value": 1.68
+        },
+        {
+          "word1": "journey",
+          "word2": "car",
+          "value": 1.16
+        },
+        {
+          "word1": "monk",
+          "word2": "oracle",
+          "value": 1.10
+        },
+        {
+          "word1": "cemetery",
+          "word2": "woodland",
+          "value": 0.95
+        },
+        {
+          "word1": "food",
+          "word2": "rooster",
+          "value": 0.89
+        },
+        {
+          "word1": "coast",
+          "word2": "hill",
+          "value": 0.87
+        },
+        {
+          "word1": "forest",
+          "word2": "graveyard",
+          "value": 0.84
+        },
+        {
+          "word1": "shore",
+          "word2": "woodland",
+          "value": 0.63
+        },
+        {
+          "word1": "monk",
+          "word2": "slave",
+          "value": 0.55
+        },
+        {
+          "word1": "coast",
+          "word2": "forest",
+          "value": 0.42
+        },
+        {
+          "word1": "lad",
+          "word2": "wizard",
+          "value": 0.42
+        },
+        {
+          "word1": "chord",
+          "word2": "smile",
+          "value": 0.13
+        },
+        {
+          "word1": "glass",
+          "word2": "magician",
+          "value": 0.11
+        },
+        {
+          "word1": "rooster",
+          "word2": "voyage",
+          "value": 0.08
+        },
+        {
+          "word1": "noon",
+          "word2": "string",
+          "value": 0.08
+        }
+      ]
+    }
+  ]
+}

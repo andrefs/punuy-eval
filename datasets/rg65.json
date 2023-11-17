@@ -16,11 +16,14 @@
             "downloadUrls": [
                   "https://dl.acm.org/doi/pdf/10.1145/365628.365657"
             ],
-            "measureType": "similarity"
+            "measureTypes": [
+                  "similarity"
+            ]
       },
       "partitions": [
             {
                   "id": "table1",
+                  "measureType": "similarity",
                   "data": [
                         {
                               "word1": "cord",

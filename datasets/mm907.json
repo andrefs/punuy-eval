@@ -1,6 +1,7 @@
 {
 	"id": "mm907",
 	"metadata": {
+		"name": "UMNSRS (modified)",
 		"urls": [
 			"https://conservancy.umn.edu/handle/11299/196265"
 		],
@@ -15,6 +16,10 @@
 		"downloadUrls": [
 			"https://conservancy.umn.edu/bitstream/handle/11299/196265/UMNSRS_similarity_mod449_word2vec.csv?sequence=5&isAllowed=y",
 			"https://conservancy.umn.edu/bitstream/handle/11299/196265/UMNSRS_relatedness_mod458_word2vec.csv?sequence=6&isAllowed=y"
+		],
+		"measureTypes": [
+			"similarity",
+			"relatedness"
 		]
 	},
 	"partitions": [

@@ -59,9 +59,9 @@ interface Metadata {
   downloadUrls: string[],
 
   /**
-   * Which type of measure is used to compare the words
+   * Which type of measures are used to compare the words
    */
-  measureType: 'similarity' | 'relatedness',
+  measureTypes: ('similarity' | 'relatedness')[],
 }
 
 
@@ -85,6 +85,10 @@ interface Partition {
    */
   id: string,
 
+  /**
+   * Which type of measure is used to compare the words
+   */
+  measureType: 'similarity' | 'relatedness',
   /**
    * The data for the partition
    */
