@@ -33,8 +33,8 @@ const resultSchema = {
 
 async function run(prompt: string, schema: any, _: DatasetProfile, model: Model) {
   const f = {
-    name: 'list_5_pairs',
-    description: 'List 5 pairs of words included in this dataset',
+    name: 'return_sampled_entries',
+    description: 'Returns a sample of entries from the dataset',
     parameters: schema
   };
 

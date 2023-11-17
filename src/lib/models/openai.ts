@@ -28,8 +28,8 @@ const buildModel = (openai: OpenAI, modelId: string) => {
 
         }
       ],
-      functions: [{ name: "choose_intruder", parameters: params.function.parameters }],
-      function_call: { name: "choose_intruder" },
+      functions: [{ name: params.function.name, parameters: params.function.parameters }], // omitting desription seems to yield better results
+      function_call: { name: params.function.name },
     });
     return completion;
   };
