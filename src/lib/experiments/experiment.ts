@@ -13,7 +13,9 @@ class Experiment {
   validate: (ds: DatasetProfile, result: ExperimentResult) => Promise<ValidationResult>;
 
   constructor(
-    name: string, description: string,
+
+    name: string,
+    description: string,
     genPrompt: (ds: DatasetProfile) => string,
     schema: any,
     run: (prompt: string, schema: any, ds: DatasetProfile, model: Model) => Promise<ExperimentResult>,
@@ -36,4 +38,5 @@ class Experiment {
 export type ExperimentResult = OpenAI.Chat.Completions.ChatCompletion;
 
 export default Experiment;
+
 

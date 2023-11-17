@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import Experiment, { ExperimentResult } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
@@ -32,8 +31,14 @@ const resultSchema = {
   }
 }
 
-async function run(prompt: string, schema: any, ds: DatasetProfile, model: Model) {
-  const result = await model.makeRequest(prompt, { schema });
+async function run(prompt: string, schema: any, _: DatasetProfile, model: Model) {
+  const f = {
+    name: 'list_5_pairs',
+    description: 'List 5 pairs of words included in this dataset',
+    parameters: schema
+  };
+
+  const result = await model.makeRequest(prompt, { function: f });
   return result;
 }
 

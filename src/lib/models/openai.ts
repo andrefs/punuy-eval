@@ -6,6 +6,10 @@ const configuration = {
 };
 
 
+export interface OpenAIModelParams {
+  function: OpenAI.Chat.Completions.ChatCompletionCreateParams.Function
+}
+
 if (!configuration.apiKey) {
   console.error("OpenAI API key not configured, please follow instructions in README.md");
 }
@@ -13,7 +17,7 @@ const openai = new OpenAI(configuration);
 
 
 const buildModel = (openai: OpenAI, modelId: string) => {
-  const makeRequest = async function(prompt: string, params: any) {
+  const makeRequest = async function(prompt: string, params: OpenAIModelParams) {
     const completion = await openai.chat.completions.create({
       model: modelId,
       messages: [
@@ -24,7 +28,7 @@ const buildModel = (openai: OpenAI, modelId: string) => {
 
         }
       ],
-      functions: [{ name: "choose_intruder", parameters: params.schema }],
+      functions: [{ name: "choose_intruder", parameters: params.function.parameters }],
       function_call: { name: "choose_intruder" },
     });
     return completion;
