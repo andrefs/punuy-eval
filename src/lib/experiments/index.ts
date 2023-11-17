@@ -1,5 +1,5 @@
-import dsSampleFromDsTitle from "./prior-knowledge/dsSampleFromDsTitle";
-export { dsSampleFromDsTitle };
+import dsSampleFromDsName from "./prior-knowledge/dsSampleFromDsName";
+export { dsSampleFromDsName };
 
 export * from "./experiment";
 

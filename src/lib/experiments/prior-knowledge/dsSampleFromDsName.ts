@@ -5,7 +5,7 @@ import { DatasetProfile } from "../../types";
 import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError } from "../../validation";
 
 
-const name = 'datasetAwareness';
+const name = 'ds-sample-from-ds-name';
 const description = 'Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset';
 const genPrompt = (ds: DatasetProfile) => {
   const year = ds.metadata.date.split('-')[0];
