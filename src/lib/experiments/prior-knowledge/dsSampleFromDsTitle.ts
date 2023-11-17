@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import Experiment, { ExperimentResult } from "..";
+import Experiment, { ExperimentResult } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
 import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError } from "../../validation";
