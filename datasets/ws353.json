@@ -16,7 +16,10 @@
     "downloadUrls": [
       "https://gabrilovich.com/resources/data/wordsim353/wordsim353.zip"
     ],
-    "measureType": "similarity"
+    "measureTypes": [
+      "similarity",
+      "relatedness"
+    ]
   },
   "partitions": [
     {

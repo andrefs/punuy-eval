@@ -50,13 +50,16 @@
                     },
                     "type": "array"
                 },
-                "measureType": {
-                    "description": "Which type of measure is used to compare the words",
-                    "enum": [
-                        "relatedness",
-                        "similarity"
-                    ],
-                    "type": "string"
+                "measureTypes": {
+                    "description": "Which type of measures are used to compare the words",
+                    "items": {
+                        "enum": [
+                            "relatedness",
+                            "similarity"
+                        ],
+                        "type": "string"
+                    },
+                    "type": "array"
                 },
                 "name": {
                     "description": "The name of the dataset",
@@ -82,7 +85,7 @@
                 "date",
                 "description",
                 "downloadUrls",
-                "measureType",
+                "measureTypes",
                 "name",
                 "papers",
                 "urls"
@@ -118,11 +121,20 @@
                 "id": {
                     "description": "An identifier for the partition",
                     "type": "string"
+                },
+                "measureType": {
+                    "description": "Which type of measure is used to compare the words",
+                    "enum": [
+                        "relatedness",
+                        "similarity"
+                    ],
+                    "type": "string"
                 }
             },
             "required": [
                 "data",
-                "id"
+                "id",
+                "measureType"
             ],
             "type": "object"
         },

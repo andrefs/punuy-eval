@@ -1,0 +1,2312 @@
+{
+  "id": "ws353gs",
+  "metadata": {
+    "urls": [
+      "http://alfonseca.org/eng/research/wordsim353.html"
+    ],
+    "papers": [
+      {
+        "title": "A Study on Similarity and Relatedness Using Distributional and WordNet-based Approaches",
+        "url": "https://aclanthology.org/N09-1003.pdf"
+      }
+    ],
+    "date": "2009",
+    "description": "Same content as WS353, but partitioned into a similarity subset and a relatedness subset",
+    "downloadUrls": [
+      "http://alfonseca.org/pubs/ws353simrel.tar.gz"
+    ],
+    "measureTypes": [
+      "similarity",
+      "relatedness"
+    ]
+  },
+  "partitions": [
+    {
+      "id": "wordsim_similarity_goldstandard.txt",
+      "measureType": "similarity",
+      "data": [
+        {
+          "word1": "tiger",
+          "word2": "cat",
+          "value": 7.35
+        },
+        {
+          "word1": "tiger",
+          "word2": "tiger",
+          "value": 10.00
+        },
+        {
+          "word1": "plane",
+          "word2": "car",
+          "value": 5.77
+        },
+        {
+          "word1": "train",
+          "word2": "car",
+          "value": 6.31
+        },
+        {
+          "word1": "television",
+          "word2": "radio",
+          "value": 6.77
+        },
+        {
+          "word1": "media",
+          "word2": "radio",
+          "value": 7.42
+        },
+        {
+          "word1": "bread",
+          "word2": "butter",
+          "value": 6.19
+        },
+        {
+          "word1": "cucumber",
+          "word2": "potato",
+          "value": 5.92
+        },
+        {
+          "word1": "doctor",
+          "word2": "nurse",
+          "value": 7.00
+        },
+        {
+          "word1": "professor",
+          "word2": "doctor",
+          "value": 6.62
+        },
+        {
+          "word1": "student",
+          "word2": "professor",
+          "value": 6.81
+        },
+        {
+          "word1": "smart",
+          "word2": "stupid",
+          "value": 5.81
+        },
+        {
+          "word1": "wood",
+          "word2": "forest",
+          "value": 7.73
+        },
+        {
+          "word1": "money",
+          "word2": "cash",
+          "value": 9.15
+        },
+        {
+          "word1": "king",
+          "word2": "queen",
+          "value": 8.58
+        },
+        {
+          "word1": "king",
+          "word2": "rook",
+          "value": 5.92
+        },
+        {
+          "word1": "bishop",
+          "word2": "rabbi",
+          "value": 6.69
+        },
+        {
+          "word1": "fuck",
+          "word2": "sex",
+          "value": 9.44
+        },
+        {
+          "word1": "football",
+          "word2": "soccer",
+          "value": 9.03
+        },
+        {
+          "word1": "football",
+          "word2": "basketball",
+          "value": 6.81
+        },
+        {
+          "word1": "football",
+          "word2": "tennis",
+          "value": 6.63
+        },
+        {
+          "word1": "Arafat",
+          "word2": "Jackson",
+          "value": 2.50
+        },
+        {
+          "word1": "physics",
+          "word2": "chemistry",
+          "value": 7.35
+        },
+        {
+          "word1": "vodka",
+          "word2": "gin",
+          "value": 8.46
+        },
+        {
+          "word1": "vodka",
+          "word2": "brandy",
+          "value": 8.13
+        },
+        {
+          "word1": "drink",
+          "word2": "eat",
+          "value": 6.87
+        },
+        {
+          "word1": "car",
+          "word2": "automobile",
+          "value": 8.94
+        },
+        {
+          "word1": "gem",
+          "word2": "jewel",
+          "value": 8.96
+        },
+        {
+          "word1": "journey",
+          "word2": "voyage",
+          "value": 9.29
+        },
+        {
+          "word1": "boy",
+          "word2": "lad",
+          "value": 8.83
+        },
+        {
+          "word1": "coast",
+          "word2": "shore",
+          "value": 9.10
+        },
+        {
+          "word1": "asylum",
+          "word2": "madhouse",
+          "value": 8.87
+        },
+        {
+          "word1": "magician",
+          "word2": "wizard",
+          "value": 9.02
+        },
+        {
+          "word1": "midday",
+          "word2": "noon",
+          "value": 9.29
+        },
+        {
+          "word1": "furnace",
+          "word2": "stove",
+          "value": 8.79
+        },
+        {
+          "word1": "food",
+          "word2": "fruit",
+          "value": 7.52
+        },
+        {
+          "word1": "bird",
+          "word2": "cock",
+          "value": 7.10
+        },
+        {
+          "word1": "bird",
+          "word2": "crane",
+          "value": 7.38
+        },
+        {
+          "word1": "food",
+          "word2": "rooster",
+          "value": 4.42
+        },
+        {
+          "word1": "money",
+          "word2": "dollar",
+          "value": 8.42
+        },
+        {
+          "word1": "money",
+          "word2": "currency",
+          "value": 9.04
+        },
+        {
+          "word1": "tiger",
+          "word2": "jaguar",
+          "value": 8.00
+        },
+        {
+          "word1": "tiger",
+          "word2": "feline",
+          "value": 8.00
+        },
+        {
+          "word1": "tiger",
+          "word2": "carnivore",
+          "value": 7.08
+        },
+        {
+          "word1": "tiger",
+          "word2": "mammal",
+          "value": 6.85
+        },
+        {
+          "word1": "tiger",
+          "word2": "animal",
+          "value": 7.00
+        },
+        {
+          "word1": "tiger",
+          "word2": "organism",
+          "value": 4.77
+        },
+        {
+          "word1": "tiger",
+          "word2": "fauna",
+          "value": 5.62
+        },
+        {
+          "word1": "psychology",
+          "word2": "psychiatry",
+          "value": 8.08
+        },
+        {
+          "word1": "psychology",
+          "word2": "science",
+          "value": 6.71
+        },
+        {
+          "word1": "psychology",
+          "word2": "discipline",
+          "value": 5.58
+        },
+        {
+          "word1": "planet",
+          "word2": "star",
+          "value": 8.45
+        },
+        {
+          "word1": "planet",
+          "word2": "moon",
+          "value": 8.08
+        },
+        {
+          "word1": "planet",
+          "word2": "sun",
+          "value": 8.02
+        },
+        {
+          "word1": "precedent",
+          "word2": "example",
+          "value": 5.85
+        },
+        {
+          "word1": "precedent",
+          "word2": "antecedent",
+          "value": 6.04
+        },
+        {
+          "word1": "cup",
+          "word2": "tableware",
+          "value": 6.85
+        },
+        {
+          "word1": "cup",
+          "word2": "artifact",
+          "value": 2.92
+        },
+        {
+          "word1": "cup",
+          "word2": "object",
+          "value": 3.69
+        },
+        {
+          "word1": "cup",
+          "word2": "entity",
+          "value": 2.15
+        },
+        {
+          "word1": "jaguar",
+          "word2": "cat",
+          "value": 7.42
+        },
+        {
+          "word1": "jaguar",
+          "word2": "car",
+          "value": 7.27
+        },
+        {
+          "word1": "mile",
+          "word2": "kilometer",
+          "value": 8.66
+        },
+        {
+          "word1": "skin",
+          "word2": "eye",
+          "value": 6.22
+        },
+        {
+          "word1": "Japanese",
+          "word2": "American",
+          "value": 6.50
+        },
+        {
+          "word1": "century",
+          "word2": "year",
+          "value": 7.59
+        },
+        {
+          "word1": "announcement",
+          "word2": "news",
+          "value": 7.56
+        },
+        {
+          "word1": "doctor",
+          "word2": "personnel",
+          "value": 5.00
+        },
+        {
+          "word1": "Harvard",
+          "word2": "Yale",
+          "value": 8.13
+        },
+        {
+          "word1": "hospital",
+          "word2": "infrastructure",
+          "value": 4.63
+        },
+        {
+          "word1": "life",
+          "word2": "death",
+          "value": 7.88
+        },
+        {
+          "word1": "travel",
+          "word2": "activity",
+          "value": 5.00
+        },
+        {
+          "word1": "type",
+          "word2": "kind",
+          "value": 8.97
+        },
+        {
+          "word1": "street",
+          "word2": "place",
+          "value": 6.44
+        },
+        {
+          "word1": "street",
+          "word2": "avenue",
+          "value": 8.88
+        },
+        {
+          "word1": "street",
+          "word2": "block",
+          "value": 6.88
+        },
+        {
+          "word1": "cell",
+          "word2": "phone",
+          "value": 7.81
+        },
+        {
+          "word1": "dividend",
+          "word2": "payment",
+          "value": 7.63
+        },
+        {
+          "word1": "calculation",
+          "word2": "computation",
+          "value": 8.44
+        },
+        {
+          "word1": "profit",
+          "word2": "loss",
+          "value": 7.63
+        },
+        {
+          "word1": "dollar",
+          "word2": "yen",
+          "value": 7.78
+        },
+        {
+          "word1": "dollar",
+          "word2": "buck",
+          "value": 9.22
+        },
+        {
+          "word1": "phone",
+          "word2": "equipment",
+          "value": 7.13
+        },
+        {
+          "word1": "liquid",
+          "word2": "water",
+          "value": 7.89
+        },
+        {
+          "word1": "marathon",
+          "word2": "sprint",
+          "value": 7.47
+        },
+        {
+          "word1": "seafood",
+          "word2": "food",
+          "value": 8.34
+        },
+        {
+          "word1": "seafood",
+          "word2": "lobster",
+          "value": 8.70
+        },
+        {
+          "word1": "lobster",
+          "word2": "food",
+          "value": 7.81
+        },
+        {
+          "word1": "lobster",
+          "word2": "wine",
+          "value": 5.70
+        },
+        {
+          "word1": "championship",
+          "word2": "tournament",
+          "value": 8.36
+        },
+        {
+          "word1": "man",
+          "word2": "woman",
+          "value": 8.30
+        },
+        {
+          "word1": "man",
+          "word2": "governor",
+          "value": 5.25
+        },
+        {
+          "word1": "murder",
+          "word2": "manslaughter",
+          "value": 8.53
+        },
+        {
+          "word1": "opera",
+          "word2": "performance",
+          "value": 6.88
+        },
+        {
+          "word1": "Mexico",
+          "word2": "Brazil",
+          "value": 7.44
+        },
+        {
+          "word1": "glass",
+          "word2": "metal",
+          "value": 5.56
+        },
+        {
+          "word1": "aluminum",
+          "word2": "metal",
+          "value": 7.83
+        },
+        {
+          "word1": "rock",
+          "word2": "jazz",
+          "value": 7.59
+        },
+        {
+          "word1": "museum",
+          "word2": "theater",
+          "value": 7.19
+        },
+        {
+          "word1": "shower",
+          "word2": "thunderstorm",
+          "value": 6.31
+        },
+        {
+          "word1": "monk",
+          "word2": "oracle",
+          "value": 5.00
+        },
+        {
+          "word1": "cup",
+          "word2": "food",
+          "value": 5.00
+        },
+        {
+          "word1": "journal",
+          "word2": "association",
+          "value": 4.97
+        },
+        {
+          "word1": "street",
+          "word2": "children",
+          "value": 4.94
+        },
+        {
+          "word1": "car",
+          "word2": "flight",
+          "value": 4.94
+        },
+        {
+          "word1": "space",
+          "word2": "chemistry",
+          "value": 4.88
+        },
+        {
+          "word1": "situation",
+          "word2": "conclusion",
+          "value": 4.81
+        },
+        {
+          "word1": "word",
+          "word2": "similarity",
+          "value": 4.75
+        },
+        {
+          "word1": "peace",
+          "word2": "plan",
+          "value": 4.75
+        },
+        {
+          "word1": "consumer",
+          "word2": "energy",
+          "value": 4.75
+        },
+        {
+          "word1": "ministry",
+          "word2": "culture",
+          "value": 4.69
+        },
+        {
+          "word1": "smart",
+          "word2": "student",
+          "value": 4.62
+        },
+        {
+          "word1": "investigation",
+          "word2": "effort",
+          "value": 4.59
+        },
+        {
+          "word1": "image",
+          "word2": "surface",
+          "value": 4.56
+        },
+        {
+          "word1": "life",
+          "word2": "term",
+          "value": 4.50
+        },
+        {
+          "word1": "start",
+          "word2": "match",
+          "value": 4.47
+        },
+        {
+          "word1": "computer",
+          "word2": "news",
+          "value": 4.47
+        },
+        {
+          "word1": "board",
+          "word2": "recommendation",
+          "value": 4.47
+        },
+        {
+          "word1": "lad",
+          "word2": "brother",
+          "value": 4.46
+        },
+        {
+          "word1": "observation",
+          "word2": "architecture",
+          "value": 4.38
+        },
+        {
+          "word1": "coast",
+          "word2": "hill",
+          "value": 4.38
+        },
+        {
+          "word1": "deployment",
+          "word2": "departure",
+          "value": 4.25
+        },
+        {
+          "word1": "benchmark",
+          "word2": "index",
+          "value": 4.25
+        },
+        {
+          "word1": "attempt",
+          "word2": "peace",
+          "value": 4.25
+        },
+        {
+          "word1": "consumer",
+          "word2": "confidence",
+          "value": 4.13
+        },
+        {
+          "word1": "start",
+          "word2": "year",
+          "value": 4.06
+        },
+        {
+          "word1": "focus",
+          "word2": "life",
+          "value": 4.06
+        },
+        {
+          "word1": "development",
+          "word2": "issue",
+          "value": 3.97
+        },
+        {
+          "word1": "theater",
+          "word2": "history",
+          "value": 3.91
+        },
+        {
+          "word1": "situation",
+          "word2": "isolation",
+          "value": 3.88
+        },
+        {
+          "word1": "profit",
+          "word2": "warning",
+          "value": 3.88
+        },
+        {
+          "word1": "media",
+          "word2": "trading",
+          "value": 3.88
+        },
+        {
+          "word1": "chance",
+          "word2": "credibility",
+          "value": 3.88
+        },
+        {
+          "word1": "precedent",
+          "word2": "information",
+          "value": 3.85
+        },
+        {
+          "word1": "architecture",
+          "word2": "century",
+          "value": 3.78
+        },
+        {
+          "word1": "population",
+          "word2": "development",
+          "value": 3.75
+        },
+        {
+          "word1": "stock",
+          "word2": "live",
+          "value": 3.73
+        },
+        {
+          "word1": "peace",
+          "word2": "atmosphere",
+          "value": 3.69
+        },
+        {
+          "word1": "morality",
+          "word2": "marriage",
+          "value": 3.69
+        },
+        {
+          "word1": "minority",
+          "word2": "peace",
+          "value": 3.69
+        },
+        {
+          "word1": "atmosphere",
+          "word2": "landscape",
+          "value": 3.69
+        },
+        {
+          "word1": "report",
+          "word2": "gain",
+          "value": 3.63
+        },
+        {
+          "word1": "music",
+          "word2": "project",
+          "value": 3.63
+        },
+        {
+          "word1": "seven",
+          "word2": "series",
+          "value": 3.56
+        },
+        {
+          "word1": "experience",
+          "word2": "music",
+          "value": 3.47
+        },
+        {
+          "word1": "school",
+          "word2": "center",
+          "value": 3.44
+        },
+        {
+          "word1": "five",
+          "word2": "month",
+          "value": 3.38
+        },
+        {
+          "word1": "announcement",
+          "word2": "production",
+          "value": 3.38
+        },
+        {
+          "word1": "morality",
+          "word2": "importance",
+          "value": 3.31
+        },
+        {
+          "word1": "money",
+          "word2": "operation",
+          "value": 3.31
+        },
+        {
+          "word1": "delay",
+          "word2": "news",
+          "value": 3.31
+        },
+        {
+          "word1": "governor",
+          "word2": "interview",
+          "value": 3.25
+        },
+        {
+          "word1": "practice",
+          "word2": "institution",
+          "value": 3.19
+        },
+        {
+          "word1": "century",
+          "word2": "nation",
+          "value": 3.16
+        },
+        {
+          "word1": "coast",
+          "word2": "forest",
+          "value": 3.15
+        },
+        {
+          "word1": "shore",
+          "word2": "woodland",
+          "value": 3.08
+        },
+        {
+          "word1": "drink",
+          "word2": "car",
+          "value": 3.04
+        },
+        {
+          "word1": "president",
+          "word2": "medal",
+          "value": 3.00
+        },
+        {
+          "word1": "prejudice",
+          "word2": "recognition",
+          "value": 3.00
+        },
+        {
+          "word1": "viewer",
+          "word2": "serial",
+          "value": 2.97
+        },
+        {
+          "word1": "peace",
+          "word2": "insurance",
+          "value": 2.94
+        },
+        {
+          "word1": "Mars",
+          "word2": "water",
+          "value": 2.94
+        },
+        {
+          "word1": "media",
+          "word2": "gain",
+          "value": 2.88
+        },
+        {
+          "word1": "precedent",
+          "word2": "cognition",
+          "value": 2.81
+        },
+        {
+          "word1": "announcement",
+          "word2": "effort",
+          "value": 2.75
+        },
+        {
+          "word1": "line",
+          "word2": "insurance",
+          "value": 2.69
+        },
+        {
+          "word1": "crane",
+          "word2": "implement",
+          "value": 2.69
+        },
+        {
+          "word1": "drink",
+          "word2": "mother",
+          "value": 2.65
+        },
+        {
+          "word1": "opera",
+          "word2": "industry",
+          "value": 2.63
+        },
+        {
+          "word1": "volunteer",
+          "word2": "motto",
+          "value": 2.56
+        },
+        {
+          "word1": "listing",
+          "word2": "proximity",
+          "value": 2.56
+        },
+        {
+          "word1": "precedent",
+          "word2": "collection",
+          "value": 2.50
+        },
+        {
+          "word1": "cup",
+          "word2": "article",
+          "value": 2.40
+        },
+        {
+          "word1": "sign",
+          "word2": "recess",
+          "value": 2.38
+        },
+        {
+          "word1": "problem",
+          "word2": "airport",
+          "value": 2.38
+        },
+        {
+          "word1": "reason",
+          "word2": "hypertension",
+          "value": 2.31
+        },
+        {
+          "word1": "direction",
+          "word2": "combination",
+          "value": 2.25
+        },
+        {
+          "word1": "Wednesday",
+          "word2": "news",
+          "value": 2.22
+        },
+        {
+          "word1": "glass",
+          "word2": "magician",
+          "value": 2.08
+        },
+        {
+          "word1": "cemetery",
+          "word2": "woodland",
+          "value": 2.08
+        },
+        {
+          "word1": "possibility",
+          "word2": "girl",
+          "value": 1.94
+        },
+        {
+          "word1": "cup",
+          "word2": "substance",
+          "value": 1.92
+        },
+        {
+          "word1": "forest",
+          "word2": "graveyard",
+          "value": 1.85
+        },
+        {
+          "word1": "stock",
+          "word2": "egg",
+          "value": 1.81
+        },
+        {
+          "word1": "month",
+          "word2": "hotel",
+          "value": 1.81
+        },
+        {
+          "word1": "energy",
+          "word2": "secretary",
+          "value": 1.81
+        },
+        {
+          "word1": "precedent",
+          "word2": "group",
+          "value": 1.77
+        },
+        {
+          "word1": "production",
+          "word2": "hike",
+          "value": 1.75
+        },
+        {
+          "word1": "stock",
+          "word2": "phone",
+          "value": 1.62
+        },
+        {
+          "word1": "holy",
+          "word2": "sex",
+          "value": 1.62
+        },
+        {
+          "word1": "stock",
+          "word2": "CD",
+          "value": 1.31
+        },
+        {
+          "word1": "drink",
+          "word2": "ear",
+          "value": 1.31
+        },
+        {
+          "word1": "delay",
+          "word2": "racism",
+          "value": 1.19
+        },
+        {
+          "word1": "stock",
+          "word2": "life",
+          "value": 0.92
+        },
+        {
+          "word1": "stock",
+          "word2": "jaguar",
+          "value": 0.92
+        },
+        {
+          "word1": "monk",
+          "word2": "slave",
+          "value": 0.92
+        },
+        {
+          "word1": "lad",
+          "word2": "wizard",
+          "value": 0.92
+        },
+        {
+          "word1": "sugar",
+          "word2": "approach",
+          "value": 0.88
+        },
+        {
+          "word1": "rooster",
+          "word2": "voyage",
+          "value": 0.62
+        },
+        {
+          "word1": "noon",
+          "word2": "string",
+          "value": 0.54
+        },
+        {
+          "word1": "chord",
+          "word2": "smile",
+          "value": 0.54
+        },
+        {
+          "word1": "professor",
+          "word2": "cucumber",
+          "value": 0.31
+        },
+        {
+          "word1": "king",
+          "word2": "cabbage",
+          "value": 0.23
+        }
+      ]
+    },
+    {
+      "id": "wordsim_relatedness_goldstandard.txt",
+      "measureType": "relatedness",
+      "data": [
+        {
+          "word1": "computer",
+          "word2": "keyboard",
+          "value": 7.62
+        },
+        {
+          "word1": "Jerusalem",
+          "word2": "Israel",
+          "value": 8.46
+        },
+        {
+          "word1": "planet",
+          "word2": "galaxy",
+          "value": 8.11
+        },
+        {
+          "word1": "canyon",
+          "word2": "landscape",
+          "value": 7.53
+        },
+        {
+          "word1": "OPEC",
+          "word2": "country",
+          "value": 5.63
+        },
+        {
+          "word1": "day",
+          "word2": "summer",
+          "value": 3.94
+        },
+        {
+          "word1": "day",
+          "word2": "dawn",
+          "value": 7.53
+        },
+        {
+          "word1": "country",
+          "word2": "citizen",
+          "value": 7.31
+        },
+        {
+          "word1": "planet",
+          "word2": "people",
+          "value": 5.75
+        },
+        {
+          "word1": "environment",
+          "word2": "ecology",
+          "value": 8.81
+        },
+        {
+          "word1": "Maradona",
+          "word2": "football",
+          "value": 8.62
+        },
+        {
+          "word1": "OPEC",
+          "word2": "oil",
+          "value": 8.59
+        },
+        {
+          "word1": "money",
+          "word2": "bank",
+          "value": 8.50
+        },
+        {
+          "word1": "computer",
+          "word2": "software",
+          "value": 8.50
+        },
+        {
+          "word1": "law",
+          "word2": "lawyer",
+          "value": 8.38
+        },
+        {
+          "word1": "weather",
+          "word2": "forecast",
+          "value": 8.34
+        },
+        {
+          "word1": "network",
+          "word2": "hardware",
+          "value": 8.31
+        },
+        {
+          "word1": "nature",
+          "word2": "environment",
+          "value": 8.31
+        },
+        {
+          "word1": "FBI",
+          "word2": "investigation",
+          "value": 8.31
+        },
+        {
+          "word1": "money",
+          "word2": "wealth",
+          "value": 8.27
+        },
+        {
+          "word1": "psychology",
+          "word2": "Freud",
+          "value": 8.21
+        },
+        {
+          "word1": "news",
+          "word2": "report",
+          "value": 8.16
+        },
+        {
+          "word1": "war",
+          "word2": "troops",
+          "value": 8.13
+        },
+        {
+          "word1": "physics",
+          "word2": "proton",
+          "value": 8.12
+        },
+        {
+          "word1": "bank",
+          "word2": "money",
+          "value": 8.12
+        },
+        {
+          "word1": "stock",
+          "word2": "market",
+          "value": 8.08
+        },
+        {
+          "word1": "planet",
+          "word2": "constellation",
+          "value": 8.06
+        },
+        {
+          "word1": "credit",
+          "word2": "card",
+          "value": 8.06
+        },
+        {
+          "word1": "hotel",
+          "word2": "reservation",
+          "value": 8.03
+        },
+        {
+          "word1": "closet",
+          "word2": "clothes",
+          "value": 8.00
+        },
+        {
+          "word1": "soap",
+          "word2": "opera",
+          "value": 7.94
+        },
+        {
+          "word1": "planet",
+          "word2": "astronomer",
+          "value": 7.94
+        },
+        {
+          "word1": "planet",
+          "word2": "space",
+          "value": 7.92
+        },
+        {
+          "word1": "movie",
+          "word2": "theater",
+          "value": 7.92
+        },
+        {
+          "word1": "treatment",
+          "word2": "recovery",
+          "value": 7.91
+        },
+        {
+          "word1": "baby",
+          "word2": "mother",
+          "value": 7.85
+        },
+        {
+          "word1": "money",
+          "word2": "deposit",
+          "value": 7.73
+        },
+        {
+          "word1": "television",
+          "word2": "film",
+          "value": 7.72
+        },
+        {
+          "word1": "psychology",
+          "word2": "mind",
+          "value": 7.69
+        },
+        {
+          "word1": "game",
+          "word2": "team",
+          "value": 7.69
+        },
+        {
+          "word1": "admission",
+          "word2": "ticket",
+          "value": 7.69
+        },
+        {
+          "word1": "Jerusalem",
+          "word2": "Palestinian",
+          "value": 7.65
+        },
+        {
+          "word1": "Arafat",
+          "word2": "terror",
+          "value": 7.65
+        },
+        {
+          "word1": "boxing",
+          "word2": "round",
+          "value": 7.61
+        },
+        {
+          "word1": "computer",
+          "word2": "internet",
+          "value": 7.58
+        },
+        {
+          "word1": "money",
+          "word2": "property",
+          "value": 7.57
+        },
+        {
+          "word1": "tennis",
+          "word2": "racket",
+          "value": 7.56
+        },
+        {
+          "word1": "telephone",
+          "word2": "communication",
+          "value": 7.50
+        },
+        {
+          "word1": "currency",
+          "word2": "market",
+          "value": 7.50
+        },
+        {
+          "word1": "psychology",
+          "word2": "cognition",
+          "value": 7.48
+        },
+        {
+          "word1": "seafood",
+          "word2": "sea",
+          "value": 7.47
+        },
+        {
+          "word1": "book",
+          "word2": "paper",
+          "value": 7.46
+        },
+        {
+          "word1": "book",
+          "word2": "library",
+          "value": 7.46
+        },
+        {
+          "word1": "psychology",
+          "word2": "depression",
+          "value": 7.42
+        },
+        {
+          "word1": "fighting",
+          "word2": "defeating",
+          "value": 7.41
+        },
+        {
+          "word1": "movie",
+          "word2": "star",
+          "value": 7.38
+        },
+        {
+          "word1": "hundred",
+          "word2": "percent",
+          "value": 7.38
+        },
+        {
+          "word1": "dollar",
+          "word2": "profit",
+          "value": 7.38
+        },
+        {
+          "word1": "money",
+          "word2": "possession",
+          "value": 7.29
+        },
+        {
+          "word1": "cup",
+          "word2": "drink",
+          "value": 7.25
+        },
+        {
+          "word1": "psychology",
+          "word2": "health",
+          "value": 7.23
+        },
+        {
+          "word1": "summer",
+          "word2": "drought",
+          "value": 7.16
+        },
+        {
+          "word1": "investor",
+          "word2": "earning",
+          "value": 7.13
+        },
+        {
+          "word1": "company",
+          "word2": "stock",
+          "value": 7.08
+        },
+        {
+          "word1": "stroke",
+          "word2": "hospital",
+          "value": 7.03
+        },
+        {
+          "word1": "liability",
+          "word2": "insurance",
+          "value": 7.03
+        },
+        {
+          "word1": "game",
+          "word2": "victory",
+          "value": 7.03
+        },
+        {
+          "word1": "psychology",
+          "word2": "anxiety",
+          "value": 7.00
+        },
+        {
+          "word1": "game",
+          "word2": "defeat",
+          "value": 6.97
+        },
+        {
+          "word1": "FBI",
+          "word2": "fingerprint",
+          "value": 6.94
+        },
+        {
+          "word1": "money",
+          "word2": "withdrawal",
+          "value": 6.88
+        },
+        {
+          "word1": "psychology",
+          "word2": "fear",
+          "value": 6.85
+        },
+        {
+          "word1": "drug",
+          "word2": "abuse",
+          "value": 6.85
+        },
+        {
+          "word1": "concert",
+          "word2": "virtuoso",
+          "value": 6.81
+        },
+        {
+          "word1": "computer",
+          "word2": "laboratory",
+          "value": 6.78
+        },
+        {
+          "word1": "love",
+          "word2": "sex",
+          "value": 6.77
+        },
+        {
+          "word1": "problem",
+          "word2": "challenge",
+          "value": 6.75
+        },
+        {
+          "word1": "movie",
+          "word2": "critic",
+          "value": 6.73
+        },
+        {
+          "word1": "Arafat",
+          "word2": "peace",
+          "value": 6.73
+        },
+        {
+          "word1": "bed",
+          "word2": "closet",
+          "value": 6.72
+        },
+        {
+          "word1": "lawyer",
+          "word2": "evidence",
+          "value": 6.69
+        },
+        {
+          "word1": "fertility",
+          "word2": "egg",
+          "value": 6.69
+        },
+        {
+          "word1": "precedent",
+          "word2": "law",
+          "value": 6.65
+        },
+        {
+          "word1": "minister",
+          "word2": "party",
+          "value": 6.63
+        },
+        {
+          "word1": "psychology",
+          "word2": "clinic",
+          "value": 6.58
+        },
+        {
+          "word1": "cup",
+          "word2": "coffee",
+          "value": 6.58
+        },
+        {
+          "word1": "water",
+          "word2": "seepage",
+          "value": 6.56
+        },
+        {
+          "word1": "government",
+          "word2": "crisis",
+          "value": 6.56
+        },
+        {
+          "word1": "space",
+          "word2": "world",
+          "value": 6.53
+        },
+        {
+          "word1": "dividend",
+          "word2": "calculation",
+          "value": 6.48
+        },
+        {
+          "word1": "victim",
+          "word2": "emergency",
+          "value": 6.47
+        },
+        {
+          "word1": "luxury",
+          "word2": "car",
+          "value": 6.47
+        },
+        {
+          "word1": "tool",
+          "word2": "implement",
+          "value": 6.46
+        },
+        {
+          "word1": "competition",
+          "word2": "price",
+          "value": 6.44
+        },
+        {
+          "word1": "psychology",
+          "word2": "doctor",
+          "value": 6.42
+        },
+        {
+          "word1": "gender",
+          "word2": "equality",
+          "value": 6.41
+        },
+        {
+          "word1": "listing",
+          "word2": "category",
+          "value": 6.38
+        },
+        {
+          "word1": "video",
+          "word2": "archive",
+          "value": 6.34
+        },
+        {
+          "word1": "oil",
+          "word2": "stock",
+          "value": 6.34
+        },
+        {
+          "word1": "governor",
+          "word2": "office",
+          "value": 6.34
+        },
+        {
+          "word1": "discovery",
+          "word2": "space",
+          "value": 6.34
+        },
+        {
+          "word1": "record",
+          "word2": "number",
+          "value": 6.31
+        },
+        {
+          "word1": "brother",
+          "word2": "monk",
+          "value": 6.27
+        },
+        {
+          "word1": "production",
+          "word2": "crew",
+          "value": 6.25
+        },
+        {
+          "word1": "nature",
+          "word2": "man",
+          "value": 6.25
+        },
+        {
+          "word1": "family",
+          "word2": "planning",
+          "value": 6.25
+        },
+        {
+          "word1": "disaster",
+          "word2": "area",
+          "value": 6.25
+        },
+        {
+          "word1": "food",
+          "word2": "preparation",
+          "value": 6.22
+        },
+        {
+          "word1": "preservation",
+          "word2": "world",
+          "value": 6.19
+        },
+        {
+          "word1": "movie",
+          "word2": "popcorn",
+          "value": 6.19
+        },
+        {
+          "word1": "lover",
+          "word2": "quarrel",
+          "value": 6.19
+        },
+        {
+          "word1": "game",
+          "word2": "series",
+          "value": 6.19
+        },
+        {
+          "word1": "dollar",
+          "word2": "loss",
+          "value": 6.09
+        },
+        {
+          "word1": "weapon",
+          "word2": "secret",
+          "value": 6.06
+        },
+        {
+          "word1": "shower",
+          "word2": "flood",
+          "value": 6.03
+        },
+        {
+          "word1": "registration",
+          "word2": "arrangement",
+          "value": 6.00
+        },
+        {
+          "word1": "arrival",
+          "word2": "hotel",
+          "value": 6.00
+        },
+        {
+          "word1": "announcement",
+          "word2": "warning",
+          "value": 6.00
+        },
+        {
+          "word1": "game",
+          "word2": "round",
+          "value": 5.97
+        },
+        {
+          "word1": "baseball",
+          "word2": "season",
+          "value": 5.97
+        },
+        {
+          "word1": "drink",
+          "word2": "mouth",
+          "value": 5.96
+        },
+        {
+          "word1": "life",
+          "word2": "lesson",
+          "value": 5.94
+        },
+        {
+          "word1": "grocery",
+          "word2": "money",
+          "value": 5.94
+        },
+        {
+          "word1": "energy",
+          "word2": "crisis",
+          "value": 5.94
+        },
+        {
+          "word1": "reason",
+          "word2": "criterion",
+          "value": 5.91
+        },
+        {
+          "word1": "equipment",
+          "word2": "maker",
+          "value": 5.91
+        },
+        {
+          "word1": "cup",
+          "word2": "liquid",
+          "value": 5.90
+        },
+        {
+          "word1": "deployment",
+          "word2": "withdrawal",
+          "value": 5.88
+        },
+        {
+          "word1": "tiger",
+          "word2": "zoo",
+          "value": 5.87
+        },
+        {
+          "word1": "journey",
+          "word2": "car",
+          "value": 5.85
+        },
+        {
+          "word1": "money",
+          "word2": "laundering",
+          "value": 5.65
+        },
+        {
+          "word1": "summer",
+          "word2": "nature",
+          "value": 5.63
+        },
+        {
+          "word1": "decoration",
+          "word2": "valor",
+          "value": 5.63
+        },
+        {
+          "word1": "Mars",
+          "word2": "scientist",
+          "value": 5.63
+        },
+        {
+          "word1": "alcohol",
+          "word2": "chemistry",
+          "value": 5.54
+        },
+        {
+          "word1": "disability",
+          "word2": "death",
+          "value": 5.47
+        },
+        {
+          "word1": "change",
+          "word2": "attitude",
+          "value": 5.44
+        },
+        {
+          "word1": "arrangement",
+          "word2": "accommodation",
+          "value": 5.41
+        },
+        {
+          "word1": "territory",
+          "word2": "surface",
+          "value": 5.34
+        },
+        {
+          "word1": "size",
+          "word2": "prominence",
+          "value": 5.31
+        },
+        {
+          "word1": "exhibit",
+          "word2": "memorabilia",
+          "value": 5.31
+        },
+        {
+          "word1": "credit",
+          "word2": "information",
+          "value": 5.31
+        },
+        {
+          "word1": "territory",
+          "word2": "kilometer",
+          "value": 5.28
+        },
+        {
+          "word1": "death",
+          "word2": "row",
+          "value": 5.25
+        },
+        {
+          "word1": "doctor",
+          "word2": "liability",
+          "value": 5.19
+        },
+        {
+          "word1": "impartiality",
+          "word2": "interest",
+          "value": 5.16
+        },
+        {
+          "word1": "energy",
+          "word2": "laboratory",
+          "value": 5.09
+        },
+        {
+          "word1": "secretary",
+          "word2": "senate",
+          "value": 5.06
+        },
+        {
+          "word1": "death",
+          "word2": "inmate",
+          "value": 5.03
+        },
+        {
+          "word1": "monk",
+          "word2": "oracle",
+          "value": 5.00
+        },
+        {
+          "word1": "cup",
+          "word2": "food",
+          "value": 5.00
+        },
+        {
+          "word1": "journal",
+          "word2": "association",
+          "value": 4.97
+        },
+        {
+          "word1": "street",
+          "word2": "children",
+          "value": 4.94
+        },
+        {
+          "word1": "car",
+          "word2": "flight",
+          "value": 4.94
+        },
+        {
+          "word1": "space",
+          "word2": "chemistry",
+          "value": 4.88
+        },
+        {
+          "word1": "situation",
+          "word2": "conclusion",
+          "value": 4.81
+        },
+        {
+          "word1": "word",
+          "word2": "similarity",
+          "value": 4.75
+        },
+        {
+          "word1": "peace",
+          "word2": "plan",
+          "value": 4.75
+        },
+        {
+          "word1": "consumer",
+          "word2": "energy",
+          "value": 4.75
+        },
+        {
+          "word1": "ministry",
+          "word2": "culture",
+          "value": 4.69
+        },
+        {
+          "word1": "smart",
+          "word2": "student",
+          "value": 4.62
+        },
+        {
+          "word1": "investigation",
+          "word2": "effort",
+          "value": 4.59
+        },
+        {
+          "word1": "image",
+          "word2": "surface",
+          "value": 4.56
+        },
+        {
+          "word1": "life",
+          "word2": "term",
+          "value": 4.50
+        },
+        {
+          "word1": "start",
+          "word2": "match",
+          "value": 4.47
+        },
+        {
+          "word1": "computer",
+          "word2": "news",
+          "value": 4.47
+        },
+        {
+          "word1": "board",
+          "word2": "recommendation",
+          "value": 4.47
+        },
+        {
+          "word1": "lad",
+          "word2": "brother",
+          "value": 4.46
+        },
+        {
+          "word1": "observation",
+          "word2": "architecture",
+          "value": 4.38
+        },
+        {
+          "word1": "coast",
+          "word2": "hill",
+          "value": 4.38
+        },
+        {
+          "word1": "deployment",
+          "word2": "departure",
+          "value": 4.25
+        },
+        {
+          "word1": "benchmark",
+          "word2": "index",
+          "value": 4.25
+        },
+        {
+          "word1": "attempt",
+          "word2": "peace",
+          "value": 4.25
+        },
+        {
+          "word1": "consumer",
+          "word2": "confidence",
+          "value": 4.13
+        },
+        {
+          "word1": "start",
+          "word2": "year",
+          "value": 4.06
+        },
+        {
+          "word1": "focus",
+          "word2": "life",
+          "value": 4.06
+        },
+        {
+          "word1": "development",
+          "word2": "issue",
+          "value": 3.97
+        },
+        {
+          "word1": "theater",
+          "word2": "history",
+          "value": 3.91
+        },
+        {
+          "word1": "situation",
+          "word2": "isolation",
+          "value": 3.88
+        },
+        {
+          "word1": "profit",
+          "word2": "warning",
+          "value": 3.88
+        },
+        {
+          "word1": "media",
+          "word2": "trading",
+          "value": 3.88
+        },
+        {
+          "word1": "chance",
+          "word2": "credibility",
+          "value": 3.88
+        },
+        {
+          "word1": "precedent",
+          "word2": "information",
+          "value": 3.85
+        },
+        {
+          "word1": "architecture",
+          "word2": "century",
+          "value": 3.78
+        },
+        {
+          "word1": "population",
+          "word2": "development",
+          "value": 3.75
+        },
+        {
+          "word1": "stock",
+          "word2": "live",
+          "value": 3.73
+        },
+        {
+          "word1": "peace",
+          "word2": "atmosphere",
+          "value": 3.69
+        },
+        {
+          "word1": "morality",
+          "word2": "marriage",
+          "value": 3.69
+        },
+        {
+          "word1": "minority",
+          "word2": "peace",
+          "value": 3.69
+        },
+        {
+          "word1": "atmosphere",
+          "word2": "landscape",
+          "value": 3.69
+        },
+        {
+          "word1": "report",
+          "word2": "gain",
+          "value": 3.63
+        },
+        {
+          "word1": "music",
+          "word2": "project",
+          "value": 3.63
+        },
+        {
+          "word1": "seven",
+          "word2": "series",
+          "value": 3.56
+        },
+        {
+          "word1": "experience",
+          "word2": "music",
+          "value": 3.47
+        },
+        {
+          "word1": "school",
+          "word2": "center",
+          "value": 3.44
+        },
+        {
+          "word1": "five",
+          "word2": "month",
+          "value": 3.38
+        },
+        {
+          "word1": "announcement",
+          "word2": "production",
+          "value": 3.38
+        },
+        {
+          "word1": "morality",
+          "word2": "importance",
+          "value": 3.31
+        },
+        {
+          "word1": "money",
+          "word2": "operation",
+          "value": 3.31
+        },
+        {
+          "word1": "delay",
+          "word2": "news",
+          "value": 3.31
+        },
+        {
+          "word1": "governor",
+          "word2": "interview",
+          "value": 3.25
+        },
+        {
+          "word1": "practice",
+          "word2": "institution",
+          "value": 3.19
+        },
+        {
+          "word1": "century",
+          "word2": "nation",
+          "value": 3.16
+        },
+        {
+          "word1": "coast",
+          "word2": "forest",
+          "value": 3.15
+        },
+        {
+          "word1": "shore",
+          "word2": "woodland",
+          "value": 3.08
+        },
+        {
+          "word1": "drink",
+          "word2": "car",
+          "value": 3.04
+        },
+        {
+          "word1": "president",
+          "word2": "medal",
+          "value": 3.00
+        },
+        {
+          "word1": "prejudice",
+          "word2": "recognition",
+          "value": 3.00
+        },
+        {
+          "word1": "viewer",
+          "word2": "serial",
+          "value": 2.97
+        },
+        {
+          "word1": "peace",
+          "word2": "insurance",
+          "value": 2.94
+        },
+        {
+          "word1": "Mars",
+          "word2": "water",
+          "value": 2.94
+        },
+        {
+          "word1": "media",
+          "word2": "gain",
+          "value": 2.88
+        },
+        {
+          "word1": "precedent",
+          "word2": "cognition",
+          "value": 2.81
+        },
+        {
+          "word1": "announcement",
+          "word2": "effort",
+          "value": 2.75
+        },
+        {
+          "word1": "line",
+          "word2": "insurance",
+          "value": 2.69
+        },
+        {
+          "word1": "crane",
+          "word2": "implement",
+          "value": 2.69
+        },
+        {
+          "word1": "drink",
+          "word2": "mother",
+          "value": 2.65
+        },
+        {
+          "word1": "opera",
+          "word2": "industry",
+          "value": 2.63
+        },
+        {
+          "word1": "volunteer",
+          "word2": "motto",
+          "value": 2.56
+        },
+        {
+          "word1": "listing",
+          "word2": "proximity",
+          "value": 2.56
+        },
+        {
+          "word1": "precedent",
+          "word2": "collection",
+          "value": 2.50
+        },
+        {
+          "word1": "cup",
+          "word2": "article",
+          "value": 2.40
+        },
+        {
+          "word1": "sign",
+          "word2": "recess",
+          "value": 2.38
+        },
+        {
+          "word1": "problem",
+          "word2": "airport",
+          "value": 2.38
+        },
+        {
+          "word1": "reason",
+          "word2": "hypertension",
+          "value": 2.31
+        },
+        {
+          "word1": "direction",
+          "word2": "combination",
+          "value": 2.25
+        },
+        {
+          "word1": "Wednesday",
+          "word2": "news",
+          "value": 2.22
+        },
+        {
+          "word1": "glass",
+          "word2": "magician",
+          "value": 2.08
+        },
+        {
+          "word1": "cemetery",
+          "word2": "woodland",
+          "value": 2.08
+        },
+        {
+          "word1": "possibility",
+          "word2": "girl",
+          "value": 1.94
+        },
+        {
+          "word1": "cup",
+          "word2": "substance",
+          "value": 1.92
+        },
+        {
+          "word1": "forest",
+          "word2": "graveyard",
+          "value": 1.85
+        },
+        {
+          "word1": "stock",
+          "word2": "egg",
+          "value": 1.81
+        },
+        {
+          "word1": "month",
+          "word2": "hotel",
+          "value": 1.81
+        },
+        {
+          "word1": "energy",
+          "word2": "secretary",
+          "value": 1.81
+        },
+        {
+          "word1": "precedent",
+          "word2": "group",
+          "value": 1.77
+        },
+        {
+          "word1": "production",
+          "word2": "hike",
+          "value": 1.75
+        },
+        {
+          "word1": "stock",
+          "word2": "phone",
+          "value": 1.62
+        },
+        {
+          "word1": "holy",
+          "word2": "sex",
+          "value": 1.62
+        },
+        {
+          "word1": "stock",
+          "word2": "CD",
+          "value": 1.31
+        },
+        {
+          "word1": "drink",
+          "word2": "ear",
+          "value": 1.31
+        },
+        {
+          "word1": "delay",
+          "word2": "racism",
+          "value": 1.19
+        },
+        {
+          "word1": "stock",
+          "word2": "life",
+          "value": 0.92
+        },
+        {
+          "word1": "stock",
+          "word2": "jaguar",
+          "value": 0.92
+        },
+        {
+          "word1": "monk",
+          "word2": "slave",
+          "value": 0.92
+        },
+        {
+          "word1": "lad",
+          "word2": "wizard",
+          "value": 0.92
+        },
+        {
+          "word1": "sugar",
+          "word2": "approach",
+          "value": 0.88
+        },
+        {
+          "word1": "rooster",
+          "word2": "voyage",
+          "value": 0.62
+        },
+        {
+          "word1": "noon",
+          "word2": "string",
+          "value": 0.54
+        },
+        {
+          "word1": "chord",
+          "word2": "smile",
+          "value": 0.54
+        },
+        {
+          "word1": "professor",
+          "word2": "cucumber",
+          "value": 0.31
+        },
+        {
+          "word1": "king",
+          "word2": "cabbage",
+          "value": 0.23
+        }
+      ]
+    }
+  ]
+}
