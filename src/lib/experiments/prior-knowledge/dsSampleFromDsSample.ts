@@ -10,7 +10,7 @@ const genPrompt = (ds: DatasetProfile) => {
   const numberOfPairs = ds.partitions.reduce((acc, p) => acc + p.data.length, 0);
   const measureTypes = ds.metadata.measureTypes.join(' and ');
   return `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
-    `I will give you the first 10 pairs in the dataset. Please list 5 pairs of concepts belonging to the same dataset and not included in my list.\n` +
+    `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included in my list.\n` +
     ds.partitions[0].data.slice(0, 10).map(({ word1, word2 }) => `${word1} ${word2}`).join('\n');
 }
 const resultSchema = {

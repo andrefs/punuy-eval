@@ -7,6 +7,9 @@ export { dsPaperFromDsName };
 import dsSampleFromDsSample from "./prior-knowledge/dsSampleFromDsSample";
 export { dsSampleFromDsSample };
 
+import dsNameFromDsSample from "./prior-knowledge/dsNameFromDsSample";
+export { dsNameFromDsSample };
+
 export * from "./experiment";
 
 

@@ -1,6 +1,7 @@
 {
   "id": "ws353",
   "metadata": {
+    "name": "WordSimilarity-353",
     "urls": [
       "https://www.cs.technion.ac.il/~gabr/resources/data/wordsim353/",
       "https://gabrilovich.com/resources/data/wordsim353/wordsim353.html"
@@ -17,13 +18,13 @@
       "https://gabrilovich.com/resources/data/wordsim353/wordsim353.zip"
     ],
     "measureTypes": [
-      "similarity",
-      "relatedness"
+      "similarity"
     ]
   },
   "partitions": [
     {
       "id": "set1",
+      "measureType": "similarity",
       "data": [
         {
           "word1": "love",
@@ -3089,6 +3090,7 @@
     },
     {
       "id": "set2",
+      "measureType": "similarity",
       "data": [
         {
           "word1": "energy",
