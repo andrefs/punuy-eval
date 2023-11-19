@@ -12,6 +12,11 @@ interface DatasetScores {
   }
 }
 
+interface ModelsResults {
+  gpt35turbo: string;
+  gpt4: string;
+  gpt4turbo: string;
+}
 
 
 const loadDatasetScores = async () => {
@@ -64,7 +69,7 @@ const loadDatasetScores = async () => {
   return pairs;
 }
 
-const getPairs = async (scores: DatasetScores) => {
+const getPairs = (scores: DatasetScores) => {
   const pairs: [string, string][] = [];
 
   for (const word1 in scores) {
@@ -79,37 +84,10 @@ const getPairs = async (scores: DatasetScores) => {
 
 const name = 'compare-mc30';
 const description = 'Compare the scores of multiple AI models with the scores from multiple human annotations of the MC30 pair set.';
-const genPrompt = () =>
-  'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Decimals are ok.\n\n' +
-  'car automobile\n' +
-  'gem jewel\n' +
-  'journey voyage\n' +
-  'journey car\n' +
-  'boy lad\n' +
-  'coast shore\n' +
-  'coast hill\n' +
-  'coast forest\n' +
-  'asylum madhouse\n' +
-  'magician wizard\n' +
-  'midday noon\n' +
-  'furnace stove\n' +
-  'food fruit\n' +
-  'food rooster\n' +
-  'bird cock\n' +
-  'bird crane\n' +
-  'tool implement\n' +
-  'brother monk\n' +
-  'lad brother\n' +
-  'lad wizard\n' +
-  'crane implement\n' +
-  'monk oracle\n' +
-  'monk slave\n' +
-  'cemetery woodland\n' +
-  'forest graveyard\n' +
-  'shore woodland\n' +
-  'glass magician\n' +
-  'rooster voyage\n' +
-  'noon string\n';
+const genPrompt = (pairs: string[][]) =>
+  'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar".You can use decimals.\n\n' +
+  pairs.map(([w1, w2]) => `${w1} ${w2}`).join('\n');
+
 
 
 // TODO fix when OpenAI supports items with tuple definition in JSON schema
@@ -130,31 +108,45 @@ const resultSchema = {
   }
 }
 
-async function run(model: Model) {
+async function run() {
+  const scores = await loadDatasetScores();
+  const pairs = getPairs(scores);
+
   const f = {
     name: 'evaluate_scores',
     description: 'Evaluate the word similarity scores.',
     parameters: resultSchema
   };
 
-  const prompt = genPrompt();
-  console.warn(`Running experiment ${name} on model (${model.modelId}).`);
+  const models = [gpt35turbo, gpt4, gpt4turbo];
+
+  const prompt = genPrompt(pairs);
+  console.warn(`Running experiment ${name} on models ${models.map(m => m.modelId).join(", ")}.`);
   console.warn(`Prompt: ${prompt}`);
-  const result = await model.makeRequest(prompt, { function: f });
-  if (result.type === 'openai') {
-    return result.data.choices[0].message.tool_calls?.[0].function.arguments || '';
+
+
+  const gpt35turbo_res = await gpt35turbo.makeRequest(prompt, { function: f });
+  const gpt4_res = await gpt4.makeRequest(prompt, { function: f });
+  const gpt4turbo_res = await gpt4turbo.makeRequest(prompt, { function: f });
+
+  return {
+    gpt35turbo: gpt35turbo_res.data.choices[0].message.tool_calls?.[0].function.arguments || '',
+    gpt4: gpt4_res.data.choices[0].message.tool_calls?.[0].function.arguments || '',
+    gpt4turbo: gpt4turbo_res.data.choices[0].message.tool_calls?.[0].function.arguments || '',
   }
-  return '';
+
 }
 
-async function validate(data: string) {
-  if (!data.trim()) { return new NoData(); }
+async function validate(res: ModelsResults, humanScores: DatasetScores) {
   try {
-    const got = JSON.parse(data);
+    const gpt35turbo = JSON.parse(res.gpt35turbo);
+    const gpt4 = JSON.parse(res.gpt4);
+    const gpt4turbo = JSON.parse(res.gpt4turbo);
 
-    return new DataCorrect(got);
+
+
   } catch (e) {
-    return new JsonSyntaxError(data);
+    return new JsonSyntaxError(res);
   }
 }
 
