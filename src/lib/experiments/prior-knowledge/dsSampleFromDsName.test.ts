@@ -131,8 +131,16 @@ describe('dsSampleFromDsName', () => {
       expect(result.type).toEqual('data-partially-incorrect');
     });
 
+    test('should return JsonSyntaxError if data is not valid JSON', async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.validate(ds, 'not valid json');
+      expect(result.type).toEqual('json-syntax-error');
+    });
+
 
 
   });
+
 });
 
