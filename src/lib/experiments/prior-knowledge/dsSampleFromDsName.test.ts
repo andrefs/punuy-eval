@@ -97,6 +97,42 @@ describe('dsSampleFromDsName', () => {
       expect(model.makeRequest).toHaveBeenCalled();
       expect(result).toEqual('');
     });
+
+  });
+
+  describe('validate', () => {
+    test('should return NoData if data is empty', async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.validate(ds, '');
+      expect(result.type).toEqual('no-data');
+    });
+
+    test('should return DataIncorrect if data is incorrect', async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.validate(ds, JSON.stringify({
+        pairs: [
+          ['test', 'test2'],
+        ]
+      }));
+      expect(result.type).toEqual('data-incorrect');
+    });
+
+    test('should return DataPartiallyIncorrect if data is partially incorrect', async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.validate(ds, JSON.stringify({
+        pairs: [
+          ['test', 'test2'],
+          ['test', 'test'],
+        ]
+      }));
+      expect(result.type).toEqual('data-partially-incorrect');
+    });
+
+
+
   });
 });
 
