@@ -1,7 +1,0 @@
-#!/bin/sh
-
-typescript-json-schema \
-  --required \
-  --id 'https://andrefs.com/schemas/2023/SemMeasures' \
-  -o schema.json \
-  src/lib/types.ts "*"

@@ -1,4 +1,7 @@
-import loadDataset from "../load-dataset";
+import mc30 from 'grillo-datasets/mc30';
+import rg65 from 'grillo-datasets/rg65';
+import ws353 from 'grillo-datasets/ws353';
+
 import { Model, gpt35turbo, gpt4, gpt4turbo } from '../models'
 import { DatasetProfile } from "../types";
 import { DataCorrect, JsonSyntaxError, NoData } from "../validation";
@@ -20,10 +23,6 @@ interface ModelsResults {
 
 
 const loadDatasetScores = async () => {
-  const mc30 = await loadDataset('mc30');
-  const rg65 = await loadDataset('rg65');
-  const ws353 = await loadDataset('ws353');
-
   const pairs: DatasetScores = {};
 
   for (const part of mc30.partitions) {
