@@ -28,6 +28,7 @@ class Experiment {
       const prompt = this.genPrompt(ds);
       console.warn(`Running experiment ${this.name} on model (${model.modelId}).`);
       console.warn(`Prompt: ${prompt}`);
+
       const res = await run(prompt, this.schema, ds, model);
       if (res.type === 'openai') {
         return res.data.choices[0].message.tool_calls?.[0].function.arguments || '';
