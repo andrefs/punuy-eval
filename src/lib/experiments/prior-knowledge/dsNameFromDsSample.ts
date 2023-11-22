@@ -1,7 +1,7 @@
-import Experiment, { ExperimentResult } from "../experiment";
+import Experiment, { ExperimentResult, TrialResult } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
-import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError, NoData } from "../../validation";
+import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError, NoData, ValidationResult, ValidationType, combineValidations } from "../../validation";
 
 
 const name = 'ds-name-from-ds-sample';
@@ -40,18 +40,24 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 }
 
 
-async function validate(ds: DatasetProfile, data: string) {
-  if (!data.trim()) { return new NoData(); }
-  try {
-    const got = JSON.parse(data);
+async function validate(ds: DatasetProfile, data: string[]) {
+  const validations = data.map(d => {
+    if (!d.trim()) { return new NoData(); }
+    try {
+      const got = JSON.parse(d);
 
-    console.log('XXXXXXXXXXXXXXX', JSON.stringify(got, null, 2));
-    return new DataCorrect(got);
-  } catch (e) {
-    return new JsonSyntaxError(data);
-  }
+      console.log('XXXXXXXXXXXXXXX', JSON.stringify(got, null, 2));
+      return new DataCorrect(got);
+    } catch (e) {
+      return new JsonSyntaxError(d);
+    }
+  });
 
+  return combineValidations(validations);
 }
+
+
+
 
 export default new Experiment(
   name,

@@ -1,9 +1,13 @@
+import { ExperimentResult } from "../experiments";
+
+export type ValidationType = 'json-syntax-error' | 'json-schema-error' | 'data-incomplete' | 'data-partially-incorrect' | 'data-incorrect' | 'no-data' | 'data-correct';
+
 export class ValidationResult {
-  type: string;
+  type: ValidationType;
   ok: boolean;
   data?: any;
 
-  constructor(type: string, ok: boolean, data?: any) {
+  constructor(type: ValidationType, ok: boolean, data?: any) {
     this.type = type;
     this.ok = ok;
     if (data) {
@@ -63,3 +67,20 @@ export class DataCorrect extends ValidationResult {
 }
 
 
+export async function combineValidations(vs: ValidationResult[]): Promise<ExperimentResult> {
+  let sum = 0;
+  const resultTypes = {} as { [key in ValidationType]: number };
+
+  for (const v of vs) {
+    resultTypes[v.type] = resultTypes[v.type] || 0;
+    resultTypes[v.type]++;
+    if (v.type === 'data-correct') {
+      sum += 1;
+    }
+    if ('percentage' in v && typeof v.percentage === 'number') {
+      sum += v.percentage;
+    }
+  }
+
+  return { avg: sum / vs.length, resultTypes };
+}

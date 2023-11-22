@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "typecheck": "tsc -b tsconfig.json",
+    "typecheck:watch": "tsc -b tsconfig.json --watch",
     "test": "jest"
   },
   "author": "André Santos",
@@ -15,10 +17,12 @@
     "fastest-levenshtein": "1.0.16",
     "grillo-datasets": "file:../grillo-datasets",
     "openai": "4.19.0",
+    "pino": "8.16.2",
     "ts-node": "10.9.1"
   },
   "devDependencies": {
     "@types/jest": "29.5.9",
+    "pino-pretty": "10.2.3",
     "ts-jest": "29.1.1"
   }
 }

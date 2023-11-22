@@ -74,7 +74,7 @@ describe('dsSampleFromDsName', () => {
 
       const model = createMockModel('this is the result');
 
-      await dsSampleFromDsName.run(ds, model);
+      await dsSampleFromDsName.runTrials(ds, model);
       expect(model.makeRequest).toHaveBeenCalled();
     });
 
@@ -83,7 +83,7 @@ describe('dsSampleFromDsName', () => {
 
       const model = createMockModel('this is the result');
 
-      const result = await dsSampleFromDsName.run(ds, model);
+      const result = await dsSampleFromDsName.runTrials(ds, model);
       expect(result).toEqual('this is the result');
     });
 
@@ -93,7 +93,7 @@ describe('dsSampleFromDsName', () => {
 
       const model = createMockModel('');
 
-      const result = await dsSampleFromDsName.run(ds, model);
+      const result = await dsSampleFromDsName.runTrials(ds, model);
       expect(model.makeRequest).toHaveBeenCalled();
       expect(result).toEqual('');
     });

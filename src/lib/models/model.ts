@@ -1,13 +1,13 @@
 import { OpenAIModelParams } from "./openai";
-import { ExperimentResult } from "../experiments";
+import { TrialResult } from "../experiments";
 
 export class Model {
   modelId: string;
-  makeRequest: (prompt: string, params: ModelParams) => Promise<ExperimentResult>;
+  makeRequest: (prompt: string, params: ModelParams) => Promise<TrialResult>;
 
   constructor(
     modelId: string,
-    makeRequest: (prompt: string, params: ModelParams) => Promise<ExperimentResult>
+    makeRequest: (prompt: string, params: ModelParams) => Promise<TrialResult>
   ) {
     this.modelId = modelId;
     this.makeRequest = makeRequest;

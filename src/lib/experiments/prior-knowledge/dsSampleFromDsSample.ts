@@ -1,4 +1,4 @@
-import Experiment, { ExperimentResult } from "../experiment";
+import Experiment, { TrialResult } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
 import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError, NoData } from "../../validation";
