@@ -12,7 +12,7 @@ class Experiment {
   schema: any; // TODO
   runTrials: (this: Experiment, trials: number, ds: DatasetProfile, model: Model) => Promise<string[]>;
   validateTrial: (ds: DatasetProfile, data: string) => Promise<ValidationResult>;
-  validate: (ds: DatasetProfile, vals: ValidationResult[]) => Promise<AggregatedValidationResult>;
+  validate: (ds: DatasetProfile, data: string[]) => Promise<{ trialResults: ValidationResult[], combinedResult: AggregatedValidationResult }>;
   perform: (this: Experiment, trials: number, ds: DatasetProfile, model: Model) => Promise<ExperimentData>;
 
   constructor(
@@ -40,13 +40,13 @@ class Experiment {
       return results;
     }
     this.validateTrial = validateTrial;
-    this.validate = async function(this: Experiment, ds: DatasetProfile, validations: ValidationResult[]) {
-      return combineValidations(validations);
+    this.validate = async function(this: Experiment, ds: DatasetProfile, data: string[]) {
+      const trialResults = await Promise.all(data.map((d) => this.validateTrial(ds, d)));
+      return { trialResults, combinedResult: await combineValidations(trialResults) };
     };
     this.perform = async function(this: Experiment, trials: number, ds: DatasetProfile, model: Model): Promise<ExperimentData> {
       const results = await this.runTrials(trials, ds, model);
-      const validations = await Promise.all(results.map((res) => this.validateTrial(ds, res)));
-      const avr = await this.validate(ds, validations);
+      const { trialResults, combinedResult } = await this.validate(ds, results);
 
       return {
         timestamp: Date.now(),
@@ -54,8 +54,8 @@ class Experiment {
         schema: this.schema,
         dsId: ds.id,
         modelId: model.modelId,
-        trials: validations,
-        result: avr,
+        trialResults,
+        combinedResult
       }
     }
   }
@@ -67,8 +67,8 @@ export interface ExperimentData {
   schema: any;
   dsId: string;
   modelId: string;
-  trials: ValidationResult[],
-  result: AggregatedValidationResult,
+  trialResults: ValidationResult[],
+  combinedResult: AggregatedValidationResult,
 }
 
 export interface AggregatedValidationResult {

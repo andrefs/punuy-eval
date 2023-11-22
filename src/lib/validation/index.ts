@@ -57,7 +57,7 @@ export class DataIncorrect extends ValidationResult {
 
 export class NoData extends ValidationResult {
   constructor() {
-    super('no-data', false);
+    super('no-data', false, '');
   }
 }
 
