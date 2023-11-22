@@ -1,15 +1,17 @@
-import { ExperimentResult } from "../experiments";
+import { AggregatedValidationResult } from "../experiments";
 
 export type ValidationType = 'json-syntax-error' | 'json-schema-error' | 'data-incomplete' | 'data-partially-incorrect' | 'data-incorrect' | 'no-data' | 'data-correct';
 
 export class ValidationResult {
   type: ValidationType;
   ok: boolean;
+  rawData: string;
   data?: any;
 
-  constructor(type: ValidationType, ok: boolean, data?: any) {
+  constructor(type: ValidationType, ok: boolean, rawdata: string, data?: any) {
     this.type = type;
     this.ok = ok;
+    this.rawData = rawdata;
     if (data) {
       this.data = data;
     }
@@ -67,7 +69,7 @@ export class DataCorrect extends ValidationResult {
 }
 
 
-export async function combineValidations(vs: ValidationResult[]): Promise<ExperimentResult> {
+export async function combineValidations(vs: ValidationResult[]): Promise<AggregatedValidationResult> {
   let sum = 0;
   const resultTypes = {} as { [key in ValidationType]: number };
 

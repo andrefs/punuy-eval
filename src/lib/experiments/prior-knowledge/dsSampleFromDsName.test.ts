@@ -103,47 +103,47 @@ describe('dsSampleFromDsName', () => {
 
   });
 
-  describe('validate', () => {
+  describe('validateTrial', () => {
     test('should return NoData if data is empty', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds, ['']);
+      const result = await dsSampleFromDsName.validateTrial(ds, '');
       expect(result.type).toEqual('no-data');
     });
 
     test('should return DataIncorrect if data is incorrect', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds,
-        [
-          JSON.stringify({
-            pairs: [
-              ['test', 'test2'],
-            ]
-          })
-        ]);
+      const result = await dsSampleFromDsName.validateTrial(ds,
+
+        JSON.stringify({
+          pairs: [
+            ['test', 'test2'],
+          ]
+        })
+      );
       expect(result.type).toEqual('data-incorrect');
     });
 
     test('should return DataPartiallyIncorrect if data is partially incorrect', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds,
-        [
-          JSON.stringify({
-            pairs: [
-              ['test', 'test2'],
-              ['test', 'test'],
-            ]
-          })
-        ]);
+      const result = await dsSampleFromDsName.validateTrial(ds,
+
+        JSON.stringify({
+          pairs: [
+            ['test', 'test2'],
+            ['test', 'test'],
+          ]
+        })
+      );
       expect(result.type).toEqual('data-partially-incorrect');
     });
 
     test('should return JsonSyntaxError if data is not valid JSON', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds, ['not valid json']);
+      const result = await dsSampleFromDsName.validateTrial(ds, 'not valid json');
       expect(result.type).toEqual('json-syntax-error');
     });
   });

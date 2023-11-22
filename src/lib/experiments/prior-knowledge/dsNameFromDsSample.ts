@@ -1,4 +1,4 @@
-import Experiment, { ExperimentResult, TrialResult } from "../experiment";
+import Experiment from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
 import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError, NoData, ValidationResult, ValidationType, combineValidations } from "../../validation";
@@ -40,20 +40,16 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 }
 
 
-async function validate(ds: DatasetProfile, data: string[]) {
-  const validations = data.map(d => {
-    if (!d.trim()) { return new NoData(); }
-    try {
-      const got = JSON.parse(d);
+async function validateTrial(ds: DatasetProfile, data: string) {
+  if (!data.trim()) { return new NoData(); }
+  try {
+    const got = JSON.parse(data);
 
-      console.log('XXXXXXXXXXXXXXX', JSON.stringify(got, null, 2));
-      return new DataCorrect(got);
-    } catch (e) {
-      return new JsonSyntaxError(d);
-    }
-  });
-
-  return combineValidations(validations);
+    console.log('XXXXXXXXXXXXXXX', JSON.stringify(got, null, 2));
+    return new DataCorrect(got);
+  } catch (e) {
+    return new JsonSyntaxError(data);
+  }
 }
 
 
@@ -65,7 +61,7 @@ export default new Experiment(
   genPrompt,
   resultSchema,
   run,
-  validate
+  validateTrial
 );
 
 

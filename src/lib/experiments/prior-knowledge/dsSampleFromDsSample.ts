@@ -40,7 +40,7 @@ async function run(prompt: string, schema: any, _: DatasetProfile, model: Model)
 }
 
 
-async function validate(ds: DatasetProfile, data: string) {
+async function validateTrial(ds: DatasetProfile, data: string) {
   if (!data.trim()) { return new NoData(); }
   try {
     const got = JSON.parse(data);
@@ -93,7 +93,7 @@ export default new Experiment(
   genPrompt,
   resultSchema,
   run,
-  validate
+  validateTrial
 );
 
 

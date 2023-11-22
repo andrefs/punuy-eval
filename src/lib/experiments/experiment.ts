@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { Model } from "../models";
 import { DatasetProfile } from "../types";
-import { ValidationResult, ValidationType } from "../validation";
+import { ValidationResult, ValidationType, combineValidations } from "../validation";
 import logger from "../logger";
 
 
@@ -11,8 +11,9 @@ class Experiment {
   genPrompt: (ds: DatasetProfile) => string;
   schema: any; // TODO
   runTrials: (this: Experiment, trials: number, ds: DatasetProfile, model: Model) => Promise<string[]>;
-  validate: (ds: DatasetProfile, data: string[]) => Promise<ValidationResult>;
-  perform: (this: Experiment, trials: number, ds: DatasetProfile, model: Model) => Promise<ValidationResult>;
+  validateTrial: (ds: DatasetProfile, data: string) => Promise<ValidationResult>;
+  validate: (ds: DatasetProfile, vals: ValidationResult[]) => Promise<AggregatedValidationResult>;
+  perform: (this: Experiment, trials: number, ds: DatasetProfile, model: Model) => Promise<ExperimentData>;
 
   constructor(
     name: string,
@@ -20,7 +21,7 @@ class Experiment {
     genPrompt: (ds: DatasetProfile) => string,
     schema: any,
     runTrial: (prompt: string, schema: any, ds: DatasetProfile, model: Model) => Promise<TrialResult>,
-    validate: (ds: DatasetProfile, data: string[]) => Promise<ValidationResult>,
+    validateTrial: (ds: DatasetProfile, data: string) => Promise<ValidationResult>,
   ) {
     this.name = name;
     this.description = description;
@@ -38,29 +39,39 @@ class Experiment {
       }
       return results;
     }
-    this.validate = validate;
-    this.perform = async function(this: Experiment, trials: number, ds: DatasetProfile, model: Model) {
+    this.validateTrial = validateTrial;
+    this.validate = async function(this: Experiment, ds: DatasetProfile, validations: ValidationResult[]) {
+      return combineValidations(validations);
+    };
+    this.perform = async function(this: Experiment, trials: number, ds: DatasetProfile, model: Model): Promise<ExperimentData> {
       const results = await this.runTrials(trials, ds, model);
-      return this.validate(ds, results);
+      const validations = await Promise.all(results.map((res) => this.validateTrial(ds, res)));
+      const avr = await this.validate(ds, validations);
+
+      return {
+        timestamp: Date.now(),
+        prompt: this.genPrompt(ds),
+        schema: this.schema,
+        dsId: ds.id,
+        modelId: model.modelId,
+        trials: validations,
+        result: avr,
+      }
     }
   }
 }
 
 export interface ExperimentData {
   timestamp: number;
-  prompt: string;
+  prompt: string
   schema: any;
   dsId: string;
   modelId: string;
-  trials: [
-    rawData: string,
-    data: any,
-    result: TrialResult
-  ],
-  result: ValidationResult,
+  trials: ValidationResult[],
+  result: AggregatedValidationResult,
 }
 
-export interface ValidationResult {
+export interface AggregatedValidationResult {
   avg: number;
   resultTypes: {
     [key in ValidationType]: number;
