@@ -74,8 +74,8 @@ describe('dsSampleFromDsName', () => {
 
       const model = createMockModel('this is the result');
 
-      await dsSampleFromDsName.runTrials(ds, model);
-      expect(model.makeRequest).toHaveBeenCalled();
+      await dsSampleFromDsName.runTrials(2, ds, model);
+      expect(model.makeRequest).toHaveBeenCalledTimes(2);
     });
 
     test('should return model.makeRequest result', async () => {
@@ -83,8 +83,10 @@ describe('dsSampleFromDsName', () => {
 
       const model = createMockModel('this is the result');
 
-      const result = await dsSampleFromDsName.runTrials(ds, model);
-      expect(result).toEqual('this is the result');
+      const result = await dsSampleFromDsName.runTrials(2, ds, model);
+      expect(result.length).toEqual(2);
+      expect(result[0]).toEqual('this is the result');
+      expect(result[1]).toEqual('this is the result');
     });
 
 
@@ -93,9 +95,10 @@ describe('dsSampleFromDsName', () => {
 
       const model = createMockModel('');
 
-      const result = await dsSampleFromDsName.runTrials(ds, model);
+      const result = await dsSampleFromDsName.runTrials(1, ds, model);
       expect(model.makeRequest).toHaveBeenCalled();
-      expect(result).toEqual('');
+      expect(result.length).toEqual(1);
+      expect(result[0]).toEqual('');
     });
 
   });
@@ -104,43 +107,45 @@ describe('dsSampleFromDsName', () => {
     test('should return NoData if data is empty', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds, '');
+      const result = await dsSampleFromDsName.validate(ds, ['']);
       expect(result.type).toEqual('no-data');
     });
 
     test('should return DataIncorrect if data is incorrect', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds, JSON.stringify({
-        pairs: [
-          ['test', 'test2'],
-        ]
-      }));
+      const result = await dsSampleFromDsName.validate(ds,
+        [
+          JSON.stringify({
+            pairs: [
+              ['test', 'test2'],
+            ]
+          })
+        ]);
       expect(result.type).toEqual('data-incorrect');
     });
 
     test('should return DataPartiallyIncorrect if data is partially incorrect', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds, JSON.stringify({
-        pairs: [
-          ['test', 'test2'],
-          ['test', 'test'],
-        ]
-      }));
+      const result = await dsSampleFromDsName.validate(ds,
+        [
+          JSON.stringify({
+            pairs: [
+              ['test', 'test2'],
+              ['test', 'test'],
+            ]
+          })
+        ]);
       expect(result.type).toEqual('data-partially-incorrect');
     });
 
     test('should return JsonSyntaxError if data is not valid JSON', async () => {
       const ds: DatasetProfile = createMockDataset();
 
-      const result = await dsSampleFromDsName.validate(ds, 'not valid json');
+      const result = await dsSampleFromDsName.validate(ds, ['not valid json']);
       expect(result.type).toEqual('json-syntax-error');
     });
-
-
-
   });
-
 });
 
