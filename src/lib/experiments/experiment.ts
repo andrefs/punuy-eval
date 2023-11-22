@@ -29,7 +29,7 @@ class Experiment {
     this.schema = schema;
     this.runTrials = async function(this: Experiment, trials: number, ds: DatasetProfile, model: Model) {
       const prompt = this.genPrompt(ds);
-      logger.info(`Running experiment ${this.name} on model (${model.modelId}).`);
+      logger.info(`Running experiment ${this.name} ${trials} times on model (${model.modelId}).`);
       logger.debug(`Prompt: ${prompt}`);
 
       const results = [];

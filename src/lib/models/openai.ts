@@ -1,5 +1,9 @@
 import OpenAI from "openai";
 import { Model } from "./model";
+import logger from "../logger";
+import 'dotenv/config';
+
+
 
 const configuration = {
   apiKey: process.env.OPENAI_API_KEY,
@@ -11,7 +15,9 @@ export interface OpenAIModelParams {
 }
 
 if (!configuration.apiKey) {
-  console.error("OpenAI API key not configured, please follow instructions in README.md");
+  logger.error("OpenAI API key not configured, please follow instructions in README.md");
+} else {
+  logger.info("OpenAI API key loaded from environment variable");
 }
 const openai = new OpenAI(configuration);
 

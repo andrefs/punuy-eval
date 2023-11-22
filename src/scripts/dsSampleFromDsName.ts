@@ -7,29 +7,17 @@ const sampleFromName = async (ds: DatasetProfile) => {
 
   console.log('\n\n\nStarting')
 
-  console.log('GPT-3.5 Turbo 1106');
-  const gpt35turbo_res = await dsSampleFromDsName.runTrials(1, ds, gpt35turbo);
-  let res = await dsSampleFromDsName.validate(ds, gpt35turbo_res);
-  console.log(res.ok ? res.type : JSON.stringify(res, null, 2));
-  console.log('');
+  const gpt35turbo_res = await dsSampleFromDsName.perform(10, ds, gpt35turbo);
+  const gpt4_res = await dsSampleFromDsName.perform(10, ds, gpt4);
+  const gpt4turbo_res = await dsSampleFromDsName.perform(10, ds, gpt4turbo);
 
-  console.log('GPT-4 0613');
-  const gpt4_res = await dsSampleFromDsName.runTrials(1, ds, gpt4);
-  //console.log('XXXXXXXXXXXXXXx', JSON.stringify(gpt4_res, null, 2));
-  res = await dsSampleFromDsName.validate(ds, gpt4_res);
-  console.log(res.ok ? res.type : JSON.stringify(res, null, 2));
-  console.log('');
-
-  console.log('GPT-4 1106 Preview');
-  const gpt4turbo_res = await dsSampleFromDsName.runTrials(1, ds, gpt4turbo);
-  //console.log('XXXXXXXXXXXXXXx', JSON.stringify(gpt4turbo_res, null, 2));
-  res = await dsSampleFromDsName.validate(ds, gpt4turbo_res);
-  console.log(res.ok ? res.type : JSON.stringify(res, null, 2));
-  console.log('');
+  console.log('gpt35turbo_res', gpt35turbo_res.combinedResult.avg);
+  console.log('gpt4_res', gpt4_res.combinedResult.avg);
+  console.log('gpt4turbo_res', gpt4turbo_res.combinedResult.avg);
 }
 
 
 sampleFromName(rg65).then(() => {
   console.log('Done');
   process.exit(0);
-}
+});
