@@ -28,7 +28,7 @@ const resultSchema = {
   }
 }
 
-async function run(prompt: string, schema: any, _: DatasetProfile, model: Model) {
+async function runTrial(prompt: string, schema: any, _: DatasetProfile, model: Model) {
   const f = {
     name: 'validate_dataset',
     description: 'Validates the dataset information.',
@@ -60,7 +60,7 @@ export default new Experiment(
   description,
   genPrompt,
   resultSchema,
-  run,
+  runTrial,
   validateTrial
 );
 
