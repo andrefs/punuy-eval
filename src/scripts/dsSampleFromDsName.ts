@@ -1,5 +1,5 @@
 import { DatasetProfile } from "grillo-datasets/src/lib/types";
-import { dsSampleFromDsName } from "../lib/experiments";
+import { dsSampleFromDsName, saveExperimentData } from "../lib/experiments";
 import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
 import { rg65 } from "grillo-datasets";
 import logger from "../lib/logger";
@@ -7,10 +7,10 @@ import logger from "../lib/logger";
 const sampleFromName = async (ds: DatasetProfile) => {
 
   logger.info('Starting')
-
-  const gpt35turbo_res = await dsSampleFromDsName.perform(10, ds, gpt35turbo);
-  const gpt4_res = await dsSampleFromDsName.perform(10, ds, gpt4);
-  const gpt4turbo_res = await dsSampleFromDsName.perform(10, ds, gpt4turbo);
+  const timestamp = Date.now();
+  const gpt35turbo_res = await dsSampleFromDsName.perform(10, ds, gpt35turbo, timestamp);
+  const gpt4_res = await dsSampleFromDsName.perform(10, ds, gpt4, timestamp);
+  const gpt4turbo_res = await dsSampleFromDsName.perform(10, ds, gpt4turbo, timestamp);
 
   logger.info({ ...gpt35turbo_res.combinedResult.resultTypes }, `gpt35turbo_res ${gpt35turbo_res.combinedResult.avg}`);
   logger.info({ ...gpt4_res.combinedResult.resultTypes }, `gpt4_res ${gpt4_res.combinedResult.avg}`);

@@ -2,10 +2,12 @@ import mc30 from 'grillo-datasets/mc30';
 import rg65 from 'grillo-datasets/rg65';
 import ws353 from 'grillo-datasets/ws353';
 
-import { Model, gpt35turbo, gpt4, gpt4turbo } from '../models'
+import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from '../models'
 import { DatasetProfile } from "../types";
 import { DataCorrect, JsonSyntaxError, NoData } from "../validation";
 import Experiment from "./experiment";
+import logger from '../logger';
+logger.level = 'debug';
 
 interface DatasetScores {
   [word1: string]: {
@@ -15,14 +17,12 @@ interface DatasetScores {
   }
 }
 
-interface ModelsResults {
-  gpt35turbo: string;
-  gpt4: string;
-  gpt4turbo: string;
+type ModelsResults = {
+  [key in ModelIds]: string[];
 }
 
 
-const loadDatasetScores = async () => {
+export const loadDatasetScores = async () => {
   const pairs: DatasetScores = {};
 
   for (const part of mc30.partitions) {
@@ -107,43 +107,98 @@ const resultSchema = {
   }
 }
 
-async function run() {
-  const scores = await loadDatasetScores();
-  const pairs = getPairs(scores);
-
+async function runTrialModel(model: Model, prompt: string) {
   const f = {
     name: 'evaluate_scores',
     description: 'Evaluate the word similarity scores.',
     parameters: resultSchema
   };
 
+  const res = await model.makeRequest(prompt, { function: f });
+  return res;
+}
+
+async function runTrialsModel(trials: number, model: Model, prompt: string) {
+  logger.info(`Running experiment ${name} ${trials} times on model ${model.modelId}.`);
+  logger.info(`Prompt: ${prompt}`);
+  const results = [];
+  for (let i = 0; i < trials; i++) {
+    logger.info(`  trial #${i + 1} of ${trials}`)
+    const res = await runTrialModel(model, prompt);
+    results.push(res.type === 'openai' ? res.data.choices[0].message.tool_calls?.[0].function.arguments || '' : '');
+  }
+  return results;
+}
+
+async function runTrials(trials: number) {
+  const scores = await loadDatasetScores();
+  const pairs = getPairs(scores);
+  const prompt = genPrompt(pairs);
+
   const models = [gpt35turbo, gpt4, gpt4turbo];
 
-  const prompt = genPrompt(pairs);
-  console.warn(`Running experiment ${name} on models ${models.map(m => m.modelId).join(", ")}.`);
-  console.warn(`Prompt: ${prompt}`);
+  const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
+  const gpt4_res = await runTrialsModel(trials, gpt4, prompt);
+  const gpt4turbo_res = await runTrialsModel(trials, gpt4turbo, prompt);
 
-
-  const gpt35turbo_res = await gpt35turbo.makeRequest(prompt, { function: f });
-  const gpt4_res = await gpt4.makeRequest(prompt, { function: f });
-  const gpt4turbo_res = await gpt4turbo.makeRequest(prompt, { function: f });
 
   return {
-    gpt35turbo: gpt35turbo_res.data.choices[0].message.tool_calls?.[0].function.arguments || '',
-    gpt4: gpt4_res.data.choices[0].message.tool_calls?.[0].function.arguments || '',
-    gpt4turbo: gpt4turbo_res.data.choices[0].message.tool_calls?.[0].function.arguments || '',
+    gpt35turbo: gpt35turbo_res,
+    gpt4: gpt4_res,
+    gpt4turbo: gpt4turbo_res
   }
 
 }
 
 async function validate(res: ModelsResults, humanScores: DatasetScores) {
   try {
-    const gpt35turbo = JSON.parse(res.gpt35turbo);
-    const gpt4 = JSON.parse(res.gpt4);
-    const gpt4turbo = JSON.parse(res.gpt4turbo);
+    const gpt35turbo = res.gpt35turbo.map((r) => JSON.parse(r)); // TODO cast to resultSchema somehow
+    const gpt4 = res.gpt4.map((r) => JSON.parse(r));
+    const gpt4turbo = res.gpt4turbo.map((r) => JSON.parse(r));
 
+    const gpt35turbo_avg = {} as { [w1: string]: { [w2: string]: { sum: number, count: number, avg?: number } } };
+    for (const score of gpt35turbo.flatMap(({ scores }) => [...scores])) {
+      const [w1, w2] = score.words;
+      gpt35turbo_avg[w1] = gpt35turbo_avg[w1] || {};
+      gpt35turbo_avg[w1][w2] = gpt35turbo_avg[w1][w2] || { sum: 0, count: 0 };
+      gpt35turbo_avg[w1][w2].sum += score.score;
+      gpt35turbo_avg[w1][w2].count++;
+    }
+    for (const w1 in gpt35turbo_avg) {
+      for (const w2 in gpt35turbo_avg[w1]) {
+        gpt35turbo_avg[w1][w2].avg = gpt35turbo_avg[w1][w2].sum / gpt35turbo_avg[w1][w2].count;
+      }
+    }
 
+    const gpt4_avg = {} as { [w1: string]: { [w2: string]: { sum: number, count: number, avg?: number } } };
+    for (const score of gpt4.flatMap(({ scores }) => [...scores])) {
+      const [w1, w2] = score.words;
+      gpt4_avg[w1] = gpt4_avg[w1] || {};
+      gpt4_avg[w1][w2] = gpt4_avg[w1][w2] || { sum: 0, count: 0 };
+      gpt4_avg[w1][w2].sum += score.score;
+      gpt4_avg[w1][w2].count++;
+    }
+    for (const w1 in gpt4_avg) {
+      for (const w2 in gpt4_avg[w1]) {
+        gpt4_avg[w1][w2].avg = gpt4_avg[w1][w2].sum / gpt4_avg[w1][w2].count;
+      }
+    }
 
+    const gpt4turbo_avg = {} as { [w1: string]: { [w2: string]: { sum: number, count: number, avg?: number } } };
+    for (const score of gpt4turbo.flatMap(({ scores }) => [...scores])) {
+      const [w1, w2] = score.words;
+      gpt4turbo_avg[w1] = gpt4turbo_avg[w1] || {};
+      gpt4turbo_avg[w1][w2] = gpt4turbo_avg[w1][w2] || { sum: 0, count: 0 };
+      gpt4turbo_avg[w1][w2].sum += score.score;
+      gpt4turbo_avg[w1][w2].count++;
+    }
+    for (const w1 in gpt4turbo_avg) {
+      for (const w2 in gpt4turbo_avg[w1]) {
+        gpt4turbo_avg[w1][w2].avg = gpt4turbo_avg[w1][w2].sum / gpt4turbo_avg[w1][w2].count;
+      }
+    }
+
+    console.log('XXXXXXXXXXXXXX', JSON.stringify({ gpt35turbo_avg, gpt4_avg, gpt4turbo_avg, humanScores }, null, 2))
   } catch (e) {
     return new JsonSyntaxError(res);
   }
@@ -165,7 +220,7 @@ const CompareMC30Experiment = {
   description,
   genPrompt,
   schema: resultSchema,
-  run,
+  runTrials,
   validate
 }
 
