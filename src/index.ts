@@ -3,7 +3,7 @@ import 'dotenv/config';
 import {
   compareMc30
 } from "./lib/experiments";
-import rg65 from 'grillo-datasets/rg65';
+import rg65 from 'punuy-datasets/rg65';
 import { gpt4, gpt4turbo, gpt35turbo } from './lib/models';
 import { DatasetProfile } from './lib/types';
 import logger from './lib/logger';

@@ -1,8 +1,8 @@
-import { DatasetProfile } from "grillo-datasets/src/lib/types";
+import { DatasetProfile } from "punuy-datasets/src/lib/types";
 import logger from "../lib/logger";
 import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
 import { dsSampleFromDsSample } from "../lib/experiments";
-import { rg65 } from "grillo-datasets";
+import { rg65 } from "punuy-datasets";
 
 const sampleFromSample = async (ds: DatasetProfile) => {
   logger.info('Starting')

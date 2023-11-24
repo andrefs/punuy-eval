@@ -75,7 +75,7 @@ export async function saveExperimentData(data: ExperimentData) {
   const modelId = data.modelId;
   const rootFolder = './results';
   const filename = `${rootFolder}/${ts}_${expName}_${dsId}_${modelId}.json`;
-  const json = JSON.stringify(data);
+  const json = JSON.stringify(data, null, 2);
 
   logger.info(`Saving experiment ${data.name} ${data.trialResults.length} times on model ${data.modelId} to ${filename}.`);
 

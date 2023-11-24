@@ -1,6 +1,6 @@
-import mc30 from 'grillo-datasets/mc30';
-import rg65 from 'grillo-datasets/rg65';
-import ws353 from 'grillo-datasets/ws353';
+import mc30 from 'punuy-datasets/mc30';
+import rg65 from 'punuy-datasets/rg65';
+import ws353 from 'punuy-datasets/ws353';
 
 import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from '../models'
 import { DatasetProfile } from "../types";
