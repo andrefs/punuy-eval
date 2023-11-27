@@ -7,9 +7,9 @@ import { rg65 } from "punuy-datasets";
 const sampleFromSample = async (ds: DatasetProfile) => {
   logger.info('Starting')
   const timestamp = Date.now();
-  const gpt35turbo_res = await dsSampleFromDsSample.perform(1, ds, gpt35turbo, timestamp);
-  const gpt4_res = await dsSampleFromDsSample.perform(1, ds, gpt4, timestamp);
-  const gpt4turbo_res = await dsSampleFromDsSample.perform(1, ds, gpt4turbo, timestamp);
+  const gpt35turbo_res = await dsSampleFromDsSample.perform(10, ds, gpt35turbo, timestamp);
+  const gpt4_res = await dsSampleFromDsSample.perform(10, ds, gpt4, timestamp);
+  const gpt4turbo_res = await dsSampleFromDsSample.perform(10, ds, gpt4turbo, timestamp);
 
   logger.info({ ...gpt35turbo_res.combinedResult.resultTypes }, `gpt35turbo_res ${gpt35turbo_res.combinedResult.avg}`);
   logger.info({ ...gpt4_res.combinedResult.resultTypes }, `gpt4_res ${gpt4_res.combinedResult.avg}`);

@@ -200,7 +200,7 @@ async function validate(res: ModelsResults, humanScores: DatasetScores) {
 
     console.log('XXXXXXXXXXXXXX', JSON.stringify({ gpt35turbo_avg, gpt4_avg, gpt4turbo_avg, humanScores }, null, 2))
   } catch (e) {
-    return new JsonSyntaxError(res);
+    return new JsonSyntaxError();
   }
 }
 
