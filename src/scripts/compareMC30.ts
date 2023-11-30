@@ -2,10 +2,11 @@ import { compareMc30 } from "../lib/experiments";
 import { loadDatasetScores } from "../lib/experiments/compare-mc30";
 import logger from "../lib/logger";
 
+const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
 const compareMC30 = async () => {
   logger.info('Starting')
-  const res = await compareMc30.runTrials(2);
+  const res = await compareMc30.runTrials(trials);
 
   const humanScores = await loadDatasetScores();
 
