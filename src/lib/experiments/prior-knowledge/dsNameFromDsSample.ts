@@ -44,8 +44,6 @@ async function validateTrial(ds: DatasetProfile, data: string) {
   if (!data.trim()) { return new NoData(); }
   try {
     const got = JSON.parse(data);
-
-    console.log('XXXXXXXXXXXXXXX', JSON.stringify(got, null, 2));
     return new DataCorrect(got);
   } catch (e) {
     return new JsonSyntaxError(data);

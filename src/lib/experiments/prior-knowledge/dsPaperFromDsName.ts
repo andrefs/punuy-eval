@@ -1,9 +1,10 @@
 import Experiment, { TrialResult } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
-import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSyntaxError, NoData } from "../../validation";
+import { DataCorrect, DataIncomplete, DataIncorrect, DataPartiallyIncorrect, JsonSchemaError, JsonSyntaxError, NoData } from "../../validation";
 import { distance } from 'fastest-levenshtein';
-
+import Ajv, { JSONSchemaType } from "ajv"
+const ajv = new Ajv()
 
 
 const name = 'ds-paper-from-ds-name';
@@ -20,6 +21,9 @@ const resultSchema = {
     }
   }
 }
+type ResultSchema = JSONSchemaType<typeof resultSchema>;
+
+const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(prompt: string, schema: any, _: DatasetProfile, model: Model) {
   const f = {
@@ -34,8 +38,12 @@ async function runTrial(prompt: string, schema: any, _: DatasetProfile, model: M
 
 async function validateTrial(ds: DatasetProfile, data: string) {
   if (!data.trim()) { return new NoData(); }
+
   try {
     const got = JSON.parse(data);
+    if (!validateSchema(got)) {
+      return new JsonSchemaError(data);
+    }
     const expected = ds.metadata.papers.map(p => ({ title: p.title }));
 
     let bestScore = 1;
@@ -53,9 +61,9 @@ async function validateTrial(ds: DatasetProfile, data: string) {
 
     const threshold = 0.2;
     if (bestScore < threshold) {
-      return new DataCorrect(got[bestIndex]);
+      return new DataCorrect(got.title);
     }
-    return new DataIncorrect(got[bestIndex]);
+    return new DataIncorrect({ got: got.title, expected: expected.map(e => e.title) });
   } catch (e) {
     return new JsonSyntaxError(data);
   }

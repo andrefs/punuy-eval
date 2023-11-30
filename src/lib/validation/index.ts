@@ -5,16 +5,12 @@ export type ValidationType = 'json-syntax-error' | 'json-schema-error' | 'data-i
 export class ValidationResult {
   type: ValidationType;
   ok: boolean;
-  rawData: string;
-  data?: any;
+  data: any;
 
-  constructor(type: ValidationType, ok: boolean, rawdata: string, data?: any) {
+  constructor(type: ValidationType, ok: boolean, data: any) {
     this.type = type;
     this.ok = ok;
-    this.rawData = rawdata;
-    if (data) {
-      this.data = data;
-    }
+    this.data = data;
   }
 }
 
