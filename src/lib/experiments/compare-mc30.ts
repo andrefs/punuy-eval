@@ -7,7 +7,6 @@ import { DatasetProfile } from "../types";
 import { DataCorrect, JsonSyntaxError, NoData } from "../validation";
 import Experiment from "./experiment";
 import logger from '../logger';
-logger.level = 'debug';
 
 interface DatasetScores {
   [word1: string]: {

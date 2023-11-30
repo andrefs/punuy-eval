@@ -3,8 +3,6 @@ import { Model } from "./model";
 import logger from "../logger";
 import 'dotenv/config';
 
-
-
 const configuration = {
   apiKey: process.env.OPENAI_API_KEY,
 };
