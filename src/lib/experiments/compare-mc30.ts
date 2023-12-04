@@ -83,7 +83,7 @@ const getPairs = (scores: DatasetScores) => {
 const name = 'compare-mc30';
 const description = 'Compare the scores of multiple AI models with the scores from multiple human annotations of the MC30 pair set.';
 const genPrompt = (pairs: string[][]) =>
-  'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar".You can use decimals.\n\n' +
+  'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
   pairs.map(([w1, w2]) => `${w1} ${w2}`).join('\n');
 
 
@@ -119,7 +119,7 @@ async function runTrialModel(model: Model, prompt: string) {
 
 async function runTrialsModel(trials: number, model: Model, prompt: string) {
   logger.info(`Running experiment ${name} ${trials} times on model ${model.modelId}.`);
-  logger.info(`Prompt: ${prompt}`);
+  logger.debug(`Prompt: ${prompt}`);
   const results = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`  trial #${i + 1} of ${trials}`)
@@ -149,56 +149,97 @@ async function runTrials(trials: number) {
 
 }
 
-async function validate(res: ModelsResults, humanScores: DatasetScores) {
-  try {
-    const gpt35turbo = res.gpt35turbo.map((r) => JSON.parse(r)); // TODO cast to resultSchema somehow
-    const gpt4 = res.gpt4.map((r) => JSON.parse(r));
-    const gpt4turbo = res.gpt4turbo.map((r) => JSON.parse(r));
+interface MC30Results {
+  [word1: string]: {
+    [word2: string]: {
+      models: {
+        [model: string]: {
+          avg: number;
+          values: number[];
+          sum: number;
+          count: number;
+        }
+      },
+      human: {
+        [dataset: string]: number;
+      }
+    }
+  }
 
-    const gpt35turbo_avg = {} as { [w1: string]: { [w2: string]: { sum: number, count: number, avg?: number } } };
+}
+
+async function validate(modelsRes: ModelsResults, humanScores: DatasetScores) {
+  console.log('XXXXXXXXXXXXXX 1');
+  let res = {} as MC30Results;
+
+  try {
+    console.log('XXXXXXXXXXXXXX 2');
+
+    const gpt35turbo = modelsRes.gpt35turbo.map((r) => JSON.parse(r)); // TODO cast to resultSchema somehow
+    const gpt4 = modelsRes.gpt4.map((r) => JSON.parse(r));
+    const gpt4turbo = modelsRes.gpt4turbo.map((r) => JSON.parse(r));
+
+    let modelName = 'gpt35turbo';
     for (const score of gpt35turbo.flatMap(({ scores }) => [...scores])) {
       const [w1, w2] = score.words;
-      gpt35turbo_avg[w1] = gpt35turbo_avg[w1] || {};
-      gpt35turbo_avg[w1][w2] = gpt35turbo_avg[w1][w2] || { sum: 0, count: 0 };
-      gpt35turbo_avg[w1][w2].sum += score.score;
-      gpt35turbo_avg[w1][w2].count++;
+      res[w1] = res[w1] || {};
+      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || { values: [] };
+      res[w1][w2].models[modelName].values.push(score.score);
     }
-    for (const w1 in gpt35turbo_avg) {
-      for (const w2 in gpt35turbo_avg[w1]) {
-        gpt35turbo_avg[w1][w2].avg = gpt35turbo_avg[w1][w2].sum / gpt35turbo_avg[w1][w2].count;
+    for (const w1 in res) {
+      for (const w2 in res[w1]) {
+        res[w1][w2].models[modelName].avg = res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
       }
     }
 
-    const gpt4_avg = {} as { [w1: string]: { [w2: string]: { sum: number, count: number, avg?: number } } };
+    console.log('XXXXXXXXXXXXXX 3');
+
+    modelName = 'gpt4';
     for (const score of gpt4.flatMap(({ scores }) => [...scores])) {
       const [w1, w2] = score.words;
-      gpt4_avg[w1] = gpt4_avg[w1] || {};
-      gpt4_avg[w1][w2] = gpt4_avg[w1][w2] || { sum: 0, count: 0 };
-      gpt4_avg[w1][w2].sum += score.score;
-      gpt4_avg[w1][w2].count++;
+      res[w1] = res[w1] || {};
+      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || { values: [] };
+      res[w1][w2].models[modelName].values.push(score.score);
     }
-    for (const w1 in gpt4_avg) {
-      for (const w2 in gpt4_avg[w1]) {
-        gpt4_avg[w1][w2].avg = gpt4_avg[w1][w2].sum / gpt4_avg[w1][w2].count;
+    for (const w1 in res) {
+      for (const w2 in res[w1]) {
+        //gpt4_avg[w1][w2].avg = gpt4_avg[w1][w2].sum / gpt4_avg[w1][w2].count;
+        res[w1][w2].models[modelName].avg = res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
       }
     }
 
-    const gpt4turbo_avg = {} as { [w1: string]: { [w2: string]: { sum: number, count: number, avg?: number } } };
+    console.log('XXXXXXXXXXXXXX 4');
+
+    modelName = 'gpt4turbo';
     for (const score of gpt4turbo.flatMap(({ scores }) => [...scores])) {
       const [w1, w2] = score.words;
-      gpt4turbo_avg[w1] = gpt4turbo_avg[w1] || {};
-      gpt4turbo_avg[w1][w2] = gpt4turbo_avg[w1][w2] || { sum: 0, count: 0 };
-      gpt4turbo_avg[w1][w2].sum += score.score;
-      gpt4turbo_avg[w1][w2].count++;
+      res[w1] = res[w1] || {};
+      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || { values: [] };
+      res[w1][w2].models[modelName].values.push(score.score);
     }
-    for (const w1 in gpt4turbo_avg) {
-      for (const w2 in gpt4turbo_avg[w1]) {
-        gpt4turbo_avg[w1][w2].avg = gpt4turbo_avg[w1][w2].sum / gpt4turbo_avg[w1][w2].count;
+    for (const w1 in res) {
+      for (const w2 in res[w1]) {
+        //gpt4turbo_avg[w1][w2].avg = gpt4turbo_avg[w1][w2].sum / gpt4turbo_avg[w1][w2].count;
+        res[w1][w2].models[modelName].avg = res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
       }
     }
 
-    console.log('XXXXXXXXXXXXXX', JSON.stringify({ gpt35turbo_avg, gpt4_avg, gpt4turbo_avg, humanScores }, null, 2))
+    console.log('XXXXXXXXXXXXXX 5');
+
+    for (const w1 in humanScores) {
+      for (const w2 in humanScores[w1]) {
+        res[w1][w2].human = humanScores[w1][w2];
+      }
+    }
+
+    console.log('XXXXXXXXXXXXXX 6');
+
+    console.log('XXXXXXXXXXXXXX', JSON.stringify(res, null, 2))
   } catch (e) {
+    console.log('XXXXXXXXXXXXXX 7', e);
     return new JsonSyntaxError();
   }
 }
