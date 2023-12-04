@@ -15,7 +15,8 @@
     "clean": "tsc -b tsconfig.json --clean",
     "test": "jest",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm test",
+    "postinstall": "patch-package"
   },
   "files": [
     "dist/**/*"
@@ -30,7 +31,7 @@
     "fastest-levenshtein": "1.0.16",
     "openai": "4.19.0",
     "pino": "8.16.2",
-    "punuy-datasets": "git+ssh://git@github.com:andrefs/punuy-datasets.git",
+    "punuy-datasets": "git+https://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:x-oauth-basic@github.com/andrefs/punuy-datasets.git",
     "ts-node": "10.9.1"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "@typescript-eslint/parser": "6.13.2",
     "eslint": "8.55.0",
     "eslint-config-prettier": "9.1.0",
+    "patch-package": "8.0.0",
     "pino-pretty": "10.2.3",
     "prettier": "3.1.0",
     "ts-jest": "29.1.1"
