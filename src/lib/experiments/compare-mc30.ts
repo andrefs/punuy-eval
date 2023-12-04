@@ -201,7 +201,6 @@ async function validate(modelsRes: ModelsResults, humanScores: DatasetScores) {
 
     printMatrix(Object.keys(arrays), corrMat);
   } catch (e) {
-    console.log('XXXXXXXXXXXXXX 10', e);
     return new JsonSyntaxError();
   }
 }
@@ -210,14 +209,14 @@ function printMatrix(varNames: string[], matrix: ReturnType<typeof pcorrtest>[][
   for (let i = 0; i < varNames.length - 1; i++) {
     for (let j = i + 1; j < varNames.length; j++) {
       let r = matrix[i][j];
+      console.log(`----------------------\n${varNames[i]} vs ${varNames[j]}`);
       console.log(r.print());
     }
   }
 
-  console.log('\n\n,' + varNames.slice(1).join(','));
-  for (let i = 0; i < varNames.length - 1; i++) {
-    // @ts-ignore
-    console.log([varNames[i], ...matrix[i].slice(1).map((r) => r.pcorr)].join(','));
+  console.log('\n\n,' + varNames.join(','));
+  for (let i = 0; i < varNames.length; i++) {
+    console.log([varNames[i], ...matrix[i].map((r) => r?.pcorr.toFixed(2))].join(','));
   }
   console.log('\n\n');
 }
@@ -226,11 +225,13 @@ function printMatrix(varNames: string[], matrix: ReturnType<typeof pcorrtest>[][
 function calcCorrelation(data: number[][]) {
   const corrMatrix = [] as ReturnType<typeof pcorrtest>[][];
 
-  for (let i = 0; i < data.length - 1; i++) {
+  for (let i = 0; i < data.length; i++) {
     corrMatrix[i] = [];
-    for (let j = i + 1; j < data.length; j++) {
-      const corr = pcorrtest(data[i], data[j]);
-      corrMatrix[i][j] = corr;
+    for (let j = 0; j < data.length; j++) {
+      if (i < j) {
+        const corr = pcorrtest(data[i], data[j]);
+        corrMatrix[i][j] = corr;
+      }
     }
   }
   return corrMatrix;
@@ -241,8 +242,6 @@ function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
   let res = {} as MC30Results;
 
   try {
-    console.log('XXXXXXXXXXXXXX 2');
-
     const gpt35turbo = modelsRes.gpt35turbo.map((r) => JSON.parse(r)); // TODO cast to resultSchema somehow
     const gpt4 = modelsRes.gpt4.map((r) => JSON.parse(r));
     const gpt4turbo = modelsRes.gpt4turbo.map((r) => JSON.parse(r));
@@ -257,11 +256,12 @@ function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
     }
     for (const w1 in res) {
       for (const w2 in res[w1]) {
-        res[w1][w2].models[modelName].avg = res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
+        res[w1][w2].models[modelName].avg = res[w1][w2]
+          .models[modelName]
+          .values
+          .reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
       }
     }
-
-    console.log('XXXXXXXXXXXXXX 3');
 
     modelName = 'gpt4';
     for (const score of gpt4.flatMap(({ scores }) => [...scores])) {
@@ -273,12 +273,12 @@ function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
     }
     for (const w1 in res) {
       for (const w2 in res[w1]) {
-        //gpt4_avg[w1][w2].avg = gpt4_avg[w1][w2].sum / gpt4_avg[w1][w2].count;
-        res[w1][w2].models[modelName].avg = res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
+        res[w1][w2].models[modelName].avg = res[w1][w2]
+          .models[modelName]
+          .values
+          .reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
       }
     }
-
-    console.log('XXXXXXXXXXXXXX 4');
 
     modelName = 'gpt4turbo';
     for (const score of gpt4turbo.flatMap(({ scores }) => [...scores])) {
@@ -290,12 +290,12 @@ function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
     }
     for (const w1 in res) {
       for (const w2 in res[w1]) {
-        //gpt4turbo_avg[w1][w2].avg = gpt4turbo_avg[w1][w2].sum / gpt4turbo_avg[w1][w2].count;
-        res[w1][w2].models[modelName].avg = res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
+        res[w1][w2].models[modelName].avg = res[w1][w2]
+          .models[modelName]
+          .values
+          .reduce((a, b) => a + b, 0) / res[w1][w2].models[modelName].values.length;
       }
     }
-
-    console.log('XXXXXXXXXXXXXX 5');
 
     for (const w1 in humanScores) {
       for (const w2 in humanScores[w1]) {
@@ -304,20 +304,9 @@ function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
     }
     return res;
   } catch (e) {
-    console.log('XXXXXXXXXXXXXX 10', e);
     throw new JsonSyntaxError();
   }
 }
-
-
-//loadDatasetScores().then(async (scores) => {
-//  const pairs = await getPairs(scores);
-//
-//  console.log(`Loaded ${pairs.length} pairs`);
-//  console.log(pairs);
-//
-//  console.log(scores);
-//});
 
 const CompareMC30Experiment = {
   name,
