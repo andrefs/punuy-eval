@@ -1,216 +1,189 @@
 {
-    "$id": "https://andrefs.com/schemas/2023/SemMeasures",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "definitions": {
-        "DatasetProfile": {
-            "properties": {
-                "id": {
-                    "description": "An identifier for the dataset",
-                    "type": "string"
-                },
-                "metadata": {
-                    "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Metadata",
-                    "description": "Metadata for the dataset"
-                },
-                "originalInstructions": {
-                    "description": "The original instructions given to the annotators",
-                    "type": "string"
-                },
-                "partitions": {
-                    "description": "The partitions containing the dataset data",
-                    "items": {
-                        "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Partition"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "id",
-                "metadata",
-                "partitions"
-            ],
-            "type": "object"
+  "$id": "https://andrefs.com/schemas/2023/SemMeasures",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "DatasetProfile": {
+      "properties": {
+        "id": {
+          "description": "An identifier for the dataset",
+          "type": "string"
         },
-        "Metadata": {
-            "properties": {
-                "date": {
-                    "description": "The date the dataset was published",
-                    "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
-                    "type": "string"
-                },
-                "description": {
-                    "description": "A description of the dataset",
-                    "type": "string"
-                },
-                "downloadUrls": {
-                    "description": "URL(s) to download the dataset files",
-                    "items": {
-                        "format": "uri",
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "measureTypes": {
-                    "description": "Which type of measures are used to compare the words",
-                    "items": {
-                        "enum": [
-                            "relatedness",
-                            "similarity"
-                        ],
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "name": {
-                    "description": "The name of the dataset",
-                    "type": "string"
-                },
-                "papers": {
-                    "description": "Information about the scientific papers describing the dataset",
-                    "items": {
-                        "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Paper"
-                    },
-                    "type": "array"
-                },
-                "urls": {
-                    "description": "Web sites containing information about the dataset",
-                    "items": {
-                        "format": "uri",
-                        "type": "string"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "date",
-                "description",
-                "downloadUrls",
-                "measureTypes",
-                "name",
-                "papers",
-                "urls"
-            ],
-            "type": "object"
+        "metadata": {
+          "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Metadata",
+          "description": "Metadata for the dataset"
         },
-        "Paper": {
-            "properties": {
-                "title": {
-                    "description": "The title of the paper",
-                    "type": "string"
-                },
-                "url": {
-                    "description": "The URL where the paper can be found",
-                    "format": "uri",
-                    "type": "string"
-                }
-            },
-            "required": [
-                "title"
-            ],
-            "type": "object"
+        "originalInstructions": {
+          "description": "The original instructions given to the annotators",
+          "type": "string"
         },
-        "Partition": {
-            "properties": {
-                "data": {
-                    "description": "The data for the partition",
-                    "items": {
-                        "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/PartitionData"
-                    },
-                    "type": "array"
-                },
-                "id": {
-                    "description": "An identifier for the partition",
-                    "type": "string"
-                },
-                "measureType": {
-                    "description": "Which type of measure is used to compare the words",
-                    "enum": [
-                        "relatedness",
-                        "similarity"
-                    ],
-                    "type": "string"
-                }
-            },
-            "required": [
-                "data",
-                "id",
-                "measureType"
-            ],
-            "type": "object"
-        },
-        "PartitionData": {
-            "anyOf": [
-                {
-                    "allOf": [
-                        {
-                            "properties": {
-                                "word1": {
-                                    "description": "The first word in the pair",
-                                    "type": "string"
-                                },
-                                "word2": {
-                                    "description": "The second word in the pair",
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "word1",
-                                "word2"
-                            ],
-                            "type": "object"
-                        },
-                        {
-                            "properties": {
-                                "value": {
-                                    "description": "The averaged numeric value of the semantic measure for the pair",
-                                    "type": "number"
-                                }
-                            },
-                            "required": [
-                                "value"
-                            ],
-                            "type": "object"
-                        }
-                    ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "properties": {
-                                "word1": {
-                                    "description": "The first word in the pair",
-                                    "type": "string"
-                                },
-                                "word2": {
-                                    "description": "The second word in the pair",
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "word1",
-                                "word2"
-                            ],
-                            "type": "object"
-                        },
-                        {
-                            "properties": {
-                                "values": {
-                                    "description": "The individual numeric values of the semantic measure for the pair",
-                                    "items": {
-                                        "type": "number"
-                                    },
-                                    "type": "array"
-                                }
-                            },
-                            "required": [
-                                "values"
-                            ],
-                            "type": "object"
-                        }
-                    ]
-                }
-            ]
+        "partitions": {
+          "description": "The partitions containing the dataset data",
+          "items": {
+            "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Partition"
+          },
+          "type": "array"
         }
+      },
+      "required": ["id", "metadata", "partitions"],
+      "type": "object"
+    },
+    "Metadata": {
+      "properties": {
+        "date": {
+          "description": "The date the dataset was published",
+          "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the dataset",
+          "type": "string"
+        },
+        "downloadUrls": {
+          "description": "URL(s) to download the dataset files",
+          "items": {
+            "format": "uri",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "measureTypes": {
+          "description": "Which type of measures are used to compare the words",
+          "items": {
+            "enum": ["relatedness", "similarity"],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "The name of the dataset",
+          "type": "string"
+        },
+        "papers": {
+          "description": "Information about the scientific papers describing the dataset",
+          "items": {
+            "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Paper"
+          },
+          "type": "array"
+        },
+        "urls": {
+          "description": "Web sites containing information about the dataset",
+          "items": {
+            "format": "uri",
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "date",
+        "description",
+        "downloadUrls",
+        "measureTypes",
+        "name",
+        "papers",
+        "urls"
+      ],
+      "type": "object"
+    },
+    "Paper": {
+      "properties": {
+        "title": {
+          "description": "The title of the paper",
+          "type": "string"
+        },
+        "url": {
+          "description": "The URL where the paper can be found",
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": ["title"],
+      "type": "object"
+    },
+    "Partition": {
+      "properties": {
+        "data": {
+          "description": "The data for the partition",
+          "items": {
+            "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/PartitionData"
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "An identifier for the partition",
+          "type": "string"
+        },
+        "measureType": {
+          "description": "Which type of measure is used to compare the words",
+          "enum": ["relatedness", "similarity"],
+          "type": "string"
+        }
+      },
+      "required": ["data", "id", "measureType"],
+      "type": "object"
+    },
+    "PartitionData": {
+      "anyOf": [
+        {
+          "allOf": [
+            {
+              "properties": {
+                "word1": {
+                  "description": "The first word in the pair",
+                  "type": "string"
+                },
+                "word2": {
+                  "description": "The second word in the pair",
+                  "type": "string"
+                }
+              },
+              "required": ["word1", "word2"],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "value": {
+                  "description": "The averaged numeric value of the semantic measure for the pair",
+                  "type": "number"
+                }
+              },
+              "required": ["value"],
+              "type": "object"
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "properties": {
+                "word1": {
+                  "description": "The first word in the pair",
+                  "type": "string"
+                },
+                "word2": {
+                  "description": "The second word in the pair",
+                  "type": "string"
+                }
+              },
+              "required": ["word1", "word2"],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "values": {
+                  "description": "The individual numeric values of the semantic measure for the pair",
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": ["values"],
+              "type": "object"
+            }
+          ]
+        }
+      ]
     }
+  }
 }
-

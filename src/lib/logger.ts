@@ -1,24 +1,25 @@
-import pino from 'pino';
+import pino from "pino"
 
-const level = process.env.PINO_LOG_LEVEL || 'info';
+const level = process.env.PINO_LOG_LEVEL || "info"
 
 const transport = pino.transport({
   targets: [
     {
       level,
-      target: 'pino/file',
+      target: "pino/file",
       options: { destination: `${__dirname}/../../app.log` },
     },
     {
       level,
-      target: 'pino-pretty',
+      target: "pino-pretty",
     },
   ],
-});
+})
 
-export default pino({
-  level,
-  timestamp: pino.stdTimeFunctions.isoTime,
-},
-  transport
-);
+export default pino(
+  {
+    level,
+    timestamp: pino.stdTimeFunctions.isoTime,
+  },
+  transport,
+)
