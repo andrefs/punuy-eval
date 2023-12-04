@@ -8,8 +8,13 @@
     "typecheck:watch": "tsc -b tsconfig.json --watch",
     "build": "tsc -b tsconfig.json",
     "clean": "tsc -b tsconfig.json --clean",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test"
   },
+  "files": [
+    "dist/**/*"
+  ],
   "author": "André Santos",
   "license": "ISC",
   "dependencies": {
