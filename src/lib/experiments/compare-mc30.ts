@@ -1,11 +1,10 @@
 import mc30 from 'punuy-datasets/mc30';
 import rg65 from 'punuy-datasets/rg65';
 import ws353 from 'punuy-datasets/ws353';
+import PearsonPair from 'pearson-pair';
 
 import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from '../models'
-import { DatasetProfile } from "../types";
-import { DataCorrect, JsonSyntaxError, NoData } from "../validation";
-import Experiment from "./experiment";
+import { JsonSyntaxError } from "../validation";
 import logger from '../logger';
 
 interface DatasetScores {
@@ -118,11 +117,11 @@ async function runTrialModel(model: Model, prompt: string) {
 }
 
 async function runTrialsModel(trials: number, model: Model, prompt: string) {
-  logger.info(`Running experiment ${name} ${trials} times on model ${model.modelId}.`);
+  logger.info(`  model ${model.modelId}.`);
   logger.debug(`Prompt: ${prompt}`);
   const results = [];
   for (let i = 0; i < trials; i++) {
-    logger.info(`  trial #${i + 1} of ${trials}`)
+    logger.info(`    trial #${i + 1} of ${trials}`)
     const res = await runTrialModel(model, prompt);
     results.push(res.type === 'openai' ? res.data.choices[0].message.tool_calls?.[0].function.arguments || '' : '');
   }
@@ -135,6 +134,7 @@ async function runTrials(trials: number) {
   const prompt = genPrompt(pairs);
 
   const models = [gpt35turbo, gpt4, gpt4turbo];
+  logger.info(`Running experiment ${name} ${trials} times.`);
 
   const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
   const gpt4_res = await runTrialsModel(trials, gpt4, prompt);
@@ -167,6 +167,31 @@ interface MC30Results {
   }
 
 }
+
+function resultsToArrays(results: MC30Results) {
+  const res = {
+    gpt35turbo: [] as number[],
+    gpt4: [] as number[],
+    gpt4turbo: [] as number[],
+    mc30: [] as number[],
+    rg65: [] as number[],
+    ws353: [] as number[]
+  };
+
+  for (const w1 in results) {
+    for (const w2 in results[w1]) {
+      res.gpt35turbo.push(results[w1][w2].models.gpt35turbo.avg);
+      res.gpt4.push(results[w1][w2].models.gpt4.avg);
+      res.gpt4turbo.push(results[w1][w2].models.gpt4turbo.avg);
+      res.mc30.push(results[w1][w2].human.mc30);
+      res.rg65.push(results[w1][w2].human.rg65);
+      res.ws353.push(results[w1][w2].human.ws353);
+    }
+  }
+
+  return res;
+}
+
 
 async function validate(modelsRes: ModelsResults, humanScores: DatasetScores) {
   console.log('XXXXXXXXXXXXXX 1');
@@ -234,12 +259,18 @@ async function validate(modelsRes: ModelsResults, humanScores: DatasetScores) {
         res[w1][w2].human = humanScores[w1][w2];
       }
     }
-
     console.log('XXXXXXXXXXXXXX 6');
 
-    console.log('XXXXXXXXXXXXXX', JSON.stringify(res, null, 2))
+    const arrs = resultsToArrays(res);
+    console.log('XXXXXXXXXXXXXX 7', Object.keys(arrs));
+    const pcor = PearsonPair(Object.values(arrs));
+    console.log('XXXXXXXXXXXXXX 8', pcor.corr);
+
+
+    console.log('XXXXXXXXXXXXXX', JSON.stringify(arrs, null, 2))
+
   } catch (e) {
-    console.log('XXXXXXXXXXXXXX 7', e);
+    console.log('XXXXXXXXXXXXXX 10', e);
     return new JsonSyntaxError();
   }
 }
