@@ -11,8 +11,14 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "paths":{
-      "*": ["src/@types/*"]
-    }
+    "paths": {
+      "*": [
+        "src/@types/*"
+      ]
+    },
+    "baseUrl": "./",
+    "outDir": "dist",
+    "sourceMap": true,
+    "noEmitOnError": true,
   }
 }

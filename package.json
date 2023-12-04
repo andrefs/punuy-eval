@@ -6,6 +6,7 @@
   "scripts": {
     "typecheck": "tsc -b tsconfig.json",
     "typecheck:watch": "tsc -b tsconfig.json --watch",
+    "build": "tsc -b tsconfig.json",
     "test": "jest"
   },
   "author": "André Santos",
