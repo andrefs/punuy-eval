@@ -1,7 +1,7 @@
 import mc30 from 'punuy-datasets/mc30';
 import rg65 from 'punuy-datasets/rg65';
 import ws353 from 'punuy-datasets/ws353';
-import PearsonPair from 'pearson-pair';
+import pcorrtest from '@stdlib/stats-pcorrtest';
 
 import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from '../models'
 import { JsonSyntaxError } from "../validation";
@@ -168,7 +168,7 @@ interface MC30Results {
 
 }
 
-function resultsToArrays(results: MC30Results) {
+function unzipResults(results: MC30Results) {
   const res = {
     gpt35turbo: [] as number[],
     gpt4: [] as number[],
@@ -194,7 +194,50 @@ function resultsToArrays(results: MC30Results) {
 
 
 async function validate(modelsRes: ModelsResults, humanScores: DatasetScores) {
-  console.log('XXXXXXXXXXXXXX 1');
+  try {
+    let res = mergeResults(modelsRes, humanScores);
+    let arrays = unzipResults(res);
+    let corrMat = calcCorrelation(Object.values(arrays));
+
+    printMatrix(Object.keys(arrays), corrMat);
+  } catch (e) {
+    console.log('XXXXXXXXXXXXXX 10', e);
+    return new JsonSyntaxError();
+  }
+}
+
+function printMatrix(varNames: string[], matrix: ReturnType<typeof pcorrtest>[][]) {
+  for (let i = 0; i < varNames.length - 1; i++) {
+    for (let j = i + 1; j < varNames.length; j++) {
+      let r = matrix[i][j];
+      console.log(r.print());
+    }
+  }
+
+  console.log('\n\n,' + varNames.slice(1).join(','));
+  for (let i = 0; i < varNames.length - 1; i++) {
+    // @ts-ignore
+    console.log([varNames[i], ...matrix[i].slice(1).map((r) => r.pcorr)].join(','));
+  }
+  console.log('\n\n');
+}
+
+
+function calcCorrelation(data: number[][]) {
+  const corrMatrix = [] as ReturnType<typeof pcorrtest>[][];
+
+  for (let i = 0; i < data.length - 1; i++) {
+    corrMatrix[i] = [];
+    for (let j = i + 1; j < data.length; j++) {
+      const corr = pcorrtest(data[i], data[j]);
+      corrMatrix[i][j] = corr;
+    }
+  }
+  return corrMatrix;
+
+}
+
+function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
   let res = {} as MC30Results;
 
   try {
@@ -259,22 +302,12 @@ async function validate(modelsRes: ModelsResults, humanScores: DatasetScores) {
         res[w1][w2].human = humanScores[w1][w2];
       }
     }
-    console.log('XXXXXXXXXXXXXX 6');
-
-    const arrs = resultsToArrays(res);
-    console.log('XXXXXXXXXXXXXX 7', Object.keys(arrs));
-    const pcor = PearsonPair(Object.values(arrs));
-    console.log('XXXXXXXXXXXXXX 8', pcor.corr);
-
-
-    console.log('XXXXXXXXXXXXXX', JSON.stringify(arrs, null, 2))
-
+    return res;
   } catch (e) {
     console.log('XXXXXXXXXXXXXX 10', e);
-    return new JsonSyntaxError();
+    throw new JsonSyntaxError();
   }
 }
-
 
 
 //loadDatasetScores().then(async (scores) => {
