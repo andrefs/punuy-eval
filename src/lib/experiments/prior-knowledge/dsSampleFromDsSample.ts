@@ -64,7 +64,7 @@ async function validateTrial(ds: DatasetProfile, data: string) {
     const got = JSON.parse(data)
     const expected: { [word: string]: { [word: string]: boolean } } = {}
 
-    for (let { word1, word2 } of ds.partitions[0].data) {
+    for (const { word1, word2 } of ds.partitions[0].data) {
       const w1 = word1.toLowerCase()
       const w2 = word2.toLowerCase()
 
@@ -75,7 +75,7 @@ async function validateTrial(ds: DatasetProfile, data: string) {
     }
     let i = 0
     let dataIncorrect = false
-    for (let [word1, word2] of got.pairs) {
+    for (const [word1, word2] of got.pairs) {
       const w1 = word1.toLowerCase()
       const w2 = word2.toLowerCase()
 

@@ -14,7 +14,7 @@ class Experiment {
   name: string
   description: string
   genPrompt: (ds: DatasetProfile) => string
-  schema: any // TODO
+  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
   runTrials: (
     this: Experiment,
     trials: number,
@@ -41,10 +41,10 @@ class Experiment {
     name: string,
     description: string,
     genPrompt: (ds: DatasetProfile) => string,
-    schema: any,
+    schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runTrial: (
       prompt: string,
-      schema: any,
+      schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
       ds: DatasetProfile,
       model: Model,
     ) => Promise<TrialResult>,
@@ -147,7 +147,7 @@ export interface ExperimentData {
   name: string
   traceId: number
   prompt: string
-  schema: any
+  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
   dsId: string
   modelId: string
   trialResults: ValidationResult[]

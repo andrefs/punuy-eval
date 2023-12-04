@@ -12,8 +12,9 @@ export type ValidationType =
 export class ValidationResult {
   type: ValidationType
   ok: boolean
-  data: any
+  data: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(type: ValidationType, ok: boolean, data: any) {
     this.type = type
     this.ok = ok
@@ -22,12 +23,14 @@ export class ValidationResult {
 }
 
 export class JsonSyntaxError extends ValidationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("json-syntax-error", false, data)
   }
 }
 
 export class JsonSchemaError extends ValidationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("json-schema-error", false, data)
   }
@@ -36,6 +39,7 @@ export class JsonSchemaError extends ValidationResult {
 export class DataIncomplete extends ValidationResult {
   percentage: number
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(percentage: number, data?: any) {
     super("data-incomplete", false, data)
     this.percentage = percentage
@@ -45,6 +49,7 @@ export class DataIncomplete extends ValidationResult {
 export class DataPartiallyIncorrect extends ValidationResult {
   percentage: number
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(percentage: number, data?: any) {
     super("data-partially-incorrect", false, data)
     this.percentage = percentage
@@ -52,6 +57,7 @@ export class DataPartiallyIncorrect extends ValidationResult {
 }
 
 export class DataIncorrect extends ValidationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("data-incorrect", false, data)
   }
@@ -64,6 +70,7 @@ export class NoData extends ValidationResult {
 }
 
 export class DataCorrect extends ValidationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("data-correct", true, data)
   }
