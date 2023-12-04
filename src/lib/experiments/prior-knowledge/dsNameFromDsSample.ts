@@ -1,17 +1,7 @@
 import Experiment from "../experiment"
 import { Model } from "../../models"
 import { DatasetProfile } from "../../types"
-import {
-  DataCorrect,
-  DataIncomplete,
-  DataIncorrect,
-  DataPartiallyIncorrect,
-  JsonSyntaxError,
-  NoData,
-  ValidationResult,
-  ValidationType,
-  combineValidations,
-} from "../../validation"
+import { DataCorrect, JsonSyntaxError, NoData } from "../../validation"
 
 const name = "ds-name-from-ds-sample"
 const description =
@@ -45,7 +35,7 @@ const resultSchema = {
 
 async function runTrial(
   prompt: string,
-  schema: any,
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   _: DatasetProfile,
   model: Model,
 ) {

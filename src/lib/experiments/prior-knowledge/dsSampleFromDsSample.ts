@@ -1,4 +1,4 @@
-import Experiment, { TrialResult } from "../experiment"
+import Experiment from "../experiment"
 import { Model } from "../../models"
 import { DatasetProfile } from "../../types"
 import {
@@ -42,7 +42,7 @@ const resultSchema = {
 
 async function runTrial(
   prompt: string,
-  schema: any,
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   _: DatasetProfile,
   model: Model,
 ) {

@@ -1,11 +1,9 @@
-import Experiment, { TrialResult } from "../experiment"
+import Experiment from "../experiment"
 import { Model } from "../../models"
 import { DatasetProfile } from "../../types"
 import {
   DataCorrect,
-  DataIncomplete,
   DataIncorrect,
-  DataPartiallyIncorrect,
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
@@ -35,7 +33,7 @@ const validateSchema = ajv.compile<ResultSchema>(resultSchema)
 
 async function runTrial(
   prompt: string,
-  schema: any,
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   _: DatasetProfile,
   model: Model,
 ) {
@@ -62,15 +60,15 @@ async function validateTrial(ds: DatasetProfile, data: string) {
     const expected = ds.metadata.papers.map(p => ({ title: p.title }))
 
     let bestScore = 1
-    let bestIndex = -1
+    // let bestIndex = -1
 
-    for (const [i, exp] of expected.entries()) {
+    for (const [, exp] of expected.entries()) {
       const e = exp.title.toLowerCase().trim()
       const g = got.title.toLowerCase().trim()
       const d = distance(e, g) / ((e.length + g.length) / 2)
       if (d < bestScore) {
         bestScore = d
-        bestIndex = i
+        // bestIndex = i
       }
     }
 
