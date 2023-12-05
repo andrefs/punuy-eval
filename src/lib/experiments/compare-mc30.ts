@@ -213,7 +213,7 @@ async function validate(
 
     const tests = {} as { [dsVsds: string]: string };
     for (let i = 0; i < varNames.length - 1; i++) {
-      for (let j = i + 1; j < varNames.length; j++) {
+      for (let j = i; j < varNames.length; j++) {
         const r = corrMat[i][j];
         tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
       }
@@ -290,7 +290,7 @@ function simpMatrixToObject(varNames: string[], matrix: number[][]) {
   const res = {} as { [v1: string]: { [v2: string]: number } };
   for (let i = 0; i < varNames.length; i++) {
     res[varNames[i]] = {};
-    for (let j = i + 1; j < varNames.length; j++) {
+    for (let j = i; j < varNames.length; j++) {
       res[varNames[i]][varNames[j]] = matrix[i][j];
     }
   }
@@ -298,7 +298,7 @@ function simpMatrixToObject(varNames: string[], matrix: number[][]) {
 }
 
 function simpMatrixCSV(varNames: string[], matrix: number[][]) {
-  let res = varNames.join(",");
+  let res = "," + varNames.join(",") + "\n";
   for (let i = 0; i < varNames.length; i++) {
     res += [varNames[i], ...matrix[i].map(r => r.toFixed(2))].join(",");
     res += "\n";
@@ -333,7 +333,7 @@ function calcCorrelation(data: number[][]) {
   for (let i = 0; i < data.length; i++) {
     corrMatrix[i] = [];
     for (let j = 0; j < data.length; j++) {
-      if (i < j) {
+      if (i <= j) {
         const corr = pcorrtest(data[i], data[j]);
         corrMatrix[i][j] = corr;
       }
