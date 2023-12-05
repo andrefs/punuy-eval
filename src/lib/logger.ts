@@ -1,6 +1,6 @@
-import pino from "pino"
+import pino from "pino";
 
-const level = process.env.PINO_LOG_LEVEL || "info"
+const level = process.env.PINO_LOG_LEVEL || "info";
 
 const transport = pino.transport({
   targets: [
@@ -14,12 +14,12 @@ const transport = pino.transport({
       target: "pino-pretty",
     },
   ],
-})
+});
 
 export default pino(
   {
     level,
     timestamp: pino.stdTimeFunctions.isoTime,
   },
-  transport,
-)
+  transport
+);

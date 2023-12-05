@@ -1,29 +1,29 @@
-import OpenAI from "openai"
-import { Model } from "./model"
-import logger from "../logger"
-import "dotenv/config"
+import OpenAI from "openai";
+import { Model } from "./model";
+import logger from "../logger";
+import "dotenv/config";
 
 const configuration = {
   apiKey: process.env.OPENAI_API_KEY,
-}
+};
 
 export interface OpenAIModelParams {
-  function: OpenAI.Chat.Completions.ChatCompletionCreateParams.Function
+  function: OpenAI.Chat.Completions.ChatCompletionCreateParams.Function;
 }
 
 if (!configuration.apiKey) {
   logger.error(
-    "OpenAI API key not configured, please follow instructions in README.md",
-  )
+    "OpenAI API key not configured, please follow instructions in README.md"
+  );
 } else {
-  logger.info("OpenAI API key loaded from environment variable")
+  logger.info("OpenAI API key loaded from environment variable");
 }
-const openai = new OpenAI(configuration)
+const openai = new OpenAI(configuration);
 
 const buildModel = (openai: OpenAI, modelId: string) => {
   const makeRequest = async function (
     prompt: string,
-    params: OpenAIModelParams,
+    params: OpenAIModelParams
   ) {
     const completion = await openai.chat.completions.create({
       model: modelId,
@@ -48,13 +48,13 @@ const buildModel = (openai: OpenAI, modelId: string) => {
         type: "function",
         function: { name: params.function.name },
       },
-    })
-    return { type: "openai" as const, data: completion }
-  }
+    });
+    return { type: "openai" as const, data: completion };
+  };
 
-  return new Model(modelId, makeRequest)
-}
+  return new Model(modelId, makeRequest);
+};
 
-export const gpt35turbo = buildModel(openai, "gpt-3.5-turbo-1106")
-export const gpt4 = buildModel(openai, "gpt-4-0613")
-export const gpt4turbo = buildModel(openai, "gpt-4-1106-preview")
+export const gpt35turbo = buildModel(openai, "gpt-3.5-turbo-1106");
+export const gpt4 = buildModel(openai, "gpt-4-0613");
+export const gpt4turbo = buildModel(openai, "gpt-4-1106-preview");

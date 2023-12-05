@@ -2,113 +2,113 @@ export interface DatasetProfile {
   /**
    * An identifier for the dataset
    */
-  id: string
+  id: string;
 
   /**
    * Metadata for the dataset
    */
-  metadata: Metadata
+  metadata: Metadata;
 
   /**
    * The original instructions given to the annotators
    */
-  originalInstructions?: string
+  originalInstructions?: string;
 
   /**
    * The partitions containing the dataset data
    */
-  partitions: Partition[]
+  partitions: Partition[];
 }
 
 interface Metadata {
   /**
    * The name of the dataset
    */
-  name: string
+  name: string;
 
   /**
    * Web sites containing information about the dataset
    *
    * @items {"type": "string", "format": "uri"}
    */
-  urls: string[]
+  urls: string[];
 
   /**
    * Information about the scientific papers describing the dataset
    */
-  papers: Paper[]
+  papers: Paper[];
 
   /**
    * The date the dataset was published
    *
    * @TJS-pattern ^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$
    */
-  date: string
+  date: string;
 
   /**
    * A description of the dataset
    */
-  description: string
+  description: string;
 
   /**
    * URL(s) to download the dataset files
    *
    * @items {"type": "string", "format": "uri"}
    */
-  downloadUrls: string[]
+  downloadUrls: string[];
 
   /**
    * Which type of measures are used to compare the words
    */
-  measureTypes: ("similarity" | "relatedness")[]
+  measureTypes: ("similarity" | "relatedness")[];
 }
 
 export interface Paper {
   /**
    * The title of the paper
    */
-  title: string
+  title: string;
 
   /**
    * The URL where the paper can be found
    *
    * @format uri
    */
-  url?: string
+  url?: string;
 }
 
 interface Partition {
   /**
    * An identifier for the partition
    */
-  id: string
+  id: string;
 
   /**
    * Which type of measure is used to compare the words
    */
-  measureType: "similarity" | "relatedness"
+  measureType: "similarity" | "relatedness";
   /**
    * The data for the partition
    */
-  data: PartitionData[]
+  data: PartitionData[];
 }
 
 type PartitionData = {
   /**
    * The first word in the pair
    */
-  word1: string
+  word1: string;
 
   /**
    * The second word in the pair
    */
-  word2: string
+  word2: string;
 } & (
   | {
       /**
        * The averaged numeric value of the semantic measure for the pair
        */
-      value: number
+      value: number;
     }
   | {
       /**
@@ -116,6 +116,6 @@ type PartitionData = {
        *
        * @items {"type": "number"}
        */
-      values: number[]
+      values: number[];
     }
-)
+);
