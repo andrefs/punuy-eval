@@ -1,6 +1,7 @@
 import mc30 from "punuy-datasets/mc30";
 import rg65 from "punuy-datasets/rg65";
 import ws353 from "punuy-datasets/ws353";
+import ps65 from "punuy-datasets/ps65";
 import pcorrtest from "@stdlib/stats-pcorrtest";
 import fs from "fs/promises";
 import oldFs from "fs";
@@ -63,6 +64,21 @@ export const loadDatasetScores = async () => {
         pairs[entry.word1][entry.word2][ws353.id] = value * (4 / 10);
       } else if (entry.word2 in pairs && entry.word1 in pairs[entry.word2]) {
         pairs[entry.word2][entry.word1][ws353.id] = value * (4 / 10);
+      }
+    }
+  }
+
+  for (const part of ps65.partitions) {
+    for (const entry of part.data) {
+      const value =
+        "value" in entry
+          ? entry.value
+          : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
+
+      if (entry.word1 in pairs && entry.word2 in pairs[entry.word1]) {
+        pairs[entry.word1][entry.word2][ps65.id] = value * (4 / 10);
+      } else if (entry.word2 in pairs && entry.word1 in pairs[entry.word2]) {
+        pairs[entry.word2][entry.word1][ps65.id] = value * (4 / 10);
       }
     }
   }
@@ -144,7 +160,7 @@ async function runTrials(trials: number) {
   const prompt = genPrompt(pairs);
 
   logger.info(
-    `Running experiment ${name} with ${trials} trials on models [gpt35turbo, gpt4, gpt4turbo].`
+    `Running experiment ${name} with ${trials} trials on models [gpt35turbo, gpt4, gpt4turbo] and datasets [mc30, rg65, ps65, ws353].`
   );
 
   const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
@@ -183,6 +199,7 @@ function unzipResults(results: MC30Results) {
     gpt4turbo: [] as number[],
     mc30: [] as number[],
     rg65: [] as number[],
+    ps65: [] as number[],
     ws353: [] as number[],
   };
 
@@ -193,6 +210,7 @@ function unzipResults(results: MC30Results) {
       res.gpt4turbo.push(results[w1][w2].models.gpt4turbo.avg);
       res.mc30.push(results[w1][w2].human.mc30);
       res.rg65.push(results[w1][w2].human.rg65);
+      res.ps65.push(results[w1][w2].human.ps65);
       res.ws353.push(results[w1][w2].human.ws353);
     }
   }
