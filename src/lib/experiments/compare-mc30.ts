@@ -209,8 +209,6 @@ async function validate(
     const res = mergeResults(modelsRes, humanScores);
     const arrays = unzipResults(res);
     const corrMat = calcCorrelation(Object.values(arrays));
-
-    printMatrix(Object.keys(arrays), corrMat);
     const varNames = Object.keys(arrays);
 
     const tests = {} as { [dsVsds: string]: string };
@@ -220,6 +218,11 @@ async function validate(
         tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
       }
     }
+    printTests(tests);
+    const simplifiedMatrix = simpleCorrMatrix(corrMat);
+    console.log(simpMatrixCSV(varNames, simplifiedMatrix));
+    const simpMatObj = simpMatrixToObject(varNames, simplifiedMatrix);
+    console.table(simpMatObj);
 
     const traceId = Date.now();
     const log: MC30LogFile = {
@@ -229,6 +232,7 @@ async function validate(
       arrays,
       corrMat,
       varNames: Object.keys(arrays),
+      simplifiedMatrix: simpMatObj,
       tests,
     };
 
@@ -263,6 +267,43 @@ interface MC30LogFile {
   corrMat: ReturnType<typeof calcCorrelation>;
   tests: { [dsVsds: string]: string };
   varNames: string[];
+  simplifiedMatrix: ReturnType<typeof simpMatrixToObject>;
+}
+
+function simpleCorrMatrix(matrix: ReturnType<typeof pcorrtest>[][]) {
+  const resMat = [] as number[][];
+  for (let i = 0; i < matrix.length; i++) {
+    resMat[i] = matrix[i].map(r => r?.pcorr);
+  }
+
+  return resMat;
+}
+
+function printTests(tests: { [dsVsds: string]: string }) {
+  for (const test in tests) {
+    console.log(`----------------------\n${test}`);
+    console.log(tests[test]);
+  }
+}
+
+function simpMatrixToObject(varNames: string[], matrix: number[][]) {
+  const res = {} as { [v1: string]: { [v2: string]: number } };
+  for (let i = 0; i < varNames.length - 1; i++) {
+    res[varNames[i]] = {};
+    for (let j = i + 1; j < varNames.length; j++) {
+      res[varNames[i]][varNames[j]] = matrix[i][j];
+    }
+  }
+  return res;
+}
+
+function simpMatrixCSV(varNames: string[], matrix: number[][]) {
+  let res = varNames.join(",");
+  for (let i = 0; i < varNames.length; i++) {
+    res += [varNames[i], ...matrix[i].map(r => r.toFixed(2))].join(",");
+    res += "\n";
+  }
+  return res;
 }
 
 function printMatrix(
