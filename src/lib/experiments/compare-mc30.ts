@@ -306,27 +306,6 @@ function simpMatrixCSV(varNames: string[], matrix: number[][]) {
   return res;
 }
 
-function printMatrix(
-  varNames: string[],
-  matrix: ReturnType<typeof pcorrtest>[][]
-) {
-  for (let i = 0; i < varNames.length - 1; i++) {
-    for (let j = i + 1; j < varNames.length; j++) {
-      const r = matrix[i][j];
-      console.log(`----------------------\n${varNames[i]} vs ${varNames[j]}`);
-      console.log(r.print());
-    }
-  }
-
-  console.log("\n\n," + varNames.join(","));
-  for (let i = 0; i < varNames.length; i++) {
-    console.log(
-      [varNames[i], ...matrix[i].map(r => r?.pcorr.toFixed(2))].join(",")
-    );
-  }
-  console.log("\n\n");
-}
-
 function calcCorrelation(data: number[][]) {
   const corrMatrix = [] as ReturnType<typeof pcorrtest>[][];
 
