@@ -9,7 +9,7 @@
     "build": "tsc -b tsconfig.json",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags",
+    "postversion": "git push && git push --tags && gh release create",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "clean": "tsc -b tsconfig.json --clean",
