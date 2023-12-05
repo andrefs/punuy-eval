@@ -222,7 +222,7 @@ async function validate(
     const simplifiedMatrix = simpleCorrMatrix(corrMat);
     console.log(simpMatrixCSV(varNames, simplifiedMatrix));
     const simpMatObj = simpMatrixToObject(varNames, simplifiedMatrix);
-    console.table(simpMatObj);
+    console.table(simpMatObj, varNames);
 
     const traceId = Date.now();
     const log: MC30LogFile = {
@@ -288,7 +288,7 @@ function printTests(tests: { [dsVsds: string]: string }) {
 
 function simpMatrixToObject(varNames: string[], matrix: number[][]) {
   const res = {} as { [v1: string]: { [v2: string]: number } };
-  for (let i = 0; i < varNames.length - 1; i++) {
+  for (let i = 0; i < varNames.length; i++) {
     res[varNames[i]] = {};
     for (let j = i + 1; j < varNames.length; j++) {
       res[varNames[i]][varNames[j]] = matrix[i][j];
