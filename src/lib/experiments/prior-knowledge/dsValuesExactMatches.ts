@@ -3,7 +3,6 @@ import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
-  DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
   JsonSyntaxError,
