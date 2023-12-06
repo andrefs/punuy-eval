@@ -1,8 +1,8 @@
-import { DatasetProfile } from "punuy-datasets/src/lib/types";
+import { DatasetProfile } from "punuy-datasets/lib/types";
 import { dsPaperFromDsName } from "../lib/experiments";
 import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
 import logger from "../lib/logger";
-import rg65 from "punuy-datasets/rg65";
+import rg65 from "punuy-datasets/datasets/rg65";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
