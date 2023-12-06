@@ -54,7 +54,6 @@ async function runTrial(
 }
 
 async function validateTrial(ds: DatasetProfile, data: string) {
-  console.log("XXXXXXXXXXXXXXX", JSON.stringify(data, null, 2));
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
@@ -86,17 +85,34 @@ async function validateTrial(ds: DatasetProfile, data: string) {
       res[w1][w2] = { expected: score, got: null };
     }
 
+    let i = 0;
+    let noData = 0;
+    let exactMatches = 0;
     for (const { words, score } of got.scores) {
+      if (!words || !score) {
+        noData++;
+      }
+      i++;
       const w1 = words[0].toLowerCase();
       const w2 = words[1].toLowerCase();
+      if (res[w1] && res[w1][w2] && res[w1][w2].expected === score) {
+        exactMatches++;
+      }
 
       res[w1] = res[w1] || {};
       res[w1][w2] = res[w1][w2] || { expected: null, got: null };
       res[w1][w2].got = score;
     }
-
-    console.log("XXXXXXXXXXXXXXX", JSON.stringify(res, null, 2));
-    return new DataCorrect(got);
+    if (noData === i) {
+      return new NoData();
+    }
+    if (i === exactMatches) {
+      return new DataCorrect(res);
+    }
+    if (exactMatches === 0) {
+      return new DataIncorrect(res);
+    }
+    return new DataPartiallyIncorrect((exactMatches / i) * 100, res);
   } catch (e) {
     return new JsonSyntaxError(data);
   }

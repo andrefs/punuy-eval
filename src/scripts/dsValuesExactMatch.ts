@@ -30,15 +30,15 @@ const valuesExactMatch = async (ds: DatasetProfile) => {
 
   logger.info(
     { ...gpt35turbo_res.combinedResult.resultTypes },
-    `gpt35turbo_res ${gpt35turbo_res.combinedResult.avg}`
+    `gpt35turbo_res: ${gpt35turbo_res.combinedResult.avg.toFixed(2)}%`
   );
   logger.info(
     { ...gpt4_res.combinedResult.resultTypes },
-    `gpt4_res ${gpt4_res.combinedResult.avg}`
+    `gpt4_res: ${gpt4_res.combinedResult.avg.toFixed(2)}%`
   );
   logger.info(
     { ...gpt4turbo_res.combinedResult.resultTypes },
-    `gpt4turbo_res ${gpt4turbo_res.combinedResult.avg}`
+    `gpt4turbo_res: ${gpt4turbo_res.combinedResult.avg.toFixed(2)}%`
   );
 };
 
