@@ -13,4 +13,7 @@ export { dsNameFromDsSample };
 import compareMc30 from "./compare-mc30";
 export { compareMc30 };
 
+import dsValuesExactMatches from "./prior-knowledge/dsValuesExactMatches";
+export { dsValuesExactMatches };
+
 export * from "./experiment";
