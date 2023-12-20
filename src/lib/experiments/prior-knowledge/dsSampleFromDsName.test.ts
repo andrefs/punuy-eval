@@ -59,6 +59,7 @@ const createMockModel = (result: string) =>
                   },
                 ],
               },
+              logprobs: null
             },
           ],
         },
