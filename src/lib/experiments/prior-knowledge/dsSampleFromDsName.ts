@@ -62,9 +62,9 @@ async function validateTrial(ds: DatasetProfile, data: string) {
     const got = JSON.parse(data);
     const expected: { [word: string]: { [word: string]: boolean } } = {};
 
-    for (const { word1, word2 } of ds.partitions[0].data) {
-      const w1 = word1.toLowerCase();
-      const w2 = word2.toLowerCase();
+    for (const { term1, term2 } of ds.partitions[0].data) {
+      const w1 = term1.toLowerCase();
+      const w2 = term2.toLowerCase();
 
       expected[w1] = expected[w1] || {};
       expected[w1][w2] = true;
@@ -73,9 +73,9 @@ async function validateTrial(ds: DatasetProfile, data: string) {
     }
     let i = 0;
     let dataIncorrect = false;
-    for (const [word1, word2] of got.pairs) {
-      const w1 = word1.toLowerCase();
-      const w2 = word2.toLowerCase();
+    for (const [term1, term2] of got.pairs) {
+      const w1 = term1.toLowerCase();
+      const w2 = term2.toLowerCase();
 
       if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
         i++;

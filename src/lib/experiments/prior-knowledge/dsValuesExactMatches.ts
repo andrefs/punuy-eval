@@ -16,7 +16,7 @@ const genPrompt = (ds: DatasetProfile) => {
   return (
     'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
     ds.partitions[0].data
-      .map(({ word1, word2 }) => `${word1},${word2}`)
+      .map(({ term1, term2 }) => `${term1},${term2}`)
       .join("\n")
   );
 };
@@ -68,8 +68,8 @@ async function validateTrial(ds: DatasetProfile, data: string) {
     const got = JSON.parse(data);
 
     for (const row of ds.partitions[0].data) {
-      const w1 = row.word1.toLowerCase();
-      const w2 = row.word2.toLowerCase();
+      const w1 = row.term1.toLowerCase();
+      const w2 = row.term2.toLowerCase();
 
       let score: string;
       if ("value" in row) {

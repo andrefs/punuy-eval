@@ -11,7 +11,7 @@ const genPrompt = (ds: DatasetProfile) => {
     `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
     ds.partitions[0].data
       .slice(0, 10)
-      .map(({ word1, word2 }) => `${word1} ${word2}`)
+      .map(({ term1, term2 }) => `${term1} ${term2}`)
       .join("\n")
   );
 };

@@ -20,8 +20,8 @@ const createMockDataset = () => ({
       measureType: "similarity" as const,
       data: [
         {
-          word1: "test",
-          word2: "test",
+          term1: "test",
+          term2: "test",
           value: 0.5,
           values: [0.5],
         },

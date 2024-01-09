@@ -11,8 +11,8 @@ import { JsonSyntaxError } from "../validation";
 import logger from "../logger";
 
 interface DatasetScores {
-  [word1: string]: {
-    [word2: string]: {
+  [term1: string]: {
+    [term2: string]: {
       [dataset: string]: number;
     };
   };
@@ -27,13 +27,16 @@ export const loadDatasetScores = async () => {
 
   for (const part of mc30.partitions) {
     for (const entry of part.data) {
-      pairs[entry.word1] = pairs[entry.word1] || {};
-      pairs[entry.word1][entry.word2] = pairs[entry.word1][entry.word2] || {};
-      if ("value" in entry) {
-        pairs[entry.word1][entry.word2]["mc30"] = entry.value;
+      pairs[entry.term1] = pairs[entry.term1] || {};
+      pairs[entry.term1][entry.term2] = pairs[entry.term1][entry.term2] || {};
+      if ("value" in entry && typeof entry.value === "number") {
+        pairs[entry.term1][entry.term2]["mc30"] = entry.value;
       } else {
-        pairs[entry.word1][entry.word2]["mc30"] =
-          entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
+        const values = entry.values!.filter(
+          x => typeof x === "number"
+        ) as number[];
+        pairs[entry.term1][entry.term2]["mc30"] =
+          values!.reduce((a, b) => a! + b!, 0) / values.length;
       }
     }
   }
@@ -45,10 +48,18 @@ export const loadDatasetScores = async () => {
           ? entry.value
           : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
 
-      if (entry.word1 in pairs && entry.word2 in pairs[entry.word1]) {
-        pairs[entry.word1][entry.word2][rg65.id] = value;
-      } else if (entry.word2 in pairs && entry.word1 in pairs[entry.word2]) {
-        pairs[entry.word2][entry.word1][rg65.id] = value;
+      if (
+        entry.term1 in pairs &&
+        entry.term2 in pairs[entry.term1] &&
+        typeof value === "number"
+      ) {
+        pairs[entry.term1][entry.term2][rg65.id] = value;
+      } else if (
+        entry.term2 in pairs &&
+        entry.term1 in pairs[entry.term2] &&
+        typeof value === "number"
+      ) {
+        pairs[entry.term2][entry.term1][rg65.id] = value;
       }
     }
   }
@@ -60,10 +71,18 @@ export const loadDatasetScores = async () => {
           ? entry.value
           : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
 
-      if (entry.word1 in pairs && entry.word2 in pairs[entry.word1]) {
-        pairs[entry.word1][entry.word2][ws353.id] = value * (4 / 10);
-      } else if (entry.word2 in pairs && entry.word1 in pairs[entry.word2]) {
-        pairs[entry.word2][entry.word1][ws353.id] = value * (4 / 10);
+      if (
+        entry.term1 in pairs &&
+        entry.term2 in pairs[entry.term1] &&
+        typeof value === "number"
+      ) {
+        pairs[entry.term1][entry.term2][ws353.id] = value * (4 / 10);
+      } else if (
+        entry.term2 in pairs &&
+        entry.term1 in pairs[entry.term2] &&
+        typeof value === "number"
+      ) {
+        pairs[entry.term2][entry.term1][ws353.id] = value * (4 / 10);
       }
     }
   }
@@ -75,10 +94,18 @@ export const loadDatasetScores = async () => {
           ? entry.value
           : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
 
-      if (entry.word1 in pairs && entry.word2 in pairs[entry.word1]) {
-        pairs[entry.word1][entry.word2][ps65.id] = value * (4 / 10);
-      } else if (entry.word2 in pairs && entry.word1 in pairs[entry.word2]) {
-        pairs[entry.word2][entry.word1][ps65.id] = value * (4 / 10);
+      if (
+        entry.term1 in pairs &&
+        entry.term2 in pairs[entry.term1] &&
+        typeof value === "number"
+      ) {
+        pairs[entry.term1][entry.term2][ps65.id] = value * (4 / 10);
+      } else if (
+        entry.term2 in pairs &&
+        entry.term1 in pairs[entry.term2] &&
+        typeof value === "number"
+      ) {
+        pairs[entry.term2][entry.term1][ps65.id] = value * (4 / 10);
       }
     }
   }
@@ -93,9 +120,9 @@ export const loadDatasetScores = async () => {
 const getPairs = (scores: DatasetScores) => {
   const pairs: [string, string][] = [];
 
-  for (const word1 in scores) {
-    for (const word2 in scores[word1]) {
-      pairs.push([word1, word2]);
+  for (const term1 in scores) {
+    for (const term2 in scores[term1]) {
+      pairs.push([term1, term2]);
     }
   }
 
@@ -175,8 +202,8 @@ async function runTrials(trials: number) {
 }
 
 interface MC30Results {
-  [word1: string]: {
-    [word2: string]: {
+  [term1: string]: {
+    [term2: string]: {
       models: {
         [model: string]: {
           avg: number;
