@@ -1,384 +1,309 @@
 {
-    "$id": "https://andrefs.com/schemas/2023/SemMeasures",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "additionalProperties": false,
-    "definitions": {
-        "Metadata": {
-            "additionalProperties": false,
-            "properties": {
-                "date": {
-                    "description": "The date the dataset was published",
-                    "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
-                    "type": "string"
-                },
-                "description": {
-                    "description": "A description of the dataset",
-                    "type": "string"
-                },
-                "domain": {
-                    "description": "The domain of the dataset",
-                    "enum": [
-                        "biomedical",
-                        "general",
-                        "geographical"
-                    ],
-                    "type": "string"
-                },
-                "downloadUrls": {
-                    "description": "URL(s) to download the dataset files",
-                    "items": {
-                        "format": "uri",
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "languages": {
-                    "description": "The languages used in the dataset",
-                    "items": {
-                        "enum": [
-                            "en",
-                            "pt"
-                        ],
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "measureTypes": {
-                    "description": "Which type of measures are used to compare the words",
-                    "items": {
-                        "enum": [
-                            "relatedness",
-                            "similarity"
-                        ],
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "name": {
-                    "description": "The name of the dataset",
-                    "type": "string"
-                },
-                "papers": {
-                    "description": "Information about the scientific papers describing the dataset",
-                    "items": {
-                        "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Paper"
-                    },
-                    "type": "array"
-                },
-                "tags": {
-                    "description": "Tags for the dataset content\nExamples:\n- mturk - the dataset was created using crowdsourcing (e.g. Amazon Mechanical Turk or CrowdFlower)\n- entities - the dataset contains entities (e.g. people, places, organizations)",
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "urls": {
-                    "description": "Web sites containing information about the dataset",
-                    "items": {
-                        "format": "uri",
-                        "type": "string"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "date",
-                "description",
-                "domain",
-                "downloadUrls",
-                "languages",
-                "measureTypes",
-                "name",
-                "papers",
-                "urls"
-            ],
-            "type": "object"
+  "$id": "https://andrefs.com/schemas/2023/SemMeasures",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "Metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "description": "The date the dataset was published",
+          "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$",
+          "type": "string"
         },
-        "Paper": {
-            "additionalProperties": false,
-            "properties": {
-                "title": {
-                    "description": "The title of the paper",
-                    "type": "string"
-                },
-                "url": {
-                    "description": "The URL where the paper can be found",
-                    "format": "uri",
-                    "type": "string"
-                }
-            },
-            "required": [
-                "title"
-            ],
-            "type": "object"
+        "description": {
+          "description": "A description of the dataset",
+          "type": "string"
         },
-        "Partition": {
-            "additionalProperties": false,
-            "properties": {
-                "data": {
-                    "description": "The data for the partition",
-                    "items": {
-                        "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/PartitionData"
-                    },
-                    "type": "array"
-                },
-                "id": {
-                    "description": "An identifier for the partition",
-                    "type": "string"
-                },
-                "measureType": {
-                    "description": "Which type of measure is used to compare the words",
-                    "enum": [
-                        "relatedness",
-                        "similarity"
-                    ],
-                    "type": "string"
-                },
-                "metrics": {
-                    "additionalProperties": false,
-                    "description": "Evaluation metrics for the partition",
-                    "properties": {
-                        "annotators": {
-                            "additionalProperties": false,
-                            "description": "The number of annotators",
-                            "properties": {
-                                "minEachPair": {
-                                    "description": "The minimum number of annotators for each pair",
-                                    "type": [
-                                        "null",
-                                        "number"
-                                    ]
-                                },
-                                "total": {
-                                    "description": "The total number of annotators",
-                                    "type": [
-                                        "null",
-                                        "number"
-                                    ]
-                                }
-                            },
-                            "required": [
-                                "minEachPair",
-                                "total"
-                            ],
-                            "type": "object"
-                        },
-                        "interAgreement": {
-                            "additionalProperties": false,
-                            "description": "Inter annotator agreement metrics",
-                            "properties": {
-                                "pearson": {
-                                    "description": "Pearson correlation coefficient between annotators",
-                                    "type": [
-                                        "null",
-                                        "number"
-                                    ]
-                                },
-                                "spearman": {
-                                    "description": "Spearman correlation coefficient between annotators",
-                                    "type": [
-                                        "null",
-                                        "number"
-                                    ]
-                                }
-                            },
-                            "required": [
-                                "pearson",
-                                "spearman"
-                            ],
-                            "type": "object"
-                        },
-                        "intraAgreement": {
-                            "additionalProperties": false,
-                            "description": "Intra annotator agreement metrics",
-                            "properties": {
-                                "pearson": {
-                                    "description": "Pearson correlation coefficient between annotators",
-                                    "type": [
-                                        "null",
-                                        "number"
-                                    ]
-                                },
-                                "spearman": {
-                                    "description": "Spearman correlation coefficient between annotators",
-                                    "type": [
-                                        "null",
-                                        "number"
-                                    ]
-                                }
-                            },
-                            "required": [
-                                "pearson",
-                                "spearman"
-                            ],
-                            "type": "object"
-                        }
-                    },
-                    "required": [
-                        "annotators",
-                        "interAgreement"
-                    ],
-                    "type": "object"
-                },
-                "scale": {
-                    "additionalProperties": false,
-                    "description": "The scale of the semantic measure values",
-                    "properties": {
-                        "value": {
-                            "additionalProperties": false,
-                            "description": "The scale for the average value",
-                            "properties": {
-                                "max": {
-                                    "description": "The maximum value of the scale",
-                                    "minimum": 1,
-                                    "type": "number"
-                                },
-                                "min": {
-                                    "description": "The minimum value of the scale",
-                                    "type": "number"
-                                }
-                            },
-                            "required": [
-                                "max",
-                                "min"
-                            ],
-                            "type": "object"
-                        },
-                        "values": {
-                            "additionalProperties": false,
-                            "description": "The scale for the individual annotator values",
-                            "properties": {
-                                "max": {
-                                    "description": "The maximum value of the scale",
-                                    "minimum": 1,
-                                    "type": "number"
-                                },
-                                "min": {
-                                    "description": "The minimum value of the scale",
-                                    "type": "number"
-                                }
-                            },
-                            "required": [
-                                "max",
-                                "min"
-                            ],
-                            "type": "object"
-                        }
-                    },
-                    "required": [
-                        "value"
-                    ],
-                    "type": "object"
-                }
-            },
-            "required": [
-                "data",
-                "id",
-                "measureType",
-                "metrics",
-                "scale"
-            ],
-            "type": "object"
+        "domain": {
+          "description": "The domain of the dataset",
+          "enum": ["biomedical", "general", "geographical"],
+          "type": "string"
         },
-        "PartitionData": {
-            "anyOf": [
-                {
-                    "additionalProperties": false,
-                    "properties": {
-                        "stddev": {
-                            "description": "The standard deviation of the numeric values of the semantic measure for the pair",
-                            "type": "number"
-                        },
-                        "term1": {
-                            "description": "The first word in the pair",
-                            "type": "string"
-                        },
-                        "term2": {
-                            "description": "The second word in the pair",
-                            "type": "string"
-                        },
-                        "value": {
-                            "description": "The averaged numeric value of the semantic measure for the pair",
-                            "type": "number"
-                        },
-                        "values": {
-                            "description": "The individual numeric values of the semantic measure for the pair",
-                            "items": {
-                                "type": [
-                                    "null",
-                                    "number"
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "term1",
-                        "term2",
-                        "value"
-                    ],
-                    "type": "object"
-                },
-                {
-                    "additionalProperties": false,
-                    "properties": {
-                        "term1": {
-                            "description": "The first word in the pair",
-                            "type": "string"
-                        },
-                        "term2": {
-                            "description": "The second word in the pair",
-                            "type": "string"
-                        },
-                        "value": {
-                            "description": "The averaged numeric value of the semantic measure for the pair",
-                            "type": "number"
-                        },
-                        "values": {
-                            "description": "The individual numeric values of the semantic measure for the pair",
-                            "items": {
-                                "type": "number"
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "term1",
-                        "term2",
-                        "values"
-                    ],
-                    "type": "object"
-                }
-            ]
+        "downloadUrls": {
+          "description": "URL(s) to download the dataset files",
+          "items": {
+            "format": "uri",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "languages": {
+          "description": "The languages used in the dataset",
+          "items": {
+            "enum": ["en", "pt"],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "measureTypes": {
+          "description": "Which type of measures are used to compare the words",
+          "items": {
+            "enum": ["relatedness", "similarity"],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "The name of the dataset",
+          "type": "string"
+        },
+        "papers": {
+          "description": "Information about the scientific papers describing the dataset",
+          "items": {
+            "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Paper"
+          },
+          "type": "array"
+        },
+        "tags": {
+          "description": "Tags for the dataset content\nExamples:\n- mturk - the dataset was created using crowdsourcing (e.g. Amazon Mechanical Turk or CrowdFlower)\n- entities - the dataset contains entities (e.g. people, places, organizations)",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "urls": {
+          "description": "Web sites containing information about the dataset",
+          "items": {
+            "format": "uri",
+            "type": "string"
+          },
+          "type": "array"
         }
+      },
+      "required": [
+        "date",
+        "description",
+        "domain",
+        "downloadUrls",
+        "languages",
+        "measureTypes",
+        "name",
+        "papers",
+        "urls"
+      ],
+      "type": "object"
     },
-    "properties": {
+    "Paper": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "The title of the paper",
+          "type": "string"
+        },
+        "url": {
+          "description": "The URL where the paper can be found",
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": ["title"],
+      "type": "object"
+    },
+    "Partition": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The data for the partition",
+          "items": {
+            "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/PartitionData"
+          },
+          "type": "array"
+        },
         "id": {
-            "description": "An identifier for the dataset",
-            "minLength": 3,
-            "type": "string"
+          "description": "An identifier for the partition",
+          "type": "string"
         },
-        "metadata": {
-            "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Metadata",
-            "description": "Metadata for the dataset"
+        "measureType": {
+          "description": "Which type of measure is used to compare the words",
+          "enum": ["relatedness", "similarity"],
+          "type": "string"
         },
-        "originalInstructions": {
-            "description": "The original instructions given to the annotators",
-            "type": "string"
-        },
-        "partitions": {
-            "description": "The partitions containing the dataset data",
-            "items": {
-                "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Partition"
+        "metrics": {
+          "additionalProperties": false,
+          "description": "Evaluation metrics for the partition",
+          "properties": {
+            "annotators": {
+              "additionalProperties": false,
+              "description": "The number of annotators",
+              "properties": {
+                "minEachPair": {
+                  "description": "The minimum number of annotators for each pair",
+                  "type": ["null", "number"]
+                },
+                "total": {
+                  "description": "The total number of annotators",
+                  "type": ["null", "number"]
+                }
+              },
+              "required": ["minEachPair", "total"],
+              "type": "object"
             },
-            "type": "array"
+            "interAgreement": {
+              "additionalProperties": false,
+              "description": "Inter annotator agreement metrics",
+              "properties": {
+                "pearson": {
+                  "description": "Pearson correlation coefficient between annotators",
+                  "type": ["null", "number"]
+                },
+                "spearman": {
+                  "description": "Spearman correlation coefficient between annotators",
+                  "type": ["null", "number"]
+                }
+              },
+              "required": ["pearson", "spearman"],
+              "type": "object"
+            },
+            "intraAgreement": {
+              "additionalProperties": false,
+              "description": "Intra annotator agreement metrics",
+              "properties": {
+                "pearson": {
+                  "description": "Pearson correlation coefficient between annotators",
+                  "type": ["null", "number"]
+                },
+                "spearman": {
+                  "description": "Spearman correlation coefficient between annotators",
+                  "type": ["null", "number"]
+                }
+              },
+              "required": ["pearson", "spearman"],
+              "type": "object"
+            }
+          },
+          "required": ["annotators", "interAgreement"],
+          "type": "object"
+        },
+        "scale": {
+          "additionalProperties": false,
+          "description": "The scale of the semantic measure values",
+          "properties": {
+            "value": {
+              "additionalProperties": false,
+              "description": "The scale for the average value",
+              "properties": {
+                "max": {
+                  "description": "The maximum value of the scale",
+                  "minimum": 1,
+                  "type": "number"
+                },
+                "min": {
+                  "description": "The minimum value of the scale",
+                  "type": "number"
+                }
+              },
+              "required": ["max", "min"],
+              "type": "object"
+            },
+            "values": {
+              "additionalProperties": false,
+              "description": "The scale for the individual annotator values",
+              "properties": {
+                "max": {
+                  "description": "The maximum value of the scale",
+                  "minimum": 1,
+                  "type": "number"
+                },
+                "min": {
+                  "description": "The minimum value of the scale",
+                  "type": "number"
+                }
+              },
+              "required": ["max", "min"],
+              "type": "object"
+            }
+          },
+          "required": ["value"],
+          "type": "object"
         }
+      },
+      "required": ["data", "id", "measureType", "metrics", "scale"],
+      "type": "object"
     },
-    "required": [
-        "id",
-        "metadata",
-        "partitions"
-    ],
-    "type": "object"
+    "PartitionData": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "stddev": {
+              "description": "The standard deviation of the numeric values of the semantic measure for the pair",
+              "type": "number"
+            },
+            "term1": {
+              "description": "The first word in the pair",
+              "type": "string"
+            },
+            "term2": {
+              "description": "The second word in the pair",
+              "type": "string"
+            },
+            "value": {
+              "description": "The averaged numeric value of the semantic measure for the pair",
+              "type": "number"
+            },
+            "values": {
+              "description": "The individual numeric values of the semantic measure for the pair",
+              "items": {
+                "type": ["null", "number"]
+              },
+              "type": "array"
+            }
+          },
+          "required": ["term1", "term2", "value"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "term1": {
+              "description": "The first word in the pair",
+              "type": "string"
+            },
+            "term2": {
+              "description": "The second word in the pair",
+              "type": "string"
+            },
+            "value": {
+              "description": "The averaged numeric value of the semantic measure for the pair",
+              "type": "number"
+            },
+            "values": {
+              "description": "The individual numeric values of the semantic measure for the pair",
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["term1", "term2", "values"],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "id": {
+      "description": "An identifier for the dataset",
+      "minLength": 3,
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Metadata",
+      "description": "Metadata for the dataset"
+    },
+    "originalInstructions": {
+      "description": "The original instructions given to the annotators",
+      "type": "string"
+    },
+    "partitions": {
+      "description": "The partitions containing the dataset data",
+      "items": {
+        "$ref": "https://andrefs.com/schemas/2023/SemMeasures#/definitions/Partition"
+      },
+      "type": "array"
+    }
+  },
+  "required": ["id", "metadata", "partitions"],
+  "type": "object"
 }
-

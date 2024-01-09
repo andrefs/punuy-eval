@@ -6,6 +6,8 @@ import { DatasetProfile } from "../../types";
 const createMockDataset = () => ({
   id: "test",
   metadata: {
+    languages: ["en" as const],
+    domain: "general" as const,
     name: "Dataset Name",
     description: "test",
     papers: [],
@@ -17,6 +19,22 @@ const createMockDataset = () => ({
   partitions: [
     {
       id: "test",
+      scale: {
+        value: {
+          min: 0,
+          max: 1,
+        },
+      },
+      metrics: {
+        annotators: {
+          total: 1,
+          minEachPair: 1,
+        },
+        interAgreement: {
+          spearman: null,
+          pearson: null,
+        },
+      },
       measureType: "similarity" as const,
       data: [
         {
