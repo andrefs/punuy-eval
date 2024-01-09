@@ -72,13 +72,13 @@ async function validateTrial(ds: DatasetProfile, data: string) {
       const w2 = row.term2.toLowerCase();
 
       let score: string;
-      if ("value" in row && typeof row.value === 'number') {
+      if ("value" in row && typeof row.value === "number") {
         score = row.value.toString();
       } else {
-        const values = row.values!.filter((v) => typeof v === 'number') as number[];
-        score = (
-          values.reduce((a, b) => a + b, 0) / values.length
-        ).toString();
+        const values = row.values!.filter(
+          v => typeof v === "number"
+        ) as number[];
+        score = (values.reduce((a, b) => a + b, 0) / values.length).toString();
       }
 
       res[w1] = res[w1] || {};
