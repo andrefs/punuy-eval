@@ -17,8 +17,9 @@ const genPrompt = (ds: DatasetProfile) => {
   const year = ds.metadata.date.split("-")[0];
   const measureTypes = ds.metadata.measureTypes.join(" and ");
   return (
-    `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. ` +
-    `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
+    `${ds.metadata.name} is a gold standard dataset published in ${year}. ` +
+    `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
+    `and can be used to evaluate semantic measures. ` +
     `Please list 5 pairs of concepts sampled from this dataset.`
   );
 };

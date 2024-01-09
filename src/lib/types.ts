@@ -1,6 +1,8 @@
 export interface DatasetProfile {
   /**
    * An identifier for the dataset
+   *
+   * @minLength 3
    */
   id: string;
 
@@ -58,9 +60,28 @@ interface Metadata {
   downloadUrls: string[];
 
   /**
+   * The languages used in the dataset
+   */
+  languages: ("en" | "pt")[];
+
+  /**
+   * The domain of the dataset
+   */
+
+  domain: "general" | "geographical" | "biomedical";
+
+  /**
    * Which type of measures are used to compare the words
    */
   measureTypes: ("similarity" | "relatedness")[];
+
+  /**
+   * Tags for the dataset content
+   * Examples:
+   * - mturk - the dataset was created using crowdsourcing (e.g. Amazon Mechanical Turk or CrowdFlower)
+   * - entities - the dataset contains entities (e.g. people, places, organizations)
+   */
+  tags?: string[];
 }
 
 export interface Paper {
@@ -87,30 +108,137 @@ interface Partition {
    * Which type of measure is used to compare the words
    */
   measureType: "similarity" | "relatedness";
+
+  /**
+   * The scale of the semantic measure values
+   */
+  scale: {
+    /**
+     * The scale for the average value
+     */
+    value: {
+      /**
+       * The minimum value of the scale
+       */
+      min: number;
+
+      /**
+       * The maximum value of the scale
+       * @minimum 1
+       */
+      max: number;
+    };
+
+    /**
+     * The scale for the individual annotator values
+     */
+    values?: {
+      /**
+       * The minimum value of the scale
+       */
+      min: number;
+
+      /**
+       * The maximum value of the scale
+       * @minimum 1
+       */
+      max: number;
+    };
+  };
+
   /**
    * The data for the partition
    */
   data: PartitionData[];
+
+  /**
+   * Evaluation metrics for the partition
+   */
+  metrics: PartitionMetrics;
 }
+
+type PartitionMetrics = {
+  /**
+   * The number of annotators
+   */
+  annotators: {
+    /**
+     * The total number of annotators
+     */
+    total: number | null;
+
+    /**
+     * The minimum number of annotators for each pair
+     */
+    minEachPair: number | null;
+  };
+
+  /**
+   * Inter annotator agreement metrics
+   */
+  interAgreement: {
+    /**
+     * Spearman correlation coefficient between annotators
+     */
+    spearman: number | null;
+
+    /**
+     * Pearson correlation coefficient between annotators
+     */
+    pearson: number | null;
+  };
+
+  /**
+   * Intra annotator agreement metrics
+   */
+  intraAgreement?: {
+    /**
+     * Spearman correlation coefficient between annotators
+     */
+    spearman: number | null;
+
+    /**
+     * Pearson correlation coefficient between annotators
+     */
+    pearson: number | null;
+  };
+};
 
 type PartitionData = {
   /**
    * The first word in the pair
    */
-  word1: string;
+  term1: string;
 
   /**
    * The second word in the pair
    */
-  word2: string;
+  term2: string;
 } & (
   | {
       /**
        * The averaged numeric value of the semantic measure for the pair
        */
       value: number;
+
+      /**
+       * The standard deviation of the numeric values of the semantic measure for the pair
+       */
+      stddev?: number;
+
+      /**
+       * The individual numeric values of the semantic measure for the pair
+       *
+       * @items {"type": "number"}
+       */
+      values?: (number | null)[];
     }
   | {
+      /**
+       * The averaged numeric value of the semantic measure for the pair
+       */
+      value?: number;
+
       /**
        * The individual numeric values of the semantic measure for the pair
        *
