@@ -24,7 +24,9 @@ for (const dataset in ds) {
         continue;
       }
       if ("values" in row && Array.isArray(row.values)) {
-        col[w1][w2][dataset] = row.values.filter((v) => v !== undefined && v !== null) as number[];
+        col[w1][w2][dataset] = row.values.filter(
+          v => v !== undefined && v !== null
+        ) as number[];
       }
     }
   }
