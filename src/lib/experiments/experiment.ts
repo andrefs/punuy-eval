@@ -29,8 +29,8 @@ class Experiment {
     ds: DatasetProfile,
     data: string[]
   ) => Promise<{
-    trialResults: ValidationResult[];
-    combinedResult: AggregatedValidationResult;
+    validation: ValidationResult[];
+    aggregated: AggregatedValidationResult;
   }>;
   perform: (
     this: Experiment,
@@ -72,7 +72,7 @@ class Experiment {
       );
       logger.debug(`Prompt: ${prompt}`);
 
-      const results = [];
+      const results: string[] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await runTrial(prompt, this.schema, ds, model);
@@ -91,12 +91,12 @@ class Experiment {
       ds: DatasetProfile,
       data: string[]
     ) {
-      const trialResults = await Promise.all(
+      const trialValidationResults = await Promise.all(
         data.map(d => this.validateTrial(ds, d))
       );
       return {
-        trialResults,
-        combinedResult: await combineValidations(trialResults),
+        validation: trialValidationResults,
+        aggregated: await combineValidations(trialValidationResults),
       };
     };
     this.perform = async function (
@@ -107,17 +107,24 @@ class Experiment {
       traceId?: number
     ): Promise<ExperimentData> {
       const results = await this.runTrials(trials, ds, model);
-      const { trialResults, combinedResult } = await this.validate(ds, results);
+      const { validation, aggregated } = await this.validate(ds, results);
 
-      const expData = {
-        name: this.name,
-        traceId: traceId ?? Date.now(),
-        prompt: this.genPrompt(ds),
-        schema: this.schema,
-        dsId: ds.id,
-        modelId: model.modelId,
-        trialResults,
-        combinedResult,
+      const expData: ExperimentData = {
+        meta: {
+          name: this.name,
+          traceId: traceId ?? Date.now(),
+          schema: this.schema,
+        },
+        variables: {
+          prompt: this.genPrompt(ds),
+          dsId: ds.id,
+          modelId: model.modelId,
+        },
+        results: {
+          raw: results,
+          validation,
+          aggregated,
+        },
       };
 
       await saveExperimentData(expData);
@@ -127,16 +134,20 @@ class Experiment {
 }
 
 export async function saveExperimentData(data: ExperimentData) {
-  const ts = data.traceId;
-  const dsId = data.dsId;
-  const expName = data.name;
-  const modelId = data.modelId;
+  const ts = data.meta.traceId;
+  const dsId = data.variables.dsId;
+  const expName = data.meta.name;
+  const modelId = data.variables.modelId;
   const rootFolder = "./results";
   const filename = `${rootFolder}/${ts}_${expName}_${dsId}_${modelId}.json`;
   const json = JSON.stringify(data, null, 2);
 
   logger.info(
-    `Saving experiment ${data.name} ${data.trialResults.length} times on model ${data.modelId} to ${filename}.`
+    `Saving experiment ${data.meta.name} which ran ${
+      data.results.raw.length
+    } times on ${JSON.stringify(data.variables)} with traceId ${
+      data.meta.traceId
+    } to ${filename}.`
   );
 
   if (!oldFs.existsSync(rootFolder)) {
@@ -147,14 +158,22 @@ export async function saveExperimentData(data: ExperimentData) {
 }
 
 export interface ExperimentData {
-  name: string;
-  traceId: number;
-  prompt: string;
-  schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  dsId: string;
-  modelId: string;
-  trialResults: ValidationResult[];
-  combinedResult: AggregatedValidationResult;
+  variables: {
+    dsId: string;
+    modelId: string;
+    prompt?: string;
+    promptId?: string;
+  };
+  meta: {
+    name: string;
+    traceId: number;
+    schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  };
+  results: {
+    raw: string[];
+    validation: ValidationResult[];
+    aggregated: AggregatedValidationResult;
+  };
 }
 
 export interface AggregatedValidationResult {
