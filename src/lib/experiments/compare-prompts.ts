@@ -5,7 +5,7 @@ import {
   DatasetScores,
   loadDatasetScores,
 } from "../dataset-adapters/collection";
-import { ExperimentData } from ".";
+import { ExperimentData, TrialsResult } from ".";
 const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
@@ -88,7 +88,7 @@ async function runTrialsModel(
   return results;
 }
 
-async function runTrials(trials: number) {
+async function runTrials(trials: number): TrialsRes[] {
   const datasetIds = ["ws353", "simlex999"];
   const datasets: { [key: string]: DatasetScores } = {};
   for (const dsId of datasetIds) {
@@ -101,27 +101,39 @@ async function runTrials(trials: number) {
     )}.`
   );
 
+  const res: TrialsResult[] = [];
   for (const modelId in models) {
     for (const promptId in prompts) {
       for (const dsId in datasets) {
-        const results = await runTrialsModel(
+        const trialsRes = await runTrialsModel(
           trials,
           models[modelId as keyof typeof models],
           dsId,
           promptId
         );
-        const res: ExperimentData = {
+        res.push({
           variables: {
             modelId,
             promptId,
-            dsId: "",
+            dsId,
           },
-          results: {
-            trial: results,
-          },
-        };
-        logger.info(`Results: ${JSON.stringify(res)}`);
+          data: trialsRes,
+        });
       }
     }
   }
+  logger.info(`Results: ${JSON.stringify(res)}`);
 }
+
+async function validate(trialsRes: TrialsResult[]) {}
+
+const ComparePromptsExperiment = {
+  name,
+  description,
+  prompts,
+  schema: resultSchema,
+  runTrials,
+  validate,
+};
+
+export default ComparePromptsExperiment;
