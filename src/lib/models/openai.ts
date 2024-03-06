@@ -55,6 +55,6 @@ const buildModel = (openai: OpenAI, modelId: string) => {
   return new Model(modelId, makeRequest);
 };
 
-export const gpt35turbo = buildModel(openai, "gpt-3.5-turbo-1106");
+export const gpt35turbo = buildModel(openai, "gpt-3.5-turbo-0125");
 export const gpt4 = buildModel(openai, "gpt-4-0613");
-export const gpt4turbo = buildModel(openai, "gpt-4-1106-preview");
+export const gpt4turbo = buildModel(openai, "gpt-4-0125-preview");
