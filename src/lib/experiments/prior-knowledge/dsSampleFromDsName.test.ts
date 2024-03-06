@@ -111,10 +111,10 @@ describe("dsSampleFromDsName", () => {
 
       const model = createMockModel("this is the result");
 
-      const result = await dsSampleFromDsName.runTrials(2, ds, model);
-      expect(result.length).toEqual(2);
-      expect(result[0]).toEqual("this is the result");
-      expect(result[1]).toEqual("this is the result");
+      const tr = await dsSampleFromDsName.runTrials(2, ds, model);
+      expect(tr.data.length).toEqual(2);
+      expect(tr.data[0]).toEqual("this is the result");
+      expect(tr.data[1]).toEqual("this is the result");
     });
 
     test("should return empty string if model.makeRequest returns no data", async () => {
@@ -122,10 +122,10 @@ describe("dsSampleFromDsName", () => {
 
       const model = createMockModel("");
 
-      const result = await dsSampleFromDsName.runTrials(1, ds, model);
+      const tr = await dsSampleFromDsName.runTrials(1, ds, model);
       expect(model.makeRequest).toHaveBeenCalled();
-      expect(result.length).toEqual(1);
-      expect(result[0]).toEqual("");
+      expect(tr.data.length).toEqual(1);
+      expect(tr.data[0]).toEqual("");
     });
   });
 

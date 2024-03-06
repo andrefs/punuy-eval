@@ -20,17 +20,17 @@ class Experiment {
     trials: number,
     ds: DatasetProfile,
     model: Model
-  ) => Promise<string[]>;
+  ) => Promise<TrialsResult>;
   validateTrial: (
     ds: DatasetProfile,
     data: string
   ) => Promise<ValidationResult>;
   validate: (
     ds: DatasetProfile,
-    data: string[]
+    tr: TrialsResult
   ) => Promise<{
-    trialResults: ValidationResult[];
-    combinedResult: AggregatedValidationResult;
+    validation: ValidationResult[];
+    aggregated: AggregatedValidationResult;
   }>;
   perform: (
     this: Experiment,
@@ -50,7 +50,7 @@ class Experiment {
       schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
       ds: DatasetProfile,
       model: Model
-    ) => Promise<TrialResult>,
+    ) => Promise<ModelResponse>,
     validateTrial: (
       ds: DatasetProfile,
       data: string
@@ -72,7 +72,7 @@ class Experiment {
       );
       logger.debug(`Prompt: ${prompt}`);
 
-      const results = [];
+      const results: string[] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await runTrial(prompt, this.schema, ds, model);
@@ -83,20 +83,27 @@ class Experiment {
             : ""
         );
       }
-      return results;
+      return {
+        variables: {
+          dsId: ds.id,
+          modelId: model.modelId,
+          prompt: prompt,
+        },
+        data: results,
+      };
     };
     this.validateTrial = validateTrial;
     this.validate = async function (
       this: Experiment,
       ds: DatasetProfile,
-      data: string[]
+      tr: TrialsResult
     ) {
-      const trialResults = await Promise.all(
-        data.map(d => this.validateTrial(ds, d))
+      const trialValidationResults = await Promise.all(
+        tr.data.map(d => this.validateTrial(ds, d))
       );
       return {
-        trialResults,
-        combinedResult: await combineValidations(trialResults),
+        validation: trialValidationResults,
+        aggregated: await combineValidations(trialValidationResults),
       };
     };
     this.perform = async function (
@@ -106,18 +113,25 @@ class Experiment {
       model: Model,
       traceId?: number
     ): Promise<ExperimentData> {
-      const results = await this.runTrials(trials, ds, model);
-      const { trialResults, combinedResult } = await this.validate(ds, results);
+      const trialsRes = await this.runTrials(trials, ds, model);
+      const { validation, aggregated } = await this.validate(ds, trialsRes);
 
-      const expData = {
-        name: this.name,
-        traceId: traceId ?? Date.now(),
-        prompt: this.genPrompt(ds),
-        schema: this.schema,
-        dsId: ds.id,
-        modelId: model.modelId,
-        trialResults,
-        combinedResult,
+      const expData: ExperimentData = {
+        meta: {
+          name: this.name,
+          traceId: traceId ?? Date.now(),
+          schema: this.schema,
+        },
+        variables: {
+          prompt: this.genPrompt(ds),
+          dsId: ds.id,
+          modelId: model.modelId,
+        },
+        results: {
+          raw: trialsRes.data,
+          validation,
+          aggregated,
+        },
       };
 
       await saveExperimentData(expData);
@@ -127,16 +141,20 @@ class Experiment {
 }
 
 export async function saveExperimentData(data: ExperimentData) {
-  const ts = data.traceId;
-  const dsId = data.dsId;
-  const expName = data.name;
-  const modelId = data.modelId;
+  const ts = data.meta.traceId;
+  const dsId = data.variables.dsId;
+  const expName = data.meta.name;
+  const modelId = data.variables.modelId;
   const rootFolder = "./results";
   const filename = `${rootFolder}/${ts}_${expName}_${dsId}_${modelId}.json`;
   const json = JSON.stringify(data, null, 2);
 
   logger.info(
-    `Saving experiment ${data.name} ${data.trialResults.length} times on model ${data.modelId} to ${filename}.`
+    `Saving experiment ${data.meta.name} which ran ${
+      data.results.raw.length
+    } times on ${JSON.stringify(data.variables)} with traceId ${
+      data.meta.traceId
+    } to ${filename}.`
   );
 
   if (!oldFs.existsSync(rootFolder)) {
@@ -146,15 +164,34 @@ export async function saveExperimentData(data: ExperimentData) {
   await fs.writeFile(filename, json);
 }
 
-export interface ExperimentData {
-  name: string;
-  traceId: number;
-  prompt: string;
-  schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+export interface ExperimentVariables {
   dsId: string;
   modelId: string;
-  trialResults: ValidationResult[];
-  combinedResult: AggregatedValidationResult;
+  prompt?: string;
+  promptId?: string;
+}
+
+export interface ExperimentMeta {
+  name: string;
+  traceId: number;
+  schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export interface ExperimentResults {
+  raw: string[];
+  validation: ValidationResult[];
+  aggregated: AggregatedValidationResult;
+}
+
+export interface ExperimentData {
+  variables: ExperimentVariables;
+  meta: ExperimentMeta;
+  results: ExperimentResults;
+}
+
+export interface TrialsResult {
+  variables: ExperimentVariables;
+  data: string[];
 }
 
 export interface AggregatedValidationResult {
@@ -164,7 +201,7 @@ export interface AggregatedValidationResult {
   };
 }
 
-export type TrialResult = {
+export type ModelResponse = {
   type: "openai";
   data: OpenAI.Chat.Completions.ChatCompletion;
 };

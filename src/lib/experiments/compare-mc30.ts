@@ -9,21 +9,14 @@ import oldFs from "fs";
 import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from "../models";
 import { JsonSyntaxError } from "../validation";
 import logger from "../logger";
-
-interface DatasetScores {
-  [term1: string]: {
-    [term2: string]: {
-      [dataset: string]: number;
-    };
-  };
-}
+import { MultiDatasetScores } from "../dataset-adapters/collection";
 
 type ModelsResults = {
   [key in ModelIds]: string[];
 };
 
 export const loadDatasetScores = async () => {
-  const pairs: DatasetScores = {};
+  const pairs: MultiDatasetScores = {};
 
   for (const part of mc30.partitions) {
     for (const entry of part.data) {
@@ -117,7 +110,7 @@ export const loadDatasetScores = async () => {
   return pairs;
 };
 
-const getPairs = (scores: DatasetScores) => {
+const getPairs = (scores: MultiDatasetScores) => {
   const pairs: [string, string][] = [];
 
   for (const term1 in scores) {
@@ -154,6 +147,7 @@ const resultSchema = {
   },
 };
 
+/** Run a single trial of the experiment, with a single model */
 async function runTrialModel(model: Model, prompt: string) {
   const f = {
     name: "evaluate_scores",
@@ -165,6 +159,7 @@ async function runTrialModel(model: Model, prompt: string) {
   return res;
 }
 
+/** Run multiple trials of the experiment, with a single model */
 async function runTrialsModel(trials: number, model: Model, prompt: string) {
   logger.info(`  model ${model.modelId}.`);
   logger.debug(`Prompt: ${prompt}`);
@@ -181,6 +176,7 @@ async function runTrialsModel(trials: number, model: Model, prompt: string) {
   return results;
 }
 
+/** Run multiple trials of the experiment, with multiple models */
 async function runTrials(trials: number) {
   const scores = await loadDatasetScores();
   const pairs = getPairs(scores);
@@ -247,7 +243,7 @@ function unzipResults(results: MC30Results) {
 
 async function validate(
   modelsRes: ModelsResults,
-  humanScores: DatasetScores,
+  humanScores: MultiDatasetScores,
   trials: number
 ) {
   try {
@@ -366,7 +362,11 @@ function calcCorrelation(data: number[][]) {
   return corrMatrix;
 }
 
-function mergeResults(modelsRes: ModelsResults, humanScores: DatasetScores) {
+/** Merge the results from the models and the human scores */
+function mergeResults(
+  modelsRes: ModelsResults,
+  humanScores: MultiDatasetScores
+) {
   const res = {} as MC30Results;
 
   try {
