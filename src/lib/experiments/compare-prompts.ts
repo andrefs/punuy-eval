@@ -88,7 +88,7 @@ async function runTrialsModel(
   return results;
 }
 
-async function runTrials(trials: number): TrialsRes[] {
+async function runTrials(trials: number): Promise<TrialsResult[]> {
   const datasetIds = ["ws353", "simlex999"];
   const datasets: { [key: string]: DatasetScores } = {};
   for (const dsId of datasetIds) {
@@ -123,6 +123,7 @@ async function runTrials(trials: number): TrialsRes[] {
     }
   }
   logger.info(`Results: ${JSON.stringify(res)}`);
+  return res;
 }
 
 async function validate(trialsRes: TrialsResult[]) {}
