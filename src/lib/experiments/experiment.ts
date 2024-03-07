@@ -17,28 +17,28 @@ class Experiment {
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   runTrials: (
     this: Experiment,
-    trials: number,
-    ds: DatasetProfile,
-    model: Model
+    vars: ExpVars,
+    trials: number
   ) => Promise<TrialsResult>;
   validateTrial: (
     ds: DatasetProfile,
     data: string
   ) => Promise<ValidationResult>;
-  validate: (
-    ds: DatasetProfile,
-    tr: TrialsResult
-  ) => Promise<{
+  validate: (tr: TrialsResult) => Promise<{
     validation: ValidationResult[];
     aggregated: AggregatedValidationResult;
   }>;
   perform: (
     this: Experiment,
+    vars: ExpVars,
     trials: number,
-    ds: DatasetProfile,
-    model: Model,
     traceId?: number
   ) => Promise<ExperimentData>;
+  performMulti: (
+    this: Experiment,
+    variables: ExpVarMatrix,
+    trials: number
+  ) => Promise<ExperimentData[]>;
 
   constructor(
     name: string,
@@ -46,10 +46,8 @@ class Experiment {
     genPrompt: (ds: DatasetProfile) => string,
     schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runTrial: (
-      prompt: string,
-      schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-      ds: DatasetProfile,
-      model: Model
+      vars: ExpVars,
+      schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
     ) => Promise<ModelResponse>,
     validateTrial: (
       ds: DatasetProfile,
@@ -62,20 +60,19 @@ class Experiment {
     this.schema = schema;
     this.runTrials = async function (
       this: Experiment,
-      trials: number,
-      ds: DatasetProfile,
-      model: Model
+      vars: ExpVars,
+      trials: number
     ) {
-      const prompt = this.genPrompt(ds);
+      const prompt = vars.prompt ?? this.genPrompt(vars.dataset);
       logger.info(
-        `Running experiment ${this.name} ${trials} times on model ${model.modelId}.`
+        `Running experiment ${this.name} ${trials} times on model ${vars.model.modelId}.`
       );
       logger.debug(`Prompt: ${prompt}`);
 
       const results: string[] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
-        const res = await runTrial(prompt, this.schema, ds, model);
+        const res = await runTrial(vars, this.schema);
         results.push(
           res.type === "openai"
             ? res.data.choices[0].message.tool_calls?.[0].function.arguments ||
@@ -84,22 +81,14 @@ class Experiment {
         );
       }
       return {
-        variables: {
-          dsId: ds.id,
-          modelId: model.modelId,
-          prompt: prompt,
-        },
+        variables: vars,
         data: results,
       };
     };
     this.validateTrial = validateTrial;
-    this.validate = async function (
-      this: Experiment,
-      ds: DatasetProfile,
-      tr: TrialsResult
-    ) {
+    this.validate = async function (this: Experiment, tr: TrialsResult) {
       const trialValidationResults = await Promise.all(
-        tr.data.map(d => this.validateTrial(ds, d))
+        tr.data.map(d => this.validateTrial(tr.variables.dataset, d))
       );
       return {
         validation: trialValidationResults,
@@ -108,13 +97,12 @@ class Experiment {
     };
     this.perform = async function (
       this: Experiment,
+      vars: ExpVars,
       trials: number,
-      ds: DatasetProfile,
-      model: Model,
       traceId?: number
     ): Promise<ExperimentData> {
-      const trialsRes = await this.runTrials(trials, ds, model);
-      const { validation, aggregated } = await this.validate(ds, trialsRes);
+      const trialsRes = await this.runTrials(vars, trials);
+      const { validation, aggregated } = await this.validate(trialsRes);
 
       const expData: ExperimentData = {
         meta: {
@@ -122,11 +110,7 @@ class Experiment {
           traceId: traceId ?? Date.now(),
           schema: this.schema,
         },
-        variables: {
-          prompt: this.genPrompt(ds),
-          dsId: ds.id,
-          modelId: model.modelId,
-        },
+        variables: vars,
         results: {
           raw: trialsRes.data,
           validation,
@@ -137,14 +121,26 @@ class Experiment {
       await saveExperimentData(expData);
       return expData;
     };
+    this.performMulti = async function (
+      this: Experiment,
+      variables: ExpVarMatrix,
+      trials: number
+    ) {
+      const varCombs = genValueCombinations(variables);
+      const res = [] as ExperimentData[];
+      for (const v of varCombs) {
+        res.push(await this.perform(v, trials, Date.now()));
+      }
+      return res;
+    };
   }
 }
 
 export async function saveExperimentData(data: ExperimentData) {
   const ts = data.meta.traceId;
-  const dsId = data.variables.dsId;
+  const dsId = data.variables.dataset.id;
   const expName = data.meta.name;
-  const modelId = data.variables.modelId;
+  const modelId = data.variables.model.modelId;
   const rootFolder = "./results";
   const filename = `${rootFolder}/${ts}_${expName}_${dsId}_${modelId}.json`;
   const json = JSON.stringify(data, null, 2);
@@ -164,33 +160,59 @@ export async function saveExperimentData(data: ExperimentData) {
   await fs.writeFile(filename, json);
 }
 
-export interface ExperimentVariables {
-  dsId: string;
-  modelId: string;
+export interface ExpVarMatrix {
+  model: Model[];
+  dataset: DatasetProfile[];
+  prompt?: string[];
+  promptId?: string[];
+}
+
+export interface ExpVars {
+  dataset: DatasetProfile;
+  model: Model;
   prompt?: string;
   promptId?: string;
 }
 
-export interface ExperimentMeta {
+function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
+  const key = Object.keys(vars)?.shift();
+  if (!key) {
+    return [];
+  }
+  const values = vars[key as keyof ExpVarMatrix]!;
+  const rest = { ...vars };
+  delete rest[key as keyof ExpVarMatrix];
+
+  const combs = genValueCombinations(rest);
+  const res = [] as ExpVars[];
+  for (const v of values) {
+    for (const c of combs) {
+      res.push({ [key]: v, ...c });
+    }
+  }
+  return res;
+}
+
+export interface ExpMeta {
   name: string;
   traceId: number;
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export interface ExperimentResults {
+export interface ExpResults {
   raw: string[];
   validation: ValidationResult[];
   aggregated: AggregatedValidationResult;
 }
 
 export interface ExperimentData {
-  variables: ExperimentVariables;
-  meta: ExperimentMeta;
-  results: ExperimentResults;
+  variables: ExpVars;
+  meta: ExpMeta;
+  results: ExpResults;
 }
 
 export interface TrialsResult {
-  variables: ExperimentVariables;
+  variables: ExpVars;
   data: string[];
 }
 
