@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { Model } from "../models";
-import { DatasetProfile } from "../types";
+import { DatasetProfile, MeasureType } from "../types";
 import {
   ValidationResult,
   ValidationType,
@@ -13,7 +13,7 @@ import oldFs from "fs";
 class Experiment {
   name: string;
   description: string;
-  genPrompt: (ds: DatasetProfile) => string;
+  genPrompt: (vars: ExpVars) => Prompts;
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   runTrials: (
     this: Experiment,
@@ -43,7 +43,7 @@ class Experiment {
   constructor(
     name: string,
     description: string,
-    genPrompt: (ds: DatasetProfile) => string,
+    genPrompt: (vars: ExpVars) => Prompts,
     schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runTrial: (
       vars: ExpVars,
@@ -191,6 +191,14 @@ function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
     }
   }
   return res;
+}
+
+export interface Prompt {
+  type: MeasureType;
+  text: string;
+}
+export interface Prompts {
+  [key: string]: Prompt;
 }
 
 export interface ExpMeta {

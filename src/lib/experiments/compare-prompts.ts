@@ -1,20 +1,13 @@
-import { ws353 } from "punuy-datasets";
 import { Model, gpt4, gpt4turbo, gpt35turbo } from "../models";
 import logger from "../logger";
 import {
   DatasetScores,
   loadDatasetScores,
 } from "../dataset-adapters/collection";
-import { ExperimentData, TrialsResult } from ".";
+import { Prompts, TrialsResult } from ".";
 const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
-interface Prompts {
-  [key: string]: {
-    type: "relatedness" | "similarity";
-    text: string;
-  };
-}
 const prompts: Prompts = {
   simplest: {
     type: "relatedness",

@@ -1,4 +1,4 @@
-import Experiment from "../experiment";
+import Experiment, { ExpVars, Prompts } from "../experiment";
 import { Model } from "../../models";
 import { DatasetProfile } from "../../types";
 import {
@@ -13,11 +13,11 @@ import {
 const name = "ds-sample-from-ds-name";
 const description =
   "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset";
-const genPrompt = (ds: DatasetProfile) => {
-  const year = ds.metadata.date.split("-")[0];
-  const measureTypes = ds.metadata.measureTypes.join(" and ");
+const genPrompt = (vars: ExpVars): Prompts => {
+  const year = vars.dataset.metadata.date.split("-")[0];
+  const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
   return (
-    `${ds.metadata.name} is a gold standard dataset published in ${year}. ` +
+    `${vars.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
     `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
     `and can be used to evaluate semantic measures. ` +
     `Please list 5 pairs of concepts sampled from this dataset.`

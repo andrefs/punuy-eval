@@ -73,7 +73,7 @@ interface Metadata {
   /**
    * Which type of measures are used to compare the words
    */
-  measureTypes: ("similarity" | "relatedness")[];
+  measureTypes: MeasureType[];
 
   /**
    * Tags for the dataset content
@@ -83,6 +83,7 @@ interface Metadata {
    */
   tags?: string[];
 }
+export type MeasureType = "similarity" | "relatedness";
 
 export interface Paper {
   /**
@@ -107,7 +108,7 @@ interface Partition {
   /**
    * Which type of measure is used to compare the words
    */
-  measureType: "similarity" | "relatedness";
+  measureType: MeasureType;
 
   /**
    * The scale of the semantic measure values
