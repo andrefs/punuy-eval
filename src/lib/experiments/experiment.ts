@@ -13,8 +13,8 @@ import oldFs from "fs";
 class Experiment {
   name: string;
   description: string;
-  genPrompt: (vars: ExpVars) => Prompts;
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  prompts?: (Prompt | PromptGenerator)[] = [];
   runTrials: (
     this: Experiment,
     vars: ExpVars,
@@ -43,36 +43,37 @@ class Experiment {
   constructor(
     name: string,
     description: string,
-    genPrompt: (vars: ExpVars) => Prompts,
     schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runTrial: (
-      vars: ExpVars,
+      vars: ExpVarsFixedPrompt,
       schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
     ) => Promise<ModelResponse>,
     validateTrial: (
       ds: DatasetProfile,
       data: string
-    ) => Promise<ValidationResult>
+    ) => Promise<ValidationResult>,
+    prompts?: (Prompt | PromptGenerator)[]
   ) {
     this.name = name;
     this.description = description;
-    this.genPrompt = genPrompt;
     this.schema = schema;
+    this.prompts = prompts;
     this.runTrials = async function (
       this: Experiment,
       vars: ExpVars,
       trials: number
     ) {
-      const prompt = vars.prompt ?? this.genPrompt(vars.dataset);
+      const prompt =
+        "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
       logger.info(
         `Running experiment ${this.name} ${trials} times on model ${vars.model.modelId}.`
       );
-      logger.debug(`Prompt: ${prompt}`);
+      logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
       const results: string[] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
-        const res = await runTrial(vars, this.schema);
+        const res = await runTrial({ ...vars, prompt }, this.schema);
         results.push(
           res.type === "openai"
             ? res.data.choices[0].message.tool_calls?.[0].function.arguments ||
@@ -126,6 +127,9 @@ class Experiment {
       variables: ExpVarMatrix,
       trials: number
     ) {
+      if (!variables?.prompt?.length) {
+        variables.prompt = this.prompts;
+      }
       const varCombs = genValueCombinations(variables);
       const res = [] as ExperimentData[];
       for (const v of varCombs) {
@@ -163,15 +167,15 @@ export async function saveExperimentData(data: ExperimentData) {
 export interface ExpVarMatrix {
   model: Model[];
   dataset: DatasetProfile[];
-  prompt?: string[];
-  promptId?: string[];
+  prompt?: (Prompt | PromptGenerator)[];
 }
+
+export type ExpVarsFixedPrompt = Omit<ExpVars, "prompt"> & { prompt: Prompt };
 
 export interface ExpVars {
   dataset: DatasetProfile;
   model: Model;
-  prompt?: string;
-  promptId?: string;
+  prompt: Prompt | PromptGenerator;
 }
 
 function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
@@ -193,12 +197,15 @@ function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
   return res;
 }
 
-export interface Prompt {
-  type: MeasureType;
-  text: string;
+export interface PromptGenerator {
+  id: string;
+  generate: (vars: ExpVars) => Prompt;
 }
-export interface Prompts {
-  [key: string]: Prompt;
+
+export interface Prompt {
+  id: string;
+  types: MeasureType[];
+  text: string;
 }
 
 export interface ExpMeta {

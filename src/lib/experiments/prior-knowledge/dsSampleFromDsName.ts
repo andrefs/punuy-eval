@@ -1,5 +1,4 @@
-import Experiment, { ExpVars, Prompts } from "../experiment";
-import { Model } from "../../models";
+import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
 import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
@@ -13,15 +12,21 @@ import {
 const name = "ds-sample-from-ds-name";
 const description =
   "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset";
-const genPrompt = (vars: ExpVars): Prompts => {
-  const year = vars.dataset.metadata.date.split("-")[0];
-  const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
-  return (
-    `${vars.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
-    `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
-    `and can be used to evaluate semantic measures. ` +
-    `Please list 5 pairs of concepts sampled from this dataset.`
-  );
+const promptGen = {
+  id: `${name}-prompt`,
+  generate: (vars: ExpVars): Prompt => {
+    const year = vars.dataset.metadata.date.split("-")[0];
+    const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
+    return {
+      id: `${name}-prompt`,
+      types: vars.dataset.metadata.measureTypes,
+      text:
+        `${vars.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
+        `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
+        `and can be used to evaluate semantic measures. ` +
+        `Please list 5 pairs of concepts sampled from this dataset.`,
+    };
+  },
 };
 const resultSchema = {
   type: "object",
@@ -39,10 +44,8 @@ const resultSchema = {
 };
 
 async function runTrial(
-  prompt: string,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  _: DatasetProfile,
-  model: Model
+  vars: ExpVarsFixedPrompt,
+  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   const f = {
     name: "validate_sample",
@@ -50,7 +53,9 @@ async function runTrial(
     parameters: schema,
   };
 
-  const result = await model.makeRequest(prompt, { function: f });
+  const result = await vars.model.makeRequest(vars.prompt.text, {
+    function: f,
+  });
   return result;
 }
 
@@ -104,8 +109,8 @@ async function validateTrial(ds: DatasetProfile, data: string) {
 export default new Experiment(
   name,
   description,
-  genPrompt,
   resultSchema,
   runTrial,
-  validateTrial
+  validateTrial,
+  [promptGen]
 );
