@@ -1,5 +1,4 @@
-import Experiment from "../experiment";
-import { Model } from "../../models";
+import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
 import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
@@ -15,9 +14,16 @@ const ajv = new Ajv();
 const name = "ds-paper-from-ds-name";
 const description =
   "Check if LLM can, when given a dataset name, identify the scientific paper describing it";
-const genPrompt = (ds: DatasetProfile) => {
-  const year = ds.metadata.date.split("-")[0];
-  return `${ds.metadata.name} is a semantic measure gold standard dataset, published in ${year}. Please return the title of the scientific article describing this dataset.`;
+const promptGen = {
+  id: `${name}-prompt`,
+  generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+    const year = vars.dataset.metadata.date.split("-")[0];
+    return {
+      id: `${name}-${vars.dataset.id}-prompt`,
+      types: [],
+      text: `${vars.dataset.metadata.name} is a semantic measure gold standard dataset, published in ${year}. Please return the title of the scientific article describing this dataset.`,
+    };
+  },
 };
 const resultSchema = {
   type: "object",
@@ -32,10 +38,8 @@ type ResultSchema = JSONSchemaType<typeof resultSchema>;
 const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(
-  prompt: string,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  _: DatasetProfile,
-  model: Model
+  vars: ExpVarsFixedPrompt,
+  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   const f = {
     name: "return-paper-name",
@@ -43,7 +47,9 @@ async function runTrial(
       "Return the title of the scientific article describing this dataset",
     parameters: schema,
   };
-  const result = await model.makeRequest(prompt, { function: f });
+  const result = await vars.model.makeRequest(vars.prompt.text, {
+    function: f,
+  });
   return result;
 }
 
@@ -88,8 +94,8 @@ async function validateTrial(ds: DatasetProfile, data: string) {
 export default new Experiment(
   name,
   description,
-  genPrompt,
   resultSchema,
   runTrial,
-  validateTrial
+  validateTrial,
+  [promptGen]
 );

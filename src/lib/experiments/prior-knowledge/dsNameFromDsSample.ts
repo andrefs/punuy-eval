@@ -1,19 +1,24 @@
-import Experiment from "../experiment";
-import { Model } from "../../models";
+import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
 import { DatasetProfile } from "../../types";
 import { DataCorrect, JsonSyntaxError, NoData } from "../../validation";
 
 const name = "ds-name-from-ds-sample";
 const description =
   "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
-const genPrompt = (ds: DatasetProfile) => {
-  return (
-    `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
-    ds.partitions[0].data
-      .slice(0, 10)
-      .map(({ term1, term2 }) => `${term1} ${term2}`)
-      .join("\n")
-  );
+const promptGen = {
+  id: `${name}-prompt`,
+  generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+    return {
+      id: `${name}-${vars.dataset.id}-prompt`,
+      types: [],
+      text:
+        `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
+        vars.dataset.partitions[0].data
+          .slice(0, 10)
+          .map(({ term1, term2 }) => `${term1} ${term2}`)
+          .join("\n"),
+    };
+  },
 };
 const resultSchema = {
   type: "object",
@@ -34,10 +39,8 @@ const resultSchema = {
 };
 
 async function runTrial(
-  prompt: string,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  _: DatasetProfile,
-  model: Model
+  vars: ExpVarsFixedPrompt,
+  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   const f = {
     name: "validate_dataset",
@@ -45,7 +48,9 @@ async function runTrial(
     parameters: schema,
   };
 
-  const result = await model.makeRequest(prompt, { function: f });
+  const result = await vars.model.makeRequest(vars.prompt.text, {
+    function: f,
+  });
   return result;
 }
 
@@ -64,8 +69,8 @@ async function validateTrial(ds: DatasetProfile, data: string) {
 export default new Experiment(
   name,
   description,
-  genPrompt,
   resultSchema,
   runTrial,
-  validateTrial
+  validateTrial,
+  [promptGen]
 );

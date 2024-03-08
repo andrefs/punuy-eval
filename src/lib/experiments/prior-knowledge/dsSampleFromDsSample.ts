@@ -1,5 +1,4 @@
-import Experiment from "../experiment";
-import { Model } from "../../models";
+import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
 import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
@@ -13,20 +12,26 @@ import {
 const name = "ds-sample-from-ds-sample";
 const description =
   "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
-const genPrompt = (ds: DatasetProfile) => {
-  const numberOfPairs = ds.partitions.reduce(
-    (acc, p) => acc + p.data.length,
-    0
-  );
-  const measureTypes = ds.metadata.measureTypes.join(" and ");
-  return (
-    `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
-    `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included in my list.\n` +
-    ds.partitions[0].data
-      .slice(0, 10)
-      .map(({ term1, term2 }) => `${term1} ${term2}`)
-      .join("\n")
-  );
+const promptGen = {
+  id: `${name}-prompt`,
+  generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+    const numberOfPairs = vars.dataset.partitions.reduce(
+      (acc, p) => acc + p.data.length,
+      0
+    );
+    const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
+    return {
+      id: `${name}-${vars.dataset.id}-prompt`,
+      types: [],
+      text:
+        `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
+        `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included in my list.\n` +
+        vars.dataset.partitions[0].data
+          .slice(0, 10)
+          .map(({ term1, term2 }) => `${term1} ${term2}`)
+          .join("\n"),
+    };
+  },
 };
 const resultSchema = {
   type: "object",
@@ -44,10 +49,8 @@ const resultSchema = {
 };
 
 async function runTrial(
-  prompt: string,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  _: DatasetProfile,
-  model: Model
+  vars: ExpVarsFixedPrompt,
+  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   const f = {
     name: "validate_sample",
@@ -55,7 +58,9 @@ async function runTrial(
     parameters: schema,
   };
 
-  const result = await model.makeRequest(prompt, { function: f });
+  const result = await vars.model.makeRequest(vars.prompt.text, {
+    function: f,
+  });
   return result;
 }
 
@@ -109,8 +114,8 @@ async function validateTrial(ds: DatasetProfile, data: string) {
 export default new Experiment(
   name,
   description,
-  genPrompt,
   resultSchema,
   runTrial,
-  validateTrial
+  validateTrial,
+  [promptGen]
 );
