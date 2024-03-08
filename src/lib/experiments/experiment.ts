@@ -127,19 +127,21 @@ class Experiment {
       variables: ExpVarMatrix,
       trials: number
     ) {
-      console.warn("XXXXXXXXXXX 1");
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
       }
-      console.warn("XXXXXXXXXXX 2", JSON.stringify(variables, null, 2));
       const varCombs = genValueCombinations(variables);
-      console.warn("XXXXXXXXXXX 3", { varCombs });
+      logger.info(
+        `Preparing to run experiment ${
+          this.name
+        }, ${trials} times on each variable combination:\n${varCombs
+          .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
+          .join(",\n")}.`
+      );
       const res = [] as ExperimentData[];
       for (const v of varCombs) {
-        console.warn("XXXXXXXXXXX 4", { v });
         res.push(await this.perform(v, trials, Date.now()));
       }
-      console.warn("XXXXXXXXXXX 5", { res });
       return res;
     };
   }
@@ -155,11 +157,11 @@ export async function saveExperimentData(data: ExperimentData) {
   const json = JSON.stringify(data, null, 2);
 
   logger.info(
-    `Saving experiment ${data.meta.name} which ran ${
-      data.results.raw.length
-    } times on ${JSON.stringify(getVarIds(data.variables))} with traceId ${
+    `Saving experiment ${data.meta.name} with traceId ${
       data.meta.traceId
-    } to ${filename}.`
+    } to ${filename}. It ran ${
+      data.results.raw.length
+    } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
   if (!oldFs.existsSync(rootFolder)) {
@@ -188,33 +190,27 @@ export interface ExpVars {
 }
 
 function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
-  return genVCHelper(vars) as ExpVars[];
+  const combs = genVCHelper(vars);
+  return combs as ExpVars[];
 }
 
 function genVCHelper(vars: ExpVarMatrix): Partial<ExpVars>[] {
-  console.warn("XXXXXXXXXXX 2.1", { vars });
   const key = Object.keys(vars)?.shift();
-  console.warn("XXXXXXXXXXX 2.2", { key });
   if (!key) {
     return [];
   }
-  console.warn("XXXXXXXXXXX 2.3");
   const values = vars[key as keyof ExpVarMatrix]!;
   const rest = { ...vars };
   delete rest[key as keyof ExpVarMatrix];
-  console.warn("XXXXXXXXXXX 2.4", { values, rest });
 
   const combs = genValueCombinations(rest);
-  console.warn("XXXXXXXXXXX 2.5", { combs });
   const res = [] as Partial<ExpVars>[];
   for (const v of values) {
-    console.warn("XXXXXXXXXXX 2.6", { key, v });
     if (!combs.length) {
       res.push({ [key]: v });
       continue;
     }
     for (const c of combs) {
-      console.warn("XXXXXXXXXXX 2.7", { c });
       res.push({ [key]: v, ...c });
     }
   }
