@@ -4,7 +4,7 @@ import {
   DatasetScores,
   loadDatasetScores,
 } from "../dataset-adapters/collection";
-import { Prompts, TrialsResult } from ".";
+import { Prompt, TrialsResult } from ".";
 const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
@@ -66,7 +66,7 @@ async function runTrialsModel(
   promptId: string
 ) {
   const results = [];
-  logger.info(`  model ${model.modelId}.`);
+  logger.info(`  model ${model.id}.`);
   logger.debug(`Prompt ID: ${promptId}`);
 
   for (let i = 0; i < trials; i++) {

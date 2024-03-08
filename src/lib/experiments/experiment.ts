@@ -66,7 +66,7 @@ class Experiment {
       const prompt =
         "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
       logger.info(
-        `Running experiment ${this.name} ${trials} times on model ${vars.model.modelId}.`
+        `Running experiment ${this.name} ${trials} times on model ${vars.model.id}.`
       );
       logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
@@ -127,14 +127,19 @@ class Experiment {
       variables: ExpVarMatrix,
       trials: number
     ) {
+      console.warn("XXXXXXXXXXX 1");
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
       }
+      console.warn("XXXXXXXXXXX 2", JSON.stringify(variables, null, 2));
       const varCombs = genValueCombinations(variables);
+      console.warn("XXXXXXXXXXX 3", { varCombs });
       const res = [] as ExperimentData[];
       for (const v of varCombs) {
+        console.warn("XXXXXXXXXXX 4", { v });
         res.push(await this.perform(v, trials, Date.now()));
       }
+      console.warn("XXXXXXXXXXX 5", { res });
       return res;
     };
   }
@@ -144,7 +149,7 @@ export async function saveExperimentData(data: ExperimentData) {
   const ts = data.meta.traceId;
   const dsId = data.variables.dataset.id;
   const expName = data.meta.name;
-  const modelId = data.variables.model.modelId;
+  const modelId = data.variables.model.id;
   const rootFolder = "./results";
   const filename = `${rootFolder}/${ts}_${expName}_${dsId}_${modelId}.json`;
   const json = JSON.stringify(data, null, 2);
@@ -152,7 +157,7 @@ export async function saveExperimentData(data: ExperimentData) {
   logger.info(
     `Saving experiment ${data.meta.name} which ran ${
       data.results.raw.length
-    } times on ${JSON.stringify(data.variables)} with traceId ${
+    } times on ${JSON.stringify(getVarIds(data.variables))} with traceId ${
       data.meta.traceId
     } to ${filename}.`
   );
@@ -162,6 +167,10 @@ export async function saveExperimentData(data: ExperimentData) {
   }
 
   await fs.writeFile(filename, json);
+}
+
+function getVarIds(vars: ExpVars) {
+  return Object.entries(vars).map(([k, v]) => ({ [k]: v.id }));
 }
 
 export interface ExpVarMatrix {
@@ -179,18 +188,33 @@ export interface ExpVars {
 }
 
 function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
+  return genVCHelper(vars) as ExpVars[];
+}
+
+function genVCHelper(vars: ExpVarMatrix): Partial<ExpVars>[] {
+  console.warn("XXXXXXXXXXX 2.1", { vars });
   const key = Object.keys(vars)?.shift();
+  console.warn("XXXXXXXXXXX 2.2", { key });
   if (!key) {
     return [];
   }
+  console.warn("XXXXXXXXXXX 2.3");
   const values = vars[key as keyof ExpVarMatrix]!;
   const rest = { ...vars };
   delete rest[key as keyof ExpVarMatrix];
+  console.warn("XXXXXXXXXXX 2.4", { values, rest });
 
   const combs = genValueCombinations(rest);
-  const res = [] as ExpVars[];
+  console.warn("XXXXXXXXXXX 2.5", { combs });
+  const res = [] as Partial<ExpVars>[];
   for (const v of values) {
+    console.warn("XXXXXXXXXXX 2.6", { key, v });
+    if (!combs.length) {
+      res.push({ [key]: v });
+      continue;
+    }
     for (const c of combs) {
+      console.warn("XXXXXXXXXXX 2.7", { c });
       res.push({ [key]: v, ...c });
     }
   }

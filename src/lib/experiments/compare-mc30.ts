@@ -161,7 +161,7 @@ async function runTrialModel(model: Model, prompt: string) {
 
 /** Run multiple trials of the experiment, with a single model */
 async function runTrialsModel(trials: number, model: Model, prompt: string) {
-  logger.info(`  model ${model.modelId}.`);
+  logger.info(`  model ${model.id}.`);
   logger.debug(`Prompt: ${prompt}`);
   const results = [];
   for (let i = 0; i < trials; i++) {
