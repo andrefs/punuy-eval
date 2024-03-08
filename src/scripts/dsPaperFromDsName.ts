@@ -11,8 +11,8 @@ const paperFromName = async (vars: ExpVarMatrix) => {
 
   for (const r of res) {
     logger.info(
-      { ...r.results.aggregated.resultTypes },
-      `${r.meta.name} ${r.results.aggregated.avg}`
+      { ...r.results.aggregated?.resultTypes },
+      `${r.meta.name} ${r.results.aggregated?.avg}`
     );
   }
 };

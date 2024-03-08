@@ -171,7 +171,7 @@ export async function saveExperimentData(data: ExperimentData) {
   await fs.writeFile(filename, json);
 }
 
-function getVarIds(vars: ExpVars) {
+export function getVarIds(vars: ExpVars) {
   return Object.entries(vars).map(([k, v]) => ({ [k]: v.id }));
 }
 
@@ -189,7 +189,7 @@ export interface ExpVars {
   prompt: Prompt | PromptGenerator;
 }
 
-function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
+export function genValueCombinations(vars: ExpVarMatrix): ExpVars[] {
   const combs = genVCHelper(vars);
   return combs as ExpVars[];
 }
@@ -236,8 +236,8 @@ export interface ExpMeta {
 
 export interface ExpResults {
   raw: string[];
-  validation: ValidationResult[];
-  aggregated: AggregatedValidationResult;
+  validation?: ValidationResult[];
+  aggregated?: AggregatedValidationResult;
 }
 
 export interface ExperimentData {

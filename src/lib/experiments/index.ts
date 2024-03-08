@@ -13,8 +13,8 @@ export { dsNameFromDsSample };
 import compareMc30 from "./compare-mc30";
 export { compareMc30 };
 
-//import comparePrompts from "./compare-prompts";
-//export { comparePrompts };
+import comparePrompts from "./compare-prompts";
+export { comparePrompts };
 
 import dsValuesExactMatches from "./prior-knowledge/dsValuesExactMatches";
 export { dsValuesExactMatches };
