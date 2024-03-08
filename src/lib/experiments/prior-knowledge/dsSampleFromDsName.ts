@@ -14,7 +14,7 @@ const description =
   "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset";
 const promptGen = {
   id: `${name}-prompt`,
-  generate: (vars: ExpVars): Prompt => {
+  generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     const year = vars.dataset.metadata.date.split("-")[0];
     const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
     return {
