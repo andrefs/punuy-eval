@@ -1,6 +1,6 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
 import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
-import { rg65 } from "punuy-datasets";
+import rg65 from "punuy-datasets/datasets/rg65";
 import logger from "../lib/logger";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;

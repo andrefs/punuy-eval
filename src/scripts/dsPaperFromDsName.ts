@@ -1,43 +1,28 @@
-import { DatasetProfile } from "punuy-datasets/lib/types";
-import { dsPaperFromDsName } from "../lib/experiments";
+import { ExpVarMatrix, dsPaperFromDsName } from "../lib/experiments";
 import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
 import logger from "../lib/logger";
 import rg65 from "punuy-datasets/datasets/rg65";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
-const paperFromName = async (ds: DatasetProfile) => {
+const paperFromName = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const timestamp = Date.now();
-  const gpt35turbo_res = await dsPaperFromDsName.perform(
-    trials,
-    ds,
-    gpt35turbo,
-    timestamp
-  );
-  const gpt4_res = await dsPaperFromDsName.perform(trials, ds, gpt4, timestamp);
-  const gpt4turbo_res = await dsPaperFromDsName.perform(
-    trials,
-    ds,
-    gpt4turbo,
-    timestamp
-  );
+  const res = await dsPaperFromDsName.performMulti(vars, trials);
 
-  logger.info(
-    { ...gpt35turbo_res.results.aggregated.resultTypes },
-    `gpt35turbo_res ${gpt35turbo_res.results.aggregated.avg}`
-  );
-  logger.info(
-    { ...gpt4_res.results.aggregated.resultTypes },
-    `gpt4_res ${gpt4_res.results.aggregated.avg}`
-  );
-  logger.info(
-    { ...gpt4turbo_res.results.aggregated.resultTypes },
-    `gpt4turbo_res ${gpt4turbo_res.results.aggregated.avg}`
-  );
+  for (const r of res) {
+    logger.info(
+      { ...r.results.aggregated.resultTypes },
+      `${r.meta.name} ${r.results.aggregated.avg}`
+    );
+  }
 };
 
-paperFromName(rg65).then(() => {
+const evm: ExpVarMatrix = {
+  dataset: [rg65],
+  model: [gpt35turbo, gpt4, gpt4turbo],
+};
+
+paperFromName(evm).then(() => {
   logger.info("Done");
   process.exit(0);
 });
