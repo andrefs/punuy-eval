@@ -224,6 +224,7 @@ export interface PromptGenerator {
 export interface Prompt {
   id: string;
   types: MeasureType[];
+  pairs?: [string, string][];
   text: string;
 }
 
