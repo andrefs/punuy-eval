@@ -9,12 +9,15 @@ const trials = process.argv[2] ? parseInt(process.argv[2]) : 1;
 const comparePromptsMain = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await comparePrompts.performMulti(vars, trials);
+  await comparePrompts.validate(res);
   console.log(res);
 };
 
 const evm: ExpVarMatrix = {
-  dataset: [ws353, simlex999],
-  model: [gpt35turbo, gpt4, gpt4turbo],
+  //dataset: [ws353, simlex999],
+  //model: [gpt35turbo, gpt4, gpt4turbo],
+  dataset: [ws353],
+  model: [gpt4turbo],
 };
 
 comparePromptsMain(evm).then(() => {
