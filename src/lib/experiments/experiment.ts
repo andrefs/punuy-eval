@@ -19,7 +19,7 @@ class Experiment {
     this: Experiment,
     vars: ExpVars,
     trials: number
-  ) => Promise<ExperimentData>;
+  ) => Promise<TrialsResult>;
   validateTrial: (
     ds: DatasetProfile,
     data: string
@@ -103,8 +103,6 @@ class Experiment {
       traceId?: number
     ): Promise<ExperimentData> {
       const trialsRes = await this.runTrials(vars, trials);
-      const { validation, aggregated } = await this.validate(trialsRes);
-
       const expData: ExperimentData = {
         meta: {
           name: this.name,
@@ -114,10 +112,11 @@ class Experiment {
         variables: vars,
         results: {
           raw: trialsRes.data,
-          validation,
-          aggregated,
         },
       };
+      const { validation, aggregated } = await this.validate(expData);
+      expData.results.validation = validation;
+      expData.results.aggregated = aggregated;
 
       await saveExperimentData(expData);
       return expData;
@@ -244,6 +243,11 @@ export interface ExperimentData {
   variables: ExpVars;
   meta: ExpMeta;
   results: ExpResults;
+}
+
+export interface TrialsResult {
+  variables: ExpVars;
+  data: string[];
 }
 
 export interface AggregatedValidationResult {

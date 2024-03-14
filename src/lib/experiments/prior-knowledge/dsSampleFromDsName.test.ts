@@ -122,10 +122,10 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dataset: ds, model }),
       };
 
-      const exp = await dsSampleFromDsName.runTrials(vars, 2);
-      expect(exp.results.raw.length).toEqual(2);
-      expect(exp.results.raw[0]).toEqual("this is the result");
-      expect(exp.results.raw[1]).toEqual("this is the result");
+      const tr = await dsSampleFromDsName.runTrials(vars, 2);
+      expect(tr.data.length).toEqual(2);
+      expect(tr.data[0]).toEqual("this is the result");
+      expect(tr.data[1]).toEqual("this is the result");
     });
 
     test("should return empty string if model.makeRequest returns no data", async () => {
@@ -138,10 +138,10 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dataset: ds, model }),
       };
 
-      const exp = await dsSampleFromDsName.runTrials(vars, 1);
+      const tr = await dsSampleFromDsName.runTrials(vars, 1);
       expect(model.makeRequest).toHaveBeenCalled();
-      expect(exp.results.raw.length).toEqual(1);
-      expect(exp.results.raw[0]).toEqual("");
+      expect(tr.data.length).toEqual(1);
+      expect(tr.data[0]).toEqual("");
     });
   });
 
