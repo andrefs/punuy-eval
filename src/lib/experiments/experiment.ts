@@ -19,12 +19,12 @@ class Experiment {
     this: Experiment,
     vars: ExpVars,
     trials: number
-  ) => Promise<TrialsResult>;
+  ) => Promise<ExperimentData>;
   validateTrial: (
     ds: DatasetProfile,
     data: string
   ) => Promise<ValidationResult>;
-  validate: (tr: TrialsResult) => Promise<{
+  validate: (exp: ExperimentData) => Promise<{
     validation: ValidationResult[];
     aggregated: AggregatedValidationResult;
   }>;
@@ -87,9 +87,9 @@ class Experiment {
       };
     };
     this.validateTrial = validateTrial;
-    this.validate = async function (this: Experiment, tr: TrialsResult) {
+    this.validate = async function (this: Experiment, exp: ExperimentData) {
       const trialValidationResults = await Promise.all(
-        tr.data.map(d => this.validateTrial(tr.variables.dataset, d))
+        exp.results.raw.map(d => this.validateTrial(exp.variables.dataset, d))
       );
       return {
         validation: trialValidationResults,
@@ -244,11 +244,6 @@ export interface ExperimentData {
   variables: ExpVars;
   meta: ExpMeta;
   results: ExpResults;
-}
-
-export interface TrialsResult {
-  variables: ExpVars;
-  data: string[];
 }
 
 export interface AggregatedValidationResult {
