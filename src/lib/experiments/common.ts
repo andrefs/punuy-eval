@@ -13,7 +13,7 @@ export function rawResultsToAvg(parsed: RawResult[][]) {
       continue;
     }
     for (const { words, score } of r) {
-      if (words.length !== 2 || score.length === 0 || isNaN(Number(score))) {
+      if (words.length !== 2 || !score?.length || isNaN(Number(score))) {
         continue;
       }
       values[words[0]] = values[words[0]] || {};

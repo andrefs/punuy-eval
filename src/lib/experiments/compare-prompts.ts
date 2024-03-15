@@ -177,7 +177,6 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   for (const vc of varCombs) {
     res.push(await perform(vc, trials, Date.now()));
   }
-  console.log("XXXXXXXXXXXXXXX after performMulti for", { res });
   return res;
 }
 
@@ -199,7 +198,7 @@ const parseToRawResults = (raw: string[]) => {
 function valueFromEntry(
   entry: PartitionData,
   sourceScale: PartitionScale,
-  targetScale: [number, number]
+  targetScale: { min: number; max: number }
 ) {
   let value;
   if ("value" in entry && typeof entry.value === "number") {
@@ -216,16 +215,14 @@ function evalScores(
   ds: DatasetProfile,
   raw: RawResult[][]
 ) {
-  console.warn("XXXXXXXXXXXX 10", { pairs, raw });
   const got = rawResultsToAvg(raw.filter(x => x !== null) as RawResult[][]);
   const pairsHash = pairsToHash(pairs);
-  console.warn("XXXXXXXXXXXX 11", { got });
 
-  const targetScale = [1, 5];
+  const targetScale = { min: 1, max: 5 };
 
   const expected = {} as Scores;
   for (const entry of ds.partitions[0].data) {
-    const value = valueFromEntry(entry);
+    const value = valueFromEntry(entry, ds.partitions[0].scale, targetScale);
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();
     if (got[w1] && got[w1][w2] && pairsHash[w1] && pairsHash[w1][w2]) {
@@ -233,7 +230,6 @@ function evalScores(
       expected[w1][w2] = value;
     }
   }
-  console.warn("XXXXXXXXXXXX 12", { expected });
 
   const gotArr = [] as number[];
   const expArr = [] as number[];
@@ -246,47 +242,21 @@ function evalScores(
     }
   }
 
-  console.warn("XXXXXXXXXXXX", gotArr.length, expArr.length);
-  console.warn({ gotArr, expArr });
-
   return pcorrtest(gotArr, expArr);
-}
-
-function summarizeExp(exp: ExperimentData) {
-  const res = {
-    ...exp,
-    variables: getVarIds(exp.variables),
-  };
-  return res;
 }
 
 async function validate(exps: ExperimentData[]) {
   const res = [];
-  console.log(
-    "XXXXXXXXXXXX EXPS",
-    JSON.stringify(
-      exps.map(e => summarizeExp(e)),
-      null,
-      2
-    )
-  );
   for (const exp of exps) {
     const { parsed, failed } = parseToRawResults(exp.results.raw);
     if (failed.length > parsed.length / 2) {
       logger.error(
         `Failed to parse the results of more than half of the trials for experiment ${exp.meta.traceId}.`
       );
-
-      console.warn(
-        `Failed to parse the results of more than half of the trials for experiment ${exp.meta.traceId}.`
-      );
       continue;
     }
     if (failed.length > 0) {
       logger.warn(
-        `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
-      );
-      console.warn(
         `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
       );
     }
