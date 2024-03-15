@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
-import { normalizeScale, rawResultsToAvg } from "./common";
+import { normalizeScale, rawResultsToAvg } from "./aux";
 
-describe("common", () => {
+describe("aux", () => {
   describe("normalizeScale", () => {
     test("0/10 to 0/100", () => {
       const value = 5;
