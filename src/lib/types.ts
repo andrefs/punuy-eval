@@ -113,39 +113,7 @@ interface Partition {
   /**
    * The scale of the semantic measure values
    */
-  scale: {
-    /**
-     * The scale for the average value
-     */
-    value: {
-      /**
-       * The minimum value of the scale
-       */
-      min: number;
-
-      /**
-       * The maximum value of the scale
-       * @minimum 1
-       */
-      max: number;
-    };
-
-    /**
-     * The scale for the individual annotator values
-     */
-    values?: {
-      /**
-       * The minimum value of the scale
-       */
-      min: number;
-
-      /**
-       * The maximum value of the scale
-       * @minimum 1
-       */
-      max: number;
-    };
-  };
+  scale: PartitionScale;
 
   /**
    * The data for the partition
@@ -156,6 +124,41 @@ interface Partition {
    * Evaluation metrics for the partition
    */
   metrics: PartitionMetrics;
+}
+
+export type PartitionScale = {
+
+  /**
+   * The scale for the average value
+   */
+  value: {
+    /**
+     * The minimum value of the scale
+     */
+    min: number;
+
+    /**
+     * The maximum value of the scale
+     * @minimum 1
+     */
+    max: number;
+  };
+
+  /**
+   * The scale for the individual annotator values
+   */
+  values?: {
+    /**
+     * The minimum value of the scale
+     */
+    min: number;
+
+    /**
+     * The maximum value of the scale
+     * @minimum 1
+     */
+    max: number;
+  };
 }
 
 type PartitionMetrics = {
@@ -205,7 +208,7 @@ type PartitionMetrics = {
   };
 };
 
-type PartitionData = {
+export type PartitionData = {
   /**
    * The first word in the pair
    */
@@ -216,7 +219,7 @@ type PartitionData = {
    */
   term2: string;
 } & (
-  | {
+    | {
       /**
        * The averaged numeric value of the semantic measure for the pair
        */
@@ -234,7 +237,7 @@ type PartitionData = {
        */
       values?: (number | null)[];
     }
-  | {
+    | {
       /**
        * The averaged numeric value of the semantic measure for the pair
        */
@@ -247,4 +250,4 @@ type PartitionData = {
        */
       values: number[];
     }
-);
+  );

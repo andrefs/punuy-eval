@@ -218,6 +218,7 @@ function genVCHelper(vars: ExpVarMatrix): Partial<ExpVars>[] {
 
 export interface PromptGenerator {
   id: string;
+  types?: MeasureType[];
   generate: (vars: Omit<ExpVars, "prompt">) => Prompt;
 }
 

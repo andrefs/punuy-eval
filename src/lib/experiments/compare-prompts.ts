@@ -13,34 +13,56 @@ import {
   genValueCombinations,
   getVarIds,
 } from ".";
-import { DatasetProfile, MeasureType } from "../types";
-import pcorrTest from "@stdlib/stats-pcorrtest";
+import {
+  DatasetProfile,
+  MeasureType,
+  PartitionData,
+  PartitionScale,
+} from "../types";
+import pcorrtest from "@stdlib/stats-pcorrtest";
+import { RawResult, Scores, normalizeScale, rawResultsToAvg } from "./common";
 const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
 const prompts: PromptGenerator[] = [
+  //{
+  //  id: "sim-simplest",
+  //  types: ["similarity"] as MeasureType[],
+  //  text: "Indicate how strongly the words in each pair are similar in meaning using integers from 1 to 5, where 1 means very little similarity and 5 means very similar.",
+  //},
+  //{
+  //  id: "sim-simpleScale",
+  //  types: ["similarity"] as MeasureType[],
+  //  text: "Indicate how strongly the words in each pair are similar in meaning using integers from 1 to 5, where the scale means: 1 - not at all similar, 2 - vaguely similar, 3 - indirectly similar, 4 - strongly similar, 5 - inseparably similar.",
+  //},
+  //{
+  //  id: "sim-adaptedWs353",
+  //  types: ["similarity"] as MeasureType[],
+  //  text: 'Hello, we kindly ask you to assist us in a psycholinguistic experiment, aimed at estimating the semantic similarity of various words in the English language. The purpose of this experiment is to assign semantic similarity scores to pairs of words, so that machine learning algorithms can be subsequently trained and adjusted using human-assigned scores. Below is a list of pairs of words. For each pair, please assign a numerical similarity score between 1 and 5 (1 = words are totally dissimilar, 5 = words are VERY closely similar). By definition, the similarity of the word to itself should be 5. You may assign fractional scores (for example, 3.5). When estimating similarity of antonyms, consider them "dissimilar" rather than "similar". Thank you for your assistance!',
+  //},
+  //{
+  //  id: "rel-simplest",
+  //  types: ["relatedness"] as MeasureType[],
+  //  text: "Indicate how strongly the words in each pair are related in meaning using integers from 1 to 5, where 1 means very unrelated and 5 means very related.",
+  //},
+  //{
+  //  id: "rel-simpleScale",
+  //  types: ["relatedness"] as MeasureType[],
+  //  text: "Indicate how strongly the words in each pair are related in meaning using integers from 1 to 5, where the scale means: 1 - not at all related, 2 - vaguely related, 3 - indirectly related, 4 - strongly related, 5 - inseparably related.",
+  //},
+  //{
+  //  id: "rel-adaptedWs353",
+  //  types: ["relatedness"] as MeasureType[],
+  //  text: 'Hello, we kindly ask you to assist us in a psycholinguistic experiment, aimed at estimating the semantic relatedness of various words in the English language. The purpose of this experiment is to assign semantic relatedness scores to pairs of words, so that machine learning algorithms can be subsequently trained and adjusted using human-assigned scores. Below is a list of pairs of words. For each pair, please assign a numerical relatedness score between 1 and 5 (1 = words are totally unrelated, 5 = words are VERY closely related). By definition, the relatedness of the word to itself should be 5. You may assign fractional scores (for example, 3.5).  When estimating relatedness of antonyms, consider them "related" (i.e., belonging to the same domain or representing features of the same concept), rather than "unrelated". Thank you for your assistance!',
+  //},
   {
-    id: "simplest",
-    types: ["relatedness"] as MeasureType[],
-    text: "Indicate how strongly the words in each pair are related in meaning using integers from 1 to 5, where 1 means very unrelated and 5 means very related.",
-  },
-  {
-    id: "simpleScale",
-    types: ["relatedness"] as MeasureType[],
-    text: "Indicate how strongly the words in each pair are related in meaning using integers from 1 to 5, where the scale means: 1 - not at all related, 2 - vaguely related, 3 - indirectly related, 4 - strongly related, 5 - inseparably related.",
-  },
-  {
-    id: "adaptedWs353",
-    types: ["relatedness"] as MeasureType[],
-    text: 'Hello, we kindly ask you to assist us in a psycholinguistic experiment, aimed at estimating the semantic relatedness of various words in the English language. The purpose of this experiment is to assign semantic relatedness scores to pairs of words, so that machine learning algorithms can be subsequently trained and adjusted using human-assigned scores. Below is a list of pairs of words. For each pair, please assign a numerical relatedness score between 1 and 5 (1 = words are totally unrelated, 5 = words are VERY closely related). By definition, the relatedness of the word to itself should be 5. You may assign fractional scores (for example, 3.5).  When estimating relatedness of antonyms, consider them "related" (i.e., belonging to the same domain or representing features of the same concept), rather than "unrelated". Thank you for your assistance!',
-  },
-  {
-    id: "simlex999",
+    id: "sim-simlex999",
     types: ["similarity"] as MeasureType[],
-    text: "Two words are synonyms if they have very similar meanings. Synonyms represent the same type or category of thing. Here are some examples of synonym pairs: cup/mug, glasses/spectacles, envy/jealousy. In practice, word pairs that are not exactly synonymous may still be very similar. Here are some very similar pairs - we could say they are nearly synonyms: alligator/crocodile, love / affection, frog/toad. In contrast, although the following word pairs are related, they are not very similar. The words represent entirely different types of thing:car/tyre, car/motorway, car/crash, In this survey, you are asked to compare word pairs and to rate how similar they are by moving a slider. Remember, things that are related are not necessarily similar. If you are ever unsure, think back to the examples of synonymous pairs (glasses/spectacles), and consider how close the words are (or are not) to being synonymous. There is no right answer to these questions. It is perfectly reasonable to use your intuition or gut feeling as a native English speaker, especially when you are asked to rate word pairs that you think are not similar at all.",
+    text: "Two words are synonyms if they have very similar meanings. Synonyms represent the same type or category of thing. Here are some examples of synonym pairs: cup/mug, glasses/spectacles, envy/jealousy. In practice, word pairs that are not exactly synonymous may still be very similar. Here are some very similar pairs - we could say they are nearly synonyms: alligator/crocodile, love / affection, frog/toad. In contrast, although the following word pairs are related, they are not very similar. The words represent entirely different types of thing:car/tyre, car/motorway, car/crash. In this survey, you are asked to compare word pairs and to rate how similar they are by assigning a numeric value between 1 (very dissimilar) and 5 (very similar). Remember, things that are related are not necessarily similar. If you are ever unsure, think back to the examples of synonymous pairs (glasses/spectacles), and consider how close the words are (or are not) to being synonymous. There is no right answer to these questions. It is perfectly reasonable to use your intuition or gut feeling as a native English speaker, especially when you are asked to rate word pairs that you think are not similar at all.",
   },
 ].map(p => ({
   id: p.id,
+  types: p.types,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     const pairs = shuffle(vars.dataset.partitions[0].data)
       .slice(0, 100)
@@ -52,8 +74,8 @@ const prompts: PromptGenerator[] = [
       pairs,
       text:
         p.text +
-        "\n" +
-        pairs.map(([term1, term2]) => `${term1},${term2}`).join("\n"),
+        "\n\nPairs of words:\n" +
+        pairs.map(([term1, term2]) => `${term1}, ${term2}`).join("\n"),
     };
   },
 }));
@@ -134,7 +156,18 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   if (!variables?.prompt?.length) {
     variables.prompt = prompts;
   }
-  const varCombs = genValueCombinations(variables);
+  const varCombs = genValueCombinations(variables).filter(vc => {
+    const partMT = vc.dataset.partitions[0].measureType;
+    if (!vc.prompt.types?.includes(partMT)) {
+      logger.info(
+        `Skipping variable combination ${JSON.stringify(
+          getVarIds(vc)
+        )} because the dataset type ${partMT} is not supported by the prompt ${vc.prompt.types}.`
+      );
+      return false;
+    }
+    return true;
+  });
   logger.info(
     `Preparing to run experiment ${name}, ${trials} times on each variable combination:\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
@@ -144,87 +177,130 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   for (const vc of varCombs) {
     res.push(await perform(vc, trials, Date.now()));
   }
+  console.log("XXXXXXXXXXXXXXX after performMulti for", { res });
   return res;
 }
 
-interface RawResult {
-  words: string[];
-  score: string;
-}
-
-interface Scores {
-  [key: string]: { [key: string]: number };
-}
-
-function rawResultsToAvg(raw: string[]) {
-  const values = {} as { [key: string]: { [key: string]: number[] } };
-  for (const r of raw.map(r => JSON.parse(r).scores as RawResult[])) {
-    for (const { words, score } of r) {
-      values[words[0]] = values[words[0]] || {};
-      values[words[0]][words[1]] = values[words[0]][words[1]] || [];
-      values[words[0]][words[1]].push(Number(score));
+const parseToRawResults = (raw: string[]) => {
+  const failed = [];
+  const objs = [] as (RawResult[] | null)[];
+  for (const [i, r] of raw.entries()) {
+    try {
+      const obj = JSON.parse(r).scores as RawResult[];
+      objs.push(obj);
+    } catch (e) {
+      failed.push(i + 1);
+      objs.push(null);
     }
   }
-  const res = {} as Scores;
-  for (const w1 in values) {
-    res[w1] = {};
-    for (const w2 in values[w1]) {
-      res[w1][w2] =
-        values[w1][w2].reduce((a, b) => a + b, 0) / values[w1][w2].length;
-    }
+  return { parsed: objs, failed };
+};
+
+function valueFromEntry(
+  entry: PartitionData,
+  sourceScale: PartitionScale,
+  targetScale: [number, number]
+) {
+  let value;
+  if ("value" in entry && typeof entry.value === "number") {
+    value = normalizeScale(entry.value, sourceScale.value, targetScale);
+  } else {
+    const values = entry.values!.filter(x => typeof x === "number") as number[];
+    value = values!.reduce((a, b) => a! + b!, 0) / values.length;
   }
-  return res;
+  return value;
 }
 
 function evalScores(
   pairs: [string, string][],
   ds: DatasetProfile,
-  raw: string[]
+  raw: RawResult[][]
 ) {
-  const got = rawResultsToAvg(raw);
+  console.warn("XXXXXXXXXXXX 10", { pairs, raw });
+  const got = rawResultsToAvg(raw.filter(x => x !== null) as RawResult[][]);
+  const pairsHash = pairsToHash(pairs);
+  console.warn("XXXXXXXXXXXX 11", { got });
+
+  const targetScale = [1, 5];
 
   const expected = {} as Scores;
   for (const entry of ds.partitions[0].data) {
-    let value;
-    if ("value" in entry && typeof entry.value === "number") {
-      value = entry.value;
-    } else {
-      const values = entry.values!.filter(
-        x => typeof x === "number"
-      ) as number[];
-      value = values!.reduce((a, b) => a! + b!, 0) / values.length;
-    }
+    const value = valueFromEntry(entry);
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();
-    if (got[w1] && got[w1][w2]) {
+    if (got[w1] && got[w1][w2] && pairsHash[w1] && pairsHash[w1][w2]) {
       expected[w1] = expected[w1] || {};
       expected[w1][w2] = value;
     }
   }
+  console.warn("XXXXXXXXXXXX 12", { expected });
 
   const gotArr = [] as number[];
   const expArr = [] as number[];
   for (const w1 in expected) {
     for (const w2 in expected[w1]) {
-      if (got[w1] && got[w1][w2]) {
-        gotArr.push(got[w1][w2]);
-        expArr.push(expected[w1][w2]);
+      if (w1 in got && w2 in got[w1]) {
+        gotArr.push(Number(got[w1][w2]));
+        expArr.push(Number(expected[w1][w2]));
       }
     }
   }
 
-  return pcorrTest(gotArr, expArr);
+  console.warn("XXXXXXXXXXXX", gotArr.length, expArr.length);
+  console.warn({ gotArr, expArr });
+
+  return pcorrtest(gotArr, expArr);
+}
+
+function summarizeExp(exp: ExperimentData) {
+  const res = {
+    ...exp,
+    variables: getVarIds(exp.variables),
+  };
+  return res;
 }
 
 async function validate(exps: ExperimentData[]) {
-  const res = exps.map(exp => ({
-    variables: exp.variables,
-    corr: evalScores(
+  const res = [];
+  console.log(
+    "XXXXXXXXXXXX EXPS",
+    JSON.stringify(
+      exps.map(e => summarizeExp(e)),
+      null,
+      2
+    )
+  );
+  for (const exp of exps) {
+    const { parsed, failed } = parseToRawResults(exp.results.raw);
+    if (failed.length > parsed.length / 2) {
+      logger.error(
+        `Failed to parse the results of more than half of the trials for experiment ${exp.meta.traceId}.`
+      );
+
+      console.warn(
+        `Failed to parse the results of more than half of the trials for experiment ${exp.meta.traceId}.`
+      );
+      continue;
+    }
+    if (failed.length > 0) {
+      logger.warn(
+        `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
+      );
+      console.warn(
+        `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
+      );
+    }
+
+    const corr = evalScores(
       (exp.variables as ExpVarsFixedPrompt).prompt.pairs!,
       exp.variables.dataset,
-      exp.results.raw
-    ),
-  }));
+      parsed.filter(x => x !== null) as RawResult[][]
+    );
+    res.push({
+      variables: exp.variables,
+      corr,
+    });
+  }
 
   const comparisons = [];
 
@@ -250,7 +326,7 @@ async function validate(exps: ExperimentData[]) {
 
       //const compV1V2 = [] as typeof res;
       const compV1V2 = {} as {
-        [key: string]: { [key: string]: number };
+        [key: string]: { [key: string]: string };
       };
       const fixedValues = {} as { [key: string]: string };
       for (let k = 0; k < res.length; k++) {
@@ -260,14 +336,16 @@ async function validate(exps: ExperimentData[]) {
             fixedValues[f] = r.variables[f].id;
           }
           compV1V2[r.variables[v1].id] = {};
-          compV1V2[r.variables[v1].id][r.variables[v2].id] = r.corr.pcorr;
+          compV1V2[r.variables[v1].id][r.variables[v2].id] =
+            r.corr.pcorr.toFixed(3);
           continue;
         }
         if (fixed.some(f => r.variables[f].id !== fixedValues[f])) {
           continue;
         }
         compV1V2[r.variables[v1].id] = compV1V2[r.variables[v1].id] || {};
-        compV1V2[r.variables[v1].id][r.variables[v2].id] = r.corr.pcorr;
+        compV1V2[r.variables[v1].id][r.variables[v2].id] =
+          r.corr.pcorr.toFixed(3);
       }
 
       comparisons.push({
@@ -282,13 +360,24 @@ async function validate(exps: ExperimentData[]) {
     console.log(
       `Comparing ${comp.variables.join(" and ")} with fixed variables ${comp.fixed.join(", ")}`
     );
-    const table = [];
+    const table = {} as { [key: string]: { [key: string]: string } };
 
     for (const v1Val in comp.data) {
       table[v1Val] = comp.data[v1Val];
     }
     console.table(table);
   }
+}
+
+function pairsToHash(pairs: [string, string][]) {
+  const res = {} as {
+    [key: string]: { [key: string]: boolean };
+  };
+  for (const [w1, w2] of pairs) {
+    res[w1] = res[w1] || {};
+    res[w1][w2] = true;
+  }
+  return res;
 }
 
 export async function saveExperimentData(data: ExperimentData) {

@@ -43,7 +43,8 @@
     "eslint-config-prettier": "9.1.0",
     "patch-package": "8.0.0",
     "pino-pretty": "10.3.1",
-    "prettier": "3.2.5",
-    "ts-jest": "29.1.2"
+    "prettier": "2",
+    "ts-jest": "29.1.2",
+    "prettier-2": "npm:prettier@^2"
   }
 }
