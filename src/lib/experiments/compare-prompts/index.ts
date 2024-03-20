@@ -98,31 +98,33 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   const varCombs = [];
   const res = [];
 
-  for (const l of ["en", "pt"]) {
-    for (const mt of ["similarity", "relatedness"]) {
+  for (const l of ["en" as const, "pt" as const]) {
+    for (const mt of ["similarity" as const, "relatedness" as const]) {
       const filtPrompts = variables.prompt.filter(
         p => p.language === l && p.type === mt
       );
       const filtDatasets = variables.dataset.filter(
         d =>
           d.metadata.languages.some(dsl => dsl === l) &&
-          d.partitions.some(p => p.measureType === mt)
+          d.partitions[0].measureType === mt
       );
       if (filtPrompts.length === 0 || filtDatasets.length === 0) {
         logger.warn(
-          `No prompts or datasets for language ${l} and measure type ${mt}. Skipping.`
+          `No prompts or datasets for language [${l}] and measure type [${mt}]. Skipping.`
         );
         continue;
       }
       logger.info(
-        `Running experiments for language ${l} and measure type ${mt}.`
+        `Running experiments for language [${l}] and measure type [${mt}]`
       );
-      const vars: ExpVarMatrix = {
+      const vm: ExpVarMatrix = {
         ...variables,
         prompt: filtPrompts,
         dataset: filtDatasets,
+        language: [l],
+        measureType: [mt],
       };
-      varCombs.push(...genValueCombinations(vars));
+      varCombs.push(...genValueCombinations(vm));
     }
   }
   logger.info(
@@ -210,27 +212,27 @@ async function validate(exps: ExperimentData[]) {
           r.corr.pcorr.toFixed(3)
         );
       }
+      if (
+        Object.keys(compV1V2).length === 1 &&
+        Object.keys(compV1V2[Object.keys(compV1V2)[0]]).length === 1
+      ) {
+        continue;
+      }
+      console.log("XXXXXXXXXXXXX 1", JSON.stringify(compV1V2, null, 2));
 
       comparisons.push({
         variables: [v1, v2],
-        fixed,
+        fixed: fixedValues,
         data: compV1V2,
       });
     }
   }
 
   for (const comp of comparisons) {
-    logger.info(
-      `Comparing ${comp.variables.join(" and ")} with fixed variables ${comp.fixed.join(", ")}`
-    );
     const tablePP = pp.table(comp.data);
-    logger.info(tablePP);
-    //const table = {} as { [key: string]: { [key: string]:number } };
-
-    //for (const v1Val in comp.data) {
-    //  table[v1Val] = comp.data[v1Val];
-    //}
-    //console.table(table);
+    logger.info(
+      `Comparing ${comp.variables.map(v => `[${v}]`).join(" and ")} with fixed variables ${JSON.stringify(comp.fixed)}\n${tablePP}`
+    );
   }
 }
 
