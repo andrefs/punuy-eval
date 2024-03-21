@@ -273,7 +273,7 @@ async function validate(exps: ExperimentData[]) {
         continue;
       }
 
-      const compGroups = [] as ComparisonGroup[];
+      let compGroups = [] as ComparisonGroup[];
       const fixedNames = varNames.filter(v => v !== v1 && v !== v2);
 
       for (const expScore of expScores) {
@@ -293,7 +293,12 @@ async function validate(exps: ExperimentData[]) {
         group.data[v1Val][v2Val] = corr;
       }
 
-      // TODO filter out groups with only one value
+      // keep only groups with more than one value for each variable
+      compGroups = compGroups.filter(
+        g =>
+          Object.keys(g.data).length > 1 &&
+          Object.keys(g.data).every(k => Object.keys(g.data[k]).length > 1)
+      );
 
       comparisons.push(...compGroups);
     }
