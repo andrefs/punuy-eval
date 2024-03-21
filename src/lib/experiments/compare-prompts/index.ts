@@ -98,15 +98,18 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   const varCombs = [];
   const res = [];
 
-  for (const l of ["en" as const, "pt" as const]) {
-    for (const mt of ["similarity" as const, "relatedness" as const]) {
+  for (const l of [{ id: "en" as const }, { id: "pt" as const }]) {
+    for (const mt of [
+      { id: "similarity" } as const,
+      { id: "relatedness" as const },
+    ]) {
       const filtPrompts = variables.prompt.filter(
-        p => p.language === l && p.type === mt
+        p => p.language === l.id && p.type === mt.id
       );
       const filtDatasets = variables.dataset.filter(
         d =>
-          d.metadata.languages.some(dsl => dsl === l) &&
-          d.partitions[0].measureType === mt
+          d.metadata.languages.some(dsl => dsl === l.id) &&
+          d.partitions[0].measureType === mt.id
       );
       if (filtPrompts.length === 0 || filtDatasets.length === 0) {
         logger.warn(
@@ -138,21 +141,48 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   return res;
 }
 
-async function validate(exps: ExperimentData[]) {
+function failedMoreThanHalf(
+  failed: number[],
+  parsed: (RawResult[] | null)[],
+  traceId: number
+) {
+  if (failed.length > parsed.length / 2) {
+    logger.error(
+      `Failed to parse the results of more than half of the trials for experiment ${traceId}.`
+    );
+    return true;
+  }
+  return false;
+}
+
+function warnIfFailed(failed: number[], traceId: number, exp: ExperimentData) {
+  if (failed.length > 0) {
+    logger.warn(
+      `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
+    );
+  }
+}
+
+interface ExpScore {
+  variables: ExpVars;
+  corr: ReturnType<typeof evalScores>;
+}
+
+/**
+ * Evaluate the scores of the experiments
+ * Correlate results of each experiment with its dataset
+ * @param exps - The experiments to evaluate
+ * @returns The evaluated scores
+ * @throws {Error} If more than half of the trials failed to parse
+ */
+function expEvalScores(exps: ExperimentData[]): ExpScore[] {
   const res = [];
   for (const exp of exps) {
     const { parsed, failed } = parseToRawResults(exp.results.raw);
-    if (failed.length > parsed.length / 2) {
-      logger.error(
-        `Failed to parse the results of more than half of the trials for experiment ${exp.meta.traceId}.`
-      );
+    if (failedMoreThanHalf(failed, parsed, exp.meta.traceId)) {
       continue;
     }
-    if (failed.length > 0) {
-      logger.warn(
-        `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
-      );
-    }
+    warnIfFailed(failed, exp.meta.traceId, exp);
 
     const corr = evalScores(
       (exp.variables as ExpVarsFixedPrompt).prompt.pairs!,
@@ -164,74 +194,115 @@ async function validate(exps: ExperimentData[]) {
       corr,
     });
   }
+  return res;
+}
 
-  const comparisons = [];
-
+function calcVarValues(exps: ExperimentData[]) {
   const varValues: { [key: string]: Set<string> } = {};
-  for (const r of res) {
+  for (const r of exps) {
     for (const v in r.variables) {
       if (!varValues[v]) {
         varValues[v] = new Set();
       }
-      varValues[v].add(r.variables[v as keyof ExpVars].id);
+      const value = r.variables[v as keyof ExpVars]!;
+      varValues[v].add(value.id);
     }
   }
+  const varNames = Object.keys(varValues).sort() as (keyof ExpVars)[];
+  return { varValues, varNames };
+}
 
-  const varNames = Object.keys(varValues) as (keyof ExpVars)[];
-  for (let i = 0; i < varNames.length; i++) {
-    const v1 = varNames[i];
-    for (let j = i + 1; j < varNames.length; j++) {
-      const v2 = varNames[j];
+export interface FixedValueConfig {
+  [varName: string]: string;
+}
+
+export interface ComparisonGroup {
+  fixedValueConfig: FixedValueConfig;
+  variables: [keyof ExpVars, keyof ExpVars];
+  data: {
+    [v1: string]: {
+      [v2: string]: number;
+    };
+  };
+}
+
+export function getFixedValueGroup(
+  compGroups: ComparisonGroup[],
+  variables: ExpVars,
+  fixedNames: (keyof ExpVars)[],
+  v1: keyof ExpVars,
+  v2: keyof ExpVars
+): ComparisonGroup {
+  for (const g of compGroups) {
+    if (fixedNames.every(f => variables[f]!.id === g.fixedValueConfig[f])) {
+      return g;
+    }
+  }
+  const fvc = {} as FixedValueConfig;
+  for (const f of fixedNames) {
+    fvc[f] = variables[f]!.id;
+  }
+  const newGroup = {
+    fixedValueConfig: fvc,
+    data: {},
+    variables: [v1, v2] as [keyof ExpVars, keyof ExpVars],
+  };
+  compGroups.push(newGroup);
+  return newGroup;
+}
+
+function logExpScores(expScores: ExpScore[]) {
+  for (const expScore of expScores) {
+    logger.info(
+      `Exp with variables ${JSON.stringify(getVarIds(expScore.variables))} has correlation ${expScore.corr.pcorr}.`
+    );
+  }
+}
+
+async function validate(exps: ExperimentData[]) {
+  const expScores = expEvalScores(exps);
+  const { varValues, varNames } = calcVarValues(exps);
+
+  logExpScores(expScores);
+
+  const comparisons = [];
+  for (const [i, v1] of varNames.entries()) {
+    for (const v2 of varNames.slice(i + 1)) {
       if (varValues[v1].size === 1 && varValues[v2].size === 1) {
+        // No need to compare if both variables have only one value
         continue;
       }
-      const fixed = varNames.filter(v => v !== v1 && v !== v2);
 
-      //const compV1V2 = [] as typeof res;
-      const compV1V2 = {} as {
-        [key: string]: { [key: string]: number };
-      };
-      const fixedValues = {} as { [key: string]: string };
-      for (let k = 0; k < res.length; k++) {
-        const r = res[k];
-        if (k === 0) {
-          for (const f of fixed) {
-            fixedValues[f] = r.variables[f].id;
-          }
-          compV1V2[r.variables[v1].id] = {};
-          compV1V2[r.variables[v1].id][r.variables[v2].id] = Number(
-            r.corr.pcorr.toFixed(3)
-          );
-          continue;
-        }
-        if (fixed.some(f => r.variables[f].id !== fixedValues[f])) {
-          continue;
-        }
-        compV1V2[r.variables[v1].id] = compV1V2[r.variables[v1].id] || {};
-        compV1V2[r.variables[v1].id][r.variables[v2].id] = Number(
-          r.corr.pcorr.toFixed(3)
+      const compGroups = [] as ComparisonGroup[];
+      const fixedNames = varNames.filter(v => v !== v1 && v !== v2);
+
+      for (const expScore of expScores) {
+        const v1Val = expScore.variables[v1]!.id;
+        const v2Val = expScore.variables[v2]!.id;
+        const corr = Number(expScore.corr.pcorr.toFixed(3));
+
+        const group = getFixedValueGroup(
+          compGroups,
+          expScore.variables,
+          fixedNames,
+          v1,
+          v2
         );
-      }
-      if (
-        Object.keys(compV1V2).length === 1 &&
-        Object.keys(compV1V2[Object.keys(compV1V2)[0]]).length === 1
-      ) {
-        continue;
-      }
-      console.log("XXXXXXXXXXXXX 1", JSON.stringify(compV1V2, null, 2));
 
-      comparisons.push({
-        variables: [v1, v2],
-        fixed: fixedValues,
-        data: compV1V2,
-      });
+        group.data[v1Val] = group.data[v1Val] || {};
+        group.data[v1Val][v2Val] = corr;
+      }
+
+      // TODO filter out groups with only one value
+
+      comparisons.push(...compGroups);
     }
   }
 
   for (const comp of comparisons) {
     const tablePP = pp.table(comp.data);
     logger.info(
-      `Comparing ${comp.variables.map(v => `[${v}]`).join(" and ")} with fixed variables ${JSON.stringify(comp.fixed)}\n${tablePP}`
+      `Comparing ${comp.variables.map(v => `[${v}]`).join(" and ")} with fixed variables ${JSON.stringify(comp.fixedValueConfig)}\n${tablePP}`
     );
   }
 }

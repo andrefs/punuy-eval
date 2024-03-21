@@ -170,13 +170,23 @@ export async function saveExperimentData(data: ExperimentData) {
   await fs.writeFile(filename, json);
 }
 
-export function getVarIds(vars: ExpVars) {
-  return Object.entries(vars).map(([k, v]) => ({ [k]: v.id }));
+export function getVarIds(vars: ExpVars | ExpVarMatrix) {
+  const res = {} as { [key: string]: string | string[] };
+  for (const [k, v] of Object.entries(vars)) {
+    if (Array.isArray(v)) {
+      res[k] = v.map(v => v.id || v) as (keyof ExpVars | keyof ExpVarMatrix)[];
+      continue;
+    }
+    res[k] = v.id || v;
+  }
+  return res;
 }
 
 export interface ExpVarMatrix {
   model: Model[];
   dataset: DatasetProfile[];
+  language?: ({ id: "pt" } | { id: "en" })[];
+  measureType?: { id: MeasureType }[];
   prompt?: (Prompt | PromptGenerator)[];
 }
 
@@ -185,6 +195,12 @@ export type ExpVarsFixedPrompt = Omit<ExpVars, "prompt"> & { prompt: Prompt };
 export interface ExpVars {
   dataset: DatasetProfile;
   model: Model;
+  language?: {
+    id: "pt" | "en";
+  };
+  measureType?: {
+    id: MeasureType;
+  };
   prompt: Prompt | PromptGenerator;
 }
 
