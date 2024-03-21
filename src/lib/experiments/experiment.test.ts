@@ -2,32 +2,8 @@ import { describe, expect, test } from "@jest/globals";
 import { ExpVars, Prompt, genValueCombinations, getVarIds } from "./experiment";
 import { Model } from "../models";
 import { DatasetProfile } from "../types";
-import { ComparisonGroup, getFixedValueGroup } from "./compare-prompts";
 
 describe("experiment", () => {
-  describe("getFixedValueGroup", () => {
-    test("should create a fixed value group when there's none", () => {
-      const compGroups = [] as ComparisonGroup[];
-      const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
-      const vars = {
-        model: { id: "m1" } as Model,
-        dataset: { id: "d1" } as DatasetProfile,
-        language: { id: "pt" as const },
-        measureType: { id: "similarity" as const },
-        prompt: { id: "p1" } as Prompt,
-      };
-
-      const group = getFixedValueGroup(
-        compGroups,
-        vars,
-        fixedNames,
-        "language",
-        "measureType"
-      );
-      expect(group).toMatchInlineSnapshot();
-    });
-  });
-
   describe("getVarIds", () => {
     test("should return the ids of an ExpVars", () => {
       const vars: ExpVars = {

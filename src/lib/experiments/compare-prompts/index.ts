@@ -12,7 +12,13 @@ import {
   genValueCombinations,
   getVarIds,
 } from "..";
-import { RawResult, evalScores, parseToRawResults } from "./aux";
+import {
+  ComparisonGroup,
+  RawResult,
+  evalScores,
+  getFixedValueGroup,
+  parseToRawResults,
+} from "./aux";
 import prompts from "./prompts";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
@@ -155,7 +161,7 @@ function failedMoreThanHalf(
   return false;
 }
 
-function warnIfFailed(failed: number[], traceId: number, exp: ExperimentData) {
+function warnIfFailed(failed: number[], exp: ExperimentData) {
   if (failed.length > 0) {
     logger.warn(
       `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
@@ -182,7 +188,7 @@ function expEvalScores(exps: ExperimentData[]): ExpScore[] {
     if (failedMoreThanHalf(failed, parsed, exp.meta.traceId)) {
       continue;
     }
-    warnIfFailed(failed, exp.meta.traceId, exp);
+    warnIfFailed(failed, exp);
 
     const corr = evalScores(
       (exp.variables as ExpVarsFixedPrompt).prompt.pairs!,
@@ -210,45 +216,6 @@ function calcVarValues(exps: ExperimentData[]) {
   }
   const varNames = Object.keys(varValues).sort() as (keyof ExpVars)[];
   return { varValues, varNames };
-}
-
-export interface FixedValueConfig {
-  [varName: string]: string;
-}
-
-export interface ComparisonGroup {
-  fixedValueConfig: FixedValueConfig;
-  variables: [keyof ExpVars, keyof ExpVars];
-  data: {
-    [v1: string]: {
-      [v2: string]: number;
-    };
-  };
-}
-
-export function getFixedValueGroup(
-  compGroups: ComparisonGroup[],
-  variables: ExpVars,
-  fixedNames: (keyof ExpVars)[],
-  v1: keyof ExpVars,
-  v2: keyof ExpVars
-): ComparisonGroup {
-  for (const g of compGroups) {
-    if (fixedNames.every(f => variables[f]!.id === g.fixedValueConfig[f])) {
-      return g;
-    }
-  }
-  const fvc = {} as FixedValueConfig;
-  for (const f of fixedNames) {
-    fvc[f] = variables[f]!.id;
-  }
-  const newGroup = {
-    fixedValueConfig: fvc,
-    data: {},
-    variables: [v1, v2] as [keyof ExpVars, keyof ExpVars],
-  };
-  compGroups.push(newGroup);
-  return newGroup;
 }
 
 function logExpScores(expScores: ExpScore[]) {

@@ -2,6 +2,45 @@ import pcorrTest from "@stdlib/stats-pcorrtest";
 import { DatasetProfile } from "../../types";
 import { PartitionScale } from "../../types";
 import { PartitionData } from "../../types";
+import { ExpVars } from "..";
+
+export interface ComparisonGroup {
+  fixedValueConfig: FixedValueConfig;
+  variables: [keyof ExpVars, keyof ExpVars];
+  data: {
+    [v1: string]: {
+      [v2: string]: number;
+    };
+  };
+}
+export interface FixedValueConfig {
+  [varName: string]: string;
+}
+
+export function getFixedValueGroup(
+  compGroups: ComparisonGroup[],
+  variables: ExpVars,
+  fixedNames: (keyof ExpVars)[],
+  v1: keyof ExpVars,
+  v2: keyof ExpVars
+): ComparisonGroup {
+  for (const g of compGroups) {
+    if (fixedNames.every(f => variables[f]!.id === g.fixedValueConfig[f])) {
+      return g;
+    }
+  }
+  const fvc = {} as FixedValueConfig;
+  for (const f of fixedNames) {
+    fvc[f] = variables[f]!.id;
+  }
+  const newGroup = {
+    fixedValueConfig: fvc,
+    data: {},
+    variables: [v1, v2] as [keyof ExpVars, keyof ExpVars],
+  };
+  compGroups.push(newGroup);
+  return newGroup;
+}
 
 export interface RawResult {
   words: string[];
