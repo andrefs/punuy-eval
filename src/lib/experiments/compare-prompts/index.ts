@@ -221,7 +221,9 @@ function calcVarValues(exps: ExperimentData[]) {
 function logExpScores(expScores: ExpScore[]) {
   for (const expScore of expScores) {
     logger.info(
-      `Exp with variables ${JSON.stringify(getVarIds(expScore.variables))} has correlation ${expScore.corr.pcorr}.`
+      `Exp with variables ${JSON.stringify(
+        getVarIds(expScore.variables)
+      )} has correlation ${expScore.corr.pcorr}.`
     );
   }
 }
@@ -274,7 +276,11 @@ async function validate(exps: ExperimentData[]) {
   for (const comp of comparisons) {
     const tablePP = pp.table(comp.data);
     logger.info(
-      `Comparing ${comp.variables.map(v => `[${v}]`).join(" and ")} with fixed variables ${JSON.stringify(comp.fixedValueConfig)}\n${tablePP}`
+      `Comparing ${comp.variables
+        .map(v => `[${v}]`)
+        .join(" and ")} with fixed variables ${JSON.stringify(
+        comp.fixedValueConfig
+      )}\n${tablePP}`
     );
   }
 }
