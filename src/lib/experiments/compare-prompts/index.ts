@@ -1,5 +1,3 @@
-import fs from "fs/promises";
-import oldFs from "fs";
 import logger from "../../logger";
 import pp from "not-a-log";
 
@@ -9,8 +7,6 @@ import {
   ExpVarsFixedPrompt,
   ExperimentData,
   TrialsResult,
-  genValueCombinations,
-  getVarIds,
 } from "..";
 import {
   ComparisonGroup,
@@ -20,6 +16,11 @@ import {
   parseToRawResults,
 } from "./aux";
 import prompts from "./prompts";
+import {
+  genValueCombinations,
+  getVarIds,
+  saveExperimentData,
+} from "../experiment/aux";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
@@ -283,31 +284,6 @@ async function validate(exps: ExperimentData[]) {
       )}\n${tablePP}`
     );
   }
-}
-
-export async function saveExperimentData(data: ExperimentData) {
-  const ts = data.meta.traceId;
-  const dsId = data.variables.dataset.id;
-  const promptId = data.variables.prompt.id;
-  const expName = data.meta.name;
-  const modelId = data.variables.model.id;
-  const rootFolder = "./results";
-  const filename = `${rootFolder}/${ts}_${expName}_${promptId}_${dsId}_${modelId}.json`;
-  const json = JSON.stringify(data, null, 2);
-
-  logger.info(
-    `Saving experiment ${data.meta.name} with traceId ${
-      data.meta.traceId
-    } to ${filename}. It ran ${
-      data.results.raw.length
-    } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
-  );
-
-  if (!oldFs.existsSync(rootFolder)) {
-    await fs.mkdir(rootFolder);
-  }
-
-  await fs.writeFile(filename, json);
 }
 
 const ComparePromptsExperiment = {

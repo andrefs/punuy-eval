@@ -1,7 +1,8 @@
 import { describe, expect, test } from "@jest/globals";
-import { ExpVars, Prompt, genValueCombinations, getVarIds } from "./experiment";
-import { Model } from "../models";
-import { DatasetProfile } from "../types";
+import { ExpVars, Prompt } from "../experiment";
+import { Model } from "../../models";
+import { DatasetProfile } from "../../types";
+import { genValueCombinations, getVarIds } from "./aux";
 
 describe("experiment", () => {
   describe("getVarIds", () => {
