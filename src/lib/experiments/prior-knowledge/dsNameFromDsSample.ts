@@ -7,10 +7,11 @@ const description =
   "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
 const promptGen = {
   id: `${name}-prompt`,
+  language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     return {
       id: `${name}-${vars.dataset.id}-prompt`,
-      types: [],
+      language: "en" as const,
       text:
         `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
         vars.dataset.partitions[0].data

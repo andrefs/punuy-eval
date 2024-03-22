@@ -13,10 +13,11 @@ const description =
   "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
 const promptGen = {
   id: `${name}-prompt`,
+  language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     return {
       id: `${name}-${vars.dataset.id}-prompt`,
-      types: [],
+      language: "en" as const,
       text:
         'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
         vars.dataset.partitions[0].data

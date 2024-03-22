@@ -16,11 +16,12 @@ const description =
   "Check if LLM can, when given a dataset name, identify the scientific paper describing it";
 const promptGen = {
   id: `${name}-prompt`,
+  language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     const year = vars.dataset.metadata.date.split("-")[0];
     return {
       id: `${name}-${vars.dataset.id}-prompt`,
-      types: [],
+      language: "en" as const,
       text: `${vars.dataset.metadata.name} is a semantic measure gold standard dataset, published in ${year}. Please return the title of the scientific article describing this dataset.`,
     };
   },

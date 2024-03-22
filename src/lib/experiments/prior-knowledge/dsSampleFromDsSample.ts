@@ -14,6 +14,7 @@ const description =
   "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
 const promptGen = {
   id: `${name}-prompt`,
+  language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     const numberOfPairs = vars.dataset.partitions.reduce(
       (acc, p) => acc + p.data.length,
@@ -22,7 +23,7 @@ const promptGen = {
     const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
     return {
       id: `${name}-${vars.dataset.id}-prompt`,
-      types: [],
+      language: "en" as const,
       text:
         `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
         `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included in my list.\n` +

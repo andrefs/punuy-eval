@@ -241,7 +241,7 @@ export interface PromptGenerator {
 
 export interface Prompt {
   id: string;
-  type: MeasureType;
+  type?: MeasureType;
   language: "pt" | "en";
   pairs?: [string, string][];
   text: string;
