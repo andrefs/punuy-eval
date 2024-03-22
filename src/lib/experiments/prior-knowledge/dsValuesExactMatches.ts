@@ -6,7 +6,7 @@ import {
   DataPartiallyIncorrect,
   JsonSyntaxError,
   NoData,
-} from "../../validation";
+} from "../../evaluation";
 
 const name = "ds-values-exact-matches";
 const description =
@@ -58,7 +58,7 @@ async function runTrial(
   return result;
 }
 
-async function validateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(ds: DatasetProfile, data: string) {
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
@@ -129,6 +129,6 @@ export default new Experiment(
   description,
   resultSchema,
   runTrial,
-  validateTrial,
+  evaluateTrial,
   [promptGen]
 );

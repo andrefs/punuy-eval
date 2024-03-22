@@ -10,7 +10,7 @@ const compareMC30 = async () => {
 
   const humanScores = await loadDatasetScores();
 
-  await compareMc30.validate(res, humanScores, trials);
+  await compareMc30.evaluate(res, humanScores, trials);
 };
 
 compareMC30().then(() => {

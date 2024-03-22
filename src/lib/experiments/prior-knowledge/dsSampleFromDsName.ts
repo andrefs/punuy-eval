@@ -7,7 +7,7 @@ import {
   DataPartiallyIncorrect,
   JsonSyntaxError,
   NoData,
-} from "../../validation";
+} from "../../evaluation";
 
 const name = "ds-sample-from-ds-name";
 const description =
@@ -50,8 +50,8 @@ async function runTrial(
   schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   const f = {
-    name: "validate_sample",
-    description: "Validates the pairs sampled from the dataset.",
+    name: "evaluate_sample",
+    description: "evaluates the pairs sampled from the dataset.",
     parameters: schema,
   };
 
@@ -61,7 +61,7 @@ async function runTrial(
   return result;
 }
 
-async function validateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(ds: DatasetProfile, data: string) {
   if (!data.trim()) {
     return new NoData();
   }
@@ -113,6 +113,6 @@ export default new Experiment(
   description,
   resultSchema,
   runTrial,
-  validateTrial,
+  evaluateTrial,
   [promptGen]
 );

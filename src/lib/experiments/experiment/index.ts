@@ -2,10 +2,10 @@ import OpenAI from "openai";
 import { Model } from "../../models";
 import { DatasetProfile, MeasureType } from "../../types";
 import {
-  ValidationResult,
-  ValidationType,
-  combineValidations,
-} from "../../validation";
+  EvaluationResult,
+  EvaluationType,
+  combineEvaluations,
+} from "../../evaluation";
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 
@@ -19,13 +19,13 @@ class Experiment {
     vars: ExpVars,
     trials: number
   ) => Promise<TrialsResult>;
-  validateTrial: (
+  evaluateTrial: (
     ds: DatasetProfile,
     data: string
-  ) => Promise<ValidationResult>;
-  validate: (exp: ExperimentData) => Promise<{
-    validation: ValidationResult[];
-    aggregated: AggregatedValidationResult;
+  ) => Promise<EvaluationResult>;
+  evaluate: (exp: ExperimentData) => Promise<{
+    evaluation: EvaluationResult[];
+    aggregated: AggregatedEvaluationResult;
   }>;
   perform: (
     this: Experiment,
@@ -47,10 +47,10 @@ class Experiment {
       vars: ExpVarsFixedPrompt,
       schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
     ) => Promise<ModelResponse>,
-    validateTrial: (
+    evaluateTrial: (
       ds: DatasetProfile,
       data: string
-    ) => Promise<ValidationResult>,
+    ) => Promise<EvaluationResult>,
     prompts?: (Prompt | PromptGenerator)[]
   ) {
     this.name = name;
@@ -85,14 +85,14 @@ class Experiment {
         data: results,
       };
     };
-    this.validateTrial = validateTrial;
-    this.validate = async function (this: Experiment, exp: ExperimentData) {
-      const trialValidationResults = await Promise.all(
-        exp.results.raw.map(d => this.validateTrial(exp.variables.dataset, d))
+    this.evaluateTrial = evaluateTrial;
+    this.evaluate = async function (this: Experiment, exp: ExperimentData) {
+      const trialEvaluationResults = await Promise.all(
+        exp.results.raw.map(d => this.evaluateTrial(exp.variables.dataset, d))
       );
       return {
-        validation: trialValidationResults,
-        aggregated: await combineValidations(trialValidationResults),
+        evaluation: trialEvaluationResults,
+        aggregated: await combineEvaluations(trialEvaluationResults),
       };
     };
     this.perform = async function (
@@ -113,8 +113,8 @@ class Experiment {
           raw: trialsRes.data,
         },
       };
-      const { validation, aggregated } = await this.validate(expData);
-      expData.results.validation = validation;
+      const { evaluation, aggregated } = await this.evaluate(expData);
+      expData.results.evaluation = evaluation;
       expData.results.aggregated = aggregated;
 
       await saveExperimentData(expData);
@@ -190,8 +190,8 @@ export interface ExpMeta {
 
 export interface ExpResults {
   raw: string[];
-  validation?: ValidationResult[];
-  aggregated?: AggregatedValidationResult;
+  evaluation?: EvaluationResult[];
+  aggregated?: AggregatedEvaluationResult;
 }
 
 export interface ExperimentData {
@@ -205,10 +205,10 @@ export interface TrialsResult {
   data: string[];
 }
 
-export interface AggregatedValidationResult {
+export interface AggregatedEvaluationResult {
   avg: number;
   resultTypes: {
-    [key in ValidationType]: number;
+    [key in EvaluationType]: number;
   };
 }
 

@@ -229,7 +229,7 @@ function logExpScores(expScores: ExpScore[]) {
   }
 }
 
-async function validate(exps: ExperimentData[]) {
+async function evaluate(exps: ExperimentData[]) {
   const expScores = expEvalScores(exps);
   const { varValues, varNames } = calcVarValues(exps);
 
@@ -292,7 +292,7 @@ const ComparePromptsExperiment = {
   prompts,
   schema: resultSchema,
   performMulti,
-  validate,
+  evaluate,
 };
 
 export default ComparePromptsExperiment;

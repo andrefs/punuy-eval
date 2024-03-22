@@ -7,7 +7,7 @@ import fs from "fs/promises";
 import oldFs from "fs";
 
 import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from "../models";
-import { JsonSyntaxError } from "../validation";
+import { JsonSyntaxError } from "../evaluation";
 import logger from "../logger";
 import { MultiDatasetScores } from "../dataset-adapters/collection";
 
@@ -241,7 +241,7 @@ function unzipResults(results: MC30Results) {
   return res;
 }
 
-async function validate(
+async function evaluate(
   modelsRes: ModelsResults,
   humanScores: MultiDatasetScores,
   trials: number
@@ -445,7 +445,7 @@ const CompareMC30Experiment = {
   genPrompt,
   schema: resultSchema,
   runTrials,
-  validate,
+  evaluate,
 };
 
 export default CompareMC30Experiment;

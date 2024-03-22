@@ -6,7 +6,7 @@ import {
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
-} from "../../validation";
+} from "../../evaluation";
 import { distance } from "fastest-levenshtein";
 import Ajv, { JSONSchemaType } from "ajv";
 const ajv = new Ajv();
@@ -54,7 +54,7 @@ async function runTrial(
   return result;
 }
 
-async function validateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(ds: DatasetProfile, data: string) {
   if (!data.trim()) {
     return new NoData();
   }
@@ -97,6 +97,6 @@ export default new Experiment(
   description,
   resultSchema,
   runTrial,
-  validateTrial,
+  evaluateTrial,
   [promptGen]
 );

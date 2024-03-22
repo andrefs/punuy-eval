@@ -1,6 +1,6 @@
 import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
 import { DatasetProfile } from "../../types";
-import { DataCorrect, JsonSyntaxError, NoData } from "../../validation";
+import { DataCorrect, JsonSyntaxError, NoData } from "../../evaluation";
 
 const name = "ds-name-from-ds-sample";
 const description =
@@ -72,6 +72,6 @@ export default new Experiment(
   description,
   resultSchema,
   runTrial,
-  validateTrial,
+  evaluateTrial,
   [promptGen]
 );
