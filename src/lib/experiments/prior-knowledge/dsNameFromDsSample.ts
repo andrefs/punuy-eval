@@ -1,6 +1,7 @@
 import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
 import { DatasetProfile } from "../../types";
 import { DataCorrect, JsonSyntaxError, NoData } from "../../evaluation";
+import { distance } from "fastest-levenshtein";
 
 const name = "ds-name-from-ds-sample";
 const description =
@@ -55,12 +56,67 @@ async function runTrial(
   return result;
 }
 
-async function validateTrial(ds: DatasetProfile, data: string) {
+function normalizeString(name: string) {
+  return name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9 ]/g, "")
+    .split(/\s+/)
+    .sort()
+    .join(" ");
+}
+
+function normalizeAuthors(authors: string[]) {
+  return authors.map(a =>
+    a
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[^a-z ]/g, "")
+      .split(/\s+/)
+      .filter(x => x !== "and" && x.length > 2)
+      .sort()
+  );
+}
+
+async function evaluateTrial(ds: DatasetProfile, data: string) {
   if (!data.trim()) {
     return new NoData();
   }
   try {
+    console.log("XXXXXXXXXXXX 1", { ds });
+    const normOriginalName = normalizeString(ds.metadata.name);
+    console.log("XXXXXXXXXXXX 2", { normOriginalName, data });
     const got = JSON.parse(data);
+    console.log("XXXXXXXXXXXX 3", { got });
+    const { name, year, authors } = got as {
+      name: string;
+      year: string;
+      authors: string[];
+    };
+    //const normOriginalYear = ds.metadata.year.slice(0, 4);
+    console.log("XXXXXXXXXXXX 4", { name, year, authors });
+    const normGotName = normalizeString(name);
+    console.log("XXXXXXXXXXXX 5", { normGotName });
+    const normGotAuthors = normalizeAuthors(authors);
+    console.log("XXXXXXXXXXXX 6", { normGotAuthors });
+    //const normGotYear = normalizeString(year);
+
+    const nameDistance = distance(normGotName, normOriginalName);
+    console.log("XXXXXXXXXXXX 7", { nameDistance });
+    const allAuthorsFound = normGotAuthors.every(gotAuthor =>
+      gotAuthor.some(nameWord => normOriginalName.includes(nameWord))
+    );
+    console.log("XXXXXXXXXXXX 8", { allAuthorsFound });
+
+    console.log({
+      name: ds.metadata.name,
+      normOriginalName,
+      authors,
+      normGotAuthors,
+      nameDistance,
+      allAuthorsFound,
+    });
+
     return new DataCorrect(got);
   } catch (e) {
     return new JsonSyntaxError(data);

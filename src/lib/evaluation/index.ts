@@ -7,6 +7,7 @@ export type EvaluationType =
   | "data-partially-incorrect"
   | "data-incorrect"
   | "no-data"
+  | "non-evaluated-data"
   | "data-correct";
 
 export class EvaluationResult {
@@ -73,6 +74,13 @@ export class DataCorrect extends EvaluationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("data-correct", true, data);
+  }
+}
+
+export class NonEvaluatedData extends EvaluationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(data?: any) {
+    super("non-evaluated-data", true, data);
   }
 }
 
