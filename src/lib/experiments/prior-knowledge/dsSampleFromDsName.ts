@@ -14,12 +14,14 @@ const description =
   "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset";
 const promptGen = {
   id: `${name}-prompt`,
+  language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     const year = vars.dataset.metadata.date.split("-")[0];
     const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
     return {
       id: `${name}-prompt`,
-      types: vars.dataset.metadata.measureTypes,
+      type: vars.dataset.metadata.measureTypes[0],
+      language: "en" as const,
       text:
         `${vars.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
         `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
