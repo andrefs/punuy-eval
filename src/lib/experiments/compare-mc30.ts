@@ -142,9 +142,11 @@ const resultSchema = {
           words: { type: "array", items: { type: "string" } },
           score: { type: "number" },
         },
+        required: ["words", "score"],
       },
     },
   },
+  required: ["scores"],
 };
 
 /** Run a single trial of the experiment, with a single model */

@@ -33,6 +33,7 @@ const resultSchema = {
       type: "string",
     },
   },
+  required: ["title"],
 };
 type ResultSchema = JSONSchemaType<typeof resultSchema>;
 

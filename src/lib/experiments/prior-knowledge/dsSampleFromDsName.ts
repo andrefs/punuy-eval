@@ -43,6 +43,7 @@ const resultSchema = {
       },
     },
   },
+  required: ["pairs"],
 };
 
 async function runTrial(

@@ -35,9 +35,11 @@ const resultSchema = {
           words: { type: "array", items: { type: "string" } },
           score: { type: "string" },
         },
+        required: ["words", "score"],
       },
     },
   },
+  required: ["scores"],
 };
 
 async function runTrial(vars: ExpVarsFixedPrompt) {

@@ -14,6 +14,7 @@
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "clean": "tsc -b tsconfig.json --clean",
     "test": "jest",
+    "test:watch": "jest --watch",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
     "postinstall": "patch-package"
