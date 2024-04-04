@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import dsSampleFromDsName from "./dsSampleFromDsName";
 import { DatasetProfile } from "../../types";
-import { ExpVars, PromptGenerator } from "..";
+import { ExpVars, ExpVarsFixedPrompt, PromptGenerator } from "..";
 import { createMockDataset, createMockModel } from "./mocks";
 
 describe("dsSampleFromDsName", () => {
@@ -15,7 +15,7 @@ describe("dsSampleFromDsName", () => {
   //  });
   //});
 
-  describe("run", () => {
+  describe("runTrials", () => {
     test("should call model.makeRequest", async () => {
       const ds: DatasetProfile = createMockDataset();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
@@ -92,8 +92,8 @@ describe("dsSampleFromDsName", () => {
 
         JSON.stringify({
           pairs: [
-            ["test", "test2"],
-            ["test", "test"],
+            ["testWord1", "failWord"],
+            ["testWord1", "testWord2"],
           ],
         })
       );

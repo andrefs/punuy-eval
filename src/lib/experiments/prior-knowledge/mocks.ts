@@ -6,7 +6,7 @@ export const createMockDataset = () => ({
     languages: ["en" as const],
     domain: "general" as const,
     name: "Dataset Name",
-    description: "test",
+    description: "test dataset",
     papers: [],
     urls: [],
     date: "2021-01-01",
@@ -15,7 +15,7 @@ export const createMockDataset = () => ({
   },
   partitions: [
     {
-      id: "test",
+      id: "testPartition",
       scale: {
         value: {
           min: 0,
@@ -35,8 +35,8 @@ export const createMockDataset = () => ({
       measureType: "similarity" as const,
       data: [
         {
-          term1: "test",
-          term2: "test",
+          term1: "testWord1",
+          term2: "testWord2",
           value: 0.5,
           values: [0.5],
         },
