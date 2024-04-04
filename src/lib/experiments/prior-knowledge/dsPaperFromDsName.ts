@@ -36,7 +36,6 @@ const resultSchema = {
   required: ["title"],
 };
 type ResultSchema = JSONSchemaType<typeof resultSchema>;
-
 const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(

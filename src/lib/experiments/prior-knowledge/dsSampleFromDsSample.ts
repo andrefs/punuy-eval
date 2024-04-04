@@ -5,9 +5,12 @@ import {
   DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
+  JsonSchemaError,
   JsonSyntaxError,
   NoData,
 } from "../../evaluation";
+import Ajv, { JSONSchemaType } from "ajv";
+const ajv = new Ajv();
 
 const name = "ds-sample-from-ds-sample";
 const description =
@@ -50,6 +53,10 @@ const resultSchema = {
   required: ["pairs"],
 };
 
+type ResultSchema = JSONSchemaType<typeof resultSchema>;
+
+const validateSchema = ajv.compile<ResultSchema>(resultSchema);
+
 async function runTrial(
   vars: ExpVarsFixedPrompt,
   schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -72,6 +79,10 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
   }
   try {
     const got = JSON.parse(data);
+    if (!validateSchema(got)) {
+      return new JsonSchemaError(data);
+    }
+
     const expected: { [word: string]: { [word: string]: boolean } } = {};
 
     for (const { term1, term2 } of ds.partitions[0].data) {

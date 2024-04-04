@@ -4,9 +4,12 @@ import {
   DataCorrect,
   DataIncorrect,
   DataPartiallyIncorrect,
+  JsonSchemaError,
   JsonSyntaxError,
   NoData,
 } from "../../evaluation";
+import Ajv, { JSONSchemaType } from "ajv";
+const ajv = new Ajv();
 
 const name = "ds-values-exact-matches";
 const description =
@@ -43,6 +46,8 @@ const resultSchema = {
   },
   required: ["scores"],
 };
+type ResultSchema = JSONSchemaType<typeof resultSchema>;
+const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(
   vars: ExpVarsFixedPrompt,
@@ -74,6 +79,9 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
   }
   try {
     const got = JSON.parse(data);
+    if (!validateSchema(got)) {
+      return new JsonSchemaError(data);
+    }
 
     for (const row of ds.partitions[0].data) {
       const w1 = row.term1.toLowerCase();
