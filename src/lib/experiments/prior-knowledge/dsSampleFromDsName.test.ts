@@ -1,8 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
 import dsSampleFromDsName from "./dsSampleFromDsName";
 import { DatasetProfile } from "../../types";
-import { ExpVars, ExpVarsFixedPrompt, PromptGenerator } from "..";
+import { ExpVars, PromptGenerator } from "..";
 import { createMockDataset, createMockModel } from "./mocks";
+import { DataIncomplete, DataPartiallyIncorrect } from "../../evaluation";
 
 describe("dsSampleFromDsName", () => {
   //describe("genPrompt", () => {
@@ -64,6 +65,16 @@ describe("dsSampleFromDsName", () => {
   });
 
   describe("evaluateTrial", () => {
+    test("should return JsonSchemaError if data is not valid schema", async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.evaluateTrial(
+        ds,
+        '{"invalid": "schema"}'
+      );
+      expect(result.type).toEqual("json-schema-error");
+    });
+
     test("should return NoData if data is empty", async () => {
       const ds: DatasetProfile = createMockDataset();
 
@@ -78,7 +89,7 @@ describe("dsSampleFromDsName", () => {
         ds,
 
         JSON.stringify({
-          pairs: [["test", "test2"]],
+          pairs: [["fail", "fail"]],
         })
       );
       expect(result.type).toEqual("data-incorrect");
@@ -89,7 +100,6 @@ describe("dsSampleFromDsName", () => {
 
       const result = await dsSampleFromDsName.evaluateTrial(
         ds,
-
         JSON.stringify({
           pairs: [
             ["testWord1", "failWord"],
@@ -98,6 +108,25 @@ describe("dsSampleFromDsName", () => {
         })
       );
       expect(result.type).toEqual("data-partially-incorrect");
+      expect((result as DataPartiallyIncorrect).percentage).toEqual(0.2);
+    });
+
+    test("should return DataIncomplete if data is incomplete", async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.evaluateTrial(
+        ds,
+
+        JSON.stringify({
+          pairs: [
+            ["testWord1", "testWord2"],
+            ["testWord3", "testWord4"],
+            ["testWord5", "testWord6"],
+          ],
+        })
+      );
+      expect(result.type).toEqual("data-incomplete");
+      expect((result as DataIncomplete).percentage).toEqual(0.6);
     });
 
     test("should return JsonSyntaxError if data is not valid JSON", async () => {
@@ -108,6 +137,24 @@ describe("dsSampleFromDsName", () => {
         "not valid json"
       );
       expect(result.type).toEqual("json-syntax-error");
+    });
+
+    test("should return DataCorrect if data is correct", async () => {
+      const ds: DatasetProfile = createMockDataset();
+
+      const result = await dsSampleFromDsName.evaluateTrial(
+        ds,
+        JSON.stringify({
+          pairs: [
+            ["testWord1", "testWord2"],
+            ["testWord3", "testWord4"],
+            ["testWord5", "testWord6"],
+            ["testWord7", "testWord8"],
+            ["testWord9", "testWord10"],
+          ],
+        })
+      );
+      expect(result.type).toEqual("data-correct");
     });
   });
 });

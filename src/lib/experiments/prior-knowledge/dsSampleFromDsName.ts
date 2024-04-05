@@ -12,6 +12,8 @@ import {
 import Ajv, { JSONSchemaType } from "ajv";
 const ajv = new Ajv();
 
+const numPairs = 5;
+
 const name = "ds-sample-from-ds-name";
 const description =
   "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset";
@@ -29,7 +31,7 @@ const promptGen = {
         `${vars.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
         `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
         `and can be used to evaluate semantic measures. ` +
-        `Please list 5 pairs of concepts sampled from this dataset.`,
+        `Please list ${numPairs} pairs of concepts sampled from this dataset.`,
     };
   },
 };
@@ -108,10 +110,10 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
       return new DataIncorrect(got);
     }
     if (dataIncorrect) {
-      return new DataPartiallyIncorrect(i / 5, got);
+      return new DataPartiallyIncorrect(i / numPairs, got);
     }
-    if (i < 5) {
-      return new DataIncomplete(i / 5, got);
+    if (i < numPairs) {
+      return new DataIncomplete(i / numPairs, got);
     }
     return new DataCorrect(got);
   } catch (e) {
