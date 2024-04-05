@@ -4,7 +4,8 @@ import logger from "../logger";
 import "dotenv/config";
 
 const configuration = {
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey:
+    process.env.NODE_ENV === "production" ? process.env.OPENAI_API_KEY : "test",
 };
 
 export interface OpenAIModelParams {
