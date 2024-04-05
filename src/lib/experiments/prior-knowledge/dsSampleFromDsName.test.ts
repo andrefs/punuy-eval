@@ -147,7 +147,7 @@ describe("dsSampleFromDsName", () => {
         JSON.stringify({
           pairs: [
             ["testWord1", "testWord2"],
-            ["testWord3", "testWord4"],
+            ["testWord4", "testWord3"],
             ["testWord5", "testWord6"],
             ["testWord7", "testWord8"],
             ["testWord9", "testWord10"],
