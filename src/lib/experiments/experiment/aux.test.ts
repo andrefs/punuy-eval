@@ -18,7 +18,7 @@ describe("experiment", () => {
       const ids = getVarIds(vars);
       expect(ids).toMatchInlineSnapshot(`
         {
-          "dataset": "d1",
+          "dpart": "d1",
           "language": "pt",
           "measureType": "similarity",
           "model": "m1",
@@ -42,7 +42,7 @@ describe("experiment", () => {
       const ids = getVarIds(vm);
       expect(ids).toMatchInlineSnapshot(`
         {
-          "dataset": [
+          "dpart": [
             "d1",
             "d2",
           ],
@@ -85,7 +85,7 @@ describe("experiment", () => {
       expect(vcs).toMatchInlineSnapshot(`
         [
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -102,7 +102,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -119,7 +119,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -136,7 +136,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -153,7 +153,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -170,7 +170,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -187,7 +187,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -204,7 +204,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -221,7 +221,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -238,7 +238,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -255,7 +255,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -272,7 +272,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -289,7 +289,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -306,7 +306,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -323,7 +323,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -340,7 +340,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -357,7 +357,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -374,7 +374,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -391,7 +391,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -408,7 +408,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -425,7 +425,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -442,7 +442,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -459,7 +459,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -476,7 +476,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d1",
             },
             "language": {
@@ -493,7 +493,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -510,7 +510,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -527,7 +527,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -544,7 +544,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -561,7 +561,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -578,7 +578,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -595,7 +595,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
@@ -612,7 +612,7 @@ describe("experiment", () => {
             },
           },
           {
-            "dataset": {
+            "dpart": {
               "id": "d2",
             },
             "language": {
