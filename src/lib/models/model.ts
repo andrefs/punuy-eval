@@ -1,5 +1,5 @@
 import { OpenAIModelParams } from "./openai";
-import { ModelResponse } from "../experiments";
+import { ModelResponse } from "experiments";
 
 export class Model {
   id: string;
