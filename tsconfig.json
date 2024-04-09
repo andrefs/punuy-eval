@@ -13,9 +13,6 @@
     "declaration": true,
     "skipLibCheck": true,
     "paths": {
-      "*": [
-        "src/@types/*"
-      ],
       "dataset-adapters/*": [
         "src/lib/dataset-adapters/*"
       ],
