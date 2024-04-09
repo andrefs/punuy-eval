@@ -7,7 +7,7 @@ import {
 } from "./aux";
 import { ExpVars, Prompt } from "..";
 import { Model } from "../../models";
-import { DatasetProfile } from "../../types";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("aux", () => {
   describe("getFixedValueGroup", () => {
@@ -16,7 +16,7 @@ describe("aux", () => {
       const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
       const vars = {
         model: { id: "m1" } as Model,
-        dataset: { id: "d1" } as DatasetProfile,
+        dpart: { id: "d1" } as DsPartition,
         language: { id: "pt" as const },
         measureType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,
@@ -56,7 +56,7 @@ describe("aux", () => {
       const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
       const vars = {
         model: { id: "m1" } as Model,
-        dataset: { id: "d1" } as DatasetProfile,
+        dpart: { id: "d1" } as DsPartition,
         language: { id: "pt" as const },
         measureType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,
@@ -96,7 +96,7 @@ describe("aux", () => {
       const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
       const vars = {
         model: { id: "m2" } as Model,
-        dataset: { id: "d1" } as DatasetProfile,
+        dpart: { id: "d1" } as DsPartition,
         language: { id: "pt" as const },
         measureType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,

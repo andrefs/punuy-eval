@@ -3,7 +3,18 @@ import { Model } from "../../models";
 
 export const createMockDsPart = (): DsPartition => ({
   id: "test_testPartition",
-  datasetId: "test",
+  dataset: {
+    id: "test",
+    metadata: {
+      domain: "general" as const,
+      name: "Dataset Name",
+      description: "test dataset",
+      papers: [],
+      urls: [],
+      date: "2021-01-01",
+      downloadUrls: [],
+    },
+  },
   language: "en" as const,
   partitionId: "testPartition",
   scale: {

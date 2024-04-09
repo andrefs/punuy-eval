@@ -21,14 +21,14 @@ const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
-    const year = vars.dpart.datasetYear;
+    const year = vars.dpart.dataset.metadata.date.substring(0, 4);
     const measureTypes = vars.dpart.measureType;
     return {
       id: `${name}-prompt`,
       type: vars.dpart.measureType,
       language: "en" as const,
       text:
-        `${vars.dpart.datasetName} is a gold standard dataset published in ${year}. ` +
+        `${vars.dpart.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
         `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
         `and can be used to evaluate semantic measures. ` +
         `Please list ${numPairs} pairs of concepts sampled from this dataset.`,
