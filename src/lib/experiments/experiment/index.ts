@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { Model } from "../../models";
-import { DatasetProfile, MeasureType } from "../../types";
+import { MeasureType } from "../../types";
 import {
   EvaluationResult,
   EvaluationType,
@@ -8,6 +8,7 @@ import {
 } from "../../evaluation";
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 class Experiment {
   name: string;
@@ -20,7 +21,7 @@ class Experiment {
     trials: number
   ) => Promise<TrialsResult>;
   evaluateTrial: (
-    ds: DatasetProfile,
+    dpart: DsPartition,
     data: string
   ) => Promise<EvaluationResult>;
   evaluate: (exp: ExperimentData) => Promise<{
@@ -48,7 +49,7 @@ class Experiment {
       schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
     ) => Promise<ModelResponse>,
     evaluateTrial: (
-      ds: DatasetProfile,
+      dpart: DsPartition,
       data: string
     ) => Promise<EvaluationResult>,
     prompts?: (Prompt | PromptGenerator)[]
@@ -88,7 +89,7 @@ class Experiment {
     this.evaluateTrial = evaluateTrial;
     this.evaluate = async function (this: Experiment, exp: ExperimentData) {
       const trialEvaluationResults = await Promise.all(
-        exp.results.raw.map(d => this.evaluateTrial(exp.variables.dataset, d))
+        exp.results.raw.map(d => this.evaluateTrial(exp.variables.dpart, d))
       );
       return {
         evaluation: trialEvaluationResults,
@@ -147,7 +148,7 @@ class Experiment {
 
 export interface ExpVarMatrix {
   model: Model[];
-  dataset: DatasetProfile[];
+  dpart: DsPartition[];
   language?: ({ id: "pt" } | { id: "en" })[];
   measureType?: { id: MeasureType }[];
   prompt?: (Prompt | PromptGenerator)[];
@@ -156,7 +157,7 @@ export interface ExpVarMatrix {
 export type ExpVarsFixedPrompt = Omit<ExpVars, "prompt"> & { prompt: Prompt };
 
 export interface ExpVars {
-  dataset: DatasetProfile;
+  dpart: DsPartition;
   model: Model;
   language?: {
     id: "pt" | "en";

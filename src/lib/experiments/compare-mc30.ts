@@ -11,7 +11,6 @@ import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from "../models";
 import { JsonSyntaxError } from "../evaluation";
 import logger from "../logger";
 import { MultiDatasetScores } from "../dataset-adapters/collection";
-import mc30_table1 from "../dataset-adapters/mc30_table1";
 
 type ModelsResults = {
   [key in ModelIds]: string[];
@@ -20,7 +19,7 @@ type ModelsResults = {
 export const loadDatasetScores = async () => {
   const pairs: MultiDatasetScores = {};
 
-  for (const entry of mc30_table1.data) {
+  for (const entry of mc30.data) {
     pairs[entry.term1] = pairs[entry.term1] || {};
     pairs[entry.term1][entry.term2] = pairs[entry.term1][entry.term2] || {};
     if ("value" in entry && typeof entry.value === "number") {

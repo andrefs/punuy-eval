@@ -2,14 +2,14 @@ import { ExpVarMatrix, comparePrompts } from "../lib/experiments";
 import { gpt4turbo } from "../lib/models";
 import logger from "../lib/logger";
 
-import pt65 from "punuy-datasets/datasets/pt65";
-import lxsimlex999 from "punuy-datasets/datasets/lxsimlex999";
-import lxws353 from "punuy-datasets/datasets/lxws353";
-import lxrw2034 from "punuy-datasets/datasets/lxrw2034";
-import ws353Sim from "punuy-datasets/datasets/ws353Sim";
-import ws353Rel from "punuy-datasets/datasets/ws353Rel";
-import mturk287 from "punuy-datasets/datasets/mturk287";
-import yp130 from "punuy-datasets/datasets/yp130";
+import pt65 from "../lib/dataset-adapters/pt65_main";
+import lxsimlex999 from "../lib/dataset-adapters/lxsimlex999_main";
+import lxws353 from "../lib/dataset-adapters/lxws353_main";
+import lxrw2034 from "../lib/dataset-adapters/lxrw2034_main";
+import ws353Sim from "../lib/dataset-adapters/ws353Sim_wordsim_similarity_goldstandard.txt";
+import ws353Rel from "../lib/dataset-adapters/ws353Rel_wordsim_relatedness_goldstandard.txt";
+import mturk287 from "../lib/dataset-adapters/mturk287_mturk";
+import yp130 from "../lib/dataset-adapters/yp130_verbpairs";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
@@ -21,7 +21,7 @@ const comparePromptsMain = async (vars: ExpVarMatrix) => {
 };
 
 const evm: ExpVarMatrix = {
-  dataset: [
+  dpart: [
     // pt rel
     pt65,
     lxws353,
