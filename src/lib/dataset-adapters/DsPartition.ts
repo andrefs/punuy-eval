@@ -6,7 +6,7 @@ import {
   PartitionData,
   PartitionMetrics,
   PartitionScale,
-} from "../types";
+} from "punuy-datasets/types";
 
 export class DsPartition implements Partition {
   dataset: {
