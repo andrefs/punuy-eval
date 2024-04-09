@@ -9,6 +9,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "NodeNext",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
