@@ -1,7 +1,8 @@
-import mc30 from "punuy-datasets/datasets/mc30";
-import rg65 from "punuy-datasets/datasets/rg65";
-import ws353 from "punuy-datasets/datasets/ws353";
-import ps65 from "punuy-datasets/datasets/ps65";
+import mc30 from "../dataset-adapters/mc30_table1";
+import rg65 from "../dataset-adapters/rg65_table1";
+import ws353 from "../dataset-adapters/ws353_combined";
+import ps65 from "../dataset-adapters/ps65_main";
+
 import pcorrtest from "@stdlib/stats-pcorrtest";
 import fs from "fs/promises";
 import oldFs from "fs";
@@ -10,6 +11,7 @@ import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from "../models";
 import { JsonSyntaxError } from "../evaluation";
 import logger from "../logger";
 import { MultiDatasetScores } from "../dataset-adapters/collection";
+import mc30_table1 from "../dataset-adapters/mc30_table1";
 
 type ModelsResults = {
   [key in ModelIds]: string[];
@@ -18,88 +20,80 @@ type ModelsResults = {
 export const loadDatasetScores = async () => {
   const pairs: MultiDatasetScores = {};
 
-  for (const part of mc30.partitions) {
-    for (const entry of part.data) {
-      pairs[entry.term1] = pairs[entry.term1] || {};
-      pairs[entry.term1][entry.term2] = pairs[entry.term1][entry.term2] || {};
-      if ("value" in entry && typeof entry.value === "number") {
-        pairs[entry.term1][entry.term2]["mc30"] = entry.value;
-      } else {
-        const values = entry.values!.filter(
-          x => typeof x === "number"
-        ) as number[];
-        pairs[entry.term1][entry.term2]["mc30"] =
-          values!.reduce((a, b) => a! + b!, 0) / values.length;
-      }
+  for (const entry of mc30_table1.data) {
+    pairs[entry.term1] = pairs[entry.term1] || {};
+    pairs[entry.term1][entry.term2] = pairs[entry.term1][entry.term2] || {};
+    if ("value" in entry && typeof entry.value === "number") {
+      pairs[entry.term1][entry.term2]["mc30"] = entry.value;
+    } else {
+      const values = entry.values!.filter(
+        x => typeof x === "number"
+      ) as number[];
+      pairs[entry.term1][entry.term2]["mc30"] =
+        values!.reduce((a, b) => a! + b!, 0) / values.length;
     }
   }
 
-  for (const part of rg65.partitions) {
-    for (const entry of part.data) {
-      const value =
-        "value" in entry
-          ? entry.value
-          : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
+  for (const entry of rg65.data) {
+    const value =
+      "value" in entry
+        ? entry.value
+        : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
 
-      if (
-        entry.term1 in pairs &&
-        entry.term2 in pairs[entry.term1] &&
-        typeof value === "number"
-      ) {
-        pairs[entry.term1][entry.term2][rg65.id] = value;
-      } else if (
-        entry.term2 in pairs &&
-        entry.term1 in pairs[entry.term2] &&
-        typeof value === "number"
-      ) {
-        pairs[entry.term2][entry.term1][rg65.id] = value;
-      }
+    if (
+      entry.term1 in pairs &&
+      entry.term2 in pairs[entry.term1] &&
+      typeof value === "number"
+    ) {
+      pairs[entry.term1][entry.term2][rg65.id] = value;
+    } else if (
+      entry.term2 in pairs &&
+      entry.term1 in pairs[entry.term2] &&
+      typeof value === "number"
+    ) {
+      pairs[entry.term2][entry.term1][rg65.id] = value;
     }
   }
 
-  for (const part of ws353.partitions) {
-    for (const entry of part.data) {
-      const value =
-        "value" in entry
-          ? entry.value
-          : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
+  for (const entry of ws353.data) {
+    const value =
+      "value" in entry
+        ? entry.value
+        : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
 
-      if (
-        entry.term1 in pairs &&
-        entry.term2 in pairs[entry.term1] &&
-        typeof value === "number"
-      ) {
-        pairs[entry.term1][entry.term2][ws353.id] = value * (4 / 10);
-      } else if (
-        entry.term2 in pairs &&
-        entry.term1 in pairs[entry.term2] &&
-        typeof value === "number"
-      ) {
-        pairs[entry.term2][entry.term1][ws353.id] = value * (4 / 10);
-      }
+    if (
+      entry.term1 in pairs &&
+      entry.term2 in pairs[entry.term1] &&
+      typeof value === "number"
+    ) {
+      pairs[entry.term1][entry.term2][ws353.id] = value * (4 / 10);
+    } else if (
+      entry.term2 in pairs &&
+      entry.term1 in pairs[entry.term2] &&
+      typeof value === "number"
+    ) {
+      pairs[entry.term2][entry.term1][ws353.id] = value * (4 / 10);
     }
   }
 
-  for (const part of ps65.partitions) {
-    for (const entry of part.data) {
-      const value =
-        "value" in entry
-          ? entry.value
-          : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
+  for (const entry of ps65.data) {
+    const value =
+      "value" in entry
+        ? entry.value
+        : entry.values.reduce((a, b) => a + b, 0) / entry.values.length;
 
-      if (
-        entry.term1 in pairs &&
-        entry.term2 in pairs[entry.term1] &&
-        typeof value === "number"
-      ) {
-        pairs[entry.term1][entry.term2][ps65.id] = value * (4 / 10);
-      } else if (
-        entry.term2 in pairs &&
-        entry.term1 in pairs[entry.term2] &&
-        typeof value === "number"
-      ) {
-        pairs[entry.term2][entry.term1][ps65.id] = value * (4 / 10);
-      }
+    if (
+      entry.term1 in pairs &&
+      entry.term2 in pairs[entry.term1] &&
+      typeof value === "number"
+    ) {
+      pairs[entry.term1][entry.term2][ps65.id] = value * (4 / 10);
+    } else if (
+      entry.term2 in pairs &&
+      entry.term1 in pairs[entry.term2] &&
+      typeof value === "number"
+    ) {
+      pairs[entry.term2][entry.term1][ps65.id] = value * (4 / 10);
     }
   }
 
