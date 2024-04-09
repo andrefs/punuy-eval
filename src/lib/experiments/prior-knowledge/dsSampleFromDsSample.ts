@@ -1,5 +1,4 @@
 import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
-import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
   DataIncomplete,
@@ -10,6 +9,7 @@ import {
   NoData,
 } from "../../evaluation";
 import Ajv, { JSONSchemaType } from "ajv";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 const ajv = new Ajv();
 
 const name = "ds-sample-from-ds-sample";
@@ -19,18 +19,14 @@ const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
-    const numberOfPairs = vars.dataset.partitions.reduce(
-      (acc, p) => acc + p.data.length,
-      0
-    );
-    const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
+    const numberOfPairs = vars.dpart.data.length;
     return {
-      id: `${name}-${vars.dataset.id}-prompt`,
+      id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
       text:
-        `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${measureTypes} score as reported by humans. ` +
+        `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${vars.dpart.measureType} score as reported by humans. ` +
         `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included in my list.\n` +
-        vars.dataset.partitions[0].data
+        vars.dpart.data
           .slice(0, 10)
           .map(({ term1, term2 }) => `${term1} ${term2}`)
           .join("\n"),
@@ -73,7 +69,7 @@ async function runTrial(
   return result;
 }
 
-async function evaluateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(dpart: DsPartition, data: string) {
   if (!data.trim()) {
     return new NoData();
   }
@@ -85,7 +81,7 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
 
     const expected: { [word: string]: { [word: string]: boolean } } = {};
 
-    for (const { term1, term2 } of ds.partitions[0].data) {
+    for (const { term1, term2 } of dpart.data) {
       const w1 = term1.toLowerCase();
       const w2 = term2.toLowerCase();
 

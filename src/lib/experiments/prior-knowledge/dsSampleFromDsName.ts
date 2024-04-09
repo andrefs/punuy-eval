@@ -1,5 +1,4 @@
 import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
-import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
   DataIncomplete,
@@ -10,6 +9,7 @@ import {
   NoData,
 } from "../../evaluation";
 import Ajv, { JSONSchemaType } from "ajv";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 const ajv = new Ajv();
 
 const numPairs = 5;
@@ -21,14 +21,14 @@ const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
-    const year = vars.dataset.metadata.date.split("-")[0];
-    const measureTypes = vars.dataset.metadata.measureTypes.join(" and ");
+    const year = vars.dpart.datasetYear;
+    const measureTypes = vars.dpart.measureType;
     return {
       id: `${name}-prompt`,
-      type: vars.dataset.metadata.measureTypes[0],
+      type: vars.dpart.measureType,
       language: "en" as const,
       text:
-        `${vars.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
+        `${vars.dpart.datasetName} is a gold standard dataset published in ${year}. ` +
         `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
         `and can be used to evaluate semantic measures. ` +
         `Please list ${numPairs} pairs of concepts sampled from this dataset.`,
@@ -71,7 +71,7 @@ async function runTrial(
   return result;
 }
 
-async function evaluateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(dpart: DsPartition, data: string) {
   if (!data.trim()) {
     return new NoData();
   }
@@ -82,7 +82,7 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
     }
     const expected: { [word: string]: { [word: string]: boolean } } = {};
 
-    for (const { term1, term2 } of ds.partitions[0].data) {
+    for (const { term1, term2 } of dpart.data) {
       const w1 = term1.toLowerCase();
       const w2 = term2.toLowerCase();
 

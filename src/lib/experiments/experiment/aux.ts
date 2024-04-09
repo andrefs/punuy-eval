@@ -5,12 +5,12 @@ import logger from "../../logger";
 
 export async function saveExperimentData(data: ExperimentData) {
   const ts = data.meta.traceId;
-  const dsId = data.variables.dataset.id;
+  const dpartId = data.variables.dpart.id;
   const promptId = data.variables.prompt.id;
   const expName = data.meta.name;
   const modelId = data.variables.model.id;
   const rootFolder = "./results";
-  const filename = `${rootFolder}/${ts}_${expName}_${promptId}_${dsId}_${modelId}.json`;
+  const filename = `${rootFolder}/${ts}_${expName}_${promptId}_${dpartId}_${modelId}.json`;
   const json = JSON.stringify(data, null, 2);
 
   logger.info(

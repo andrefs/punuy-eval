@@ -115,10 +115,8 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
       const filtPrompts = variables.prompt.filter(
         p => p.language === l.id && p.type === mt.id
       );
-      const filtDatasets = variables.dataset.filter(
-        d =>
-          d.metadata.languages.some(dsl => dsl === l.id) &&
-          d.partitions[0].measureType === mt.id
+      const filtDatasets = variables.dpart.filter(
+        d => d.language === l.id && d.measureType === mt.id
       );
       if (filtPrompts.length === 0 || filtDatasets.length === 0) {
         logger.warn(
@@ -132,7 +130,7 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
       const vm: ExpVarMatrix = {
         ...variables,
         prompt: filtPrompts,
-        dataset: filtDatasets,
+        dpart: filtDatasets,
         language: [l],
         measureType: [mt],
       };
@@ -195,7 +193,7 @@ function expEvalScores(exps: ExperimentData[]): ExpScore[] {
 
     const corr = evalScores(
       (exp.variables as ExpVarsFixedPrompt).prompt.pairs!,
-      exp.variables.dataset,
+      exp.variables.dpart,
       parsed.filter(x => x !== null) as RawResult[][]
     );
     res.push({

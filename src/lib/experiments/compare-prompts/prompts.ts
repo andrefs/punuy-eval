@@ -84,7 +84,7 @@ const prompts: PromptGenerator[] = [
 ].map(p => ({
   ...p,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
-    const pairs = shuffle(vars.dataset.partitions[0].data)
+    const pairs = shuffle(vars.dpart.data)
       .slice(0, 100)
       .map(({ term1, term2 }) => [term1, term2] as [string, string]);
 

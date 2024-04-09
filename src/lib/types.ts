@@ -22,7 +22,7 @@ export interface DatasetProfile {
   partitions: Partition[];
 }
 
-interface Metadata {
+export interface Metadata {
   /**
    * The name of the dataset
    */

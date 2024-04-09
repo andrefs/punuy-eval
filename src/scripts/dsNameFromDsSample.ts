@@ -1,7 +1,7 @@
 import logger from "../lib/logger";
 import { ExpVarMatrix, dsNameFromDsSample } from "../lib/experiments";
 import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
-import rg65 from "punuy-datasets/datasets/rg65";
+import rg65 from "../lib/dataset-adapters/rg65_table1";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
@@ -18,7 +18,7 @@ const nameFromSample = async (vars: ExpVarMatrix) => {
 };
 
 const evm: ExpVarMatrix = {
-  dataset: [rg65],
+  dpart: [rg65],
   model: [gpt35turbo, gpt4, gpt4turbo],
 };
 

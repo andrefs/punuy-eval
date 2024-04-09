@@ -1,14 +1,14 @@
 import { describe, expect, test } from "@jest/globals";
-import { createMockDataset, createMockModel } from "./mocks";
+import { createMockDsPart, createMockModel } from "./mocks";
 import dsNameFromDsSample from "./dsNameFromDsSample";
 import { ExpVarsFixedPrompt, PromptGenerator } from "..";
-import { DatasetProfile } from "../../types";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("dsSampleFromDsName", () => {
   describe("evaluateTrial", () => {
     test("should return NoData if data is empty", async () => {
       const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDataset(),
+        createMockDsPart(),
         ""
       );
       expect(result.type).toEqual("no-data");
@@ -16,7 +16,7 @@ describe("dsSampleFromDsName", () => {
 
     test("should return JsonSyntaxError if data is not valid JSON", async () => {
       const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDataset(),
+        createMockDsPart(),
         "{"
       );
       expect(result.type).toEqual("json-syntax-error");
@@ -24,18 +24,18 @@ describe("dsSampleFromDsName", () => {
 
     test("should return JsonSchemaError if data does not match the JSON schema", async () => {
       const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDataset(),
+        createMockDsPart(),
         '{"key": "value"}'
       );
       expect(result.type).toEqual("json-schema-error");
     });
 
     test("should return NonEvaluatedData if data is valid", async () => {
-      const mockDataset = createMockDataset();
+      const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDataset(),
+        createMockDsPart(),
         JSON.stringify({
-          name: mockDataset.metadata.name,
+          name: mockDsPartition.dataset.metadata.name,
           year: "2021",
           authors: ["First Author", "Second Person Name"],
         })
@@ -44,11 +44,11 @@ describe("dsSampleFromDsName", () => {
     });
 
     test("should return original and obtained data", async () => {
-      const mockDataset = createMockDataset();
+      const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDataset(),
+        createMockDsPart(),
         JSON.stringify({
-          name: mockDataset.metadata.name,
+          name: mockDsPartition.dataset.metadata.name,
           year: "2021",
           authors: ["First Author", "Second Person Name"],
         })
@@ -70,33 +70,33 @@ describe("dsSampleFromDsName", () => {
 
   describe("prompt generator", () => {
     test("should generate a prompt", () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
       const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
       const vars: ExpVarsFixedPrompt = {
-        dataset: ds,
+        dpart: dpart,
         model,
-        prompt: promptGen.generate({ dataset: ds, model }),
+        prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
       expect(vars.prompt.text).toEqual(
-        expect.stringContaining(ds.partitions[0].data[0].term1)
+        expect.stringContaining(dpart.data[0].term1)
       );
       expect(vars.prompt.text).toEqual(
-        expect.stringContaining(ds.partitions[0].data[0].term2)
+        expect.stringContaining(dpart.data[0].term2)
       );
     });
   });
 
   describe("runTrial", () => {
     test("should return a result", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
       const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
       const vars: ExpVarsFixedPrompt = {
-        dataset: ds,
+        dpart: dpart,
         model,
-        prompt: promptGen.generate({ dataset: ds, model }),
+        prompt: promptGen.generate({ dpart: dpart, model }),
       };
       await dsNameFromDsSample.runTrials(vars, 2);
       expect(model.makeRequest).toHaveBeenCalledTimes(2);

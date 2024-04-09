@@ -1,5 +1,4 @@
 import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
-import { DatasetProfile } from "../../types";
 import {
   JsonSchemaError,
   JsonSyntaxError,
@@ -7,6 +6,7 @@ import {
   NonEvaluatedData,
 } from "../../evaluation";
 import Ajv, { JSONSchemaType } from "ajv";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 const ajv = new Ajv();
 
 const name = "ds-name-from-ds-sample";
@@ -16,11 +16,11 @@ const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => ({
-    id: `${name}-${vars.dataset.id}-prompt`,
+    id: `${name}-${vars.dpart.id}-prompt`,
     language: "en" as const,
     text:
       `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
-      vars.dataset.partitions[0].data
+      vars.dpart.data
         .slice(0, 10)
         .map(({ term1, term2 }) => `${term1} ${term2}`)
         .join("\n"),
@@ -63,7 +63,7 @@ async function runTrial(
   return result;
 }
 
-async function evaluateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(dpart: DsPartition, data: string) {
   if (!data.trim()) {
     return new NoData();
   }
@@ -73,8 +73,8 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
       return new JsonSchemaError(data);
     }
     return new NonEvaluatedData({
-      originalName: ds.metadata.name,
-      originalYear: ds.metadata.date.slice(0, 4),
+      originalName: dpart.dataset.metadata.name,
+      originalYear: dpart.dataset.metadata.date.slice(0, 4),
       gotName: got.name,
       gotYear: got.year,
       gotAuthors: got.authors,

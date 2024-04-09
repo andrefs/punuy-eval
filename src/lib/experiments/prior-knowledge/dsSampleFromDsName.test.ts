@@ -1,9 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
 import dsSampleFromDsName from "./dsSampleFromDsName";
-import { DatasetProfile } from "../../types";
 import { ExpVars, PromptGenerator } from "..";
-import { createMockDataset, createMockModel } from "./mocks";
+import { createMockDsPart, createMockModel } from "./mocks";
 import { DataIncomplete, DataPartiallyIncorrect } from "../../evaluation";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("dsSampleFromDsName", () => {
   //describe("genPrompt", () => {
@@ -18,13 +18,13 @@ describe("dsSampleFromDsName", () => {
 
   describe("runTrials", () => {
     test("should call model.makeRequest", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
       const vars: ExpVars = {
-        dataset: ds,
+        dpart: dpart,
         model,
-        prompt: promptGen.generate({ dataset: ds, model }),
+        prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
       await dsSampleFromDsName.runTrials(vars, 2);
@@ -32,13 +32,13 @@ describe("dsSampleFromDsName", () => {
     });
 
     test("should return model.makeRequest result", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
       const vars: ExpVars = {
-        dataset: ds,
+        dpart: dpart,
         model,
-        prompt: promptGen.generate({ dataset: ds, model }),
+        prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
       const tr = await dsSampleFromDsName.runTrials(vars, 2);
@@ -48,13 +48,13 @@ describe("dsSampleFromDsName", () => {
     });
 
     test("should return empty string if model.makeRequest returns no data", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
       const model = createMockModel("");
       const vars: ExpVars = {
-        dataset: ds,
+        dpart: dpart,
         model,
-        prompt: promptGen.generate({ dataset: ds, model }),
+        prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
       const tr = await dsSampleFromDsName.runTrials(vars, 1);
@@ -66,27 +66,27 @@ describe("dsSampleFromDsName", () => {
 
   describe("evaluateTrial", () => {
     test("should return JsonSchemaError if data is not valid schema", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(
-        ds,
+        dpart,
         '{"invalid": "schema"}'
       );
       expect(result.type).toEqual("json-schema-error");
     });
 
     test("should return NoData if data is empty", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(ds, "");
+      const result = await dsSampleFromDsName.evaluateTrial(dpart, "");
       expect(result.type).toEqual("no-data");
     });
 
     test("should return DataIncorrect if data is incorrect", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(
-        ds,
+        dpart,
 
         JSON.stringify({
           pairs: [["fail", "fail"]],
@@ -96,10 +96,10 @@ describe("dsSampleFromDsName", () => {
     });
 
     test("should return DataPartiallyIncorrect if data is partially incorrect", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(
-        ds,
+        dpart,
         JSON.stringify({
           pairs: [
             ["testWord1", "failWord"],
@@ -112,10 +112,10 @@ describe("dsSampleFromDsName", () => {
     });
 
     test("should return DataIncomplete if data is incomplete", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(
-        ds,
+        dpart,
 
         JSON.stringify({
           pairs: [
@@ -130,20 +130,20 @@ describe("dsSampleFromDsName", () => {
     });
 
     test("should return JsonSyntaxError if data is not valid JSON", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(
-        ds,
+        dpart,
         "not valid json"
       );
       expect(result.type).toEqual("json-syntax-error");
     });
 
     test("should return DataCorrect if data is correct", async () => {
-      const ds: DatasetProfile = createMockDataset();
+      const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(
-        ds,
+        dpart,
         JSON.stringify({
           pairs: [
             ["testWord1", "testWord2"],

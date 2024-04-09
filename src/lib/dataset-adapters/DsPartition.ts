@@ -1,6 +1,7 @@
 import {
   DatasetProfile,
   MeasureType,
+  Metadata,
   Partition,
   PartitionData,
   PartitionMetrics,
@@ -8,9 +9,13 @@ import {
 } from "../types";
 
 export class DsPartition implements Partition {
-  datasetId: string;
+  dataset: {
+    id: string;
+    metadata: Omit<Metadata, "languages" | "measureTypes">;
+  };
   partitionId: string;
   id: string;
+  language: "en" | "pt";
   measureType: MeasureType;
   scale: PartitionScale;
   data: PartitionData[];
@@ -23,7 +28,9 @@ export class DsPartition implements Partition {
     }
     return new DsPartition(
       ds.id,
+      ds.metadata,
       part.id,
+      ds.metadata.languages[0], // TODO handle multiple languages
       part.measureType,
       part.scale,
       part.data,
@@ -32,16 +39,22 @@ export class DsPartition implements Partition {
   }
 
   constructor(
-    datasetId: string,
+    dsId: string,
+    dsMetadata: Metadata,
     partitionId: string,
+    language: "en" | "pt",
     measureType: MeasureType,
     scale: PartitionScale,
     data: PartitionData[],
     metrics: PartitionMetrics
   ) {
-    this.id = `${datasetId}#${partitionId}`;
-    this.datasetId = datasetId;
+    this.id = `${dsId}#${partitionId}`;
+    this.dataset = {
+      id: dsId,
+      metadata: dsMetadata,
+    };
     this.partitionId = partitionId;
+    this.language = language;
     this.measureType = measureType;
     this.scale = scale;
     this.data = data;

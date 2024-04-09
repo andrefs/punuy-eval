@@ -1,8 +1,8 @@
 import pcorrTest from "@stdlib/stats-pcorrtest";
-import { DatasetProfile } from "../../types";
 import { PartitionScale } from "../../types";
 import { PartitionData } from "../../types";
 import { ExpVars } from "..";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 export interface ComparisonGroup {
   fixedValueConfig: FixedValueConfig;
@@ -132,7 +132,7 @@ function pairsToHash(pairs: [string, string][]) {
 
 export function evalScores(
   pairs: [string, string][],
-  ds: DatasetProfile,
+  dpart: DsPartition,
   raw: RawResult[][]
 ): ReturnType<typeof pcorrTest> {
   const got = rawResultsToAvg(raw.filter(x => x !== null) as RawResult[][]);
@@ -141,8 +141,8 @@ export function evalScores(
   const targetScale = { min: 1, max: 5 };
 
   const expected = {} as Scores;
-  for (const entry of ds.partitions[0].data) {
-    const value = valueFromEntry(entry, ds.partitions[0].scale, targetScale);
+  for (const entry of dpart.data) {
+    const value = valueFromEntry(entry, dpart.scale, targetScale);
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();
     if (got[w1] && got[w1][w2] && pairsHash[w1] && pairsHash[w1][w2]) {

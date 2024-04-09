@@ -1,14 +1,14 @@
 import { describe, expect, test } from "@jest/globals";
 import { ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
-import { DatasetProfile } from "../../types";
 import { genValueCombinations, getVarIds } from "./aux";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("experiment", () => {
   describe("getVarIds", () => {
     test("should return the ids of an ExpVars", () => {
       const vars: ExpVars = {
-        dataset: { id: "d1" } as DatasetProfile,
+        dpart: { id: "d1" } as DsPartition,
         model: { id: "m1" } as Model,
         language: { id: "pt" as const },
         measureType: { id: "similarity" as const },
@@ -30,7 +30,7 @@ describe("experiment", () => {
     test("should return the ids of an ExpVarMatrix", () => {
       const vm = {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
-        dataset: [{ id: "d1" }, { id: "d2" }] as DatasetProfile[],
+        dpart: [{ id: "d1" }, { id: "d2" }] as DsPartition[],
         language: [{ id: "en" as const }, { id: "pt" as const }],
         measureType: [
           { id: "similarity" as const },
@@ -71,7 +71,7 @@ describe("experiment", () => {
     test("should generate all combinations of values", () => {
       const vm = {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
-        dataset: [{ id: "d1" }, { id: "d2" }] as DatasetProfile[],
+        dpart: [{ id: "d1" }, { id: "d2" }] as DsPartition[],
         language: [{ id: "en" as const }, { id: "pt" as const }],
         measureType: [
           { id: "similarity" as const },

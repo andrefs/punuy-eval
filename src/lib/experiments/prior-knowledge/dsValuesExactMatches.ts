@@ -1,5 +1,4 @@
 import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
-import { DatasetProfile } from "../../types";
 import {
   DataCorrect,
   DataIncorrect,
@@ -9,6 +8,7 @@ import {
   NoData,
 } from "../../evaluation";
 import Ajv, { JSONSchemaType } from "ajv";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 const ajv = new Ajv();
 
 const name = "ds-values-exact-matches";
@@ -19,11 +19,11 @@ const promptGen = {
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     return {
-      id: `${name}-${vars.dataset.id}-prompt`,
+      id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
       text:
         'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
-        vars.dataset.partitions[0].data
+        vars.dpart.data
           .map(({ term1, term2 }) => `${term1},${term2}`)
           .join("\n"),
     };
@@ -65,7 +65,7 @@ async function runTrial(
   return result;
 }
 
-async function evaluateTrial(ds: DatasetProfile, data: string) {
+async function evaluateTrial(dpart: DsPartition, data: string) {
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
@@ -83,7 +83,7 @@ async function evaluateTrial(ds: DatasetProfile, data: string) {
       return new JsonSchemaError(data);
     }
 
-    for (const row of ds.partitions[0].data) {
+    for (const row of dpart.data) {
       const w1 = row.term1.toLowerCase();
       const w2 = row.term2.toLowerCase();
 
