@@ -6,14 +6,14 @@ import {
   rawResultsToAvg,
 } from "./aux";
 import { ExpVars, Prompt } from "..";
-import { Model } from "../../models";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { Model } from "models";
+import { DsPartition } from "dataset-adapters/DsPartition";
 
-describe("aux", () => {
+describe("compare-prompts aux", () => {
   describe("getFixedValueGroup", () => {
     test("should create a fixed value group when there's none", () => {
       const compGroups = [] as ComparisonGroup[];
-      const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
+      const fixedNames = ["model", "dpart"] as (keyof ExpVars)[];
       const vars = {
         model: { id: "m1" } as Model,
         dpart: { id: "d1" } as DsPartition,
@@ -34,7 +34,7 @@ describe("aux", () => {
         {
           "data": {},
           "fixedValueConfig": {
-            "dataset": "d1",
+            "dpart": "d1",
             "model": "m1",
           },
           "variables": [
@@ -48,12 +48,12 @@ describe("aux", () => {
     test("should return existing fixed value group", () => {
       const compGroups = [
         {
-          fixedValueConfig: { model: "m1", dataset: "d1" },
+          fixedValueConfig: { model: "m1", dpart: "d1" },
           variables: ["language", "measureType"],
           data: {},
         },
       ] as ComparisonGroup[];
-      const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
+      const fixedNames = ["model", "dpart"] as (keyof ExpVars)[];
       const vars = {
         model: { id: "m1" } as Model,
         dpart: { id: "d1" } as DsPartition,
@@ -74,7 +74,7 @@ describe("aux", () => {
         {
           "data": {},
           "fixedValueConfig": {
-            "dataset": "d1",
+            "dpart": "d1",
             "model": "m1",
           },
           "variables": [
@@ -88,12 +88,12 @@ describe("aux", () => {
     test("should create a new fixed value group if fixed values are different", () => {
       const compGroups = [
         {
-          fixedValueConfig: { model: "m1", dataset: "d1" },
+          fixedValueConfig: { model: "m1", dpart: "d1" },
           variables: ["language", "measureType"],
           data: {},
         },
       ] as ComparisonGroup[];
-      const fixedNames = ["model", "dataset"] as (keyof ExpVars)[];
+      const fixedNames = ["model", "dpart"] as (keyof ExpVars)[];
       const vars = {
         model: { id: "m2" } as Model,
         dpart: { id: "d1" } as DsPartition,
@@ -114,7 +114,7 @@ describe("aux", () => {
         {
           "data": {},
           "fixedValueConfig": {
-            "dataset": "d1",
+            "dpart": "d1",
             "model": "m2",
           },
           "variables": [

@@ -15,6 +15,27 @@
     "paths": {
       "*": [
         "src/@types/*"
+      ],
+      "dataset-adapters/*": [
+        "src/lib/dataset-adapters/*"
+      ],
+      "experiments/*": [
+        "src/lib/experiments/*"
+      ],
+      "experiments": [
+        "src/lib/experiments"
+      ],
+      "evaluation": [
+        "src/lib/evaluation"
+      ],
+      "evaluation/*": [
+        "src/lib/evaluation/*"
+      ],
+      "models/*": [
+        "src/lib/models/*"
+      ],
+      "models": [
+        "src/lib/models"
       ]
     },
     "baseUrl": "./",

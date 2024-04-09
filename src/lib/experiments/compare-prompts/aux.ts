@@ -2,7 +2,7 @@ import pcorrTest from "@stdlib/stats-pcorrtest";
 import { PartitionScale } from "../../types";
 import { PartitionData } from "../../types";
 import { ExpVars } from "..";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { DsPartition } from "dataset-adapters/DsPartition";
 
 export interface ComparisonGroup {
   fixedValueConfig: FixedValueConfig;
