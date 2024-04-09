@@ -1,6 +1,5 @@
 import pcorrTest from "@stdlib/stats-pcorrtest";
-import { PartitionScale } from "../../types";
-import { PartitionData } from "../../types";
+import { PartitionScale, PartitionData } from "punuy-datasets/types";
 import { ExpVars } from "..";
 import { DsPartition } from "dataset-adapters/DsPartition";
 

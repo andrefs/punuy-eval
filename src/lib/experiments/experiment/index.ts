@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { Model } from "models";
-import { MeasureType } from "../../types";
+import { MeasureType } from "punuy-datasets/types";
 import {
   EvaluationResult,
   EvaluationType,
