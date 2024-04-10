@@ -62,7 +62,7 @@ async function runTrial(
   const f = {
     name: "evaluate_sample",
     description: "evaluates the pairs sampled from the dataset.",
-    parameters: schema,
+    schema,
   };
 
   const result = await vars.model.makeRequest(vars.prompt.text, {

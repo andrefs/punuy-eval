@@ -56,7 +56,7 @@ async function runTrial(
   const f = {
     name: "validate_sample",
     description: "Validates the pairs sampled from the dataset.",
-    parameters: schema,
+    schema,
   };
 
   const result = await vars.model.makeRequest(vars.prompt.text, {

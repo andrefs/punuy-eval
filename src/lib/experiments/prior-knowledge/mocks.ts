@@ -1,5 +1,5 @@
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-import { Model } from "../../models";
+import { Model, OpenAIModelResponse } from "../../models";
 
 export const createMockDsPart = (): DsPartition => ({
   id: "test_testPartition",
@@ -101,6 +101,6 @@ export const createMockModel = (result: string) =>
             },
           ],
         },
-      })
+      } as OpenAIModelResponse)
     )
   );

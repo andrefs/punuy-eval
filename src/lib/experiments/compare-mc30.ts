@@ -12,9 +12,9 @@ import { JsonSyntaxError } from "../evaluation";
 import logger from "../logger";
 import { MultiDatasetScores } from "../dataset-adapters/collection";
 
-type ModelsResults = {
+type ModelsResults = Partial<{
   [key in ModelIds]: string[];
-};
+}>;
 
 export const loadDatasetScores = async () => {
   const pairs: MultiDatasetScores = {};
@@ -147,7 +147,7 @@ async function runTrialModel(model: Model, prompt: string) {
   const f = {
     name: "evaluate_scores",
     description: "Evaluate the word similarity scores.",
-    parameters: resultSchema,
+    schema: resultSchema,
   };
 
   const res = await model.makeRequest(prompt, { function: f });
@@ -365,9 +365,9 @@ function mergeResults(
   const res = {} as MC30Results;
 
   try {
-    const gpt35turbo = modelsRes.gpt35turbo.map(r => JSON.parse(r)); // TODO cast to resultSchema somehow
-    const gpt4 = modelsRes.gpt4.map(r => JSON.parse(r));
-    const gpt4turbo = modelsRes.gpt4turbo.map(r => JSON.parse(r));
+    const gpt35turbo = modelsRes.gpt35turbo!.map(r => JSON.parse(r)); // TODO cast to resultSchema somehow
+    const gpt4 = modelsRes.gpt4!.map(r => JSON.parse(r));
+    const gpt4turbo = modelsRes.gpt4turbo!.map(r => JSON.parse(r));
 
     let modelName = "gpt35turbo";
     for (const score of gpt35turbo.flatMap(({ scores }) => [...scores])) {

@@ -46,7 +46,7 @@ async function runTrial(vars: ExpVarsFixedPrompt) {
   const f = {
     name: "evaluate_scores",
     description: "Evaluate the word similarity or relatedness scores",
-    parameters: resultSchema,
+    schema: resultSchema,
   };
   const res = await vars.model.makeRequest(vars.prompt.text, { function: f });
   return res;

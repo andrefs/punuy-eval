@@ -1,16 +1,11 @@
 import OpenAI from "openai";
-import { Model } from "./model";
+import { Model, ModelRequestParams } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 
 const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
 };
-
-export interface OpenAIModelParams {
-  type: "openai";
-  function: OpenAI.Chat.Completions.ChatCompletionCreateParams.Function;
-}
 
 export interface OpenAIModelResponse {
   type: "openai";
@@ -19,7 +14,7 @@ export interface OpenAIModelResponse {
 
 export type MakeOpenAIRequest = (
   prompt: string,
-  params: OpenAIModelParams
+  params: ModelRequestParams
 ) => Promise<OpenAIModelResponse>;
 
 if (!configuration.apiKey) {
@@ -34,7 +29,7 @@ const openai = new OpenAI(configuration);
 const buildModel = (openai: OpenAI, modelId: string) => {
   const makeRequest = async function (
     prompt: string,
-    params: OpenAIModelParams
+    params: ModelRequestParams
   ) {
     const completion = await openai.chat.completions.create({
       model: modelId,
@@ -51,7 +46,8 @@ const buildModel = (openai: OpenAI, modelId: string) => {
           // omitting description seems to yield better results
           function: {
             name: params.function.name,
-            parameters: params.function.parameters,
+            description: params.function.description,
+            parameters: params.function.schema,
           },
         },
       ],

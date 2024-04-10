@@ -46,7 +46,7 @@ async function runTrial(
     name: "return-paper-name",
     description:
       "Return the title of the scientific article describing this dataset",
-    parameters: schema,
+    schema,
   };
   const result = await vars.model.makeRequest(vars.prompt.text, {
     function: f,

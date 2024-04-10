@@ -1,15 +1,14 @@
-import {
-  MakeOpenAIRequest,
-  OpenAIModelParams,
-  OpenAIModelResponse,
-} from "./openai";
-import {
-  AnthropicModelParams,
-  AnthropicModelResponse,
-  MakeAnthropicRequest,
-} from "./anthropic";
+import { MakeOpenAIRequest, OpenAIModelResponse } from "./openai";
+import { AnthropicModelResponse, MakeAnthropicRequest } from "./anthropic";
 
 export type ModelResponse = OpenAIModelResponse | AnthropicModelResponse;
+export interface ModelRequestParams {
+  function: {
+    name: string;
+    schema: Record<string, unknown>;
+    description: string;
+  };
+}
 
 export class Model {
   id: string;
@@ -23,5 +22,3 @@ export class Model {
     this.makeRequest = makeRequest;
   }
 }
-
-export type ModelParams = OpenAIModelParams | AnthropicModelParams;
