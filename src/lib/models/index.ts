@@ -1,6 +1,7 @@
 export * from "./model";
 export * from "./openai";
 export * from "./anthropic";
+export * from "./cohere";
 
 export type ModelIds =
   | "gpt35turbo"
@@ -8,4 +9,5 @@ export type ModelIds =
   | "gpt4turbo"
   | "claude3opus"
   | "claude3sonnet"
-  | "claude3haiku";
+  | "claude3haiku"
+  | "command-r-plus";

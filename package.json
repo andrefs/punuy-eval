@@ -29,6 +29,7 @@
     "@stdlib/stats-pcorrtest": "0.2.1",
     "ajv": "8.12.0",
     "ajv-formats": "2.1.1",
+    "cohere-ai": "7.9.3",
     "dotenv": "16.4.5",
     "fast-shuffle": "6.1.0",
     "fastest-levenshtein": "1.0.16",

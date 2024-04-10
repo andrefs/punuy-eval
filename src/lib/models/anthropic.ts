@@ -20,10 +20,10 @@ export type MakeAnthropicRequest = (
 
 if (!configuration.apiKey) {
   logger.error(
-    "OpenAI API key not configured, please follow instructions in README.md"
+    "Anthropic API key not configured, please follow instructions in README.md"
   );
 } else {
-  logger.info("OpenAI API key loaded from environment variable");
+  logger.info("Anthropic API key loaded from environment variable");
 }
 const anthropic = new Anthropic(configuration);
 
