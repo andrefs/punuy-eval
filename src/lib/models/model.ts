@@ -1,11 +1,19 @@
 import { MakeOpenAIRequest, OpenAIModelResponse } from "./openai";
 import { AnthropicModelResponse, MakeAnthropicRequest } from "./anthropic";
 import { CohereModelResponse, MakeCohereRequest } from "./cohere";
+import { MakeMistralRequest, MistralModelResponse } from "./mistral";
 
 export type ModelResponse =
   | OpenAIModelResponse
   | AnthropicModelResponse
-  | CohereModelResponse;
+  | CohereModelResponse
+  | MistralModelResponse;
+
+type MakeRequest =
+  | MakeAnthropicRequest
+  | MakeOpenAIRequest
+  | MakeCohereRequest
+  | MakeMistralRequest;
 
 export interface ModelRequestParams {
   function: {
@@ -17,12 +25,9 @@ export interface ModelRequestParams {
 
 export class Model {
   id: string;
-  makeRequest: MakeAnthropicRequest | MakeOpenAIRequest | MakeCohereRequest;
+  makeRequest: MakeRequest;
 
-  constructor(
-    id: string,
-    makeRequest: MakeAnthropicRequest | MakeOpenAIRequest | MakeCohereRequest
-  ) {
+  constructor(id: string, makeRequest: MakeRequest) {
     this.id = id;
     this.makeRequest = makeRequest;
   }
