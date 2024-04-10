@@ -8,8 +8,19 @@ const configuration = {
 };
 
 export interface OpenAIModelParams {
+  type: "openai";
   function: OpenAI.Chat.Completions.ChatCompletionCreateParams.Function;
 }
+
+export interface OpenAIModelResponse {
+  type: "openai";
+  data: OpenAI.Chat.Completions.ChatCompletion;
+}
+
+export type MakeOpenAIRequest = (
+  prompt: string,
+  params: OpenAIModelParams
+) => Promise<OpenAIModelResponse>;
 
 if (!configuration.apiKey) {
   logger.error(
@@ -28,7 +39,7 @@ const buildModel = (openai: OpenAI, modelId: string) => {
     const completion = await openai.chat.completions.create({
       model: modelId,
       messages: [
-        { role: "system", content: "You are a helpful recipe assistant." },
+        { role: "system", content: "You are a helpful assistant." },
         {
           role: "user",
           content: prompt,

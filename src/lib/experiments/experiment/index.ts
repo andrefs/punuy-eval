@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Model } from "../../models";
+import { Model, ModelResponse } from "../../models";
 import { MeasureType } from "punuy-datasets/src/lib/types";
 import {
   EvaluationResult,
@@ -9,6 +9,7 @@ import {
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import Anthropic from "@anthropic-ai/sdk";
 
 class Experiment {
   name: string;
@@ -212,10 +213,5 @@ export interface AggregatedEvaluationResult {
     [key in EvaluationType]: number;
   };
 }
-
-export type ModelResponse = {
-  type: "openai";
-  data: OpenAI.Chat.Completions.ChatCompletion;
-};
 
 export default Experiment;
