@@ -1,15 +1,15 @@
-import { ExpVarMatrix, comparePrompts } from "experiments";
-import { gpt4turbo } from "models";
+import { ExpVarMatrix, comparePrompts } from "../lib/experiments";
+import { gpt4turbo } from "../lib/models";
 import logger from "../lib/logger";
 
-import pt65 from "dataset-adapters/pt65_main";
-import lxsimlex999 from "dataset-adapters/lxsimlex999_main";
-import lxws353 from "dataset-adapters/lxws353_main";
-import lxrw2034 from "dataset-adapters/lxrw2034_main";
-import ws353Sim from "dataset-adapters/ws353Sim_wordsim_similarity_goldstandard.txt";
-import ws353Rel from "dataset-adapters/ws353Rel_wordsim_relatedness_goldstandard.txt";
-import mturk287 from "dataset-adapters/mturk287_mturk";
-import yp130 from "dataset-adapters/yp130_verbpairs";
+import pt65 from "../lib/dataset-adapters/pt65_main";
+import lxsimlex999 from "../lib/dataset-adapters/lxsimlex999_main";
+import lxws353 from "../lib/dataset-adapters/lxws353_main";
+import lxrw2034 from "../lib/dataset-adapters/lxrw2034_main";
+import ws353Sim from "../lib/dataset-adapters/ws353Sim_wordsim_similarity_goldstandard.txt";
+import ws353Rel from "../lib/dataset-adapters/ws353Rel_wordsim_relatedness_goldstandard.txt";
+import mturk287 from "../lib/dataset-adapters/mturk287_mturk";
+import yp130 from "../lib/dataset-adapters/yp130_verbpairs";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 

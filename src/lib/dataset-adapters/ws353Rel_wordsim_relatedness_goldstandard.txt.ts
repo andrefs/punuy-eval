@@ -1,4 +1,4 @@
-import ws353Rel from "punuy-datasets/datasets/ws353Rel";
+import ws353Rel from "punuy-datasets/src/datasets/ws353Rel";
 import { DsPartition } from "./DsPartition";
 
 export default DsPartition.fromDataset(

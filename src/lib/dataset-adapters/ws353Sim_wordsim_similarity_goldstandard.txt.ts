@@ -1,4 +1,4 @@
-import ws353Sim from "punuy-datasets/datasets/ws353Sim";
+import ws353Sim from "punuy-datasets/src/datasets/ws353Sim";
 import { DsPartition } from "./DsPartition";
 
 export default DsPartition.fromDataset(

@@ -1,14 +1,14 @@
 import OpenAI from "openai";
-import { Model } from "models";
-import { MeasureType } from "punuy-datasets/types";
+import { Model } from "../../models";
+import { MeasureType } from "punuy-datasets/src/lib/types";
 import {
   EvaluationResult,
   EvaluationType,
   combineEvaluations,
-} from "evaluation";
+} from "../../evaluation";
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
-import { DsPartition } from "dataset-adapters/DsPartition";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 class Experiment {
   name: string;

@@ -9,33 +9,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "NodeNext",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
-    "paths": {
-      "dataset-adapters/*": [
-        "src/lib/dataset-adapters/*"
-      ],
-      "experiments/*": [
-        "src/lib/experiments/*"
-      ],
-      "experiments": [
-        "src/lib/experiments"
-      ],
-      "evaluation": [
-        "src/lib/evaluation"
-      ],
-      "evaluation/*": [
-        "src/lib/evaluation/*"
-      ],
-      "models/*": [
-        "src/lib/models/*"
-      ],
-      "models": [
-        "src/lib/models"
-      ]
-    },
     "baseUrl": "./",
     "outDir": "dist",
     "sourceMap": true,

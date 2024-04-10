@@ -1,5 +1,5 @@
-import { compareMc30 } from "experiments";
-import { loadDatasetScores } from "experiments/compare-mc30";
+import { compareMc30 } from "../lib/experiments";
+import { loadDatasetScores } from "../lib/experiments/compare-mc30";
 import logger from "../lib/logger";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 1;

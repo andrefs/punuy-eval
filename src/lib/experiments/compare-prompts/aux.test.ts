@@ -6,8 +6,8 @@ import {
   rawResultsToAvg,
 } from "./aux";
 import { ExpVars, Prompt } from "..";
-import { Model } from "models";
-import { DsPartition } from "dataset-adapters/DsPartition";
+import { Model } from "../../models";
+import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("compare-prompts aux", () => {
   describe("getFixedValueGroup", () => {

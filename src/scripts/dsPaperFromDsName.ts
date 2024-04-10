@@ -1,7 +1,7 @@
-import { ExpVarMatrix, dsPaperFromDsName } from "experiments";
-import { gpt35turbo, gpt4, gpt4turbo } from "models";
+import { ExpVarMatrix, dsPaperFromDsName } from "../lib/experiments";
+import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
 import logger from "../lib/logger";
-import rg65 from "dataset-adapters/rg65_table1";
+import rg65 from "../lib/dataset-adapters/rg65_table1";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
