@@ -40,10 +40,8 @@ class Experiment {
     vars: ExpVars,
     trials: number
   ) => Promise<TrialsResultData>;
-  evaluateTrial: (
-    dpart: DsPartition,
-    data: string
-  ) => Promise<EvaluationResult>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evaluateTrial: (dpart: DsPartition, got: any) => Promise<EvaluationResult>;
   evaluate: (exp: ExperimentData) => Promise<{
     evaluation: EvaluationResult[];
     aggregated: AggregatedEvaluationResult;
@@ -70,10 +68,8 @@ class Experiment {
       schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
       maxRetries?: number
     ) => Promise<TrialResult>,
-    evaluateTrial: (
-      dpart: DsPartition,
-      data: string
-    ) => Promise<EvaluationResult>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    evaluateTrial: (dpart: DsPartition, got: any) => Promise<EvaluationResult>,
     prompts?: (Prompt | PromptGenerator)[]
   ) {
     this.name = name;

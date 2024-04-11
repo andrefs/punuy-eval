@@ -4,7 +4,7 @@ import dsNameFromDsSample from "./dsNameFromDsSample";
 import { ExpVarsFixedPrompt, PromptGenerator } from "..";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 
-describe("dsSampleFromDsName", () => {
+describe("dsNameFromDsSample", () => {
   describe("evaluateTrial", () => {
     test("should return NoData if data is empty", async () => {
       const result = await dsNameFromDsSample.evaluateTrial(
@@ -47,11 +47,11 @@ describe("dsSampleFromDsName", () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
-        JSON.stringify({
+        {
           name: mockDsPartition.dataset.metadata.name,
           year: "2021",
           authors: ["First Author", "Second Person Name"],
-        })
+        }
       );
       expect(result.data).toMatchInlineSnapshot(`
         {
