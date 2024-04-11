@@ -2,7 +2,6 @@ export * from "./model";
 export * from "./openai";
 export * from "./anthropic";
 export * from "./cohere";
-export * from "./mistral";
 
 export type ModelIds =
   | "gpt35turbo"

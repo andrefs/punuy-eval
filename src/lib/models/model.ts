@@ -1,19 +1,16 @@
 import { MakeOpenAIRequest, OpenAIModelResponse } from "./openai";
 import { AnthropicModelResponse, MakeAnthropicRequest } from "./anthropic";
 import { CohereModelResponse, MakeCohereRequest } from "./cohere";
-import { MakeMistralRequest, MistralModelResponse } from "./mistral";
 
 export type ModelResponse =
   | OpenAIModelResponse
   | AnthropicModelResponse
-  | CohereModelResponse
-  | MistralModelResponse;
+  | CohereModelResponse;
 
 type MakeRequest =
   | MakeAnthropicRequest
   | MakeOpenAIRequest
-  | MakeCohereRequest
-  | MakeMistralRequest;
+  | MakeCohereRequest;
 
 export interface ModelRequestParams {
   function: {
