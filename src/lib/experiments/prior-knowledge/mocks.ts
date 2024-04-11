@@ -101,6 +101,7 @@ export const createMockModel = (result: string) =>
             },
           ],
         },
+        getDataText: () => result,
       } as OpenAIModelResponse)
     )
   );

@@ -121,7 +121,7 @@ class Experiment {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await this.runTrial({ ...vars, prompt }, this.schema);
         if (res.ok) {
-          results.push(res.result!.data); // TODO: handle failed attempts
+          results.push(res.result); // TODO: handle failed attempts
         }
       }
       return {
