@@ -1,16 +1,16 @@
-import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
+import Experiment, {
+  ExpVars,
+  ExpVarsFixedPrompt,
+  Prompt,
+  TrialResult,
+} from "../experiment";
 import {
   DataCorrect,
   DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
-  JsonSchemaError,
-  JsonSyntaxError,
-  NoData,
 } from "../../evaluation";
-import Ajv, { JSONSchemaType } from "ajv";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-const ajv = new Ajv();
 
 const numPairs = 5;
 
@@ -51,74 +51,86 @@ const resultSchema = {
   required: ["pairs"],
 };
 
-type ResultSchema = JSONSchemaType<typeof resultSchema>;
-
-const validateSchema = ajv.compile<ResultSchema>(resultSchema);
-
 async function runTrial(
+  this: Experiment,
   vars: ExpVarsFixedPrompt,
-  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-) {
-  const f = {
-    name: "evaluate_sample",
-    description: "evaluates the pairs sampled from the dataset.",
-    schema,
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  maxRetries: number = 3
+): Promise<TrialResult> {
+  const params = {
+    function: {
+      name: "evaluate_sample",
+      description: "evaluates the pairs sampled from the dataset.",
+      schema,
+    },
   };
 
-  const result = await vars.model.makeRequest(vars.prompt.text, {
-    function: f,
-  });
-  return result;
+  const gotValidData = false;
+  let attempts = 0;
+  const failedAttempts = [];
+  while (!gotValidData && attempts < maxRetries) {
+    const attemptResult = await this.getResponse(
+      vars.model,
+      vars.prompt.text,
+      params
+    );
+    attempts++;
+    if (attemptResult.ok) {
+      return {
+        totalTries: attempts,
+        failedAttempts,
+        ok: true,
+        result: attemptResult.data,
+      };
+    }
+    failedAttempts.push(attemptResult);
+  }
+
+  return {
+    totalTries: attempts,
+    failedAttempts,
+    ok: false,
+  };
 }
 
-async function evaluateTrial(dpart: DsPartition, data: string) {
-  if (!data.trim()) {
-    return new NoData();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function evaluateTrial(dpart: DsPartition, got: any) {
+  const expected: { [word: string]: { [word: string]: boolean } } = {};
+
+  for (const { term1, term2 } of dpart.data) {
+    const w1 = term1.toLowerCase();
+    const w2 = term2.toLowerCase();
+
+    expected[w1] = expected[w1] || {};
+    expected[w1][w2] = true;
+    expected[w2] = expected[w2] || {};
+    expected[w2][w1] = true;
   }
-  try {
-    const got = JSON.parse(data);
-    if (!validateSchema(got)) {
-      return new JsonSchemaError(data);
-    }
-    const expected: { [word: string]: { [word: string]: boolean } } = {};
+  let i = 0;
+  let dataIncorrect = false;
+  for (const [term1, term2] of got.pairs) {
+    const w1 = term1.toLowerCase();
+    const w2 = term2.toLowerCase();
 
-    for (const { term1, term2 } of dpart.data) {
-      const w1 = term1.toLowerCase();
-      const w2 = term2.toLowerCase();
-
-      expected[w1] = expected[w1] || {};
-      expected[w1][w2] = true;
-      expected[w2] = expected[w2] || {};
-      expected[w2][w1] = true;
+    if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
+      i++;
+      expected[w1][w2] = false;
+      expected[w2][w1] = false;
+    } else {
+      dataIncorrect = true;
     }
-    let i = 0;
-    let dataIncorrect = false;
-    for (const [term1, term2] of got.pairs) {
-      const w1 = term1.toLowerCase();
-      const w2 = term2.toLowerCase();
-
-      if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
-        i++;
-        expected[w1][w2] = false;
-        expected[w2][w1] = false;
-      } else {
-        dataIncorrect = true;
-      }
-    }
-
-    if (i === 0) {
-      return new DataIncorrect(got);
-    }
-    if (dataIncorrect) {
-      return new DataPartiallyIncorrect(i / numPairs, got);
-    }
-    if (i < numPairs) {
-      return new DataIncomplete(i / numPairs, got);
-    }
-    return new DataCorrect(got);
-  } catch (e) {
-    return new JsonSyntaxError(data);
   }
+
+  if (i === 0) {
+    return new DataIncorrect(got);
+  }
+  if (dataIncorrect) {
+    return new DataPartiallyIncorrect(i / numPairs, got);
+  }
+  if (i < numPairs) {
+    return new DataIncomplete(i / numPairs, got);
+  }
+  return new DataCorrect(got);
 }
 
 export default new Experiment(

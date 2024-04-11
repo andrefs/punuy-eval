@@ -1,15 +1,12 @@
-import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
-import {
-  DataCorrect,
-  DataIncorrect,
-  JsonSchemaError,
-  JsonSyntaxError,
-  NoData,
-} from "../../evaluation";
+import Experiment, {
+  ExpVars,
+  ExpVarsFixedPrompt,
+  Prompt,
+  TrialResult,
+} from "../experiment";
+import { DataCorrect, DataIncorrect } from "../../evaluation";
 import { distance } from "fastest-levenshtein";
-import Ajv, { JSONSchemaType } from "ajv";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-const ajv = new Ajv();
 
 const name = "ds-paper-from-ds-name";
 const description =
@@ -35,63 +32,77 @@ const resultSchema = {
   },
   required: ["title"],
 };
-type ResultSchema = JSONSchemaType<typeof resultSchema>;
-const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(
+  this: Experiment,
   vars: ExpVarsFixedPrompt,
-  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-) {
-  const f = {
-    name: "return-paper-name",
-    description:
-      "Return the title of the scientific article describing this dataset",
-    schema,
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  maxRetries: number = 3
+): Promise<TrialResult> {
+  const params = {
+    function: {
+      name: "return-paper-name",
+      description:
+        "Return the title of the scientific article describing this dataset",
+      schema,
+    },
   };
-  const result = await vars.model.makeRequest(vars.prompt.text, {
-    function: f,
-  });
-  return result;
+
+  const gotValidData = false;
+  let attempts = 0;
+  const failedAttempts = [];
+  while (!gotValidData && attempts < maxRetries) {
+    const attemptResult = await this.getResponse(
+      vars.model,
+      vars.prompt.text,
+      params
+    );
+    attempts++;
+    if (attemptResult.ok) {
+      return {
+        totalTries: attempts,
+        failedAttempts,
+        ok: true,
+        result: attemptResult.data,
+      };
+    }
+    failedAttempts.push(attemptResult);
+  }
+
+  return {
+    totalTries: attempts,
+    failedAttempts,
+    ok: false,
+  };
 }
 
-async function evaluateTrial(dpart: DsPartition, data: string) {
-  if (!data.trim()) {
-    return new NoData();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function evaluateTrial(dpart: DsPartition, got: any) {
+  const expected = dpart.dataset.metadata.papers.map(p => ({
+    title: p.title,
+  }));
+
+  let bestScore = 1;
+  // let bestIndex = -1
+
+  for (const [, exp] of expected.entries()) {
+    const e = exp.title.toLowerCase().trim();
+    const g = got.title.toLowerCase().trim();
+    const d = distance(e, g) / ((e.length + g.length) / 2);
+    if (d < bestScore) {
+      bestScore = d;
+      // bestIndex = i
+    }
   }
 
-  try {
-    const got = JSON.parse(data);
-    if (!validateSchema(got)) {
-      return new JsonSchemaError(data);
-    }
-    const expected = dpart.dataset.metadata.papers.map(p => ({
-      title: p.title,
-    }));
-
-    let bestScore = 1;
-    // let bestIndex = -1
-
-    for (const [, exp] of expected.entries()) {
-      const e = exp.title.toLowerCase().trim();
-      const g = got.title.toLowerCase().trim();
-      const d = distance(e, g) / ((e.length + g.length) / 2);
-      if (d < bestScore) {
-        bestScore = d;
-        // bestIndex = i
-      }
-    }
-
-    const threshold = 0.2;
-    if (bestScore < threshold) {
-      return new DataCorrect(got.title);
-    }
-    return new DataIncorrect({
-      got: got.title,
-      expected: expected.map(e => e.title),
-    });
-  } catch (e) {
-    return new JsonSyntaxError(data);
+  const threshold = 0.2;
+  if (bestScore < threshold) {
+    return new DataCorrect(got.title);
   }
+  return new DataIncorrect({
+    got: got.title,
+    expected: expected.map(e => e.title),
+  });
 }
 
 export default new Experiment(
