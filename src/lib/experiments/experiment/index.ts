@@ -1,4 +1,4 @@
-import { Model, ModelRequestParams, ModelResponse } from "../../models";
+import { Model, ModelRequestParams } from "../../models";
 import { MeasureType } from "punuy-datasets/src/lib/types";
 import {
   EvaluationResult,
@@ -13,6 +13,8 @@ import {
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import Ajv, { JSONSchemaType } from "ajv";
+const ajv = new Ajv();
 
 class Experiment {
   name: string;
@@ -20,15 +22,19 @@ class Experiment {
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   prompts?: (Prompt | PromptGenerator)[] = [];
   getResponse: (
+    this: Experiment,
     model: Model,
     prompt: string,
-    params: ModelRequestParams,
-    validateSchema: any // TODO
+    params: ModelRequestParams
   ) => Promise<ValidationResult>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  validateSchema: (this: Experiment, got: any) => boolean;
   runTrial: (
+    this: Experiment,
     vars: ExpVarsFixedPrompt,
-    schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-  ) => Promise<ModelResponse>;
+    schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+    maxRetries?: number
+  ) => Promise<TrialResult>;
   runTrials: (
     this: Experiment,
     vars: ExpVars,
@@ -59,9 +65,11 @@ class Experiment {
     description: string,
     schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runTrial: (
+      this: Experiment,
       vars: ExpVarsFixedPrompt,
-      schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-    ) => Promise<ModelResponse>,
+      schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+      maxRetries?: number
+    ) => Promise<TrialResult>,
     evaluateTrial: (
       dpart: DsPartition,
       data: string
@@ -71,12 +79,17 @@ class Experiment {
     this.name = name;
     this.description = description;
     this.schema = schema;
+    type ResultSchema = JSONSchemaType<typeof this.schema>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.validateSchema = function (this: Experiment, got: any) {
+      const vs = ajv.compile<ResultSchema>(this.schema);
+      return vs(got);
+    };
     this.prompts = prompts;
     this.getResponse = async function (
       model: Model,
       prompt: string,
-      params: ModelRequestParams,
-      validateSchema: any // TODO
+      params: ModelRequestParams
     ) {
       const result = await model.makeRequest(prompt, params);
 
@@ -86,7 +99,7 @@ class Experiment {
       }
       try {
         const got = JSON.parse(data);
-        if (!validateSchema(got)) {
+        if (!this.validateSchema(got)) {
           return new JsonSchemaError(data);
         }
         return new ValidData(got);
@@ -111,7 +124,7 @@ class Experiment {
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await this.runTrial({ ...vars, prompt }, this.schema);
-        results.push(res.getDataText());
+        results.push(res.ok ? res.result?.data : ""); // TODO: handle failed attempts
       }
       return {
         variables: vars,

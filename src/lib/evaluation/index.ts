@@ -4,6 +4,7 @@ export type EvaluationResultType =
   | "data-partially-incorrect"
   | "data-incorrect"
   | "non-evaluated-data"
+  | "data-invalid-on-all-tries"
   | "data-correct";
 
 export class EvaluationResult {
@@ -96,6 +97,13 @@ export class DataIncorrect extends EvaluationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("data-incorrect", false, data);
+  }
+}
+
+export class DataInvalidOnAllTries extends EvaluationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(data?: any) {
+    super("data-invalid-on-all-tries", false, data);
   }
 }
 

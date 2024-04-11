@@ -59,10 +59,12 @@ async function runTrial(
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3
 ): Promise<TrialResult> {
-  const f = {
-    name: "validate_dataset",
-    description: "Validates the dataset information.",
-    schema,
+  const params = {
+    function: {
+      name: "validate_dataset",
+      description: "Validates the dataset information.",
+      schema,
+    },
   };
 
   const gotValidData = false;
@@ -72,8 +74,7 @@ async function runTrial(
     const attemptResult = await this.getResponse(
       vars.model,
       vars.prompt.text,
-      { function: f },
-      validateSchema
+      params
     );
     attempts++;
     if (attemptResult.ok) {
