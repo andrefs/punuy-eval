@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Model, ModelRequestParams } from "./model";
+import { Model, ModelRequestParams, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 
@@ -8,9 +8,9 @@ const configuration = {
     process.env.NODE_ENV === "test" ? "test" : process.env.ANTHROPIC_API_KEY,
 };
 
-export interface AnthropicModelResponse {
+export interface AnthropicModelResponse extends ModelResponse {
   type: "anthropic";
-  data: Anthropic.Beta.Tools.Messages.ToolsBetaMessage;
+  dataObj: Anthropic.Beta.Tools.Messages.ToolsBetaMessage;
 }
 
 export type MakeAnthropicRequest = (
@@ -31,7 +31,7 @@ const buildModel = (anthropic: Anthropic, modelId: string) => {
   const makeRequest = async function (
     prompt: string,
     params: ModelRequestParams
-  ) {
+  ): Promise<AnthropicModelResponse> {
     const msg = await anthropic.beta.tools.messages.create({
       model: modelId,
       max_tokens: 1024,
@@ -48,7 +48,16 @@ const buildModel = (anthropic: Anthropic, modelId: string) => {
       ],
     });
 
-    return { type: "anthropic" as const, data: msg };
+    const res: AnthropicModelResponse = {
+      type: "anthropic" as const,
+      dataObj: msg,
+      getDataText: () => {
+        return msg.content
+          .flatMap(c => (c.type === "text" ? c.text : []))
+          .join("\n");
+      },
+    };
+    return res;
   };
 
   return new Model(modelId, makeRequest);

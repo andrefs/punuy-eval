@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Model, ModelRequestParams } from "./model";
+import { Model, ModelRequestParams, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 
@@ -7,9 +7,9 @@ const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
 };
 
-export interface OpenAIModelResponse {
+export interface OpenAIModelResponse extends ModelResponse {
   type: "openai";
-  data: OpenAI.Chat.Completions.ChatCompletion;
+  dataObj: OpenAI.Chat.Completions.ChatCompletion;
 }
 
 export type MakeOpenAIRequest = (
@@ -56,7 +56,16 @@ const buildModel = (openai: OpenAI, modelId: string) => {
         function: { name: params.function.name },
       },
     });
-    return { type: "openai" as const, data: completion };
+    const res: OpenAIModelResponse = {
+      type: "openai" as const,
+      dataObj: completion,
+      getDataText: () => {
+        return (
+          completion.choices[0].message.tool_calls?.[0].function.arguments || ""
+        );
+      },
+    };
+    return res;
   };
 
   return new Model(modelId, makeRequest);

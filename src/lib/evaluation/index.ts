@@ -1,41 +1,76 @@
 import { AggregatedEvaluationResult } from "../experiments";
-
-export type EvaluationType =
-  | "json-syntax-error"
-  | "json-schema-error"
+export type EvaluationResultType =
   | "data-incomplete"
   | "data-partially-incorrect"
   | "data-incorrect"
-  | "no-data"
   | "non-evaluated-data"
   | "data-correct";
 
 export class EvaluationResult {
-  type: EvaluationType;
+  type: EvaluationResultType;
   ok: boolean;
   data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(type: EvaluationType, ok: boolean, data: any) {
+  constructor(type: EvaluationResultType, ok: boolean, data: any) {
     this.type = type;
     this.ok = ok;
     this.data = data;
   }
 }
 
-export class JsonSyntaxError extends EvaluationResult {
+/***************
+ * Validation *
+ **************/
+
+export type ValidationResultType =
+  | "json-syntax-error"
+  | "json-schema-error"
+  | "no-data"
+  | "valid-data";
+
+export class ValidationResult {
+  type: ValidationResultType;
+  ok: boolean;
+  data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(type: ValidationResultType, ok: boolean, data: any) {
+    this.type = type;
+    this.ok = ok;
+    this.data = data;
+  }
+}
+
+export class JsonSyntaxError extends ValidationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("json-syntax-error", false, data);
   }
 }
 
-export class JsonSchemaError extends EvaluationResult {
+export class JsonSchemaError extends ValidationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("json-schema-error", false, data);
   }
 }
+
+export class NoData extends ValidationResult {
+  constructor() {
+    super("no-data", false, "");
+  }
+}
+export class ValidData extends ValidationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(data?: any) {
+    super("valid-data", true, data);
+  }
+}
+
+/**************
+ * Evaluation *
+ **************/
 
 export class DataIncomplete extends EvaluationResult {
   percentage: number;
@@ -64,12 +99,6 @@ export class DataIncorrect extends EvaluationResult {
   }
 }
 
-export class NoData extends EvaluationResult {
-  constructor() {
-    super("no-data", false, "");
-  }
-}
-
 export class DataCorrect extends EvaluationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
@@ -88,7 +117,7 @@ export async function combineEvaluations(
   vs: EvaluationResult[]
 ): Promise<AggregatedEvaluationResult> {
   let sum = 0;
-  const resultTypes = {} as { [key in EvaluationType]: number };
+  const resultTypes = {} as { [key in EvaluationResultType]: number };
 
   for (const v of vs) {
     resultTypes[v.type] = resultTypes[v.type] || 0;

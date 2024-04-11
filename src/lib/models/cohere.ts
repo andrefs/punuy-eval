@@ -1,5 +1,5 @@
 import { CohereClient, Cohere } from "cohere-ai";
-import { Model, ModelRequestParams } from "./model";
+import { Model, ModelRequestParams, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { ToolParameterDefinitionsValue } from "cohere-ai/api";
@@ -8,9 +8,9 @@ const configuration = {
   token: process.env.NODE_ENV === "test" ? "test" : process.env.COHERE_API_KEY,
 };
 
-export interface CohereModelResponse {
+export interface CohereModelResponse extends ModelResponse {
   type: "cohere";
-  data: Cohere.NonStreamedChatResponse;
+  dataObj: Cohere.NonStreamedChatResponse;
 }
 
 export type MakeCohereRequest = (
@@ -27,11 +27,11 @@ if (!configuration.token) {
 }
 const cohere = new CohereClient(configuration);
 
-const buildModel = (cohere: CohereClient, modelId: string) => {
+const buildModel = (cohere: CohereClient, modelId: string): Model => {
   const makeRequest = async function (
     prompt: string,
     params: ModelRequestParams
-  ) {
+  ): Promise<CohereModelResponse> {
     const prediction = await cohere.chat({
       model: modelId,
       message: prompt,
@@ -46,8 +46,15 @@ const buildModel = (cohere: CohereClient, modelId: string) => {
         },
       ],
     });
+    const resp: CohereModelResponse = {
+      type: "cohere" as const,
+      dataObj: prediction,
+      getDataText: () => {
+        return prediction.text;
+      },
+    };
 
-    return { type: "cohere" as const, data: prediction };
+    return resp;
   };
 
   return new Model(modelId, makeRequest);

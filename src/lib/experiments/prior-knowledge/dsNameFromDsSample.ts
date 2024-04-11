@@ -1,9 +1,15 @@
-import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
+import Experiment, {
+  ExpVars,
+  ExpVarsFixedPrompt,
+  Prompt,
+  TrialResult,
+} from "../experiment";
 import {
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
   NonEvaluatedData,
+  ValidData,
 } from "../../evaluation";
 import Ajv, { JSONSchemaType } from "ajv";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
@@ -48,19 +54,44 @@ type ResultSchema = JSONSchemaType<typeof resultSchema>;
 const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(
+  this: Experiment,
   vars: ExpVarsFixedPrompt,
-  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-) {
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  maxRetries: number = 3
+): Promise<TrialResult> {
   const f = {
     name: "validate_dataset",
     description: "Validates the dataset information.",
     schema,
   };
 
-  const result = await vars.model.makeRequest(vars.prompt.text, {
-    function: f,
-  });
-  return result;
+  const gotValidData = false;
+  let attempts = 0;
+  const failedAttempts = [];
+  while (!gotValidData && attempts < maxRetries) {
+    const attemptResult = await this.getResponse(
+      vars.model,
+      vars.prompt.text,
+      { function: f },
+      validateSchema
+    );
+    attempts++;
+    if (attemptResult.ok) {
+      return {
+        totalTries: attempts,
+        failedAttempts,
+        ok: true,
+        result: attemptResult.data as ValidData,
+      };
+    }
+    failedAttempts.push(attemptResult);
+  }
+
+  return {
+    totalTries: attempts,
+    failedAttempts,
+    ok: false,
+  };
 }
 
 async function evaluateTrial(dpart: DsPartition, data: string) {

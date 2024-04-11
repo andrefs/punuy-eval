@@ -1,26 +1,39 @@
-import OpenAI from "openai";
-import { Model, ModelResponse } from "../../models";
+import { Model, ModelRequestParams, ModelResponse } from "../../models";
 import { MeasureType } from "punuy-datasets/src/lib/types";
 import {
   EvaluationResult,
-  EvaluationType,
+  EvaluationResultType,
+  JsonSchemaError,
+  JsonSyntaxError,
+  NoData,
+  ValidData,
+  ValidationResult,
   combineEvaluations,
 } from "../../evaluation";
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-import Anthropic from "@anthropic-ai/sdk";
 
 class Experiment {
   name: string;
   description: string;
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   prompts?: (Prompt | PromptGenerator)[] = [];
+  getResponse: (
+    model: Model,
+    prompt: string,
+    params: ModelRequestParams,
+    validateSchema: any // TODO
+  ) => Promise<ValidationResult>;
+  runTrial: (
+    vars: ExpVarsFixedPrompt,
+    schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  ) => Promise<ModelResponse>;
   runTrials: (
     this: Experiment,
     vars: ExpVars,
     trials: number
-  ) => Promise<TrialsResult>;
+  ) => Promise<TrialsResultData>;
   evaluateTrial: (
     dpart: DsPartition,
     data: string
@@ -59,6 +72,29 @@ class Experiment {
     this.description = description;
     this.schema = schema;
     this.prompts = prompts;
+    this.getResponse = async function (
+      model: Model,
+      prompt: string,
+      params: ModelRequestParams,
+      validateSchema: any // TODO
+    ) {
+      const result = await model.makeRequest(prompt, params);
+
+      const data = result.getDataText();
+      if (!data.trim()) {
+        return new NoData();
+      }
+      try {
+        const got = JSON.parse(data);
+        if (!validateSchema(got)) {
+          return new JsonSchemaError(data);
+        }
+        return new ValidData(got);
+      } catch (e) {
+        return new JsonSyntaxError(data);
+      }
+    };
+    this.runTrial = runTrial;
     this.runTrials = async function (
       this: Experiment,
       vars: ExpVars,
@@ -74,13 +110,8 @@ class Experiment {
       const results: string[] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
-        const res = await runTrial({ ...vars, prompt }, this.schema);
-        results.push(
-          res.type === "openai"
-            ? res.data.choices[0].message.tool_calls?.[0].function.arguments ||
-                ""
-            : ""
-        );
+        const res = await this.runTrial({ ...vars, prompt }, this.schema);
+        results.push(res.getDataText());
       }
       return {
         variables: vars,
@@ -202,7 +233,14 @@ export interface ExperimentData {
   results: ExpResults;
 }
 
-export interface TrialsResult {
+export interface TrialResult {
+  totalTries: number;
+  failedAttempts: ValidationResult[];
+  ok: boolean;
+  result?: ValidData;
+}
+
+export interface TrialsResultData {
   variables: ExpVars;
   data: string[];
 }
@@ -210,7 +248,7 @@ export interface TrialsResult {
 export interface AggregatedEvaluationResult {
   avg: number;
   resultTypes: {
-    [key in EvaluationType]: number;
+    [key in EvaluationResultType]: number;
   };
 }
 

@@ -1,16 +1,14 @@
-import { MakeOpenAIRequest, OpenAIModelResponse } from "./openai";
-import { AnthropicModelResponse, MakeAnthropicRequest } from "./anthropic";
-import { CohereModelResponse, MakeCohereRequest } from "./cohere";
+import { MakeOpenAIRequest } from "./openai";
+import { MakeAnthropicRequest } from "./anthropic";
+import { MakeCohereRequest } from "./cohere";
 
-export type ModelResponse =
-  | OpenAIModelResponse
-  | AnthropicModelResponse
-  | CohereModelResponse;
+export interface ModelResponse {
+  type: string;
+  dataObj: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  getDataText: () => string;
+}
 
-type MakeRequest =
-  | MakeAnthropicRequest
-  | MakeOpenAIRequest
-  | MakeCohereRequest;
+type MakeRequest = MakeAnthropicRequest | MakeOpenAIRequest | MakeCohereRequest;
 
 export interface ModelRequestParams {
   function: {

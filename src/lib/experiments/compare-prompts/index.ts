@@ -6,7 +6,7 @@ import {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
-  TrialsResult,
+  TrialsResultData,
 } from "..";
 import {
   ComparisonGroup,
@@ -55,7 +55,7 @@ async function runTrial(vars: ExpVarsFixedPrompt) {
 async function runTrials(
   vars: ExpVarsFixedPrompt,
   trials: number
-): Promise<TrialsResult> {
+): Promise<TrialsResultData> {
   logger.info(
     `Running experiment ${name} ${trials} times on model ${vars.model.id}.`
   );
