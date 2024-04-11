@@ -1,8 +1,3 @@
-import mc30 from "../dataset-adapters/mc30_table1";
-import rg65 from "../dataset-adapters/rg65_table1";
-import ws353 from "../dataset-adapters/ws353_combined";
-import ps65 from "../dataset-adapters/ps65_main";
-
 import pcorrtest from "@stdlib/stats-pcorrtest";
 import fs from "fs/promises";
 import oldFs from "fs";
@@ -17,21 +12,36 @@ import {
   gpt35turbo,
   gpt4,
   gpt4turbo,
-} from "../models";
+} from "../../models";
 import {
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
   ValidData,
-} from "../evaluation";
-import logger from "../logger";
-import { MultiDatasetScores } from "../dataset-adapters/collection";
+} from "../../evaluation";
+import logger from "../../logger";
+import { MultiDatasetScores } from "../../dataset-adapters/collection";
+import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 
-type ModelsResults = Partial<{
-  [key in ModelIds]: string[];
+export type CompareMC30ModelResults = {
+  scores: { words: [string, string]; score: number }[];
+};
+export type CompareMC30ModelsResults = Partial<{
+  [key in ModelIds]: CompareMC30ModelResults[];
 }>;
 
-export const loadDatasetScores = async () => {
+interface LoadDatasetScoresParams {
+  rg65: DsPartition;
+  ps65: DsPartition;
+  mc30: DsPartition;
+  ws353: DsPartition;
+}
+export const loadDatasetScores = async ({
+  rg65,
+  mc30,
+  ps65,
+  ws353,
+}: LoadDatasetScoresParams) => {
   const pairs: MultiDatasetScores = {};
 
   for (const entry of mc30.data) {
@@ -171,7 +181,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data);
+    const got = JSON.parse(data) as CompareMC30ModelResults;
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -191,13 +201,16 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
     },
   };
 
-  const gotValidData = false;
   let attempts = 0;
   const failedAttempts = [];
-  while (!gotValidData && attempts < maxRetries) {
+  while (attempts < maxRetries) {
+    logger.info(`      attempt #${attempts + 1}`);
     const attemptResult = await getResponse(model, prompt, params);
     attempts++;
     if (attemptResult.ok) {
+      logger.debug(
+        `      got valid data: ${JSON.stringify(attemptResult.data)}`
+      );
       return {
         totalTries: attempts,
         failedAttempts,
@@ -205,6 +218,7 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
         result: attemptResult.data,
       };
     }
+    logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
     failedAttempts.push(attemptResult);
   }
 
@@ -231,8 +245,7 @@ async function runTrialsModel(trials: number, model: Model, prompt: string) {
 }
 
 /** Run multiple trials of the experiment, with multiple models */
-async function runTrials(trials: number) {
-  const scores = await loadDatasetScores();
+async function runTrials(trials: number, scores: MultiDatasetScores) {
   const pairs = getPairs(scores);
   const prompt = genPrompt(pairs);
 
@@ -269,7 +282,7 @@ interface MC30Results {
   };
 }
 
-function unzipResults(results: MC30Results) {
+export function unzipResults(results: MC30Results) {
   const res = {
     gpt35turbo: [] as number[],
     gpt4: [] as number[],
@@ -296,16 +309,20 @@ function unzipResults(results: MC30Results) {
 }
 
 async function evaluate(
-  modelsRes: ModelsResults,
+  modelsRes: CompareMC30ModelsResults,
   humanScores: MultiDatasetScores,
   trials: number
 ) {
   try {
     const res = mergeResults(modelsRes, humanScores);
+    console.log("XXXXXXXXXXXx 1.1");
     const arrays = unzipResults(res);
+    console.log("XXXXXXXXXXXx 1.2");
     const corrMat = calcCorrelation(Object.values(arrays));
+    console.log("XXXXXXXXXXXx 1.3");
     const varNames = Object.keys(arrays);
 
+    console.log("XXXXXXXXXXXx 2");
     const tests = {} as { [dsVsds: string]: string };
     for (let i = 0; i < varNames.length - 1; i++) {
       for (let j = i; j < varNames.length; j++) {
@@ -313,6 +330,7 @@ async function evaluate(
         tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
       }
     }
+    console.log("XXXXXXXXXXXx 3");
     printTests(tests);
     const simplifiedMatrix = simpleCorrMatrix(corrMat);
     console.log(simpMatrixCSV(varNames, simplifiedMatrix));
@@ -417,80 +435,81 @@ function calcCorrelation(data: number[][]) {
 }
 
 /** Merge the results from the models and the human scores */
-function mergeResults(
-  modelsRes: ModelsResults,
+export function mergeResults(
+  modelsRes: CompareMC30ModelsResults,
   humanScores: MultiDatasetScores
 ) {
   const res = {} as MC30Results;
 
-  try {
-    const gpt35turbo = modelsRes.gpt35turbo!.map(r => JSON.parse(r)); // TODO cast to resultSchema somehow
-    const gpt4 = modelsRes.gpt4!.map(r => JSON.parse(r));
-    const gpt4turbo = modelsRes.gpt4turbo!.map(r => JSON.parse(r));
+  console.log(
+    "XXXXXXXXXXXx 4",
+    JSON.stringify({ modelsRes, humanScores }, null, 2)
+  );
 
-    let modelName = "gpt35turbo";
-    for (const score of gpt35turbo.flatMap(({ scores }) => [...scores])) {
-      const [w1, w2] = score.words;
-      res[w1] = res[w1] || {};
-      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
-      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
-        values: [],
-      };
-      res[w1][w2].models[modelName].values.push(score.score);
-    }
-    for (const w1 in res) {
-      for (const w2 in res[w1]) {
-        res[w1][w2].models[modelName].avg =
-          res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-          res[w1][w2].models[modelName].values.length;
-      }
-    }
+  const gpt35turbo = modelsRes.gpt35turbo!;
+  const gpt4 = modelsRes.gpt4!;
+  const gpt4turbo = modelsRes.gpt4turbo!;
 
-    modelName = "gpt4";
-    for (const score of gpt4.flatMap(({ scores }) => [...scores])) {
-      const [w1, w2] = score.words;
-      res[w1] = res[w1] || {};
-      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
-      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
-        values: [],
-      };
-      res[w1][w2].models[modelName].values.push(score.score);
-    }
-    for (const w1 in res) {
-      for (const w2 in res[w1]) {
-        res[w1][w2].models[modelName].avg =
-          res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-          res[w1][w2].models[modelName].values.length;
-      }
-    }
-
-    modelName = "gpt4turbo";
-    for (const score of gpt4turbo.flatMap(({ scores }) => [...scores])) {
-      const [w1, w2] = score.words;
-      res[w1] = res[w1] || {};
-      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
-      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
-        values: [],
-      };
-      res[w1][w2].models[modelName].values.push(score.score);
-    }
-    for (const w1 in res) {
-      for (const w2 in res[w1]) {
-        res[w1][w2].models[modelName].avg =
-          res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-          res[w1][w2].models[modelName].values.length;
-      }
-    }
-
-    for (const w1 in humanScores) {
-      for (const w2 in humanScores[w1]) {
-        res[w1][w2].human = humanScores[w1][w2];
-      }
-    }
-    return res;
-  } catch (e) {
-    throw new JsonSyntaxError();
+  let modelName = "gpt35turbo";
+  for (const score of gpt35turbo.flatMap(({ scores }) => [...scores])) {
+    const [w1, w2] = score.words;
+    res[w1] = res[w1] || {};
+    res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+    res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
+      values: [],
+    };
+    res[w1][w2].models[modelName].values.push(score.score);
   }
+  for (const w1 in res) {
+    for (const w2 in res[w1]) {
+      res[w1][w2].models[modelName].avg =
+        res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
+        res[w1][w2].models[modelName].values.length;
+    }
+  }
+
+  modelName = "gpt4";
+  for (const score of gpt4.flatMap(({ scores }) => [...scores])) {
+    const [w1, w2] = score.words;
+    res[w1] = res[w1] || {};
+    res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+    res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
+      values: [],
+    };
+    res[w1][w2].models[modelName].values.push(score.score);
+  }
+  for (const w1 in res) {
+    for (const w2 in res[w1]) {
+      res[w1][w2].models[modelName].avg =
+        res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
+        res[w1][w2].models[modelName].values.length;
+    }
+  }
+
+  modelName = "gpt4turbo";
+  for (const score of gpt4turbo.flatMap(({ scores }) => [...scores])) {
+    const [w1, w2] = score.words;
+    res[w1] = res[w1] || {};
+    res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+    res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
+      values: [],
+    };
+    res[w1][w2].models[modelName].values.push(score.score);
+  }
+  for (const w1 in res) {
+    for (const w2 in res[w1]) {
+      res[w1][w2].models[modelName].avg =
+        res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
+        res[w1][w2].models[modelName].values.length;
+    }
+  }
+
+  for (const w1 in humanScores) {
+    for (const w2 in humanScores[w1]) {
+      res[w1][w2].human = humanScores[w1][w2];
+    }
+  }
+  return res;
 }
 
 const CompareMC30Experiment = {
