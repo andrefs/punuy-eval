@@ -1,6 +1,9 @@
 import logger from "../../logger";
 import pp from "not-a-log";
 
+import Ajv, { JSONSchemaType } from "ajv";
+const ajv = new Ajv();
+
 import {
   ExpVarMatrix,
   ExpVars,
@@ -21,6 +24,13 @@ import {
   getVarIds,
   saveExperimentData,
 } from "../experiment/aux";
+import { Model, ModelRequestParams } from "src/lib/models";
+import {
+  JsonSchemaError,
+  JsonSyntaxError,
+  NoData,
+  ValidData,
+} from "src/lib/evaluation";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
@@ -41,15 +51,66 @@ const resultSchema = {
   },
   required: ["scores"],
 };
+type ResultSchema = JSONSchemaType<typeof resultSchema>;
+const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
-async function runTrial(vars: ExpVarsFixedPrompt) {
-  const f = {
-    name: "evaluate_scores",
-    description: "Evaluate the word similarity or relatedness scores",
-    schema: resultSchema,
+async function getResponse(
+  model: Model,
+  prompt: string,
+  params: ModelRequestParams
+) {
+  const result = await model.makeRequest(prompt, params);
+
+  const data = result.getDataText();
+  if (!data.trim()) {
+    return new NoData();
+  }
+  try {
+    const got = JSON.parse(data);
+    if (!validateSchema(got)) {
+      return new JsonSchemaError(data);
+    }
+    return new ValidData(got);
+  } catch (e) {
+    return new JsonSyntaxError(data);
+  }
+}
+
+async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
+  const params = {
+    function: {
+      name: "evaluate_scores",
+      description: "Evaluate the word similarity or relatedness scores",
+      schema: resultSchema,
+    },
   };
-  const res = await vars.model.makeRequest(vars.prompt.text, { function: f });
-  return res;
+
+  const gotValidData = false;
+  let attempts = 0;
+  const failedAttempts = [];
+  while (!gotValidData && attempts < maxRetries) {
+    const attemptResult = await getResponse(
+      vars.model,
+      vars.prompt.text,
+      params
+    );
+    attempts++;
+    if (attemptResult.ok) {
+      return {
+        totalTries: attempts,
+        failedAttempts,
+        ok: true,
+        result: attemptResult.data,
+      };
+    }
+    failedAttempts.push(attemptResult);
+  }
+
+  return {
+    totalTries: attempts,
+    failedAttempts,
+    ok: false,
+  };
 }
 
 async function runTrials(
@@ -65,11 +126,9 @@ async function runTrials(
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
-    results.push(
-      res.type === "openai"
-        ? res.data.choices[0].message.tool_calls?.[0].function.arguments || ""
-        : ""
-    );
+    if (res.ok) {
+      results.push(res.result);
+    }
   }
   return {
     variables: vars,
