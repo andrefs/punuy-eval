@@ -7,8 +7,23 @@ import pcorrtest from "@stdlib/stats-pcorrtest";
 import fs from "fs/promises";
 import oldFs from "fs";
 
-import { Model, ModelIds, gpt35turbo, gpt4, gpt4turbo } from "../models";
-import { JsonSyntaxError } from "../evaluation";
+import Ajv, { JSONSchemaType } from "ajv";
+const ajv = new Ajv();
+
+import {
+  Model,
+  ModelIds,
+  ModelRequestParams,
+  gpt35turbo,
+  gpt4,
+  gpt4turbo,
+} from "../models";
+import {
+  JsonSchemaError,
+  JsonSyntaxError,
+  NoData,
+  ValidData,
+} from "../evaluation";
 import logger from "../logger";
 import { MultiDatasetScores } from "../dataset-adapters/collection";
 
@@ -141,17 +156,63 @@ const resultSchema = {
   },
   required: ["scores"],
 };
+type ResultSchema = JSONSchemaType<typeof resultSchema>;
+const validateSchema = ajv.compile<ResultSchema>(resultSchema);
+
+async function getResponse(
+  model: Model,
+  prompt: string,
+  params: ModelRequestParams
+) {
+  const result = await model.makeRequest(prompt, params);
+
+  const data = result.getDataText();
+  if (!data.trim()) {
+    return new NoData();
+  }
+  try {
+    const got = JSON.parse(data);
+    if (!validateSchema(got)) {
+      return new JsonSchemaError(data);
+    }
+    return new ValidData(got);
+  } catch (e) {
+    return new JsonSyntaxError(data);
+  }
+}
 
 /** Run a single trial of the experiment, with a single model */
-async function runTrialModel(model: Model, prompt: string) {
-  const f = {
-    name: "evaluate_scores",
-    description: "Evaluate the word similarity scores.",
-    schema: resultSchema,
+async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
+  const params = {
+    function: {
+      name: "evaluate_scores",
+      description: "Evaluate the word similarity scores.",
+      schema: resultSchema,
+    },
   };
 
-  const res = await model.makeRequest(prompt, { function: f });
-  return res;
+  const gotValidData = false;
+  let attempts = 0;
+  const failedAttempts = [];
+  while (!gotValidData && attempts < maxRetries) {
+    const attemptResult = await getResponse(model, prompt, params);
+    attempts++;
+    if (attemptResult.ok) {
+      return {
+        totalTries: attempts,
+        failedAttempts,
+        ok: true,
+        result: attemptResult.data,
+      };
+    }
+    failedAttempts.push(attemptResult);
+  }
+
+  return {
+    totalTries: attempts,
+    failedAttempts,
+    ok: false,
+  };
 }
 
 /** Run multiple trials of the experiment, with a single model */
@@ -162,11 +223,9 @@ async function runTrialsModel(trials: number, model: Model, prompt: string) {
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrialModel(model, prompt);
-    results.push(
-      res.type === "openai"
-        ? res.data.choices[0].message.tool_calls?.[0].function.arguments || ""
-        : ""
-    );
+    if (res.ok) {
+      results.push(res.result!.data); // TODO: handle failed attempts
+    }
   }
   return results;
 }
