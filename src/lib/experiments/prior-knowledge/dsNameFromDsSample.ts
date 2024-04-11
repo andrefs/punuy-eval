@@ -4,16 +4,8 @@ import Experiment, {
   Prompt,
   TrialResult,
 } from "../experiment";
-import {
-  JsonSchemaError,
-  JsonSyntaxError,
-  NoData,
-  NonEvaluatedData,
-  ValidData,
-} from "../../evaluation";
-import Ajv, { JSONSchemaType } from "ajv";
+import { NonEvaluatedData } from "../../evaluation";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-const ajv = new Ajv();
 
 const name = "ds-name-from-ds-sample";
 const description =
@@ -50,8 +42,6 @@ const resultSchema = {
   },
   required: ["name", "year", "authors"],
 };
-type ResultSchema = JSONSchemaType<typeof resultSchema>;
-const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(
   this: Experiment,
@@ -82,7 +72,7 @@ async function runTrial(
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data as ValidData,
+        result: attemptResult.data,
       };
     }
     failedAttempts.push(attemptResult);
@@ -95,25 +85,15 @@ async function runTrial(
   };
 }
 
-async function evaluateTrial(dpart: DsPartition, data: string) {
-  if (!data.trim()) {
-    return new NoData();
-  }
-  try {
-    const got = JSON.parse(data);
-    if (!validateSchema(got)) {
-      return new JsonSchemaError(data);
-    }
-    return new NonEvaluatedData({
-      originalName: dpart.dataset.metadata.name,
-      originalYear: dpart.dataset.metadata.date.slice(0, 4),
-      gotName: got.name,
-      gotYear: got.year,
-      gotAuthors: got.authors,
-    } as DsNameFromDsSampleResult);
-  } catch (e) {
-    return new JsonSyntaxError(data);
-  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function evaluateTrial(dpart: DsPartition, got: any) {
+  return new NonEvaluatedData({
+    originalName: dpart.dataset.metadata.name,
+    originalYear: dpart.dataset.metadata.date.slice(0, 4),
+    gotName: got.name,
+    gotYear: got.year,
+    gotAuthors: got.authors,
+  } as DsNameFromDsSampleResult);
 }
 
 interface DsNameFromDsSampleResult {

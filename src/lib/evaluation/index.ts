@@ -1,25 +1,3 @@
-import { AggregatedEvaluationResult } from "../experiments";
-export type EvaluationResultType =
-  | "data-incomplete"
-  | "data-partially-incorrect"
-  | "data-incorrect"
-  | "non-evaluated-data"
-  | "data-invalid-on-all-tries"
-  | "data-correct";
-
-export class EvaluationResult {
-  type: EvaluationResultType;
-  ok: boolean;
-  data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(type: EvaluationResultType, ok: boolean, data: any) {
-    this.type = type;
-    this.ok = ok;
-    this.data = data;
-  }
-}
-
 /***************
  * Validation *
  **************/
@@ -73,6 +51,29 @@ export class ValidData extends ValidationResult {
  * Evaluation *
  **************/
 
+import { AggregatedEvaluationResult } from "../experiments";
+export type EvaluationResultType =
+  | "data-incomplete"
+  | "data-partially-incorrect"
+  | "data-incorrect"
+  | "non-evaluated-data"
+  | "data-invalid-on-all-tries"
+  | "no-usable-data"
+  | "data-correct";
+
+export class EvaluationResult {
+  type: EvaluationResultType;
+  ok: boolean;
+  data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(type: EvaluationResultType, ok: boolean, data: any) {
+    this.type = type;
+    this.ok = ok;
+    this.data = data;
+  }
+}
+
 export class DataIncomplete extends EvaluationResult {
   percentage: number;
 
@@ -118,6 +119,13 @@ export class NonEvaluatedData extends EvaluationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("non-evaluated-data", true, data);
+  }
+}
+
+export class NoUsableData extends EvaluationResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(data?: any) {
+    super("no-usable-data", false, data);
   }
 }
 

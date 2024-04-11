@@ -1,15 +1,17 @@
-import Experiment, { ExpVars, ExpVarsFixedPrompt, Prompt } from "../experiment";
+import Experiment, {
+  ExpVars,
+  ExpVarsFixedPrompt,
+  Prompt,
+  TrialResult,
+} from "../experiment";
 import {
   DataCorrect,
   DataIncorrect,
   DataPartiallyIncorrect,
-  JsonSchemaError,
-  JsonSyntaxError,
-  NoData,
+  NoUsableData,
+  ValidData,
 } from "../../evaluation";
-import Ajv, { JSONSchemaType } from "ajv";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-const ajv = new Ajv();
 
 const name = "ds-values-exact-matches";
 const description =
@@ -46,26 +48,51 @@ const resultSchema = {
   },
   required: ["scores"],
 };
-type ResultSchema = JSONSchemaType<typeof resultSchema>;
-const validateSchema = ajv.compile<ResultSchema>(resultSchema);
 
 async function runTrial(
+  this: Experiment,
   vars: ExpVarsFixedPrompt,
-  schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-) {
-  const f = {
-    name: "validate_sample",
-    description: "Validates the pairs sampled from the dataset.",
-    schema,
+  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  maxRetries: number = 3
+): Promise<TrialResult> {
+  const params = {
+    function: {
+      name: "validate_sample",
+      description: "Validates the pairs sampled from the dataset.",
+      schema,
+    },
   };
 
-  const result = await vars.model.makeRequest(vars.prompt.text, {
-    function: f,
-  });
-  return result;
+  const gotValidData = false;
+  let attempts = 0;
+  const failedAttempts = [];
+  while (!gotValidData && attempts < maxRetries) {
+    const attemptResult = await this.getResponse(
+      vars.model,
+      vars.prompt.text,
+      params
+    );
+    attempts++;
+    if (attemptResult.ok) {
+      return {
+        totalTries: attempts,
+        failedAttempts,
+        ok: true,
+        result: attemptResult.data as ValidData,
+      };
+    }
+    failedAttempts.push(attemptResult);
+  }
+
+  return {
+    totalTries: attempts,
+    failedAttempts,
+    ok: false,
+  };
 }
 
-async function evaluateTrial(dpart: DsPartition, data: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function evaluateTrial(dpart: DsPartition, got: any) {
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
@@ -74,64 +101,51 @@ async function evaluateTrial(dpart: DsPartition, data: string) {
       };
     };
   };
-  if (!data.trim()) {
-    return new NoData();
+
+  for (const row of dpart.data) {
+    const w1 = row.term1.toLowerCase();
+    const w2 = row.term2.toLowerCase();
+
+    let score: string;
+    if ("value" in row && typeof row.value === "number") {
+      score = row.value.toString();
+    } else {
+      const values = row.values!.filter(v => typeof v === "number") as number[];
+      score = (values.reduce((a, b) => a + b, 0) / values.length).toString();
+    }
+
+    res[w1] = res[w1] || {};
+    res[w1][w2] = { expected: score, got: null };
   }
-  try {
-    const got = JSON.parse(data);
-    if (!validateSchema(got)) {
-      return new JsonSchemaError(data);
+
+  let i = 0;
+  let noUsableData = 0;
+  let exactMatches = 0;
+  for (const { words, score } of got.scores) {
+    if (!words || !score) {
+      noUsableData++;
+    }
+    i++;
+    const w1 = words[0].toLowerCase();
+    const w2 = words[1].toLowerCase();
+    if (res[w1] && res[w1][w2] && res[w1][w2].expected === score) {
+      exactMatches++;
     }
 
-    for (const row of dpart.data) {
-      const w1 = row.term1.toLowerCase();
-      const w2 = row.term2.toLowerCase();
-
-      let score: string;
-      if ("value" in row && typeof row.value === "number") {
-        score = row.value.toString();
-      } else {
-        const values = row.values!.filter(
-          v => typeof v === "number"
-        ) as number[];
-        score = (values.reduce((a, b) => a + b, 0) / values.length).toString();
-      }
-
-      res[w1] = res[w1] || {};
-      res[w1][w2] = { expected: score, got: null };
-    }
-
-    let i = 0;
-    let noData = 0;
-    let exactMatches = 0;
-    for (const { words, score } of got.scores) {
-      if (!words || !score) {
-        noData++;
-      }
-      i++;
-      const w1 = words[0].toLowerCase();
-      const w2 = words[1].toLowerCase();
-      if (res[w1] && res[w1][w2] && res[w1][w2].expected === score) {
-        exactMatches++;
-      }
-
-      res[w1] = res[w1] || {};
-      res[w1][w2] = res[w1][w2] || { expected: null, got: null };
-      res[w1][w2].got = score;
-    }
-    if (noData === i) {
-      return new NoData();
-    }
-    if (i === exactMatches) {
-      return new DataCorrect(res);
-    }
-    if (exactMatches === 0) {
-      return new DataIncorrect(res);
-    }
-    return new DataPartiallyIncorrect((exactMatches / i) * 100, res);
-  } catch (e) {
-    return new JsonSyntaxError(data);
+    res[w1] = res[w1] || {};
+    res[w1][w2] = res[w1][w2] || { expected: null, got: null };
+    res[w1][w2].got = score;
   }
+  if (noUsableData === i) {
+    return new NoUsableData();
+  }
+  if (i === exactMatches) {
+    return new DataCorrect(res);
+  }
+  if (exactMatches === 0) {
+    return new DataIncorrect(res);
+  }
+  return new DataPartiallyIncorrect((exactMatches / i) * 100, res);
 }
 
 export default new Experiment(

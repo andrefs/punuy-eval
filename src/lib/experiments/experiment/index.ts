@@ -120,11 +120,13 @@ class Experiment {
       );
       logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
-      const results: string[] = [];
+      const results: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await this.runTrial({ ...vars, prompt }, this.schema);
-        results.push(res.ok ? res.result?.data : ""); // TODO: handle failed attempts
+        if (res.ok) {
+          results.push(res.result!.data); // TODO: handle failed attempts
+        }
       }
       return {
         variables: vars,

@@ -74,7 +74,7 @@ export const createMockModel = (result: string) =>
     jest.fn(() =>
       Promise.resolve({
         type: "openai",
-        data: {
+        dataObj: {
           id: "test",
           model: "test",
           object: "chat.completion",
