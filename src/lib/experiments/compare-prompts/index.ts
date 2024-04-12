@@ -42,7 +42,7 @@ const resultSchema = Type.Object({
   ),
 });
 type ResultSchema = Static<typeof resultSchema>;
-const validateSchema = (value: any) => Value.Check(resultSchema, value);
+const validateSchema = (value: unknown) => Value.Check(resultSchema, value);
 
 async function getResponse(
   model: Model,
