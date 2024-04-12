@@ -77,8 +77,8 @@ class Experiment {
     this.schema = schema;
     type ResultSchema = Static<typeof this.schema>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.validateSchema = function (this: Experiment, got: any) {
-      return Value.Check(this.schema, got);
+    this.validateSchema = function (this: Experiment, value: unknown) {
+      return Value.Check(this.schema, value);
     };
     this.prompts = prompts;
     this.getResponse = async function (

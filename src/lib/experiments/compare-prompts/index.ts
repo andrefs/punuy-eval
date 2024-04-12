@@ -33,7 +33,7 @@ import {
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
-const resultSchema = Type.Object({
+const modelResponseDataSchema = Type.Object({
   scores: Type.Array(
     Type.Object({
       words: Type.Array(Type.String()),
@@ -41,8 +41,9 @@ const resultSchema = Type.Object({
     })
   ),
 });
-type ResultSchema = Static<typeof resultSchema>;
-const validateSchema = (value: unknown) => Value.Check(resultSchema, value);
+type ModelResponseData = Static<typeof modelResponseDataSchema>;
+const validateSchema = (value: unknown) =>
+  Value.Check(modelResponseDataSchema, value);
 
 async function getResponse(
   model: Model,
@@ -56,7 +57,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data) as ResultSchema;
+    const got = JSON.parse(data) as ModelResponseData;
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -71,7 +72,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     function: {
       name: "evaluate_scores",
       description: "Evaluate the word similarity or relatedness scores",
-      schema: resultSchema,
+      schema: modelResponseDataSchema,
     },
   };
 
@@ -86,6 +87,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     );
     attempts++;
     if (attemptResult.ok) {
+      logger.info(`      attempt #${attempts} succeeded.`);
       return {
         totalTries: attempts,
         failedAttempts,
@@ -137,7 +139,7 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
     meta: {
       name,
       traceId: traceId ?? Date.now(),
-      schema: resultSchema,
+      schema: modelResponseDataSchema,
     },
     variables: varsFixedPrompt,
     results: {
@@ -340,7 +342,7 @@ const ComparePromptsExperiment = {
   name,
   description,
   prompts,
-  schema: resultSchema,
+  schema: modelResponseDataSchema,
   performMulti,
   evaluate,
 };

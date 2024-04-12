@@ -16,6 +16,7 @@ const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const comparePromptsMain = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await comparePrompts.performMulti(vars, trials);
+  console.log("XXXXXXXXXXXXX 4", JSON.stringify(res));
   await comparePrompts.evaluate(res);
   //console.log(res);
 };
