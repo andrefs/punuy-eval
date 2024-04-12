@@ -59,9 +59,10 @@ export function rawResultsToAvg(parsed: RawResult[][]) {
       if (words?.length !== 2 || !score?.length || isNaN(Number(score))) {
         continue;
       }
-      values[words[0]] = values[words[0]] || {};
-      values[words[0]][words[1]] = values[words[0]][words[1]] || [];
-      values[words[0]][words[1]].push(Number(score));
+      const [w1, w2] = words.map(x => x.toLowerCase());
+      values[w1] = values[w1] || {};
+      values[w1][w2] = values[w1][w2] || [];
+      values[w1][w2].push(Number(score));
     }
   }
 

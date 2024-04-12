@@ -242,9 +242,12 @@ function expEvalScores(exps: ExperimentData[]): ExpScore[] {
       continue;
     }
     warnIfFailed(failed, exp);
+    const lcPairs = (exp.variables as ExpVarsFixedPrompt).prompt.pairs!.map(
+      p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
+    );
 
     const corr = evalScores(
-      (exp.variables as ExpVarsFixedPrompt).prompt.pairs!,
+      lcPairs,
       exp.variables.dpart,
       parsed.filter(x => x !== null) as RawResult[][]
     );
@@ -339,6 +342,8 @@ async function evaluate(exps: ExperimentData[]) {
       )}\n${tablePP}`
     );
   }
+
+  return comparisons;
 }
 
 const ComparePromptsExperiment = {

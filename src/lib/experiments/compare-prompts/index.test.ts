@@ -10,7 +10,17 @@ describe("comparePrompts", () => {
           variables: {
             dpart: createMockDsPart(),
             model: createMockModel("{}"),
-            prompt: { id: "prompt-id", text: "prompt-text" } as Prompt,
+            prompt: {
+              id: "prompt-id-1",
+              text: "prompt-text",
+              pairs: [
+                ["testWord1", "testWord2"],
+                ["testWord3", "testWord4"],
+                ["testWord5", "testWord6"],
+                ["testWord7", "testWord8"],
+                ["testWord9", "testWord10"],
+              ],
+            } as Prompt,
           },
           meta: {
             traceId: 1,
@@ -18,13 +28,58 @@ describe("comparePrompts", () => {
             schema: "result-schema",
           },
           results: {
-            raw: ["result-1", "result-2"],
+            raw: [
+              JSON.stringify({
+                scores: [
+                  { words: ["testWord1", "testWord2"], score: "0.5" },
+                  { words: ["testWord3", "testWord4"], score: "0.9" },
+                  { words: ["testWord5", "testWord6"], score: "0.9" },
+                  { words: ["testWord7", "testWord8"], score: "0.9" },
+                  { words: ["testWord9", "testWord10"], score: "0.9" },
+                ],
+              }),
+            ],
+          },
+        },
+        {
+          variables: {
+            dpart: createMockDsPart(),
+            model: createMockModel("{}"),
+            prompt: {
+              id: "prompt-id-2",
+              text: "prompt-text",
+              pairs: [
+                ["testWord1", "testWord2"],
+                ["testWord3", "testWord4"],
+                ["testWord5", "testWord6"],
+                ["testWord7", "testWord8"],
+                ["testWord9", "testWord10"],
+              ],
+            } as Prompt,
+          },
+          meta: {
+            traceId: 2,
+            name: "experiment-name",
+            schema: "result-schema",
+          },
+          results: {
+            raw: [
+              JSON.stringify({
+                scores: [
+                  { words: ["testWord1", "testWord2"], score: "0.5" },
+                  { words: ["testWord3", "testWord4"], score: "0.9" },
+                  { words: ["testWord5", "testWord6"], score: "0.9" },
+                  { words: ["testWord7", "testWord8"], score: "0.9" },
+                  { words: ["testWord9", "testWord10"], score: "0.9" },
+                ],
+              }),
+            ],
           },
         },
       ];
 
       const res = await comparePrompts.evaluate(expData);
-      expect(res).toMatchInlineSnapshot(`undefined`);
+      expect(res).toMatchInlineSnapshot(`[]`);
     });
   });
 });
