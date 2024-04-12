@@ -233,7 +233,7 @@ export interface ExpMeta {
 
 export interface ExpResults {
   /** Raw results from the trials */
-  raw: string[];
+  raw: unknown[];
   /** Evaluation results for each trial */
   evaluation?: EvaluationResult[];
   /** Aggregated evaluation results */

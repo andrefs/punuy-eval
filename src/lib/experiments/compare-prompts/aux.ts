@@ -2,6 +2,7 @@ import pcorrTest from "@stdlib/stats-pcorrtest";
 import { PartitionScale, PartitionData } from "punuy-datasets/src/lib/types";
 import { ExpVars } from "..";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import logger from "src/lib/logger";
 
 export interface ComparisonGroup {
   fixedValueConfig: FixedValueConfig;
@@ -94,9 +95,13 @@ export function parseToRawResults(raw: string[]) {
   const objs = [] as (RawResult[] | null)[];
   for (const [i, r] of raw.entries()) {
     try {
+      console.log("XXXXXXXXXXXXX parseToRawResults 1", JSON.stringify({ r }));
       const obj = JSON.parse(r).scores as RawResult[];
+      console.log("XXXXXXXXXXXXX parseToRawResults 2", JSON.stringify({ obj }));
       objs.push(obj);
     } catch (e) {
+      console.error("XXXXXXXXXXXXX parseToRawResults 3", { e });
+      logger.warn(`Failed to parse result ${i + 1}: ${e}`);
       failed.push(i + 1);
       objs.push(null);
     }

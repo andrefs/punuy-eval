@@ -92,7 +92,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data,
+        result: attemptResult.data as ModelResponseData,
       };
     }
     logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
@@ -115,12 +115,12 @@ async function runTrials(
   );
   logger.debug(`Prompt (${vars.prompt.id}): ${vars.prompt.text}`);
 
-  const results: string[] = [];
+  const results: ModelResponseData[] = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
     if (res.ok) {
-      results.push(res.result);
+      results.push(res.result!);
     }
   }
   return {
@@ -237,11 +237,6 @@ interface ExpScore {
 function expEvalScores(exps: ExperimentData[]): ExpScore[] {
   const res = [];
   for (const exp of exps) {
-    const { parsed, failed } = parseToRawResults(exp.results.raw);
-    if (failedMoreThanHalf(failed, parsed, exp.meta.traceId)) {
-      continue;
-    }
-    warnIfFailed(failed, exp);
     const lcPairs = (exp.variables as ExpVarsFixedPrompt).prompt.pairs!.map(
       p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
     );
@@ -249,7 +244,7 @@ function expEvalScores(exps: ExperimentData[]): ExpScore[] {
     const corr = evalScores(
       lcPairs,
       exp.variables.dpart,
-      parsed.filter(x => x !== null) as RawResult[][]
+      exp.results.raw.filter(x => x !== null) as RawResult[][]
     );
     res.push({
       variables: exp.variables,
