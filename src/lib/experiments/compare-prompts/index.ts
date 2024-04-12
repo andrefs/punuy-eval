@@ -1,8 +1,7 @@
 import logger from "../../logger";
 import pp from "not-a-log";
-
-import Ajv, { JSONSchemaType } from "ajv";
-const ajv = new Ajv();
+import { Type, type Static } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
 import {
   ExpVarMatrix,
@@ -34,25 +33,16 @@ import {
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
-const resultSchema = {
-  type: "object",
-  properties: {
-    scores: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          words: { type: "array", items: { type: "string" } },
-          score: { type: "string" },
-        },
-        required: ["words", "score"],
-      },
-    },
-  },
-  required: ["scores"],
-};
-type ResultSchema = JSONSchemaType<typeof resultSchema>;
-const validateSchema = ajv.compile<ResultSchema>(resultSchema);
+const resultSchema = Type.Object({
+  scores: Type.Array(
+    Type.Object({
+      words: Type.Array(Type.String()),
+      score: Type.String(),
+    })
+  ),
+});
+type ResultSchema = Static<typeof resultSchema>;
+const validateSchema = (value: any) => Value.Check(resultSchema, value);
 
 async function getResponse(
   model: Model,
@@ -66,7 +56,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data);
+    const got = JSON.parse(data) as ResultSchema;
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -85,10 +75,10 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     },
   };
 
-  const gotValidData = false;
   let attempts = 0;
   const failedAttempts = [];
-  while (!gotValidData && attempts < maxRetries) {
+  while (attempts < maxRetries) {
+    logger.info(`      attempt #${attempts + 1}`);
     const attemptResult = await getResponse(
       vars.model,
       vars.prompt.text,
@@ -103,6 +93,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
         result: attemptResult.data,
       };
     }
+    logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
     failedAttempts.push(attemptResult);
   }
 

@@ -13,8 +13,8 @@ import {
 import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-import Ajv, { JSONSchemaType } from "ajv";
-const ajv = new Ajv();
+import { Static } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
 class Experiment {
   name: string;
@@ -75,11 +75,10 @@ class Experiment {
     this.name = name;
     this.description = description;
     this.schema = schema;
-    type ResultSchema = JSONSchemaType<typeof this.schema>;
+    type ResultSchema = Static<typeof this.schema>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.validateSchema = function (this: Experiment, got: any) {
-      const vs = ajv.compile<ResultSchema>(this.schema);
-      return vs(got);
+      return Value.Check(this.schema, got);
     };
     this.prompts = prompts;
     this.getResponse = async function (
@@ -94,7 +93,7 @@ class Experiment {
         return new NoData();
       }
       try {
-        const got = JSON.parse(data);
+        const got = JSON.parse(data) as ResultSchema;
         if (!this.validateSchema(got)) {
           return new JsonSchemaError(data);
         }

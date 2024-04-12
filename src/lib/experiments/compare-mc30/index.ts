@@ -2,9 +2,6 @@ import pcorrtest from "@stdlib/stats-pcorrtest";
 import fs from "fs/promises";
 import oldFs from "fs";
 
-import Ajv, { JSONSchemaType } from "ajv";
-const ajv = new Ajv();
-
 import {
   Model,
   ModelIds,
@@ -22,12 +19,11 @@ import {
 import logger from "../../logger";
 import { MultiDatasetScores } from "../../dataset-adapters/collection";
 import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
+import { Static, Type } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
-export type CompareMC30ModelResults = {
-  scores: { words: [string, string]; score: number }[];
-};
 export type CompareMC30ModelsResults = Partial<{
-  [key in ModelIds]: CompareMC30ModelResults[];
+  [key in ModelIds]: ResultSchema[];
 }>;
 
 interface LoadDatasetScoresParams {
@@ -149,25 +145,34 @@ const genPrompt = (pairs: string[][]) =>
 
 // TODO fix when OpenAI supports items with tuple definition in JSON schema
 // https://community.openai.com/t/json-schema-tuple-validation-support/273554
-const resultSchema = {
-  type: "object",
-  properties: {
-    scores: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          words: { type: "array", items: { type: "string" } },
-          score: { type: "number" },
-        },
-        required: ["words", "score"],
-      },
-    },
-  },
-  required: ["scores"],
-};
-type ResultSchema = JSONSchemaType<typeof resultSchema>;
-const validateSchema = ajv.compile<ResultSchema>(resultSchema);
+//const resultSchema = {
+//  type: "object",
+//  properties: {
+//    scores: {
+//      type: "array",
+//      items: {
+//        type: "object",
+//        properties: {
+//          words: { type: "array", items: { type: "string" } },
+//          score: { type: "number" },
+//        },
+//        required: ["words", "score"],
+//      },
+//    },
+//  },
+//  required: ["scores"],
+//} as const;
+const resultSchema = Type.Object({
+  scores: Type.Array(
+    Type.Object({
+      words: Type.Array(Type.String()),
+      score: Type.Number(),
+    })
+  ),
+});
+type ResultSchema = Static<typeof resultSchema>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const validateSchema = (value: any) => Value.Check(resultSchema, value);
 
 async function getResponse(
   model: Model,
@@ -181,7 +186,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data) as CompareMC30ModelResults;
+    const got = JSON.parse(data) as ResultSchema;
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -208,9 +213,6 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
     const attemptResult = await getResponse(model, prompt, params);
     attempts++;
     if (attemptResult.ok) {
-      logger.debug(
-        `      got valid data: ${JSON.stringify(attemptResult.data)}`
-      );
       return {
         totalTries: attempts,
         failedAttempts,
