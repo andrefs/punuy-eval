@@ -417,8 +417,10 @@ function simpMatrixCSV(varNames: string[], matrix: number[][]) {
   return res;
 }
 
+export type CorrResults = ReturnType<typeof pcorrtest>[][];
+
 export function calcCorrelation(data: number[][]) {
-  const corrMatrix = [] as ReturnType<typeof pcorrtest>[][];
+  const corrMatrix = [] as CorrResults;
 
   for (let i = 0; i < data.length; i++) {
     corrMatrix[i] = [];
