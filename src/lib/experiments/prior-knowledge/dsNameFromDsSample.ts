@@ -6,6 +6,7 @@ import Experiment, {
 } from "../experiment";
 import { NonEvaluatedData } from "../../evaluation";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { Type } from "@sinclair/typebox";
 
 const name = "ds-name-from-ds-sample";
 const description =
@@ -24,24 +25,11 @@ const promptGen = {
         .join("\n"),
   }),
 };
-const resultSchema = {
-  type: "object",
-  properties: {
-    name: {
-      type: "string",
-    },
-    year: {
-      type: "string",
-    },
-    authors: {
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-  },
-  required: ["name", "year", "authors"],
-};
+const modelResponseDataSchema = Type.Object({
+  name: Type.String(),
+  year: Type.String(),
+  authors: Type.Array(Type.String()),
+});
 
 async function runTrial(
   this: Experiment,
@@ -108,7 +96,7 @@ interface DsNameFromDsSampleResult {
 export default new Experiment(
   name,
   description,
-  resultSchema,
+  modelResponseDataSchema,
   runTrial,
   evaluateTrial,
   [promptGen]

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, it, expect } from "vitest";
 import {
   DataCorrect,
   DataIncomplete,
@@ -9,7 +9,7 @@ import {
 
 describe("evaluation", () => {
   describe("combineEvaluations", () => {
-    test("should calculate average of evaluations", async () => {
+    it("should calculate average of evaluations", async () => {
       const evaluations = [
         //new JsonSyntaxError(),
         //new JsonSchemaError(),
@@ -24,7 +24,7 @@ describe("evaluation", () => {
       expect(result.avg).toMatchInlineSnapshot(`0.4375`);
     });
 
-    test("should return correctly aggregated evaluations", async () => {
+    it("should return correctly aggregated evaluations", async () => {
       const evaluations = [
         //new JsonSyntaxError(),
         //new JsonSchemaError(),

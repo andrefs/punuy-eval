@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import dsSampleFromDsName from "./dsSampleFromDsName";
 import { ExpVars, PromptGenerator } from "..";
 import { createMockDsPart, createMockModel } from "./mocks";
@@ -7,7 +7,7 @@ import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("dsSampleFromDsName", () => {
   //describe("genPrompt", () => {
-  //  test("should generate a prompt", () => {
+  //  it("should generate a prompt", () => {
   //    const ds: DatasetProfile = createMockDataset();
 
   //    const prompt = dsSampleFromDsName.genPrompt(ds);
@@ -17,7 +17,7 @@ describe("dsSampleFromDsName", () => {
   //});
 
   describe("runTrials", () => {
-    test("should call model.makeRequest", async () => {
+    it("should call model.makeRequest", async () => {
       const dpart: DsPartition = createMockDsPart();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
@@ -31,7 +31,7 @@ describe("dsSampleFromDsName", () => {
       expect(model.makeRequest).toHaveBeenCalled();
     });
 
-    test("should return model.makeRequest result", async () => {
+    it("should return model.makeRequest result", async () => {
       const dpart: DsPartition = createMockDsPart();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
       const result = '{"pairs": [["testWord1", "testWord2"]]}';
@@ -66,7 +66,7 @@ describe("dsSampleFromDsName", () => {
       `);
     });
 
-    test("should return no results if model.makeRequest returns no data", async () => {
+    it("should return no results if model.makeRequest returns no data", async () => {
       const dpart: DsPartition = createMockDsPart();
       const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
       const model = createMockModel("");
@@ -85,7 +85,7 @@ describe("dsSampleFromDsName", () => {
   describe("evaluateTrial", () => {
     // TODO migrate to getResponse tests
     //
-    // test("should return JsonSchemaError if data is not valid schema", async () => {
+    // it("should return JsonSchemaError if data is not valid schema", async () => {
     //   const dpart: DsPartition = createMockDsPart();
 
     //   const result = await dsSampleFromDsName.evaluateTrial(
@@ -95,7 +95,7 @@ describe("dsSampleFromDsName", () => {
     //   expect(result.type).toEqual("json-schema-error");
     // });
 
-    // test("should return NoData if data is empty", async () => {
+    // it("should return NoData if data is empty", async () => {
     //   const dpart: DsPartition = createMockDsPart();
 
     //   const result = await dsSampleFromDsName.evaluateTrial(dpart, "");
@@ -103,7 +103,7 @@ describe("dsSampleFromDsName", () => {
     // });
     //
     //
-    // test("should return JsonSyntaxError if data is not valid JSON", async () => {
+    // it("should return JsonSyntaxError if data is not valid JSON", async () => {
     //   const dpart: DsPartition = createMockDsPart();
 
     //   const result = await dsSampleFromDsName.evaluateTrial(
@@ -113,7 +113,7 @@ describe("dsSampleFromDsName", () => {
     //   expect(result.type).toEqual("json-syntax-error");
     // });
 
-    test("should return DataIncorrect if data is incorrect", async () => {
+    it("should return DataIncorrect if data is incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(dpart, {
@@ -122,7 +122,7 @@ describe("dsSampleFromDsName", () => {
       expect(result.type).toEqual("data-incorrect");
     });
 
-    test("should return DataPartiallyIncorrect if data is partially incorrect", async () => {
+    it("should return DataPartiallyIncorrect if data is partially incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(dpart, {
@@ -135,7 +135,7 @@ describe("dsSampleFromDsName", () => {
       expect((result as DataPartiallyIncorrect).percentage).toEqual(0.2);
     });
 
-    test("should return DataIncomplete if data is incomplete", async () => {
+    it("should return DataIncomplete if data is incomplete", async () => {
       const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(dpart, {
@@ -149,7 +149,7 @@ describe("dsSampleFromDsName", () => {
       expect((result as DataIncomplete).percentage).toEqual(0.6);
     });
 
-    test("should return DataCorrect if data is correct", async () => {
+    it("should return DataCorrect if data is correct", async () => {
       const dpart: DsPartition = createMockDsPart();
 
       const result = await dsSampleFromDsName.evaluateTrial(dpart, {

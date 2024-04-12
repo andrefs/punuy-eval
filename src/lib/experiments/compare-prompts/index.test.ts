@@ -1,10 +1,10 @@
-import { describe, test, expect } from "@jest/globals";
+import { describe, it, expect } from "vitest";
 import { ExperimentData, Prompt, comparePrompts } from "..";
 import { createMockDsPart, createMockModel } from "../prior-knowledge/mocks";
 
 describe("comparePrompts", () => {
   describe("evaluate", () => {
-    test("should evaluate", async () => {
+    it("should evaluate", async () => {
       const expData: ExperimentData[] = [
         {
           variables: {
@@ -24,7 +24,7 @@ describe("comparePrompts", () => {
       ];
 
       const res = await comparePrompts.evaluate(expData);
-      expect(res).toMatchInlineSnapshot();
+      expect(res).toMatchInlineSnapshot(`undefined`);
     });
   });
 });

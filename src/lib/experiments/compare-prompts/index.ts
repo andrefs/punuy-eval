@@ -1,5 +1,5 @@
 import logger from "../../logger";
-import pp from "not-a-log";
+import { renderTable } from "console-table-printer";
 import { Type, type Static } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
@@ -327,7 +327,10 @@ async function evaluate(exps: ExperimentData[]) {
   }
 
   for (const comp of comparisons) {
-    const tablePP = pp.table(comp.data);
+    const table = Object.entries(comp.data).map(([v1, v2s]) => {
+      return { "(index)": v1, ...v2s };
+    });
+    const tablePP = renderTable(table);
     logger.info(
       `Comparing ${comp.variables
         .map(v => `[${v}]`)

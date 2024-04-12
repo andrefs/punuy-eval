@@ -1,5 +1,6 @@
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 import { Model, OpenAIModelResponse } from "../../models";
+import { vi } from "vitest";
 
 export const createMockDsPart = (): DsPartition => ({
   id: "test_testPartition",
@@ -71,7 +72,7 @@ export const createMockDsPart = (): DsPartition => ({
 export const createMockModel = (result: string) =>
   new Model(
     "test",
-    jest.fn(() =>
+    vi.fn(() =>
       Promise.resolve({
         type: "openai",
         dataObj: {
@@ -101,7 +102,7 @@ export const createMockModel = (result: string) =>
             },
           ],
         },
-        getDataText: () => result,
+        getDataText: vi.fn(() => result),
       } as OpenAIModelResponse)
     )
   );

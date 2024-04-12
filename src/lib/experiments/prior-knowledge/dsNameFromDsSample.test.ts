@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { createMockDsPart, createMockModel } from "./mocks";
 import dsNameFromDsSample from "./dsNameFromDsSample";
 import { ExpVarsFixedPrompt, PromptGenerator } from "..";
@@ -8,7 +8,7 @@ describe("dsNameFromDsSample", () => {
   describe("evaluateTrial", () => {
     // TODO migrate to getResponse tests
     //
-    // test("should return NoData if data is empty", async () => {
+    // it("should return NoData if data is empty", async () => {
     //   const result = await dsNameFromDsSample.evaluateTrial(
     //     createMockDsPart(),
     //     ""
@@ -16,7 +16,7 @@ describe("dsNameFromDsSample", () => {
     //   expect(result.type).toEqual("no-data");
     // });
 
-    // test("should return JsonSyntaxError if data is not valid JSON", async () => {
+    // it("should return JsonSyntaxError if data is not valid JSON", async () => {
     //   const result = await dsNameFromDsSample.evaluateTrial(
     //     createMockDsPart(),
     //     "{"
@@ -24,7 +24,7 @@ describe("dsNameFromDsSample", () => {
     //   expect(result.type).toEqual("json-syntax-error");
     // });
 
-    // test("should return JsonSchemaError if data does not match the JSON schema", async () => {
+    // it("should return JsonSchemaError if data does not match the JSON schema", async () => {
     //   const result = await dsNameFromDsSample.evaluateTrial(
     //     createMockDsPart(),
     //     '{"key": "value"}'
@@ -32,7 +32,7 @@ describe("dsNameFromDsSample", () => {
     //   expect(result.type).toEqual("json-schema-error");
     // });
 
-    test("should return NonEvaluatedData if data is valid", async () => {
+    it("should return NonEvaluatedData if data is valid", async () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
@@ -45,7 +45,7 @@ describe("dsNameFromDsSample", () => {
       expect(result.type).toEqual("non-evaluated-data");
     });
 
-    test("should return original and obtained data", async () => {
+    it("should return original and obtained data", async () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
@@ -71,7 +71,7 @@ describe("dsNameFromDsSample", () => {
   });
 
   describe("prompt generator", () => {
-    test("should generate a prompt", () => {
+    it("should generate a prompt", () => {
       const dpart: DsPartition = createMockDsPart();
       const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
@@ -91,7 +91,7 @@ describe("dsNameFromDsSample", () => {
   });
 
   describe("runTrial", () => {
-    test("should return a result", async () => {
+    it("should return a result", async () => {
       const dpart: DsPartition = createMockDsPart();
       const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
       const result =

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
 import { genValueCombinations, getVarIds } from "./aux";
@@ -6,7 +6,7 @@ import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("experiment", () => {
   describe("getVarIds", () => {
-    test("should return the ids of an ExpVars", () => {
+    it("should return the ids of an ExpVars", () => {
       const vars: ExpVars = {
         dpart: { id: "d1" } as DsPartition,
         model: { id: "m1" } as Model,
@@ -27,7 +27,7 @@ describe("experiment", () => {
       `);
     });
 
-    test("should return the ids of an ExpVarMatrix", () => {
+    it("should return the ids of an ExpVarMatrix", () => {
       const vm = {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
         dpart: [{ id: "d1" }, { id: "d2" }] as DsPartition[],
@@ -68,7 +68,7 @@ describe("experiment", () => {
   });
 
   describe("genValueCombinations", () => {
-    test("should generate all combinations of values", () => {
+    it("should generate all combinations of values", () => {
       const vm = {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
         dpart: [{ id: "d1" }, { id: "d2" }] as DsPartition[],

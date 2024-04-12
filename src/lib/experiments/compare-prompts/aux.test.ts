@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import {
   ComparisonGroup,
   getFixedValueGroup,
@@ -11,7 +11,7 @@ import { DsPartition } from "../../dataset-adapters/DsPartition";
 
 describe("compare-prompts aux", () => {
   describe("getFixedValueGroup", () => {
-    test("should create a fixed value group when there's none", () => {
+    it("should create a fixed value group when there's none", () => {
       const compGroups = [] as ComparisonGroup[];
       const fixedNames = ["model", "dpart"] as (keyof ExpVars)[];
       const vars = {
@@ -45,7 +45,7 @@ describe("compare-prompts aux", () => {
       `);
     });
 
-    test("should return existing fixed value group", () => {
+    it("should return existing fixed value group", () => {
       const compGroups = [
         {
           fixedValueConfig: { model: "m1", dpart: "d1" },
@@ -85,7 +85,7 @@ describe("compare-prompts aux", () => {
       `);
     });
 
-    test("should create a new fixed value group if fixed values are different", () => {
+    it("should create a new fixed value group if fixed values are different", () => {
       const compGroups = [
         {
           fixedValueConfig: { model: "m1", dpart: "d1" },
@@ -127,7 +127,7 @@ describe("compare-prompts aux", () => {
   });
 
   describe("normalizeScale", () => {
-    test("0/10 to 0/100", () => {
+    it("0/10 to 0/100", () => {
       const value = 5;
       const sourceScale = { min: 0, max: 10 };
       const targetScale = { min: 0, max: 100 };
@@ -135,7 +135,7 @@ describe("compare-prompts aux", () => {
       expect(result).toBe(50);
     });
 
-    test("0/10 to 50/100", () => {
+    it("0/10 to 50/100", () => {
       const value = 5;
       const sourceScale = { min: 0, max: 10 };
       const targetScale = { min: 50, max: 100 };
@@ -143,7 +143,7 @@ describe("compare-prompts aux", () => {
       expect(result).toBe(75);
     });
 
-    test("0/4 to 1/5", () => {
+    it("0/4 to 1/5", () => {
       const value = 3;
       const sourceScale = { min: 0, max: 4 };
       const targetScale = { min: 1, max: 5 };
@@ -152,7 +152,7 @@ describe("compare-prompts aux", () => {
     });
   });
   describe("rawResultsToAvg", () => {
-    test("should return average of results", () => {
+    it("should return average of results", () => {
       const rawResults = [
         [
           { words: ["w1", "w2"], score: "1" },
@@ -177,7 +177,7 @@ describe("compare-prompts aux", () => {
       `);
     });
 
-    test("should ignore results with empty word array", () => {
+    it("should ignore results with empty word array", () => {
       const rawResults = [
         [
           { words: ["w1", "w2"], score: "1" },
@@ -195,7 +195,7 @@ describe("compare-prompts aux", () => {
       `);
     });
 
-    test("should ignore empty or NaN scores", () => {
+    it("should ignore empty or NaN scores", () => {
       const rawResults = [
         [
           { words: ["w1", "w2"], score: "1" },

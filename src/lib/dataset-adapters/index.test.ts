@@ -1,10 +1,10 @@
-// import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 // import { DsPartition } from "./DsPartition";
 
 // TODO
 
 describe("dataset-adapters", () => {
-  test("TODO", () => {
+  it("TODO", () => {
     expect(1).toBe(1);
   });
   //    describe("rg65", () => {

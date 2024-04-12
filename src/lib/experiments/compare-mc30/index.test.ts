@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import {
   CompareMC30ModelsResults,
   calcCorrelation,
@@ -9,7 +9,7 @@ import { MultiDatasetScores } from "../../dataset-adapters/collection";
 
 describe("compare-mc30", () => {
   describe("mergeResults", () => {
-    test("should merge results", () => {
+    it("should merge results", () => {
       const modelRes: CompareMC30ModelsResults = {
         gpt4: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
         gpt4turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
@@ -61,7 +61,7 @@ describe("compare-mc30", () => {
   });
 
   describe("unzipResults", () => {
-    test("should unzip results", () => {
+    it("should unzip results", () => {
       const modelRes: CompareMC30ModelsResults = {
         gpt4: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
         gpt4turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
@@ -109,7 +109,7 @@ describe("compare-mc30", () => {
   });
 
   describe("calcCorrelation", () => {
-    test("should calculate correlation", () => {
+    it("should calculate correlation", () => {
       const arrays = [
         [0.9, 0.7, 0.1, 0.1, 0.3, 0.2, 0.4],
         [0.5, 0.3, 0.1, 0.3, 0.2, 0.4, 0.2],
@@ -192,7 +192,7 @@ describe("compare-mc30", () => {
       `);
     });
 
-    test("should not throw", () => {
+    it("should not throw", () => {
       expect(() => calcCorrelation([[]])).not.toThrow();
       expect(() => calcCorrelation([[], []])).not.toThrow();
       expect(() =>

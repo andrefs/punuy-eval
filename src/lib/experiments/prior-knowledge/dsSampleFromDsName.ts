@@ -11,6 +11,7 @@ import {
   DataPartiallyIncorrect,
 } from "../../evaluation";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { Type } from "@sinclair/typebox";
 
 const numPairs = 5;
 
@@ -35,21 +36,10 @@ const promptGen = {
     };
   },
 };
-const resultSchema = {
-  type: "object",
-  properties: {
-    pairs: {
-      type: "array",
-      items: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
-    },
-  },
-  required: ["pairs"],
-};
+
+const modelResponseDataSchema = Type.Object({
+  pairs: Type.Array(Type.Tuple([Type.String(), Type.String()])),
+});
 
 async function runTrial(
   this: Experiment,
@@ -136,7 +126,7 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
 export default new Experiment(
   name,
   description,
-  resultSchema,
+  modelResponseDataSchema,
   runTrial,
   evaluateTrial,
   [promptGen]
