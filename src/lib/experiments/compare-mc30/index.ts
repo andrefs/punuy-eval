@@ -48,12 +48,12 @@ export const loadDatasetScores = async ({
     pairs[entry.term1] = pairs[entry.term1] || {};
     pairs[entry.term1][entry.term2] = pairs[entry.term1][entry.term2] || {};
     if ("value" in entry && typeof entry.value === "number") {
-      pairs[entry.term1][entry.term2]["mc30"] = entry.value;
+      pairs[entry.term1][entry.term2][mc30.dataset.id] = entry.value;
     } else {
       const values = entry.values!.filter(
         x => typeof x === "number"
       ) as number[];
-      pairs[entry.term1][entry.term2]["mc30"] =
+      pairs[entry.term1][entry.term2][mc30.dataset.id] =
         values!.reduce((a, b) => a! + b!, 0) / values.length;
     }
   }
@@ -69,13 +69,13 @@ export const loadDatasetScores = async ({
       entry.term2 in pairs[entry.term1] &&
       typeof value === "number"
     ) {
-      pairs[entry.term1][entry.term2][rg65.id] = value;
+      pairs[entry.term1][entry.term2][rg65.dataset.id] = value;
     } else if (
       entry.term2 in pairs &&
       entry.term1 in pairs[entry.term2] &&
       typeof value === "number"
     ) {
-      pairs[entry.term2][entry.term1][rg65.id] = value;
+      pairs[entry.term2][entry.term1][rg65.dataset.id] = value;
     }
   }
 
@@ -90,13 +90,13 @@ export const loadDatasetScores = async ({
       entry.term2 in pairs[entry.term1] &&
       typeof value === "number"
     ) {
-      pairs[entry.term1][entry.term2][ws353.id] = value * (4 / 10);
+      pairs[entry.term1][entry.term2][ws353.dataset.id] = value * (4 / 10);
     } else if (
       entry.term2 in pairs &&
       entry.term1 in pairs[entry.term2] &&
       typeof value === "number"
     ) {
-      pairs[entry.term2][entry.term1][ws353.id] = value * (4 / 10);
+      pairs[entry.term2][entry.term1][ws353.dataset.id] = value * (4 / 10);
     }
   }
 
@@ -111,13 +111,13 @@ export const loadDatasetScores = async ({
       entry.term2 in pairs[entry.term1] &&
       typeof value === "number"
     ) {
-      pairs[entry.term1][entry.term2][ps65.id] = value * (4 / 10);
+      pairs[entry.term1][entry.term2][ps65.dataset.id] = value * (4 / 10);
     } else if (
       entry.term2 in pairs &&
       entry.term1 in pairs[entry.term2] &&
       typeof value === "number"
     ) {
-      pairs[entry.term2][entry.term1][ps65.id] = value * (4 / 10);
+      pairs[entry.term2][entry.term1][ps65.dataset.id] = value * (4 / 10);
     }
   }
 
@@ -315,14 +315,11 @@ async function evaluate(
 ) {
   try {
     const res = mergeResults(modelsRes, humanScores);
-    console.log("XXXXXXXXXXXx 1.1");
     const arrays = unzipResults(res);
-    console.log("XXXXXXXXXXXx 1.2");
+    console.table(arrays);
     const corrMat = calcCorrelation(Object.values(arrays));
-    console.log("XXXXXXXXXXXx 1.3");
     const varNames = Object.keys(arrays);
 
-    console.log("XXXXXXXXXXXx 2");
     const tests = {} as { [dsVsds: string]: string };
     for (let i = 0; i < varNames.length - 1; i++) {
       for (let j = i; j < varNames.length; j++) {
@@ -330,7 +327,6 @@ async function evaluate(
         tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
       }
     }
-    console.log("XXXXXXXXXXXx 3");
     printTests(tests);
     const simplifiedMatrix = simpleCorrMatrix(corrMat);
     console.log(simpMatrixCSV(varNames, simplifiedMatrix));
@@ -419,15 +415,21 @@ function simpMatrixCSV(varNames: string[], matrix: number[][]) {
   return res;
 }
 
-function calcCorrelation(data: number[][]) {
+export function calcCorrelation(data: number[][]) {
   const corrMatrix = [] as ReturnType<typeof pcorrtest>[][];
 
   for (let i = 0; i < data.length; i++) {
     corrMatrix[i] = [];
     for (let j = 0; j < data.length; j++) {
       if (i <= j) {
-        const corr = pcorrtest(data[i], data[j]);
-        corrMatrix[i][j] = corr;
+        try {
+          const corr = pcorrtest(data[i], data[j]);
+          corrMatrix[i][j] = corr;
+        } catch (e) {
+          logger.warn(
+            `Error calculating correlation between ${i} and ${j}: ${e}`
+          );
+        }
       }
     }
   }
@@ -440,11 +442,6 @@ export function mergeResults(
   humanScores: MultiDatasetScores
 ) {
   const res = {} as MC30Results;
-
-  console.log(
-    "XXXXXXXXXXXx 4",
-    JSON.stringify({ modelsRes, humanScores }, null, 2)
-  );
 
   const gpt35turbo = modelsRes.gpt35turbo!;
   const gpt4 = modelsRes.gpt4!;

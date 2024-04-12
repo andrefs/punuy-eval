@@ -1,5 +1,10 @@
 import { describe, expect, test } from "@jest/globals";
-import { CompareMC30ModelsResults, mergeResults, unzipResults } from ".";
+import {
+  CompareMC30ModelsResults,
+  calcCorrelation,
+  mergeResults,
+  unzipResults,
+} from ".";
 import { MultiDatasetScores } from "../../dataset-adapters/collection";
 
 describe("compare-mc30", () => {
@@ -99,6 +104,167 @@ describe("compare-mc30", () => {
             0.4,
           ],
         }
+      `);
+    });
+  });
+
+  describe("calcCorrelation", () => {
+    test("should calculate correlation", () => {
+      const arrays = [
+        [0.9, 0.7, 0.1, 0.1, 0.3, 0.2, 0.4],
+        [0.5, 0.3, 0.1, 0.3, 0.2, 0.4, 0.2],
+        [0.1, 0.3, 0.9, 0.1, 0.4, 0.2, 0.1],
+        [0.1, 0.9, 0.1, 0.7, 0.2, 0.1, 0.3],
+        [0.3, 0.1, 0.4, 0.2, 0.9, 0.1, 0.1],
+        [0.2, 0.4, 0.2, 0.1, 0.1, 0.7, 0.3],
+        [0.4, 0.2, 0.1, 0.3, 0.1, 0.3, 0.9],
+      ];
+
+      const res = calcCorrelation(arrays).map(l =>
+        l.map(v => v.pcorr.toFixed(5))
+      );
+      expect(res).toMatchInlineSnapshot(`
+        [
+          [
+            "1.00000",
+            "0.59798",
+            "-0.39386",
+            "0.12342",
+            "-0.15004",
+            "0.02193",
+            "0.20238",
+          ],
+          [
+            ,
+            "1.00000",
+            "-0.68672",
+            "-0.02173",
+            "-0.34336",
+            "0.34300",
+            "0.10292",
+          ],
+          [
+            ,
+            ,
+            "1.00000",
+            "-0.26576",
+            "0.40000",
+            "-0.16373",
+            "-0.58750",
+          ],
+          [
+            ,
+            ,
+            ,
+            "1.00000",
+            "-0.35435",
+            "-0.08634",
+            "-0.05311",
+          ],
+          [
+            ,
+            ,
+            ,
+            ,
+            "1.00000",
+            "-0.57307",
+            "-0.50357",
+          ],
+          [
+            ,
+            ,
+            ,
+            ,
+            ,
+            "1.00000",
+            "0.12270",
+          ],
+          [
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            "1.00000",
+          ],
+        ]
+      `);
+    });
+
+    test("should not throw", () => {
+      expect(() => calcCorrelation([[]])).not.toThrow();
+      expect(() => calcCorrelation([[], []])).not.toThrow();
+      expect(() =>
+        calcCorrelation([
+          [1, 2, 3],
+          [1, 2, 3, 4],
+        ])
+      ).not.toThrow();
+      expect(() =>
+        calcCorrelation([
+          [1, 2, 3],
+          [1, 2, 3],
+        ])
+      ).not.toThrow();
+      expect(
+        calcCorrelation([
+          [1, 2, 3, 4],
+          [1, 2, 3, 4],
+        ])
+      ).toMatchInlineSnapshot(`
+        [
+          [
+            {
+              "alpha": 0.05,
+              "alternative": "two-sided",
+              "ci": [
+                1,
+                1,
+              ],
+              "method": "t-test for Pearson correlation coefficient",
+              "nullValue": 0,
+              "pValue": 0,
+              "pcorr": 1,
+              "print": [Function],
+              "rejected": true,
+              "statistic": Infinity,
+            },
+            {
+              "alpha": 0.05,
+              "alternative": "two-sided",
+              "ci": [
+                1,
+                1,
+              ],
+              "method": "t-test for Pearson correlation coefficient",
+              "nullValue": 0,
+              "pValue": 0,
+              "pcorr": 1,
+              "print": [Function],
+              "rejected": true,
+              "statistic": Infinity,
+            },
+          ],
+          [
+            ,
+            {
+              "alpha": 0.05,
+              "alternative": "two-sided",
+              "ci": [
+                1,
+                1,
+              ],
+              "method": "t-test for Pearson correlation coefficient",
+              "nullValue": 0,
+              "pValue": 0,
+              "pcorr": 1,
+              "print": [Function],
+              "rejected": true,
+              "statistic": Infinity,
+            },
+          ],
+        ]
       `);
     });
   });
