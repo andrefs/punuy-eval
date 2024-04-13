@@ -68,7 +68,6 @@ export class EvaluationResult<DataType> {
   ok: boolean;
   data?: DataType;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(type: EvaluationResultType, ok: boolean, data?: DataType) {
     this.type = type;
     this.ok = ok;
@@ -97,8 +96,12 @@ export class DataPartiallyIncorrect<
 }
 
 export class DataIncorrect<DataType> extends EvaluationResult<DataType> {
-  constructor(data: DataType) {
+  expected?: DataType;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(data: DataType, expected?: any) {
     super("data-incorrect", false, data);
+    this.expected = expected;
   }
 }
 
@@ -116,9 +119,14 @@ export class DataCorrect<DataType> extends EvaluationResult<DataType> {
   }
 }
 
-export class NonEvaluatedData<DataType> extends EvaluationResult<DataType> {
-  constructor(data: DataType) {
+export class NonEvaluatedData<
+  DataType,
+  ExtraType = void
+> extends EvaluationResult<DataType> {
+  extra?: ExtraType;
+  constructor(data?: DataType, extra?: ExtraType) {
     super("non-evaluated-data", true, data);
+    this.extra = extra;
   }
 }
 
