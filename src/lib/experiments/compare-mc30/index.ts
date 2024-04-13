@@ -21,9 +21,10 @@ import { MultiDatasetScores } from "../../dataset-adapters/collection";
 import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 import { Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
+import { TrialResult } from "..";
 
 export type CompareMC30ModelsResults = Partial<{
-  [key in ModelIds]: ResultSchema[];
+  [key in ModelIds]: QueryResponse[];
 }>;
 
 interface LoadDatasetScoresParams {
@@ -162,7 +163,7 @@ const genPrompt = (pairs: string[][]) =>
 //  },
 //  required: ["scores"],
 //} as const;
-const resultSchema = Type.Object({
+const queryResponseSchema = Type.Object({
   scores: Type.Array(
     Type.Object({
       words: Type.Array(Type.String()),
@@ -170,8 +171,9 @@ const resultSchema = Type.Object({
     })
   ),
 });
-type ResultSchema = Static<typeof resultSchema>;
-const validateSchema = (value: unknown) => Value.Check(resultSchema, value);
+type QueryResponse = Static<typeof queryResponseSchema>;
+const validateSchema = (value: unknown) =>
+  Value.Check(queryResponseSchema, value);
 
 async function getResponse(
   model: Model,
@@ -185,7 +187,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data) as ResultSchema;
+    const got = JSON.parse(data) as QueryResponse;
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -201,7 +203,7 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
     function: {
       name: "evaluate_scores",
       description: "Evaluate the word similarity scores.",
-      schema: resultSchema,
+      schema: queryResponseSchema,
     },
   };
 
@@ -211,23 +213,25 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
     logger.info(`      attempt #${attempts + 1}`);
     const attemptResult = await getResponse(model, prompt, params);
     attempts++;
-    if (attemptResult.ok) {
-      return {
+    if (attemptResult instanceof ValidData) {
+      const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data,
+        result: attemptResult,
       };
+      return res;
     }
     logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
     failedAttempts.push(attemptResult);
   }
 
-  return {
+  const res: TrialResult<QueryResponse> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
   };
+  return res;
 }
 
 /** Run multiple trials of the experiment, with a single model */
@@ -314,42 +318,38 @@ async function evaluate(
   humanScores: MultiDatasetScores,
   trials: number
 ) {
-  try {
-    const res = mergeResults(modelsRes, humanScores);
-    const arrays = unzipResults(res);
-    console.table(arrays);
-    const corrMat = calcCorrelation(Object.values(arrays));
-    const varNames = Object.keys(arrays);
+  const res = mergeResults(modelsRes, humanScores);
+  const arrays = unzipResults(res);
+  console.table(arrays);
+  const corrMat = calcCorrelation(Object.values(arrays));
+  const varNames = Object.keys(arrays);
 
-    const tests = {} as { [dsVsds: string]: string };
-    for (let i = 0; i < varNames.length - 1; i++) {
-      for (let j = i; j < varNames.length; j++) {
-        const r = corrMat[i][j];
-        tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
-      }
+  const tests = {} as { [dsVsds: string]: string };
+  for (let i = 0; i < varNames.length - 1; i++) {
+    for (let j = i; j < varNames.length; j++) {
+      const r = corrMat[i][j];
+      tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
     }
-    printTests(tests);
-    const simplifiedMatrix = simpleCorrMatrix(corrMat);
-    console.log(simpMatrixCSV(varNames, simplifiedMatrix));
-    const simpMatObj = simpMatrixToObject(varNames, simplifiedMatrix);
-    console.table(simpMatObj, varNames);
-
-    const traceId = Date.now();
-    const log: MC30LogFile = {
-      trials,
-      traceId,
-      results: res,
-      arrays,
-      corrMat,
-      varNames: Object.keys(arrays),
-      simplifiedMatrix: simpMatObj,
-      tests,
-    };
-
-    await saveFile(log);
-  } catch (e) {
-    return new JsonSyntaxError();
   }
+  printTests(tests);
+  const simplifiedMatrix = simpleCorrMatrix(corrMat);
+  console.log(simpMatrixCSV(varNames, simplifiedMatrix));
+  const simpMatObj = simpMatrixToObject(varNames, simplifiedMatrix);
+  console.table(simpMatObj, varNames);
+
+  const traceId = Date.now();
+  const log: MC30LogFile = {
+    trials,
+    traceId,
+    results: res,
+    arrays,
+    corrMat,
+    varNames: Object.keys(arrays),
+    simplifiedMatrix: simpMatObj,
+    tests,
+  };
+
+  await saveFile(log);
 }
 
 async function saveFile(log: MC30LogFile) {
@@ -516,7 +516,7 @@ const CompareMC30Experiment = {
   name,
   description,
   genPrompt,
-  schema: resultSchema,
+  schema: queryResponseSchema,
   runTrials,
   evaluate,
 };

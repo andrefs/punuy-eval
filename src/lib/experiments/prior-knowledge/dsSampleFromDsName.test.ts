@@ -132,7 +132,10 @@ describe("dsSampleFromDsName", () => {
         ],
       });
       expect(result.type).toEqual("data-partially-incorrect");
-      expect((result as DataPartiallyIncorrect).percentage).toEqual(0.2);
+      expect(
+        (result as DataPartiallyIncorrect<{ pairs: [string, string] }>)
+          .percentage
+      ).toEqual(0.2);
     });
 
     it("should return DataIncomplete if data is incomplete", async () => {
@@ -146,7 +149,9 @@ describe("dsSampleFromDsName", () => {
         ],
       });
       expect(result.type).toEqual("data-incomplete");
-      expect((result as DataIncomplete).percentage).toEqual(0.6);
+      expect(
+        (result as DataIncomplete<{ pairs: [string, string] }>).percentage
+      ).toEqual(0.6);
     });
 
     it("should return DataCorrect if data is correct", async () => {

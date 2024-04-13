@@ -4,9 +4,10 @@ import Experiment, {
   Prompt,
   TrialResult,
 } from "../experiment";
-import { DataCorrect, DataIncorrect } from "../../evaluation";
+import { DataCorrect, DataIncorrect, ValidData } from "../../evaluation";
 import { distance } from "fastest-levenshtein";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { Static, Type } from "@sinclair/typebox";
 
 const name = "ds-paper-from-ds-name";
 const description =
@@ -23,22 +24,17 @@ const promptGen = {
     };
   },
 };
-const resultSchema = {
-  type: "object",
-  properties: {
-    title: {
-      type: "string",
-    },
-  },
-  required: ["title"],
-};
+const queryResponseSchema = Type.Object({
+  title: Type.String(),
+});
+type QueryResponse = Static<typeof queryResponseSchema>;
 
 async function runTrial(
-  this: Experiment,
+  this: Experiment<QueryResponse>,
   vars: ExpVarsFixedPrompt,
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3
-): Promise<TrialResult> {
+): Promise<TrialResult<QueryResponse>> {
   const params = {
     function: {
       name: "return-paper-name",
@@ -58,22 +54,24 @@ async function runTrial(
       params
     );
     attempts++;
-    if (attemptResult.ok) {
-      return {
+    if (attemptResult instanceof ValidData) {
+      const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data,
+        result: attemptResult,
       };
+      return res;
     }
     failedAttempts.push(attemptResult);
   }
 
-  return {
+  const res: TrialResult<QueryResponse> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
   };
+  return res;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -108,7 +106,7 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
 export default new Experiment(
   name,
   description,
-  resultSchema,
+  queryResponseSchema,
   runTrial,
   evaluateTrial,
   [promptGen]

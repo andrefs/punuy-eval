@@ -8,10 +8,11 @@ import {
   DataCorrect,
   DataIncorrect,
   DataPartiallyIncorrect,
-  NoUsableData,
+  NonUsableData,
   ValidData,
 } from "../../evaluation";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { Static, Type } from "@sinclair/typebox";
 
 const name = "ds-values-exact-matches";
 const description =
@@ -31,30 +32,22 @@ const promptGen = {
     };
   },
 };
-const resultSchema = {
-  type: "object",
-  properties: {
-    scores: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          words: { type: "array", items: { type: "string" } },
-          score: { type: "string" },
-        },
-        required: ["words", "score"],
-      },
-    },
-  },
-  required: ["scores"],
-};
+const queryResponseSchema = Type.Object({
+  scores: Type.Array(
+    Type.Object({
+      words: Type.Tuple([Type.String(), Type.String()]),
+      score: Type.Number(),
+    })
+  ),
+});
+type QueryResponse = Static<typeof queryResponseSchema>;
 
 async function runTrial(
-  this: Experiment,
+  this: Experiment<QueryResponse>,
   vars: ExpVarsFixedPrompt,
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3
-): Promise<TrialResult> {
+): Promise<TrialResult<QueryResponse>> {
   const params = {
     function: {
       name: "validate_sample",
@@ -73,22 +66,24 @@ async function runTrial(
       params
     );
     attempts++;
-    if (attemptResult.ok) {
-      return {
+    if (attemptResult instanceof ValidData) {
+      const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data as ValidData,
+        result: attemptResult,
       };
+      return res;
     }
     failedAttempts.push(attemptResult);
   }
 
-  return {
+  const res: TrialResult<QueryResponse> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
   };
+  return res;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,11 +114,11 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
   }
 
   let i = 0;
-  let noUsableData = 0;
+  let nonUsableData = 0;
   let exactMatches = 0;
   for (const { words, score } of got.scores) {
     if (!words || !score) {
-      noUsableData++;
+      nonUsableData++;
     }
     i++;
     const w1 = words[0].toLowerCase();
@@ -136,8 +131,8 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
     res[w1][w2] = res[w1][w2] || { expected: null, got: null };
     res[w1][w2].got = score;
   }
-  if (noUsableData === i) {
-    return new NoUsableData();
+  if (nonUsableData === i) {
+    return new NonUsableData();
   }
   if (i === exactMatches) {
     return new DataCorrect(res);
@@ -151,7 +146,7 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
 export default new Experiment(
   name,
   description,
-  resultSchema,
+  queryResponseSchema,
   runTrial,
   evaluateTrial,
   [promptGen]

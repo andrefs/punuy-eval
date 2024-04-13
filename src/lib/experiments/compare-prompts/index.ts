@@ -8,6 +8,7 @@ import {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  TrialResult,
   TrialsResultData,
 } from "..";
 import {
@@ -15,7 +16,6 @@ import {
   RawResult,
   evalScores,
   getFixedValueGroup,
-  parseToRawResults,
 } from "./aux";
 import prompts from "./prompts";
 import {
@@ -33,17 +33,17 @@ import {
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
-const modelResponseDataSchema = Type.Object({
+const queryResponseSchema = Type.Object({
   scores: Type.Array(
     Type.Object({
       words: Type.Array(Type.String()),
-      score: Type.String(),
+      score: Type.Number(),
     })
   ),
 });
-type ModelResponseData = Static<typeof modelResponseDataSchema>;
+type QueryResponse = Static<typeof queryResponseSchema>;
 const validateSchema = (value: unknown) =>
-  Value.Check(modelResponseDataSchema, value);
+  Value.Check(queryResponseSchema, value);
 
 async function getResponse(
   model: Model,
@@ -57,7 +57,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data) as ModelResponseData;
+    const got = JSON.parse(data) as QueryResponse;
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -72,7 +72,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     function: {
       name: "evaluate_scores",
       description: "Evaluate the word similarity or relatedness scores",
-      schema: modelResponseDataSchema,
+      schema: queryResponseSchema,
     },
   };
 
@@ -86,41 +86,43 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
       params
     );
     attempts++;
-    if (attemptResult.ok) {
+    if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${attempts} succeeded.`);
-      return {
+      const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data as ModelResponseData,
+        result: attemptResult,
       };
+      return res;
     }
     logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
     failedAttempts.push(attemptResult);
   }
 
-  return {
+  const res: TrialResult<QueryResponse> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
   };
+  return res;
 }
 
 async function runTrials(
   vars: ExpVarsFixedPrompt,
   trials: number
-): Promise<TrialsResultData> {
+): Promise<TrialsResultData<QueryResponse>> {
   logger.info(
     `Running experiment ${name} ${trials} times on model ${vars.model.id}.`
   );
   logger.debug(`Prompt (${vars.prompt.id}): ${vars.prompt.text}`);
 
-  const results: ModelResponseData[] = [];
+  const results: QueryResponse[] = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
-    if (res.ok) {
-      results.push(res.result!);
+    if (res.ok && res.result) {
+      results.push(res.result.data!);
     }
   }
   return {
@@ -135,11 +137,11 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
   const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
   const trialsRes = await runTrials(varsFixedPrompt, trials);
 
-  const expData: ExperimentData = {
+  const expData: ExperimentData<QueryResponse> = {
     meta: {
       name,
       traceId: traceId ?? Date.now(),
-      schema: modelResponseDataSchema,
+      schema: queryResponseSchema,
     },
     variables: varsFixedPrompt,
     results: {
@@ -200,27 +202,27 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   return res;
 }
 
-function failedMoreThanHalf(
-  failed: number[],
-  parsed: (RawResult[] | null)[],
-  traceId: number
-) {
-  if (failed.length > parsed.length / 2) {
-    logger.error(
-      `Failed to parse the results of more than half of the trials for experiment ${traceId}.`
-    );
-    return true;
-  }
-  return false;
-}
-
-function warnIfFailed(failed: number[], exp: ExperimentData) {
-  if (failed.length > 0) {
-    logger.warn(
-      `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
-    );
-  }
-}
+//function failedMoreThanHalf(
+//  failed: number[],
+//  parsed: (RawResult[] | null)[],
+//  traceId: number
+//) {
+//  if (failed.length > parsed.length / 2) {
+//    logger.error(
+//      `Failed to parse the results of more than half of the trials for experiment ${traceId}.`
+//    );
+//    return true;
+//  }
+//  return false;
+//}
+//
+//function warnIfFailed(failed: number[], exp: ExperimentData) {
+//  if (failed.length > 0) {
+//    logger.warn(
+//      `Failed to parse results of ${failed.length}/${exp.results.raw.length} (${failed}) results for experiment ${exp.meta.traceId}.`
+//    );
+//  }
+//}
 
 interface ExpScore {
   variables: ExpVars;
@@ -234,7 +236,7 @@ interface ExpScore {
  * @returns The evaluated scores
  * @throws {Error} If more than half of the trials failed to parse
  */
-function expEvalScores(exps: ExperimentData[]): ExpScore[] {
+function expEvalScores(exps: ExperimentData<QueryResponse>[]): ExpScore[] {
   const res = [];
   for (const exp of exps) {
     const lcPairs = (exp.variables as ExpVarsFixedPrompt).prompt.pairs!.map(
@@ -254,7 +256,7 @@ function expEvalScores(exps: ExperimentData[]): ExpScore[] {
   return res;
 }
 
-function calcVarValues(exps: ExperimentData[]) {
+function calcVarValues(exps: ExperimentData<QueryResponse>[]) {
   const varValues: { [key: string]: Set<string> } = {};
   for (const r of exps) {
     for (const v in r.variables) {
@@ -279,7 +281,7 @@ function logExpScores(expScores: ExpScore[]) {
   }
 }
 
-async function evaluate(exps: ExperimentData[]) {
+async function evaluate(exps: ExperimentData<QueryResponse>[]) {
   const expScores = expEvalScores(exps);
   const { varValues, varNames } = calcVarValues(exps);
 
@@ -345,7 +347,7 @@ const ComparePromptsExperiment = {
   name,
   description,
   prompts,
-  schema: modelResponseDataSchema,
+  schema: queryResponseSchema,
   performMulti,
   evaluate,
 };

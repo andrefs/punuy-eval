@@ -9,9 +9,10 @@ import {
   DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
+  ValidData,
 } from "../../evaluation";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
-import { Type } from "@sinclair/typebox";
+import { Static, Type } from "@sinclair/typebox";
 
 const numPairs = 5;
 
@@ -37,16 +38,17 @@ const promptGen = {
   },
 };
 
-const modelResponseDataSchema = Type.Object({
+const queryResponseSchema = Type.Object({
   pairs: Type.Array(Type.Tuple([Type.String(), Type.String()])),
 });
+type QueryResponse = Static<typeof queryResponseSchema>;
 
 async function runTrial(
-  this: Experiment,
+  this: Experiment<QueryResponse>,
   vars: ExpVarsFixedPrompt,
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3
-): Promise<TrialResult> {
+): Promise<TrialResult<QueryResponse>> {
   const params = {
     function: {
       name: "evaluate_sample",
@@ -65,22 +67,24 @@ async function runTrial(
       params
     );
     attempts++;
-    if (attemptResult.ok) {
-      return {
+    if (attemptResult instanceof ValidData) {
+      const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
-        result: attemptResult.data,
+        result: attemptResult,
       };
+      return res;
     }
     failedAttempts.push(attemptResult);
   }
 
-  return {
+  const res: TrialResult<QueryResponse> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
   };
+  return res;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -126,7 +130,7 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
 export default new Experiment(
   name,
   description,
-  modelResponseDataSchema,
+  queryResponseSchema,
   runTrial,
   evaluateTrial,
   [promptGen]

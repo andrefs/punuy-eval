@@ -3,7 +3,9 @@ import oldFs from "fs";
 import { ExpVarMatrix, ExpVars, ExperimentData } from ".";
 import logger from "../../logger";
 
-export async function saveExperimentData(data: ExperimentData) {
+export async function saveExperimentData<DataType>(
+  data: ExperimentData<DataType>
+) {
   const ts = data.meta.traceId;
   const dpartId = data.variables.dpart.id;
   const promptId = data.variables.prompt.id;

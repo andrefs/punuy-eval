@@ -8,42 +8,44 @@ export type ValidationResultType =
   | "no-data"
   | "valid-data";
 
-export class ValidationResult {
+export class ValidationResult<DataType> {
   type: ValidationResultType;
   ok: boolean;
-  data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  data?: DataType | string;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(type: ValidationResultType, ok: boolean, data: any) {
+  constructor(type: ValidationResultType, ok: boolean, data?: DataType) {
     this.type = type;
     this.ok = ok;
     this.data = data;
   }
 }
 
-export class JsonSyntaxError extends ValidationResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
+export class JsonSyntaxError extends ValidationResult<string> {
+  constructor(data: string) {
     super("json-syntax-error", false, data);
   }
 }
 
-export class JsonSchemaError extends ValidationResult {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class JsonSchemaError extends ValidationResult<any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
     super("json-schema-error", false, data);
   }
 }
 
-export class NoData extends ValidationResult {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class NoData extends ValidationResult<any> {
   constructor() {
-    super("no-data", false, "");
+    super("no-data", false);
   }
 }
-export class ValidData extends ValidationResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
-    super("valid-data", true, data);
+export class ValidData<DataType> extends ValidationResult<DataType> {
+  data: DataType;
+
+  constructor(data: DataType) {
+    super("valid-data", true);
+    this.data = data;
   }
 }
 
@@ -58,79 +60,76 @@ export type EvaluationResultType =
   | "data-incorrect"
   | "non-evaluated-data"
   | "data-invalid-on-all-tries"
-  | "no-usable-data"
+  | "non-usable-data"
   | "data-correct";
 
-export class EvaluationResult {
+export class EvaluationResult<DataType> {
   type: EvaluationResultType;
   ok: boolean;
-  data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  data?: DataType;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(type: EvaluationResultType, ok: boolean, data: any) {
+  constructor(type: EvaluationResultType, ok: boolean, data?: DataType) {
     this.type = type;
     this.ok = ok;
     this.data = data;
   }
 }
 
-export class DataIncomplete extends EvaluationResult {
+export class DataIncomplete<DataType> extends EvaluationResult<DataType> {
   percentage: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(percentage: number, data?: any) {
+  constructor(percentage: number, data: DataType) {
     super("data-incomplete", false, data);
     this.percentage = percentage;
   }
 }
 
-export class DataPartiallyIncorrect extends EvaluationResult {
+export class DataPartiallyIncorrect<
+  DataType
+> extends EvaluationResult<DataType> {
   percentage: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(percentage: number, data?: any) {
+  constructor(percentage: number, data: DataType) {
     super("data-partially-incorrect", false, data);
     this.percentage = percentage;
   }
 }
 
-export class DataIncorrect extends EvaluationResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
+export class DataIncorrect<DataType> extends EvaluationResult<DataType> {
+  constructor(data: DataType) {
     super("data-incorrect", false, data);
   }
 }
 
-export class DataInvalidOnAllTries extends EvaluationResult {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class DataInvalidOnAllTries extends EvaluationResult<any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
+  constructor(data: any) {
     super("data-invalid-on-all-tries", false, data);
   }
 }
 
-export class DataCorrect extends EvaluationResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
+export class DataCorrect<DataType> extends EvaluationResult<DataType> {
+  constructor(data: DataType) {
     super("data-correct", true, data);
   }
 }
 
-export class NonEvaluatedData extends EvaluationResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
+export class NonEvaluatedData<DataType> extends EvaluationResult<DataType> {
+  constructor(data: DataType) {
     super("non-evaluated-data", true, data);
   }
 }
 
-export class NoUsableData extends EvaluationResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data?: any) {
-    super("no-usable-data", false, data);
+export class NonUsableData<DataType> extends EvaluationResult<DataType> {
+  constructor(data?: DataType) {
+    super("non-usable-data", false, data);
   }
 }
 
-export async function combineEvaluations(
-  vs: EvaluationResult[]
+export async function combineEvaluations<DataType>(
+  vs: EvaluationResult<DataType>[]
 ): Promise<AggregatedEvaluationResult> {
   let sum = 0;
   const resultTypes = {} as { [key in EvaluationResultType]: number };
