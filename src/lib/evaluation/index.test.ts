@@ -14,10 +14,10 @@ describe("evaluation", () => {
         //new JsonSyntaxError(),
         //new JsonSchemaError(),
         //new NoData(),
-        new DataIncomplete(0.5, null),
-        new DataPartiallyIncorrect(0.25, null),
-        new DataIncorrect(null),
-        new DataCorrect(null),
+        new DataIncomplete(0.5, null, null),
+        new DataPartiallyIncorrect(0.25, null, null),
+        new DataIncorrect(null, null),
+        new DataCorrect(null, null),
       ];
 
       const result = await combineEvaluations(evaluations);
@@ -29,10 +29,10 @@ describe("evaluation", () => {
         //new JsonSyntaxError(),
         //new JsonSchemaError(),
         //new NoData(),
-        new DataIncomplete(0.5, null),
-        new DataPartiallyIncorrect(0.25, null),
-        new DataIncorrect(null),
-        new DataCorrect(null),
+        new DataIncomplete(0.5, null, null),
+        new DataPartiallyIncorrect(0.25, null, null),
+        new DataIncorrect(null, null),
+        new DataCorrect(null, null),
       ];
       const result = await combineEvaluations(evaluations);
       expect(result).toMatchInlineSnapshot(`

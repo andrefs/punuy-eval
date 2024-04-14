@@ -55,7 +55,7 @@ describe("dsNameFromDsSample", () => {
           authors: ["First Author", "Second Person Name"],
         }
       );
-      expect(result.data).toMatchInlineSnapshot(`
+      expect(result.got).toMatchInlineSnapshot(`
         {
           "gotAuthors": [
             "First Author",

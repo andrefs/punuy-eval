@@ -11,12 +11,7 @@ import {
   TrialResult,
   TrialsResultData,
 } from "..";
-import {
-  ComparisonGroup,
-  PairScoreList,
-  evalScores,
-  getFixedValueGroup,
-} from "./aux";
+import { ComparisonGroup, evalScores, getFixedValueGroup } from "./aux";
 import prompts from "./prompts";
 import {
   genValueCombinations,
@@ -30,6 +25,7 @@ import {
   NoData,
   ValidData,
 } from "src/lib/evaluation";
+import { PairScoreList } from "../experiment/types";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 

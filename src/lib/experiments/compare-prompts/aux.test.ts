@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   ComparisonGroup,
-  PairScoreList,
   getFixedValueGroup,
   normalizeScale,
   rawResultsToAvg,
@@ -9,6 +8,7 @@ import {
 import { ExpVars, Prompt } from "..";
 import { Model } from "../../models";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { PairScoreList } from "../experiment/types";
 
 describe("compare-prompts aux", () => {
   describe("getFixedValueGroup", () => {
