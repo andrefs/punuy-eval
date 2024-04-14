@@ -41,7 +41,7 @@ class Experiment<DataType> {
   ) => Promise<TrialsResultData<DataType>>;
   evaluateTrial: (
     dpart: DsPartition,
-    got: any // eslint-disable-line @typescript-eslint/no-explicit-any
+    got: DataType
   ) => Promise<EvaluationResult<DataType>>;
   evaluate: (exp: ExperimentData<DataType>) => Promise<{
     evaluation: EvaluationResult<DataType>[];
@@ -71,7 +71,7 @@ class Experiment<DataType> {
     ) => Promise<TrialResult<DataType>>,
     evaluateTrial: (
       dpart: DsPartition,
-      got: any // eslint-disable-line @typescript-eslint/no-explicit-any
+      got: DataType
     ) => Promise<EvaluationResult<DataType>>,
     prompts?: (Prompt | PromptGenerator)[]
   ) {
@@ -240,7 +240,7 @@ export interface ExpMeta {
 
 export interface ExpResults<DataType> {
   /** Raw results from the trials */
-  raw: unknown[];
+  raw: DataType[];
   /** Evaluation results for each trial */
   evaluation?: EvaluationResult<DataType>[];
   /** Aggregated evaluation results */

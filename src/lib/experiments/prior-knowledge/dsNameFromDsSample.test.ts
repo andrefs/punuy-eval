@@ -36,11 +36,11 @@ describe("dsNameFromDsSample", () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
-        JSON.stringify({
+        {
           name: mockDsPartition.dataset.metadata.name,
           year: "2021",
           authors: ["First Author", "Second Person Name"],
-        })
+        }
       );
       expect(result.type).toEqual("non-evaluated-data");
     });

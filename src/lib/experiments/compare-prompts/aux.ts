@@ -3,6 +3,7 @@ import { PartitionScale, PartitionData } from "punuy-datasets/src/lib/types";
 import { ExpVars } from "..";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 import logger from "src/lib/logger";
+import { PairScoreList, ScoreDict, SinglePairScore } from "../experiment/types";
 
 export interface ComparisonGroup {
   fixedValueConfig: FixedValueConfig;
@@ -42,22 +43,14 @@ export function getFixedValueGroup(
   return newGroup;
 }
 
-export interface RawResult {
-  words: string[];
-  score: string;
-}
-export interface Scores {
-  [key: string]: { [key: string]: number };
-}
-
-export function rawResultsToAvg(parsed: RawResult[][]) {
+export function rawResultsToAvg(parsed: PairScoreList[]) {
   const values = {} as { [key: string]: { [key: string]: number[] } };
   for (const r of parsed) {
     if (!r) {
       continue;
     }
     for (const { words, score } of r) {
-      if (words?.length !== 2 || !score?.length || isNaN(Number(score))) {
+      if (words?.length !== 2) {
         continue;
       }
       const [w1, w2] = words.map(x => x.toLowerCase());
@@ -67,7 +60,7 @@ export function rawResultsToAvg(parsed: RawResult[][]) {
     }
   }
 
-  const res = {} as Scores;
+  const res = {} as ScoreDict;
   for (const w1 in values) {
     res[w1] = {};
     for (const w2 in values[w1]) {
@@ -92,11 +85,11 @@ export function normalizeScale(
 
 export function parseToRawResults(raw: string[]) {
   const failed = [];
-  const objs = [] as (RawResult[] | null)[];
+  const objs = [] as (SinglePairScore[] | null)[];
   for (const [i, r] of raw.entries()) {
     try {
       console.log("XXXXXXXXXXXXX parseToRawResults 1", JSON.stringify({ r }));
-      const obj = JSON.parse(r).scores as RawResult[];
+      const obj = JSON.parse(r).scores as SinglePairScore[];
       console.log("XXXXXXXXXXXXX parseToRawResults 2", JSON.stringify({ obj }));
       objs.push(obj);
     } catch (e) {
@@ -138,14 +131,14 @@ function pairsToHash(pairs: [string, string][]) {
 export function evalScores(
   pairs: [string, string][],
   dpart: DsPartition,
-  raw: RawResult[][]
+  raw: PairScoreList[]
 ): ReturnType<typeof pcorrTest> {
-  const got = rawResultsToAvg(raw.filter(x => x !== null) as RawResult[][]);
+  const got = rawResultsToAvg(raw.filter(x => x !== null));
   const pairsHash = pairsToHash(pairs);
 
   const targetScale = { min: 1, max: 5 };
 
-  const expected = {} as Scores;
+  const expected = {} as ScoreDict;
   for (const entry of dpart.data) {
     const value = valueFromEntry(entry, dpart.scale, targetScale);
     const w1 = entry.term1.toLowerCase();

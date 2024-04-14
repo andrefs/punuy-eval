@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ComparisonGroup,
+  PairScoreList,
   getFixedValueGroup,
   normalizeScale,
   rawResultsToAvg,
@@ -153,15 +154,15 @@ describe("compare-prompts aux", () => {
   });
   describe("rawResultsToAvg", () => {
     it("should return average of results", () => {
-      const rawResults = [
+      const rawResults: PairScoreList[] = [
         [
-          { words: ["w1", "w2"], score: "1" },
-          { words: ["w1", "w2"], score: "2" },
-          { words: ["w1", "w2"], score: "5" },
+          { words: ["w1", "w2"], score: 1 },
+          { words: ["w1", "w2"], score: 2 },
+          { words: ["w1", "w2"], score: 5 },
         ],
         [
-          { words: ["w3", "w4"], score: "4" },
-          { words: ["w3", "w4"], score: "3" },
+          { words: ["w3", "w4"], score: 4 },
+          { words: ["w3", "w4"], score: 3 },
         ],
       ];
       const avg = rawResultsToAvg(rawResults);
@@ -177,31 +178,31 @@ describe("compare-prompts aux", () => {
       `);
     });
 
-    it("should ignore results with empty word array", () => {
-      const rawResults = [
-        [
-          { words: ["w1", "w2"], score: "1" },
-          { words: [], score: "2" },
-          { words: ["w1", "w2"], score: "5" },
-        ],
-      ];
-      const avg = rawResultsToAvg(rawResults);
-      expect(avg).toMatchInlineSnapshot(`
-        {
-          "w1": {
-            "w2": 3,
-          },
-        }
-      `);
-    });
+    //it("should ignore results with empty word array", () => {
+    //  const rawResults: PairScoreList[] = [
+    //    [
+    //      { words: ["w1", "w2"], score: 1 },
+    //      { words: [], score: 2 },
+    //      { words: ["w1", "w2"], score: 5 },
+    //    ],
+    //  ];
+    //  const avg = rawResultsToAvg(rawResults);
+    //  expect(avg).toMatchInlineSnapshot(`
+    //    {
+    //      "w1": {
+    //        "w2": 3,
+    //      },
+    //    }
+    //  `);
+    //});
 
-    it("should ignore empty or NaN scores", () => {
-      const rawResults = [
+    it("should ignore NaN scores", () => {
+      const rawResults: PairScoreList[] = [
         [
-          { words: ["w1", "w2"], score: "1" },
-          { words: ["w1", "w2"], score: "" },
-          { words: ["w1", "w2"], score: "5" },
-          { words: ["w1", "w2"], score: "NaN" },
+          { words: ["w1", "w2"], score: 1 },
+          { words: ["w1", "w2"], score: NaN },
+          { words: ["w1", "w2"], score: 5 },
+          { words: ["w1", "w4"], score: NaN },
         ],
       ];
       const avg = rawResultsToAvg(rawResults);

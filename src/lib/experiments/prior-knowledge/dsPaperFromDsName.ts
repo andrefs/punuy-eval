@@ -95,11 +95,14 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
 
   const threshold = 0.2;
   if (bestScore < threshold) {
-    return new DataCorrect({ title: got.title });
+    return new DataCorrect(
+      { title: got.title },
+      { titles: expected.map(e => e.title) }
+    );
   }
   return new DataIncorrect(
     { title: got.title },
-    expected.map(e => e.title)
+    { titles: expected.map(e => e.title) }
   );
 }
 

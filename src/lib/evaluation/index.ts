@@ -63,76 +63,91 @@ export type EvaluationResultType =
   | "non-usable-data"
   | "data-correct";
 
-export class EvaluationResult<DataType> {
+export class EvaluationResult<DataType, ExpectedType = DataType> {
   type: EvaluationResultType;
   ok: boolean;
-  data?: DataType;
+  got?: DataType;
+  expected?: ExpectedType;
 
-  constructor(type: EvaluationResultType, ok: boolean, data?: DataType) {
+  constructor(
+    type: EvaluationResultType,
+    ok: boolean,
+    got?: DataType,
+    expected?: ExpectedType
+  ) {
     this.type = type;
     this.ok = ok;
-    this.data = data;
+    this.got = got;
+    this.expected = expected;
   }
 }
 
-export class DataIncomplete<DataType> extends EvaluationResult<DataType> {
+export class DataIncomplete<
+  DataType,
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
   percentage: number;
 
-  constructor(percentage: number, data: DataType) {
-    super("data-incomplete", false, data);
+  constructor(percentage: number, got: DataType, expected: ExpectedType) {
+    super("data-incomplete", false, got, expected);
     this.percentage = percentage;
   }
 }
 
 export class DataPartiallyIncorrect<
-  DataType
-> extends EvaluationResult<DataType> {
+  DataType,
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
   percentage: number;
 
-  constructor(percentage: number, data: DataType) {
-    super("data-partially-incorrect", false, data);
+  constructor(percentage: number, got: DataType, expected: ExpectedType) {
+    super("data-partially-incorrect", false, got, expected);
     this.percentage = percentage;
   }
 }
 
-export class DataIncorrect<DataType> extends EvaluationResult<DataType> {
-  expected?: DataType;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data: DataType, expected?: any) {
-    super("data-incorrect", false, data);
-    this.expected = expected;
+export class DataIncorrect<
+  DataType,
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
+  constructor(got: DataType, expected: ExpectedType) {
+    super("data-incorrect", false, got, expected);
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class DataInvalidOnAllTries extends EvaluationResult<any> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(data: any) {
-    super("data-invalid-on-all-tries", false, data);
+export class DataInvalidOnAllTries<
+  DataType,
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
+  constructor(got: DataType, expected: ExpectedType) {
+    super("data-invalid-on-all-tries", false, got, expected);
   }
 }
 
-export class DataCorrect<DataType> extends EvaluationResult<DataType> {
-  constructor(data: DataType) {
-    super("data-correct", true, data);
+export class DataCorrect<
+  DataType,
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
+  constructor(got: DataType, expected: ExpectedType) {
+    super("data-correct", true, got, expected);
   }
 }
 
 export class NonEvaluatedData<
   DataType,
-  ExtraType = void
-> extends EvaluationResult<DataType> {
-  extra?: ExtraType;
-  constructor(data?: DataType, extra?: ExtraType) {
-    super("non-evaluated-data", true, data);
-    this.extra = extra;
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
+  constructor(got: DataType, expected: ExpectedType) {
+    super("non-evaluated-data", true, got, expected);
   }
 }
 
-export class NonUsableData<DataType> extends EvaluationResult<DataType> {
-  constructor(data?: DataType) {
-    super("non-usable-data", false, data);
+export class NonUsableData<
+  DataType,
+  ExpectedType = DataType
+> extends EvaluationResult<DataType, ExpectedType> {
+  constructor(got: DataType, expected: ExpectedType) {
+    super("non-usable-data", false, got, expected);
   }
 }
 

@@ -8,6 +8,7 @@ import {
   DataCorrect,
   DataIncorrect,
   DataPartiallyIncorrect,
+  EvaluationResult,
   NonUsableData,
   ValidData,
 } from "../../evaluation";
@@ -86,28 +87,34 @@ async function runTrial(
   return res;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function evaluateTrial(dpart: DsPartition, got: any) {
+async function evaluateTrial(
+  dpart: DsPartition,
+  got: QueryResponse
+): Promise<EvaluationResult<QueryResponse>> {
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
-        expected: string | null;
-        got: string | null;
+        expected: number | null;
+        got: number | null;
       };
     };
   };
+
+  const expected: QueryResponse = { scores: [] };
 
   for (const row of dpart.data) {
     const w1 = row.term1.toLowerCase();
     const w2 = row.term2.toLowerCase();
 
-    let score: string;
+    let score: number;
     if ("value" in row && typeof row.value === "number") {
-      score = row.value.toString();
+      score = row.value;
     } else {
       const values = row.values!.filter(v => typeof v === "number") as number[];
-      score = (values.reduce((a, b) => a + b, 0) / values.length).toString();
+      score = values.reduce((a, b) => a + b, 0) / values.length;
     }
+
+    expected.scores.push({ words: [w1, w2], score });
 
     res[w1] = res[w1] || {};
     res[w1][w2] = { expected: score, got: null };
@@ -117,7 +124,7 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
   let nonUsableData = 0;
   let exactMatches = 0;
   for (const { words, score } of got.scores) {
-    if (!words || !score) {
+    if (!words || isNaN(score)) {
       nonUsableData++;
     }
     i++;
@@ -132,15 +139,15 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
     res[w1][w2].got = score;
   }
   if (nonUsableData === i) {
-    return new NonUsableData();
+    return new NonUsableData(got, expected);
   }
   if (i === exactMatches) {
-    return new DataCorrect(res);
+    return new DataCorrect(got, expected);
   }
   if (exactMatches === 0) {
-    return new DataIncorrect(res);
+    return new DataIncorrect(got, expected);
   }
-  return new DataPartiallyIncorrect((exactMatches / i) * 100, res);
+  return new DataPartiallyIncorrect((exactMatches / i) * 100, got, expected);
 }
 
 export default new Experiment(

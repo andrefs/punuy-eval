@@ -13,7 +13,7 @@ import {
 } from "..";
 import {
   ComparisonGroup,
-  RawResult,
+  PairScoreList,
   evalScores,
   getFixedValueGroup,
 } from "./aux";
@@ -36,13 +36,13 @@ const description = "Compare the results obtained with different prompts";
 const queryResponseSchema = Type.Object({
   scores: Type.Array(
     Type.Object({
-      words: Type.Array(Type.String()),
+      words: Type.Tuple([Type.String(), Type.String()]),
       score: Type.Number(),
     })
   ),
 });
 type QueryResponse = Static<typeof queryResponseSchema>;
-const validateSchema = (value: unknown) =>
+const validateSchema = (value: unknown): value is QueryResponse =>
   Value.Check(queryResponseSchema, value);
 
 async function getResponse(
@@ -243,11 +243,10 @@ function expEvalScores(exps: ExperimentData<QueryResponse>[]): ExpScore[] {
       p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
     );
 
-    const corr = evalScores(
-      lcPairs,
-      exp.variables.dpart,
-      exp.results.raw.filter(x => x !== null) as RawResult[][]
-    );
+    const rawResults: PairScoreList[] = exp.results.raw.map(r => {
+      return r.scores;
+    });
+    const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
     res.push({
       variables: exp.variables,
       corr,
