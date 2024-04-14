@@ -151,8 +151,8 @@ export class NonUsableData<
   }
 }
 
-export async function combineEvaluations<DataType>(
-  vs: EvaluationResult<DataType>[]
+export async function combineEvaluations<DataType, ExpectedType = DataType>(
+  vs: EvaluationResult<DataType, ExpectedType>[]
 ): Promise<AggregatedEvaluationResult> {
   let sum = 0;
   const resultTypes = {} as { [key in EvaluationResultType]: number };

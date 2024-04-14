@@ -76,18 +76,15 @@ async function runTrial(
   return res;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function evaluateTrial(dpart: DsPartition, got: any) {
-  return new NonEvaluatedData<QueryResponse, DsNameFromDsSampleResult>(
-    undefined,
-    {
-      originalName: dpart.dataset.metadata.name,
-      originalYear: dpart.dataset.metadata.date.slice(0, 4),
-      gotName: got.name,
-      gotYear: got.year,
-      gotAuthors: got.authors,
-    }
-  );
+async function evaluateTrial(dpart: DsPartition, got: QueryResponse) {
+  const res: DsNameFromDsSampleResult = {
+    originalName: dpart.dataset.metadata.name,
+    originalYear: dpart.dataset.metadata.date.slice(0, 4),
+    gotName: got.name,
+    gotYear: got.year,
+    gotAuthors: got.authors,
+  };
+  return new NonEvaluatedData(got, res);
 }
 
 interface DsNameFromDsSampleResult {

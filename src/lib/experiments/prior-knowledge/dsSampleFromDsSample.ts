@@ -86,16 +86,16 @@ async function runTrial(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function evaluateTrial(dpart: DsPartition, got: any) {
-  const expected: { [word: string]: { [word: string]: boolean } } = {};
+  const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
 
   for (const { term1, term2 } of dpart.data) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
 
-    expected[w1] = expected[w1] || {};
-    expected[w1][w2] = true;
-    expected[w2] = expected[w2] || {};
-    expected[w2][w1] = true;
+    expectedDict[w1] = expectedDict[w1] || {};
+    expectedDict[w1][w2] = true;
+    expectedDict[w2] = expectedDict[w2] || {};
+    expectedDict[w2][w1] = true;
   }
   let i = 0;
   let dataIncorrect = false;
@@ -103,25 +103,31 @@ async function evaluateTrial(dpart: DsPartition, got: any) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
 
-    if (expected[w1]?.[w2] || expected[w2]?.[w1]) {
+    if (expectedDict[w1]?.[w2] || expectedDict[w2]?.[w1]) {
       i++;
-      expected[w1][w2] = false;
-      expected[w2][w1] = false;
+      expectedDict[w1][w2] = false;
+      expectedDict[w2][w1] = false;
     } else {
       dataIncorrect = true;
     }
   }
 
+  const expected: QueryResponse = {
+    pairs: Object.keys(expectedDict).flatMap(w1 =>
+      Object.keys(expectedDict[w1]).map(w2 => [w1, w2] as [string, string])
+    ),
+  };
+
   if (i === 0) {
-    return new DataIncorrect(got);
+    return new DataIncorrect(got, expected);
   }
   if (dataIncorrect) {
-    return new DataPartiallyIncorrect(i / 5, got);
+    return new DataPartiallyIncorrect(i / 5, got, expected);
   }
   if (i < 5) {
-    return new DataIncomplete(i / 5, got);
+    return new DataIncomplete(i / 5, got, expected);
   }
-  return new DataCorrect(got);
+  return new DataCorrect(got, expected);
 }
 
 export default new Experiment(

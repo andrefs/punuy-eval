@@ -15,7 +15,7 @@ import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 import { Value } from "@sinclair/typebox/value";
 
-class Experiment<DataType> {
+class Experiment<DataType, ExpectedType = DataType> {
   name: string;
   description: string;
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -42,9 +42,9 @@ class Experiment<DataType> {
   evaluateTrial: (
     dpart: DsPartition,
     got: DataType
-  ) => Promise<EvaluationResult<DataType>>;
+  ) => Promise<EvaluationResult<DataType, ExpectedType>>;
   evaluate: (exp: ExperimentData<DataType>) => Promise<{
-    evaluation: EvaluationResult<DataType>[];
+    evaluation: EvaluationResult<DataType, ExpectedType>[];
     aggregated: AggregatedEvaluationResult;
   }>;
   perform: (
@@ -72,7 +72,7 @@ class Experiment<DataType> {
     evaluateTrial: (
       dpart: DsPartition,
       got: DataType
-    ) => Promise<EvaluationResult<DataType>>,
+    ) => Promise<EvaluationResult<DataType, ExpectedType>>,
     prompts?: (Prompt | PromptGenerator)[]
   ) {
     this.name = name;
@@ -134,7 +134,7 @@ class Experiment<DataType> {
     };
     this.evaluateTrial = evaluateTrial;
     this.evaluate = async function (
-      this: Experiment<DataType>,
+      this: Experiment<DataType, ExpectedType>,
       exp: ExperimentData<DataType>
     ) {
       const trialEvaluationResults = await Promise.all(
