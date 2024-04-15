@@ -36,7 +36,7 @@
     "openai": "4.33.0",
     "pino": "8.20.0",
     "punuy-datasets": "git+https://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:x-oauth-basic@github.com/andrefs/punuy-datasets.git",
-    "tsx": "4.7.1",
+    "tsx": "4.7.2",
     "unplugin-auto-import": "0.17.5"
   },
   "devDependencies": {
