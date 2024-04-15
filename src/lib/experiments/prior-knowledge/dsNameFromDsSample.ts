@@ -1,6 +1,7 @@
 import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
+  GenericExpTypes,
   Prompt,
   TrialResult,
 } from "../experiment";
@@ -30,14 +31,18 @@ const queryResponseSchema = Type.Object({
   year: Type.String(),
   authors: Type.Array(Type.String()),
 });
-type QueryResponse = Static<typeof queryResponseSchema>;
+interface ExpTypes extends GenericExpTypes {
+  Data: Static<typeof queryResponseSchema>;
+  Evaluation: { name: string; year: string };
+  DataSchema: typeof queryResponseSchema;
+}
 
 async function runTrial(
-  this: Experiment<QueryResponse, ExpectedResult>,
+  this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  schema: ExpTypes["DataSchema"],
   maxRetries: number = 3
-): Promise<TrialResult<QueryResponse>> {
+): Promise<TrialResult<ExpTypes["Data"]>> {
   const params = {
     function: {
       name: "validate_dataset",
@@ -57,7 +62,7 @@ async function runTrial(
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
-      const res: TrialResult<QueryResponse> = {
+      const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
@@ -68,7 +73,7 @@ async function runTrial(
     failedAttempts.push(attemptResult);
   }
 
-  const res: TrialResult<QueryResponse> = {
+  const res: TrialResult<ExpTypes["Data"]> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
@@ -76,21 +81,15 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: QueryResponse) {
-  const res: ExpectedResult = {
+async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
+  const res: ExpTypes["Evaluation"] = {
     name: dpart.dataset.metadata.name,
     year: dpart.dataset.metadata.date.slice(0, 4),
   };
   return new NonEvaluatedData(got, res);
 }
 
-interface ExpectedResult {
-  name: string;
-  year: string;
-  //originalAuthors: string[];
-}
-
-export default new Experiment<QueryResponse, ExpectedResult>(
+export default new Experiment<ExpTypes>(
   name,
   description,
   queryResponseSchema,

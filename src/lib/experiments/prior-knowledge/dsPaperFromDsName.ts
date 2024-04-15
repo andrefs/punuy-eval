@@ -1,6 +1,7 @@
 import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
+  GenericExpTypes,
   Prompt,
   TrialResult,
 } from "../experiment";
@@ -27,17 +28,19 @@ const promptGen = {
 const queryResponseSchema = Type.Object({
   title: Type.String(),
 });
-type QueryResponse = Static<typeof queryResponseSchema>;
-interface ExpectedType {
-  titles: string[];
+
+interface ExpTypes extends GenericExpTypes {
+  Data: Static<typeof queryResponseSchema>;
+  Evaluation: { titles: string[] };
+  DataSchema: typeof queryResponseSchema;
 }
 
 async function runTrial(
-  this: Experiment<QueryResponse, ExpectedType>,
+  this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  schema: ExpTypes["DataSchema"],
   maxRetries: number = 3
-): Promise<TrialResult<QueryResponse>> {
+): Promise<TrialResult<ExpTypes["Data"]>> {
   const params = {
     function: {
       name: "return-paper-name",
@@ -58,7 +61,7 @@ async function runTrial(
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
-      const res: TrialResult<QueryResponse> = {
+      const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
@@ -69,7 +72,7 @@ async function runTrial(
     failedAttempts.push(attemptResult);
   }
 
-  const res: TrialResult<QueryResponse> = {
+  const res: TrialResult<ExpTypes["Data"]> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
@@ -77,8 +80,7 @@ async function runTrial(
   return res;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function evaluateTrial(dpart: DsPartition, got: any) {
+async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   const expected = dpart.dataset.metadata.papers.map(p => ({
     title: p.title,
   }));

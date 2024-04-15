@@ -1,6 +1,7 @@
 import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
+  GenericExpTypes,
   Prompt,
   TrialResult,
 } from "../experiment";
@@ -41,14 +42,18 @@ const promptGen = {
 const queryResponseSchema = Type.Object({
   pairs: Type.Array(Type.Array(Type.String(), { minItems: 2, maxItems: 2 })),
 });
-type QueryResponse = Static<typeof queryResponseSchema>;
+interface ExpTypes extends GenericExpTypes {
+  Data: Static<typeof queryResponseSchema>;
+  Evaluation: Static<typeof queryResponseSchema>;
+  DataSchema: typeof queryResponseSchema;
+}
 
 async function runTrial(
-  this: Experiment<QueryResponse>,
+  this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  schema: ExpTypes["DataSchema"],
   maxRetries: number = 3
-): Promise<TrialResult<QueryResponse>> {
+): Promise<TrialResult<ExpTypes["Data"]>> {
   const params = {
     function: {
       name: "evaluate_sample",
@@ -68,7 +73,7 @@ async function runTrial(
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
-      const res: TrialResult<QueryResponse> = {
+      const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
@@ -79,7 +84,7 @@ async function runTrial(
     failedAttempts.push(attemptResult);
   }
 
-  const res: TrialResult<QueryResponse> = {
+  const res: TrialResult<ExpTypes["Data"]> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
@@ -87,7 +92,7 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: QueryResponse) {
+async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
 
   for (const { term1, term2 } of dpart.data) {
@@ -114,7 +119,7 @@ async function evaluateTrial(dpart: DsPartition, got: QueryResponse) {
     }
   }
 
-  const expected: QueryResponse = {
+  const expected: ExpTypes["Data"] = {
     pairs: Object.keys(expectedDict).flatMap(w1 =>
       Object.keys(expectedDict[w1]).map(w2 => [w1, w2] as [string, string])
     ),

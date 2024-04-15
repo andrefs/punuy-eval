@@ -1,6 +1,7 @@
 import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
+  GenericExpTypes,
   Prompt,
   TrialResult,
 } from "../experiment";
@@ -41,14 +42,18 @@ const queryResponseSchema = Type.Object({
     })
   ),
 });
-type QueryResponse = Static<typeof queryResponseSchema>;
+interface ExpTypes extends GenericExpTypes {
+  Data: Static<typeof queryResponseSchema>;
+  Evaluation: Static<typeof queryResponseSchema>;
+  DataSchema: typeof queryResponseSchema;
+}
 
 async function runTrial(
-  this: Experiment<QueryResponse>,
+  this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+  schema: ExpTypes["DataSchema"],
   maxRetries: number = 3
-): Promise<TrialResult<QueryResponse>> {
+): Promise<TrialResult<ExpTypes["Data"]>> {
   const params = {
     function: {
       name: "validate_sample",
@@ -68,7 +73,7 @@ async function runTrial(
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
-      const res: TrialResult<QueryResponse> = {
+      const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
@@ -79,7 +84,7 @@ async function runTrial(
     failedAttempts.push(attemptResult);
   }
 
-  const res: TrialResult<QueryResponse> = {
+  const res: TrialResult<ExpTypes["Data"]> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
@@ -89,8 +94,8 @@ async function runTrial(
 
 async function evaluateTrial(
   dpart: DsPartition,
-  got: QueryResponse
-): Promise<EvaluationResult<QueryResponse>> {
+  got: ExpTypes["Data"]
+): Promise<EvaluationResult<ExpTypes["Data"]>> {
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
@@ -100,7 +105,7 @@ async function evaluateTrial(
     };
   };
 
-  const expected: QueryResponse = { scores: [] };
+  const expected: ExpTypes["Data"] = { scores: [] };
 
   for (const row of dpart.data) {
     const w1 = row.term1.toLowerCase();

@@ -1,10 +1,10 @@
 import fs from "fs/promises";
 import oldFs from "fs";
-import { ExpVarMatrix, ExpVars, ExperimentData } from ".";
+import { ExpVarMatrix, ExpVars, ExperimentData, GenericExpTypes } from ".";
 import logger from "../../logger";
 
-export async function saveExperimentData<DataType, ExpectedData = DataType>(
-  data: ExperimentData<DataType, ExpectedData>
+export async function saveExperimentData<T extends GenericExpTypes>(
+  data: ExperimentData<T>
 ) {
   const ts = data.meta.traceId;
   const dpartId = data.variables.dpart.id;

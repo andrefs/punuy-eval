@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ExperimentData, Prompt, comparePrompts } from "..";
+import { ExperimentData, GenericExpTypes, Prompt, comparePrompts } from "..";
 import { createMockDsPart, createMockModel } from "../prior-knowledge/mocks";
 import { Type, Static } from "@sinclair/typebox";
 import { ComparisonGroup } from "./aux";
@@ -12,12 +12,16 @@ const mockSchema = Type.Object({
     })
   ),
 });
-type MockSchema = Static<typeof mockSchema>;
+interface MockSchema extends GenericExpTypes {
+  Data: Static<typeof mockSchema>;
+  DataSchema: typeof mockSchema;
+  Evaluation: ComparisonGroup[];
+}
 
 describe("comparePrompts", () => {
   describe("evaluate", () => {
     it.skip("should evaluate", async () => {
-      const expData: ExperimentData<MockSchema, ComparisonGroup[]>[] = [
+      const expData: ExperimentData<MockSchema>[] = [
         {
           variables: {
             dpart: createMockDsPart(),
@@ -37,7 +41,7 @@ describe("comparePrompts", () => {
           meta: {
             traceId: 1,
             name: "experiment-name",
-            schema: "result-schema",
+            schema: comparePrompts.schema,
           },
           results: {
             raw: [
@@ -72,7 +76,7 @@ describe("comparePrompts", () => {
           meta: {
             traceId: 2,
             name: "experiment-name",
-            schema: "result-schema",
+            schema: comparePrompts.schema,
           },
           results: {
             raw: [

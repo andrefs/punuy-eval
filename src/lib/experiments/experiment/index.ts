@@ -15,75 +15,77 @@ import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 import { Value } from "@sinclair/typebox/value";
 
-class Experiment<DataType, ExpectedType = DataType> {
+export interface GenericExpTypes {
+  Data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  DataSchema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  Evaluation: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+export default class Experiment<T extends GenericExpTypes> {
   name: string;
   description: string;
-  schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  schema: T["DataSchema"];
   prompts?: (Prompt | PromptGenerator)[] = [];
   getResponse: (
-    this: Experiment<DataType, ExpectedType>,
+    this: Experiment<T>,
     model: Model,
     prompt: string,
     params: ModelRequestParams
-  ) => Promise<ValidationResult<DataType>>;
+  ) => Promise<ValidationResult<T["Data"]>>;
   validateSchema: (
-    this: Experiment<DataType, ExpectedType>,
+    this: Experiment<T>,
     got: any // eslint-disable-line @typescript-eslint/no-explicit-any
   ) => boolean;
   runTrial: (
-    this: Experiment<DataType, ExpectedType>,
+    this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
-    schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+    schema: T["DataSchema"],
     maxRetries?: number
-  ) => Promise<TrialResult<DataType>>;
+  ) => Promise<TrialResult<T["Data"]>>;
   runTrials: (
-    this: Experiment<DataType, ExpectedType>,
+    this: Experiment<T>,
     vars: ExpVars,
     trials: number
-  ) => Promise<TrialsResultData<DataType>>;
+  ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
-    got: DataType
-  ) => Promise<EvaluationResult<DataType, ExpectedType>>;
-  evaluate: (exp: ExperimentData<DataType, ExpectedType>) => Promise<{
-    evaluation: EvaluationResult<DataType, ExpectedType>[];
+    got: T["Data"]
+  ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>;
+  evaluate: (exp: ExperimentData<T>) => Promise<{
+    evaluation: EvaluationResult<T>[];
     aggregated: AggregatedEvaluationResult;
   }>;
   perform: (
-    this: Experiment<DataType, ExpectedType>,
+    this: Experiment<T>,
     vars: ExpVars,
     trials: number,
     traceId?: number
-  ) => Promise<ExperimentData<DataType, ExpectedType>>;
+  ) => Promise<ExperimentData<T>>;
   performMulti: (
-    this: Experiment<DataType, ExpectedType>,
+    this: Experiment<T>,
     variables: ExpVarMatrix,
     trials: number
-  ) => Promise<ExperimentData<DataType, ExpectedType>[]>;
+  ) => Promise<ExperimentData<T>[]>;
 
   constructor(
     name: string,
     description: string,
-    schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    schema: T["DataSchema"],
     runTrial: (
-      this: Experiment<DataType, ExpectedType>,
+      this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
-      schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
+      schema: T["DataSchema"],
       maxRetries?: number
-    ) => Promise<TrialResult<DataType>>,
+    ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
-      got: DataType
-    ) => Promise<EvaluationResult<DataType, ExpectedType>>,
+      got: T["Data"]
+    ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>,
     prompts?: (Prompt | PromptGenerator)[]
   ) {
     this.name = name;
     this.description = description;
     this.schema = schema;
-    this.validateSchema = function (
-      this: Experiment<DataType, ExpectedType>,
-      value: unknown
-    ) {
+    this.validateSchema = function (this: Experiment<T>, value: unknown) {
       return Value.Check(this.schema, value);
     };
     this.prompts = prompts;
@@ -99,7 +101,7 @@ class Experiment<DataType, ExpectedType = DataType> {
         return new NoData();
       }
       try {
-        const got = JSON.parse(data) as DataType;
+        const got = JSON.parse(data) as T["Data"];
         if (!this.validateSchema(got)) {
           return new JsonSchemaError(data);
         }
@@ -110,7 +112,7 @@ class Experiment<DataType, ExpectedType = DataType> {
     };
     this.runTrial = runTrial;
     this.runTrials = async function (
-      this: Experiment<DataType, ExpectedType>,
+      this: Experiment<T>,
       vars: ExpVars,
       trials: number
     ) {
@@ -121,7 +123,7 @@ class Experiment<DataType, ExpectedType = DataType> {
       );
       logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
-      const results: DataType[] = [];
+      const results: T["Data"][] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await this.runTrial({ ...vars, prompt }, this.schema);
@@ -136,8 +138,8 @@ class Experiment<DataType, ExpectedType = DataType> {
     };
     this.evaluateTrial = evaluateTrial;
     this.evaluate = async function (
-      this: Experiment<DataType, ExpectedType>,
-      exp: ExperimentData<DataType, ExpectedType>
+      this: Experiment<T>,
+      exp: ExperimentData<T>
     ) {
       const trialEvaluationResults = await Promise.all(
         exp.results.raw.map(d => this.evaluateTrial(exp.variables.dpart, d))
@@ -148,13 +150,13 @@ class Experiment<DataType, ExpectedType = DataType> {
       };
     };
     this.perform = async function (
-      this: Experiment<DataType, ExpectedType>,
+      this: Experiment<T>,
       vars: ExpVars,
       trials: number,
       traceId?: number
-    ): Promise<ExperimentData<DataType, ExpectedType>> {
+    ): Promise<ExperimentData<T>> {
       const trialsRes = await this.runTrials(vars, trials);
-      const expData: ExperimentData<DataType, ExpectedType> = {
+      const expData: ExperimentData<T> = {
         meta: {
           name: this.name,
           traceId: traceId ?? Date.now(),
@@ -173,7 +175,7 @@ class Experiment<DataType, ExpectedType = DataType> {
       return expData;
     };
     this.performMulti = async function (
-      this: Experiment<DataType, ExpectedType>,
+      this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number
     ) {
@@ -188,7 +190,7 @@ class Experiment<DataType, ExpectedType = DataType> {
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
-      const res = [] as ExperimentData<DataType, ExpectedType>[];
+      const res = [] as ExperimentData<T>[];
       for (const v of varCombs) {
         res.push(await this.perform(v, trials, Date.now()));
       }
@@ -234,10 +236,10 @@ export interface Prompt {
   text: string;
 }
 
-export interface ExpMeta {
+export interface ExpMeta<T> {
   name: string;
   traceId: number;
-  schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  schema: T;
 }
 
 export interface ExpResults<DataType, ExpectedType> {
@@ -249,10 +251,10 @@ export interface ExpResults<DataType, ExpectedType> {
   aggregated?: AggregatedEvaluationResult;
 }
 
-export interface ExperimentData<DataType, ExpectedType> {
+export interface ExperimentData<T extends GenericExpTypes> {
   variables: ExpVars;
-  meta: ExpMeta;
-  results: ExpResults<DataType, ExpectedType>;
+  meta: ExpMeta<T["DataSchema"]>;
+  results: ExpResults<T["Data"], T["Evaluation"]>;
 }
 
 export interface TrialResult<DataType> {
@@ -273,5 +275,3 @@ export interface AggregatedEvaluationResult {
     [key in EvaluationResultType]: number;
   };
 }
-
-export default Experiment;

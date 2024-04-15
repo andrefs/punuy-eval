@@ -8,6 +8,7 @@ import {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  GenericExpTypes,
   TrialResult,
   TrialsResultData,
 } from "..";
@@ -37,9 +38,13 @@ const queryResponseSchema = Type.Object({
     })
   ),
 });
-type QueryResponse = Static<typeof queryResponseSchema>;
-const validateSchema = (value: unknown): value is QueryResponse =>
+const validateSchema = (value: unknown): value is ExpTypes["Data"] =>
   Value.Check(queryResponseSchema, value);
+interface ExpTypes extends GenericExpTypes {
+  Data: Static<typeof queryResponseSchema>;
+  DataSchema: typeof queryResponseSchema;
+  Evaluation: ComparisonGroup[];
+}
 
 async function getResponse(
   model: Model,
@@ -53,7 +58,7 @@ async function getResponse(
     return new NoData();
   }
   try {
-    const got = JSON.parse(data) as QueryResponse;
+    const got = JSON.parse(data) as ExpTypes["Data"];
     if (!validateSchema(got)) {
       return new JsonSchemaError(data);
     }
@@ -84,7 +89,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     attempts++;
     if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${attempts} succeeded.`);
-      const res: TrialResult<QueryResponse> = {
+      const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
@@ -96,7 +101,7 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     failedAttempts.push(attemptResult);
   }
 
-  const res: TrialResult<QueryResponse> = {
+  const res: TrialResult<ExpTypes["Data"]> = {
     totalTries: attempts,
     failedAttempts,
     ok: false,
@@ -107,13 +112,13 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
 async function runTrials(
   vars: ExpVarsFixedPrompt,
   trials: number
-): Promise<TrialsResultData<QueryResponse>> {
+): Promise<TrialsResultData<ExpTypes["Data"]>> {
   logger.info(
     `Running experiment ${name} ${trials} times on model ${vars.model.id}.`
   );
   logger.debug(`Prompt (${vars.prompt.id}): ${vars.prompt.text}`);
 
-  const results: QueryResponse[] = [];
+  const results: ExpTypes["Data"][] = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
@@ -133,7 +138,7 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
   const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
   const trialsRes = await runTrials(varsFixedPrompt, trials);
 
-  const expData: ExperimentData<QueryResponse, ComparisonGroup[]> = {
+  const expData: ExperimentData<ExpTypes> = {
     meta: {
       name,
       traceId: traceId ?? Date.now(),
@@ -232,9 +237,7 @@ interface ExpScore {
  * @returns The evaluated scores
  * @throws {Error} If more than half of the trials failed to parse
  */
-function expEvalScores(
-  exps: ExperimentData<QueryResponse, ComparisonGroup[]>[]
-): ExpScore[] {
+function expEvalScores(exps: ExperimentData<ExpTypes>[]): ExpScore[] {
   const res = [];
   for (const exp of exps) {
     const lcPairs = (exp.variables as ExpVarsFixedPrompt).prompt.pairs!.map(
@@ -253,9 +256,7 @@ function expEvalScores(
   return res;
 }
 
-function calcVarValues(
-  exps: ExperimentData<QueryResponse, ComparisonGroup[]>[]
-) {
+function calcVarValues(exps: ExperimentData<ExpTypes>[]) {
   const varValues: { [key: string]: Set<string> } = {};
   for (const r of exps) {
     for (const v in r.variables) {
@@ -280,15 +281,13 @@ function logExpScores(expScores: ExpScore[]) {
   }
 }
 
-async function evaluate(
-  exps: ExperimentData<QueryResponse, ComparisonGroup[]>[]
-) {
+async function evaluate(exps: ExperimentData<ExpTypes>[]) {
   const expScores = expEvalScores(exps);
   const { varValues, varNames } = calcVarValues(exps);
 
   logExpScores(expScores);
 
-  const comparisons: ComparisonGroup[] = [];
+  const comparisons: ExpTypes["Evaluation"] = [];
   for (const [i, v1] of varNames.entries()) {
     for (const v2 of varNames.slice(i + 1)) {
       if (varValues[v1].size === 1 && varValues[v2].size === 1) {
@@ -296,7 +295,7 @@ async function evaluate(
         continue;
       }
 
-      let compGroups = [] as ComparisonGroup[];
+      let compGroups = [] as ExpTypes["Evaluation"];
       const fixedNames = varNames.filter(v => v !== v1 && v !== v2);
 
       for (const expScore of expScores) {

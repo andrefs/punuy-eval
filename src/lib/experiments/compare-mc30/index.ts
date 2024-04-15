@@ -146,23 +146,7 @@ const genPrompt = (pairs: string[][]) =>
 
 // TODO fix when OpenAI supports items with tuple definition in JSON schema
 // https://community.openai.com/t/json-schema-tuple-validation-support/273554
-//const resultSchema = {
-//  type: "object",
-//  properties: {
-//    scores: {
-//      type: "array",
-//      items: {
-//        type: "object",
-//        properties: {
-//          words: { type: "array", items: { type: "string" } },
-//          score: { type: "number" },
-//        },
-//        required: ["words", "score"],
-//      },
-//    },
-//  },
-//  required: ["scores"],
-//} as const;
+// and @sinclair/typebox also
 const queryResponseSchema = Type.Object({
   scores: Type.Array(
     Type.Object({
