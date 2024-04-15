@@ -6,6 +6,8 @@ import {
   Model,
   ModelIds,
   ModelRequestParams,
+  claude3opus,
+  commandRPlus,
   gpt35turbo,
   gpt4,
   gpt4turbo,
@@ -239,17 +241,21 @@ async function runTrials(trials: number, scores: MultiDatasetScores) {
   const prompt = genPrompt(pairs);
 
   logger.info(
-    `Running experiment ${name} with ${trials} trials on models [gpt35turbo, gpt4, gpt4turbo] and datasets [mc30, rg65, ps65, ws353].`
+    `Running experiment ${name} with ${trials} trials on models [gpt35turbo, gpt4, gpt4turbo, commandRPlus, claude3opus] and datasets [mc30, rg65, ps65, ws353].`
   );
 
   const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
   const gpt4_res = await runTrialsModel(trials, gpt4, prompt);
   const gpt4turbo_res = await runTrialsModel(trials, gpt4turbo, prompt);
+  const commandRplus_res = await runTrialsModel(trials, commandRPlus, prompt);
+  const claude3opus_res = await runTrialsModel(trials, claude3opus, prompt);
 
   return {
     gpt35turbo: gpt35turbo_res,
     gpt4: gpt4_res,
     gpt4turbo: gpt4turbo_res,
+    commandRplus: commandRplus_res,
+    claude3opus: claude3opus_res,
   };
 }
 
@@ -272,25 +278,23 @@ interface MC30Results {
 }
 
 export function unzipResults(results: MC30Results) {
-  const res = {
-    gpt35turbo: [] as number[],
-    gpt4: [] as number[],
-    gpt4turbo: [] as number[],
-    mc30: [] as number[],
-    rg65: [] as number[],
-    ps65: [] as number[],
-    ws353: [] as number[],
-  };
+  const res: { [key: string]: number[] } = {};
 
   for (const w1 in results) {
     for (const w2 in results[w1]) {
-      res.gpt35turbo.push(results[w1][w2].models.gpt35turbo.avg);
-      res.gpt4.push(results[w1][w2].models.gpt4.avg);
-      res.gpt4turbo.push(results[w1][w2].models.gpt4turbo.avg);
-      res.mc30.push(results[w1][w2].human.mc30);
-      res.rg65.push(results[w1][w2].human.rg65);
-      res.ps65.push(results[w1][w2].human.ps65);
-      res.ws353.push(results[w1][w2].human.ws353);
+      for (const modelName in results[w1][w2].models) {
+        res[modelName] = res[modelName] || [];
+        res[modelName].push(results[w1][w2].models[modelName].avg);
+      }
+    }
+  }
+
+  for (const w1 in results) {
+    for (const w2 in results[w1]) {
+      for (const dsName in results[w1][w2].human) {
+        res[dsName] = res[dsName] || [];
+        res[dsName].push(results[w1][w2].human[dsName]);
+      }
     }
   }
 
@@ -430,61 +434,22 @@ export function mergeResults(
 ) {
   const res = {} as MC30Results;
 
-  const gpt35turbo = modelsRes.gpt35turbo!;
-  const gpt4 = modelsRes.gpt4!;
-  const gpt4turbo = modelsRes.gpt4turbo!;
-
-  let modelName = "gpt35turbo";
-  for (const score of gpt35turbo.flatMap(({ scores }) => [...scores])) {
-    const [w1, w2] = score.words;
-    res[w1] = res[w1] || {};
-    res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
-    res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
-      values: [],
-    };
-    res[w1][w2].models[modelName].values.push(score.score);
-  }
-  for (const w1 in res) {
-    for (const w2 in res[w1]) {
-      res[w1][w2].models[modelName].avg =
-        res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-        res[w1][w2].models[modelName].values.length;
+  for (const [modelName, model] of Object.entries(modelsRes)) {
+    for (const score of model.flatMap(({ scores }) => [...scores])) {
+      const [w1, w2] = score.words;
+      res[w1] = res[w1] || {};
+      res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
+      res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
+        values: [],
+      };
+      res[w1][w2].models[modelName].values.push(score.score);
     }
-  }
-
-  modelName = "gpt4";
-  for (const score of gpt4.flatMap(({ scores }) => [...scores])) {
-    const [w1, w2] = score.words;
-    res[w1] = res[w1] || {};
-    res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
-    res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
-      values: [],
-    };
-    res[w1][w2].models[modelName].values.push(score.score);
-  }
-  for (const w1 in res) {
-    for (const w2 in res[w1]) {
-      res[w1][w2].models[modelName].avg =
-        res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-        res[w1][w2].models[modelName].values.length;
-    }
-  }
-
-  modelName = "gpt4turbo";
-  for (const score of gpt4turbo.flatMap(({ scores }) => [...scores])) {
-    const [w1, w2] = score.words;
-    res[w1] = res[w1] || {};
-    res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
-    res[w1][w2].models[modelName] = res[w1][w2].models[modelName] || {
-      values: [],
-    };
-    res[w1][w2].models[modelName].values.push(score.score);
-  }
-  for (const w1 in res) {
-    for (const w2 in res[w1]) {
-      res[w1][w2].models[modelName].avg =
-        res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-        res[w1][w2].models[modelName].values.length;
+    for (const w1 in res) {
+      for (const w2 in res[w1]) {
+        res[w1][w2].models[modelName].avg =
+          res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
+          res[w1][w2].models[modelName].values.length;
+      }
     }
   }
 

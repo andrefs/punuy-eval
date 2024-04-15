@@ -20,6 +20,7 @@ export interface GenericExpTypes {
   DataSchema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   Evaluation: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
+
 export default class Experiment<T extends GenericExpTypes> {
   name: string;
   description: string;
