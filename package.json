@@ -24,7 +24,7 @@
   "author": "André Santos",
   "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/sdk": "0.20.2",
+    "@anthropic-ai/sdk": "0.20.4",
     "@sinclair/typebox": "0.32.20",
     "@stdlib/stats-pcorrtest": "0.2.1",
     "cohere-ai": "7.9.3",
