@@ -55,16 +55,22 @@ describe("dsNameFromDsSample", () => {
           authors: ["First Author", "Second Person Name"],
         }
       );
-      expect(result.got).toMatchInlineSnapshot(`
-        {
-          "gotAuthors": [
-            "First Author",
-            "Second Person Name",
-          ],
-          "gotName": "Dataset Name",
-          "gotYear": "2021",
-          "originalName": "Dataset Name",
-          "originalYear": "2021",
+      expect(result).toMatchInlineSnapshot(`
+        NonEvaluatedData {
+          "expected": {
+            "name": "Dataset Name",
+            "year": "2021",
+          },
+          "got": {
+            "authors": [
+              "First Author",
+              "Second Person Name",
+            ],
+            "name": "Dataset Name",
+            "year": "2021",
+          },
+          "ok": true,
+          "type": "non-evaluated-data",
         }
       `);
     });
@@ -94,8 +100,11 @@ describe("dsNameFromDsSample", () => {
     it("should return a result", async () => {
       const dpart: DsPartition = createMockDsPart();
       const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
-      const result =
-        '{"name": "Dataset Name", "year": "2021", "authors": ["First Author", "Second Person Name"]}';
+      const result = JSON.stringify({
+        name: "Dataset Name",
+        year: "2021",
+        authors: ["First Author", "Second Person Name"],
+      });
       const model = createMockModel(result);
       const vars: ExpVarsFixedPrompt = {
         dpart: dpart,

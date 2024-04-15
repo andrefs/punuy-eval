@@ -33,7 +33,7 @@ const queryResponseSchema = Type.Object({
 type QueryResponse = Static<typeof queryResponseSchema>;
 
 async function runTrial(
-  this: Experiment<QueryResponse, DsNameFromDsSampleResult>,
+  this: Experiment<QueryResponse, ExpectedResult>,
   vars: ExpVarsFixedPrompt,
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3
@@ -77,26 +77,20 @@ async function runTrial(
 }
 
 async function evaluateTrial(dpart: DsPartition, got: QueryResponse) {
-  const res: DsNameFromDsSampleResult = {
-    originalName: dpart.dataset.metadata.name,
-    originalYear: dpart.dataset.metadata.date.slice(0, 4),
-    gotName: got.name,
-    gotYear: got.year,
-    gotAuthors: got.authors,
+  const res: ExpectedResult = {
+    name: dpart.dataset.metadata.name,
+    year: dpart.dataset.metadata.date.slice(0, 4),
   };
   return new NonEvaluatedData(got, res);
 }
 
-interface DsNameFromDsSampleResult {
-  originalName: string;
-  originalYear: string;
+interface ExpectedResult {
+  name: string;
+  year: string;
   //originalAuthors: string[];
-  gotName: string;
-  gotYear: string;
-  gotAuthors: string[];
 }
 
-export default new Experiment<QueryResponse, DsNameFromDsSampleResult>(
+export default new Experiment<QueryResponse, ExpectedResult>(
   name,
   description,
   queryResponseSchema,

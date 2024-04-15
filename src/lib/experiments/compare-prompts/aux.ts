@@ -50,7 +50,7 @@ export function rawResultsToAvg(parsed: PairScoreList[]) {
       continue;
     }
     for (const { words, score } of r) {
-      if (words?.length !== 2) {
+      if (words?.length !== 2 || isNaN(score)) {
         continue;
       }
       const [w1, w2] = words.map(x => x.toLowerCase());
