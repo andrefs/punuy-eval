@@ -33,7 +33,7 @@ const queryResponseSchema = Type.Object({
 type QueryResponse = Static<typeof queryResponseSchema>;
 
 async function runTrial(
-  this: Experiment<QueryResponse>,
+  this: Experiment<QueryResponse, DsNameFromDsSampleResult>,
   vars: ExpVarsFixedPrompt,
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3
@@ -96,7 +96,7 @@ interface DsNameFromDsSampleResult {
   gotAuthors: string[];
 }
 
-export default new Experiment(
+export default new Experiment<QueryResponse, DsNameFromDsSampleResult>(
   name,
   description,
   queryResponseSchema,

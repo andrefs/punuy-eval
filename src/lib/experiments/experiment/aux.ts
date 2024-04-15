@@ -3,8 +3,8 @@ import oldFs from "fs";
 import { ExpVarMatrix, ExpVars, ExperimentData } from ".";
 import logger from "../../logger";
 
-export async function saveExperimentData<DataType>(
-  data: ExperimentData<DataType>
+export async function saveExperimentData<DataType, ExpectedData = DataType>(
+  data: ExperimentData<DataType, ExpectedData>
 ) {
   const ts = data.meta.traceId;
   const dpartId = data.variables.dpart.id;

@@ -28,9 +28,12 @@ const queryResponseSchema = Type.Object({
   title: Type.String(),
 });
 type QueryResponse = Static<typeof queryResponseSchema>;
+interface ExpectedType {
+  titles: string[];
+}
 
 async function runTrial(
-  this: Experiment<QueryResponse>,
+  this: Experiment<QueryResponse, ExpectedType>,
   vars: ExpVarsFixedPrompt,
   schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
   maxRetries: number = 3

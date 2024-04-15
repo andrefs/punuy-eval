@@ -133,7 +133,7 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
   const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
   const trialsRes = await runTrials(varsFixedPrompt, trials);
 
-  const expData: ExperimentData<QueryResponse> = {
+  const expData: ExperimentData<QueryResponse, ComparisonGroup[]> = {
     meta: {
       name,
       traceId: traceId ?? Date.now(),
@@ -232,7 +232,9 @@ interface ExpScore {
  * @returns The evaluated scores
  * @throws {Error} If more than half of the trials failed to parse
  */
-function expEvalScores(exps: ExperimentData<QueryResponse>[]): ExpScore[] {
+function expEvalScores(
+  exps: ExperimentData<QueryResponse, ComparisonGroup[]>[]
+): ExpScore[] {
   const res = [];
   for (const exp of exps) {
     const lcPairs = (exp.variables as ExpVarsFixedPrompt).prompt.pairs!.map(
@@ -251,7 +253,9 @@ function expEvalScores(exps: ExperimentData<QueryResponse>[]): ExpScore[] {
   return res;
 }
 
-function calcVarValues(exps: ExperimentData<QueryResponse>[]) {
+function calcVarValues(
+  exps: ExperimentData<QueryResponse, ComparisonGroup[]>[]
+) {
   const varValues: { [key: string]: Set<string> } = {};
   for (const r of exps) {
     for (const v in r.variables) {
@@ -276,13 +280,15 @@ function logExpScores(expScores: ExpScore[]) {
   }
 }
 
-async function evaluate(exps: ExperimentData<QueryResponse>[]) {
+async function evaluate(
+  exps: ExperimentData<QueryResponse, ComparisonGroup[]>[]
+) {
   const expScores = expEvalScores(exps);
   const { varValues, varNames } = calcVarValues(exps);
 
   logExpScores(expScores);
 
-  const comparisons = [];
+  const comparisons: ComparisonGroup[] = [];
   for (const [i, v1] of varNames.entries()) {
     for (const v2 of varNames.slice(i + 1)) {
       if (varValues[v1].size === 1 && varValues[v2].size === 1) {

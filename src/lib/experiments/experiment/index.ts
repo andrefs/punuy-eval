@@ -21,21 +21,23 @@ class Experiment<DataType, ExpectedType = DataType> {
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   prompts?: (Prompt | PromptGenerator)[] = [];
   getResponse: (
-    this: Experiment<DataType>,
+    this: Experiment<DataType, ExpectedType>,
     model: Model,
     prompt: string,
     params: ModelRequestParams
   ) => Promise<ValidationResult<DataType>>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  validateSchema: (this: Experiment<DataType>, got: any) => boolean;
+  validateSchema: (
+    this: Experiment<DataType, ExpectedType>,
+    got: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  ) => boolean;
   runTrial: (
-    this: Experiment<DataType>,
+    this: Experiment<DataType, ExpectedType>,
     vars: ExpVarsFixedPrompt,
     schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
     maxRetries?: number
   ) => Promise<TrialResult<DataType>>;
   runTrials: (
-    this: Experiment<DataType>,
+    this: Experiment<DataType, ExpectedType>,
     vars: ExpVars,
     trials: number
   ) => Promise<TrialsResultData<DataType>>;
@@ -43,28 +45,28 @@ class Experiment<DataType, ExpectedType = DataType> {
     dpart: DsPartition,
     got: DataType
   ) => Promise<EvaluationResult<DataType, ExpectedType>>;
-  evaluate: (exp: ExperimentData<DataType>) => Promise<{
+  evaluate: (exp: ExperimentData<DataType, ExpectedType>) => Promise<{
     evaluation: EvaluationResult<DataType, ExpectedType>[];
     aggregated: AggregatedEvaluationResult;
   }>;
   perform: (
-    this: Experiment<DataType>,
+    this: Experiment<DataType, ExpectedType>,
     vars: ExpVars,
     trials: number,
     traceId?: number
-  ) => Promise<ExperimentData<DataType>>;
+  ) => Promise<ExperimentData<DataType, ExpectedType>>;
   performMulti: (
-    this: Experiment<DataType>,
+    this: Experiment<DataType, ExpectedType>,
     variables: ExpVarMatrix,
     trials: number
-  ) => Promise<ExperimentData<DataType>[]>;
+  ) => Promise<ExperimentData<DataType, ExpectedType>[]>;
 
   constructor(
     name: string,
     description: string,
     schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     runTrial: (
-      this: Experiment<DataType>,
+      this: Experiment<DataType, ExpectedType>,
       vars: ExpVarsFixedPrompt,
       schema: any, // eslint-disable-line @typescript-eslint/no-explicit-any,
       maxRetries?: number
@@ -79,7 +81,7 @@ class Experiment<DataType, ExpectedType = DataType> {
     this.description = description;
     this.schema = schema;
     this.validateSchema = function (
-      this: Experiment<DataType>,
+      this: Experiment<DataType, ExpectedType>,
       value: unknown
     ) {
       return Value.Check(this.schema, value);
@@ -108,7 +110,7 @@ class Experiment<DataType, ExpectedType = DataType> {
     };
     this.runTrial = runTrial;
     this.runTrials = async function (
-      this: Experiment<DataType>,
+      this: Experiment<DataType, ExpectedType>,
       vars: ExpVars,
       trials: number
     ) {
@@ -135,7 +137,7 @@ class Experiment<DataType, ExpectedType = DataType> {
     this.evaluateTrial = evaluateTrial;
     this.evaluate = async function (
       this: Experiment<DataType, ExpectedType>,
-      exp: ExperimentData<DataType>
+      exp: ExperimentData<DataType, ExpectedType>
     ) {
       const trialEvaluationResults = await Promise.all(
         exp.results.raw.map(d => this.evaluateTrial(exp.variables.dpart, d))
@@ -146,13 +148,13 @@ class Experiment<DataType, ExpectedType = DataType> {
       };
     };
     this.perform = async function (
-      this: Experiment<DataType>,
+      this: Experiment<DataType, ExpectedType>,
       vars: ExpVars,
       trials: number,
       traceId?: number
-    ): Promise<ExperimentData<DataType>> {
+    ): Promise<ExperimentData<DataType, ExpectedType>> {
       const trialsRes = await this.runTrials(vars, trials);
-      const expData: ExperimentData<DataType> = {
+      const expData: ExperimentData<DataType, ExpectedType> = {
         meta: {
           name: this.name,
           traceId: traceId ?? Date.now(),
@@ -171,7 +173,7 @@ class Experiment<DataType, ExpectedType = DataType> {
       return expData;
     };
     this.performMulti = async function (
-      this: Experiment<DataType>,
+      this: Experiment<DataType, ExpectedType>,
       variables: ExpVarMatrix,
       trials: number
     ) {
@@ -186,7 +188,7 @@ class Experiment<DataType, ExpectedType = DataType> {
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
-      const res = [] as ExperimentData<DataType>[];
+      const res = [] as ExperimentData<DataType, ExpectedType>[];
       for (const v of varCombs) {
         res.push(await this.perform(v, trials, Date.now()));
       }
@@ -238,19 +240,19 @@ export interface ExpMeta {
   schema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export interface ExpResults<DataType> {
+export interface ExpResults<DataType, ExpectedType> {
   /** Raw results from the trials */
   raw: DataType[];
   /** Evaluation results for each trial */
-  evaluation?: EvaluationResult<DataType>[];
+  evaluation?: EvaluationResult<DataType, ExpectedType>[];
   /** Aggregated evaluation results */
   aggregated?: AggregatedEvaluationResult;
 }
 
-export interface ExperimentData<DataType> {
+export interface ExperimentData<DataType, ExpectedType> {
   variables: ExpVars;
   meta: ExpMeta;
-  results: ExpResults<DataType>;
+  results: ExpResults<DataType, ExpectedType>;
 }
 
 export interface TrialResult<DataType> {

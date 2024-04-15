@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { ExperimentData, Prompt, comparePrompts } from "..";
 import { createMockDsPart, createMockModel } from "../prior-knowledge/mocks";
 import { Type, Static } from "@sinclair/typebox";
+import { ComparisonGroup } from "./aux";
 
 const mockSchema = Type.Object({
   scores: Type.Array(
@@ -16,7 +17,7 @@ type MockSchema = Static<typeof mockSchema>;
 describe("comparePrompts", () => {
   describe("evaluate", () => {
     it.skip("should evaluate", async () => {
-      const expData: ExperimentData<MockSchema>[] = [
+      const expData: ExperimentData<MockSchema, ComparisonGroup[]>[] = [
         {
           variables: {
             dpart: createMockDsPart(),
