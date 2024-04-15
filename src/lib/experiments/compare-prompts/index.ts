@@ -118,7 +118,7 @@ async function runTrials(
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
     if (res.ok && res.result) {
-      results.push(res.result.data!);
+      results.push(res.result.data);
     }
   }
   return {
@@ -242,7 +242,7 @@ function expEvalScores(
     );
 
     const rawResults: PairScoreList[] = exp.results.raw.map(r => {
-      return r.scores;
+      return r.scores as PairScoreList;
     });
     const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
     res.push({
