@@ -39,7 +39,7 @@ const promptGen = {
 };
 
 const queryResponseSchema = Type.Object({
-  pairs: Type.Array(Type.Tuple([Type.String(), Type.String()])),
+  pairs: Type.Array(Type.Array(Type.String(), { minItems: 2, maxItems: 2 })),
 });
 type QueryResponse = Static<typeof queryResponseSchema>;
 

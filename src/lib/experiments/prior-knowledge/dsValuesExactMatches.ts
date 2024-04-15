@@ -36,7 +36,7 @@ const promptGen = {
 const queryResponseSchema = Type.Object({
   scores: Type.Array(
     Type.Object({
-      words: Type.Tuple([Type.String(), Type.String()]),
+      words: Type.Array(Type.String(), { minItems: 2, maxItems: 2 }),
       score: Type.Number(),
     })
   ),
