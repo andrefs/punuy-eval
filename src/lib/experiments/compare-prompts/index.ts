@@ -27,22 +27,15 @@ import {
   ValidData,
 } from "src/lib/evaluation";
 import { PairScoreList } from "../experiment/types";
+import query from "./query";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
-const queryResponseSchema = Type.Object({
-  scores: Type.Array(
-    Type.Object({
-      words: Type.Array(Type.String(), { minItems: 2, maxItems: 2 }),
-      score: Type.Number(),
-    })
-  ),
-});
 const validateSchema = (value: unknown): value is ExpTypes["Data"] =>
-  Value.Check(queryResponseSchema, value);
+  Value.Check(query.responseSchema, value);
 interface ExpTypes extends GenericExpTypes {
-  Data: Static<typeof queryResponseSchema>;
-  DataSchema: typeof queryResponseSchema;
+  Data: Static<typeof query.responseSchema>;
+  DataSchema: typeof query.responseSchema;
   Evaluation: ComparisonGroup[];
 }
 
@@ -65,23 +58,17 @@ async function getResponse(model: Model, prompt: string, params: ModelTool) {
 }
 
 async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
-  const params = {
-    function: {
-      name: "evaluate_scores",
-      description: "Evaluate the word similarity or relatedness scores",
-      schema: queryResponseSchema,
-    },
+  const tool = {
+    name: "evaluate_scores",
+    description: "Evaluate the word similarity or relatedness scores",
+    schema: query.toolSchema,
   };
 
   let attempts = 0;
   const failedAttempts = [];
   while (attempts < maxRetries) {
     logger.info(`      attempt #${attempts + 1}`);
-    const attemptResult = await getResponse(
-      vars.model,
-      vars.prompt.text,
-      params
-    );
+    const attemptResult = await getResponse(vars.model, vars.prompt.text, tool);
     attempts++;
     if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${attempts} succeeded.`);
@@ -138,7 +125,7 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
     meta: {
       name,
       traceId: traceId ?? Date.now(),
-      schema: queryResponseSchema,
+      queryData: query,
     },
     variables: varsFixedPrompt,
     results: {
@@ -343,7 +330,7 @@ const ComparePromptsExperiment = {
   name,
   description,
   prompts,
-  schema: queryResponseSchema,
+  query,
   performMulti,
   evaluate,
 };

@@ -41,7 +41,7 @@ describe("comparePrompts", () => {
           meta: {
             traceId: 1,
             name: "experiment-name",
-            schema: comparePrompts.schema,
+            queryData: comparePrompts.query,
           },
           results: {
             raw: [
@@ -76,7 +76,7 @@ describe("comparePrompts", () => {
           meta: {
             traceId: 2,
             name: "experiment-name",
-            schema: comparePrompts.schema,
+            queryData: comparePrompts.query,
           },
           results: {
             raw: [
