@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Model, ModelRequestParams, ModelResponse } from "./model";
+import { Model, ModelTool, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
+import { ToolUseBlock } from "@anthropic-ai/sdk/resources/beta/tools/messages.mjs";
 
 const configuration = {
   apiKey:
@@ -15,7 +16,7 @@ export interface AnthropicModelResponse extends ModelResponse {
 
 export type MakeAnthropicRequest = (
   prompt: string,
-  params: ModelRequestParams
+  params: ModelTool
 ) => Promise<AnthropicModelResponse>;
 
 if (!configuration.apiKey) {
@@ -30,31 +31,33 @@ const anthropic = new Anthropic(configuration);
 const buildModel = (anthropic: Anthropic, modelId: string) => {
   const makeRequest = async function (
     prompt: string,
-    params: ModelRequestParams
+    toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
+    console.log("XXXXXXXXXXXXXx 5", JSON.stringify(toolParams, null, 2));
     const msg = await anthropic.beta.tools.messages.create({
       model: modelId,
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
       tools: [
         {
-          name: params.function.name,
+          name: toolParams.name,
           input_schema: {
-            type: "object",
-            ...params.function.schema,
+            ...toolParams.schema,
           },
-          description: params.function.description,
+          description: toolParams.description,
         },
       ],
     });
+    console.log("XXXXXXXXXXXXXx 6", JSON.stringify(msg, null, 2));
 
     const res: AnthropicModelResponse = {
       type: "anthropic" as const,
       dataObj: msg,
       getDataText: () => {
-        return msg.content
-          .flatMap(c => (c.type === "text" ? c.text : []))
-          .join("\n");
+        const toolCalls = msg.content.filter(
+          c => c.type === "tool_use"
+        ) as ToolUseBlock[];
+        return JSON.stringify(toolCalls?.[0].input) || "";
       },
     };
     return res;

@@ -19,7 +19,7 @@ import {
   getVarIds,
   saveExperimentData,
 } from "../experiment/aux";
-import { Model, ModelRequestParams } from "src/lib/models";
+import { Model, ModelTool } from "src/lib/models";
 import {
   JsonSchemaError,
   JsonSyntaxError,
@@ -46,11 +46,7 @@ interface ExpTypes extends GenericExpTypes {
   Evaluation: ComparisonGroup[];
 }
 
-async function getResponse(
-  model: Model,
-  prompt: string,
-  params: ModelRequestParams
-) {
+async function getResponse(model: Model, prompt: string, params: ModelTool) {
   const result = await model.makeRequest(prompt, params);
 
   const data = result.getDataText();

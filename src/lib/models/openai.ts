@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Model, ModelRequestParams, ModelResponse } from "./model";
+import { Model, ModelTool, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 
@@ -14,7 +14,7 @@ export interface OpenAIModelResponse extends ModelResponse {
 
 export type MakeOpenAIRequest = (
   prompt: string,
-  params: ModelRequestParams
+  params: ModelTool
 ) => Promise<OpenAIModelResponse>;
 
 if (!configuration.apiKey) {
@@ -27,10 +27,7 @@ if (!configuration.apiKey) {
 const openai = new OpenAI(configuration);
 
 const buildModel = (openai: OpenAI, modelId: string) => {
-  const makeRequest = async function (
-    prompt: string,
-    params: ModelRequestParams
-  ) {
+  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
     const completion = await openai.chat.completions.create({
       model: modelId,
       messages: [
@@ -45,16 +42,12 @@ const buildModel = (openai: OpenAI, modelId: string) => {
           type: "function",
           // omitting description seems to yield better results
           function: {
-            name: params.function.name,
-            description: params.function.description,
-            parameters: params.function.schema,
+            name: toolParams.name,
+            description: toolParams.description,
+            parameters: toolParams.schema,
           },
         },
       ],
-      tool_choice: {
-        type: "function",
-        function: { name: params.function.name },
-      },
     });
     const res: OpenAIModelResponse = {
       type: "openai" as const,

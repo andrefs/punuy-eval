@@ -5,7 +5,7 @@ import oldFs from "fs";
 import {
   Model,
   ModelIds,
-  ModelRequestParams,
+  ModelTool,
   claude3opus,
   commandRPlus,
   gpt35turbo,
@@ -21,9 +21,8 @@ import {
 import logger from "../../logger";
 import { MultiDatasetScores } from "../../dataset-adapters/collection";
 import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
-import { Static, Type } from "@sinclair/typebox";
-import { Value } from "@sinclair/typebox/value";
 import { TrialResult } from "..";
+import query, { QueryResponse } from "./query";
 
 export type CompareMC30ModelsResults = Partial<{
   [key in ModelIds]: QueryResponse[];
@@ -146,26 +145,7 @@ const genPrompt = (pairs: string[][]) =>
   'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
   pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n");
 
-// TODO fix when OpenAI supports items with tuple definition in JSON schema
-// https://community.openai.com/t/json-schema-tuple-validation-support/273554
-// and @sinclair/typebox also
-const queryResponseSchema = Type.Object({
-  scores: Type.Array(
-    Type.Object({
-      words: Type.Array(Type.String()),
-      score: Type.Number(),
-    })
-  ),
-});
-type QueryResponse = Static<typeof queryResponseSchema>;
-const validateSchema = (value: unknown) =>
-  Value.Check(queryResponseSchema, value);
-
-async function getResponse(
-  model: Model,
-  prompt: string,
-  params: ModelRequestParams
-) {
+async function getResponse(model: Model, prompt: string, params: ModelTool) {
   const result = await model.makeRequest(prompt, params);
 
   const data = result.getDataText();
@@ -174,7 +154,7 @@ async function getResponse(
   }
   try {
     const got = JSON.parse(data) as QueryResponse;
-    if (!validateSchema(got)) {
+    if (!query.validateSchema(got)) {
       return new JsonSchemaError(data);
     }
     return new ValidData(got);
@@ -185,20 +165,19 @@ async function getResponse(
 
 /** Run a single trial of the experiment, with a single model */
 async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
-  const params = {
-    function: {
-      name: "evaluate_scores",
-      description: "Evaluate the word similarity scores.",
-      schema: queryResponseSchema,
-    },
+  const tool: ModelTool = {
+    name: "evaluate_scores",
+    description: "Evaluate the word similarity scores.",
+    schema: query.toolParams,
   };
 
   let attempts = 0;
   const failedAttempts = [];
   while (attempts < maxRetries) {
     logger.info(`      attempt #${attempts + 1}`);
-    const attemptResult = await getResponse(model, prompt, params);
+    const attemptResult = await getResponse(model, prompt, tool);
     attempts++;
+    console.log("XXXXXXX 1", JSON.stringify({ attemptResult }, null, 2));
     if (attemptResult instanceof ValidData) {
       const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
@@ -244,15 +223,15 @@ async function runTrials(trials: number, scores: MultiDatasetScores) {
     `Running experiment ${name} with ${trials} trials on models [gpt35turbo, gpt4, gpt4turbo, commandRPlus, claude3opus] and datasets [mc30, rg65, ps65, ws353].`
   );
 
-  const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
-  const gpt4_res = await runTrialsModel(trials, gpt4, prompt);
+  //const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
+  //const gpt4_res = await runTrialsModel(trials, gpt4, prompt);
   const gpt4turbo_res = await runTrialsModel(trials, gpt4turbo, prompt);
   const commandRplus_res = await runTrialsModel(trials, commandRPlus, prompt);
   const claude3opus_res = await runTrialsModel(trials, claude3opus, prompt);
 
   return {
-    gpt35turbo: gpt35turbo_res,
-    gpt4: gpt4_res,
+    //gpt35turbo: gpt35turbo_res,
+    //gpt4: gpt4_res,
     gpt4turbo: gpt4turbo_res,
     commandRplus: commandRplus_res,
     claude3opus: claude3opus_res,
@@ -465,7 +444,7 @@ const CompareMC30Experiment = {
   name,
   description,
   genPrompt,
-  schema: queryResponseSchema,
+  query,
   runTrials,
   evaluate,
 };

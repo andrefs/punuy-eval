@@ -1,8 +1,7 @@
 import { CohereClient, Cohere } from "cohere-ai";
-import { Model, ModelRequestParams, ModelResponse } from "./model";
+import { Model, ModelTool, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
-import { ToolParameterDefinitionsValue } from "cohere-ai/api";
 
 const configuration = {
   token: process.env.NODE_ENV === "test" ? "test" : process.env.COHERE_API_KEY,
@@ -15,7 +14,7 @@ export interface CohereModelResponse extends ModelResponse {
 
 export type MakeCohereRequest = (
   prompt: string,
-  params: ModelRequestParams
+  params: ModelTool
 ) => Promise<CohereModelResponse>;
 
 if (!configuration.token) {
@@ -30,19 +29,27 @@ const cohere = new CohereClient(configuration);
 const buildModel = (cohere: CohereClient, modelId: string): Model => {
   const makeRequest = async function (
     prompt: string,
-    params: ModelRequestParams
+    toolParams: ModelTool
   ): Promise<CohereModelResponse> {
     const prediction = await cohere.chat({
       model: modelId,
       message: prompt,
       tools: [
         {
-          name: params.function.name,
-          description: params.function.description,
-          parameterDefinitions: params.function.schema as Record<
-            string,
-            ToolParameterDefinitionsValue
-          >,
+          name: toolParams.name,
+          description: toolParams.description,
+          parameterDefinitions: Object.fromEntries(
+            Object.entries(toolParams.schema.properties).map(
+              ([paramName, param]) => [
+                paramName,
+                {
+                  required: true,
+                  type: param.type,
+                  description: param.description,
+                },
+              ]
+            )
+          ),
         },
       ],
     });
@@ -50,7 +57,7 @@ const buildModel = (cohere: CohereClient, modelId: string): Model => {
       type: "cohere" as const,
       dataObj: prediction,
       getDataText: () => {
-        return prediction.text;
+        return JSON.stringify(prediction.toolCalls?.[0].parameters) || "";
       },
     };
 

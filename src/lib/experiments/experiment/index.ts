@@ -1,4 +1,4 @@
-import { Model, ModelRequestParams } from "../../models";
+import { Model, ModelTool } from "../../models";
 import { MeasureType } from "punuy-datasets/src/lib/types";
 import {
   EvaluationResult,
@@ -30,7 +30,7 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     model: Model,
     prompt: string,
-    params: ModelRequestParams
+    params: ModelTool
   ) => Promise<ValidationResult<T["Data"]>>;
   validateSchema: (
     this: Experiment<T>,
@@ -93,7 +93,7 @@ export default class Experiment<T extends GenericExpTypes> {
     this.getResponse = async function (
       model: Model,
       prompt: string,
-      params: ModelRequestParams
+      params: ModelTool
     ) {
       const result = await model.makeRequest(prompt, params);
 

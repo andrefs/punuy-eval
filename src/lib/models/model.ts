@@ -10,12 +10,35 @@ export interface ModelResponse {
 
 type MakeRequest = MakeAnthropicRequest | MakeOpenAIRequest | MakeCohereRequest;
 
-export interface ModelRequestParams {
-  function: {
-    name: string;
-    schema: Record<string, unknown>;
-    description: string;
+interface ToolObjectParam extends ToolBaseParam {
+  type: "object";
+  properties: Record<string, ToolParam>;
+  required: string[];
+}
+interface ToolArrayParam extends ToolBaseParam {
+  type: "array";
+  items: ToolParam | ToolItemParam;
+}
+interface ToolItemParam {
+  type: string;
+}
+interface ToolBaseParam extends ToolItemParam {
+  description: string;
+}
+type ToolParam = ToolObjectParam | ToolArrayParam | ToolBaseParam;
+
+export interface ModelTool {
+  name: string;
+  description: string;
+  schema: {
+    type: "object";
+    properties: Record<string, ToolParam>;
+    required: string[];
   };
+}
+
+export interface ModelRequestParams {
+  function: ModelTool;
 }
 
 export class Model {
