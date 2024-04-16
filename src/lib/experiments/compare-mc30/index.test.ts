@@ -14,6 +14,7 @@ describe("compare-mc30", () => {
         gpt4: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
         gpt4turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
         gpt35turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
+        claude3opus: [],
       };
 
       const humanScores: MultiDatasetScores = {
@@ -66,6 +67,7 @@ describe("compare-mc30", () => {
         gpt4: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
         gpt4turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
         gpt35turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
+        claude3opus: [],
       };
 
       const humanScores: MultiDatasetScores = {
@@ -112,6 +114,7 @@ describe("compare-mc30", () => {
     it("should calculate correlation", () => {
       const arrays = [
         [0.9, 0.7, 0.1, 0.1, 0.3, 0.2, 0.4],
+        [],
         [0.5, 0.3, 0.1, 0.3, 0.2, 0.4, 0.2],
         [0.1, 0.3, 0.9, 0.1, 0.4, 0.2, 0.1],
         [0.1, 0.9, 0.1, 0.7, 0.2, 0.1, 0.3],
@@ -127,6 +130,7 @@ describe("compare-mc30", () => {
         [
           [
             "1.00000",
+            ,
             "0.59798",
             "-0.39386",
             "0.12342",
@@ -134,7 +138,9 @@ describe("compare-mc30", () => {
             "0.02193",
             "0.20238",
           ],
+          [],
           [
+            ,
             ,
             "1.00000",
             "-0.68672",
@@ -144,6 +150,7 @@ describe("compare-mc30", () => {
             "0.10292",
           ],
           [
+            ,
             ,
             ,
             "1.00000",
@@ -156,12 +163,14 @@ describe("compare-mc30", () => {
             ,
             ,
             ,
+            ,
             "1.00000",
             "-0.35435",
             "-0.08634",
             "-0.05311",
           ],
           [
+            ,
             ,
             ,
             ,
@@ -176,10 +185,12 @@ describe("compare-mc30", () => {
             ,
             ,
             ,
+            ,
             "1.00000",
             "0.12270",
           ],
           [
+            ,
             ,
             ,
             ,

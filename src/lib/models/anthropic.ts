@@ -33,7 +33,6 @@ const buildModel = (anthropic: Anthropic, modelId: string) => {
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
-    console.log("XXXXXXXXXXXXXx 5", JSON.stringify(toolParams, null, 2));
     const msg = await anthropic.beta.tools.messages.create({
       model: modelId,
       max_tokens: 1024,
@@ -48,7 +47,6 @@ const buildModel = (anthropic: Anthropic, modelId: string) => {
         },
       ],
     });
-    console.log("XXXXXXXXXXXXXx 6", JSON.stringify(msg, null, 2));
 
     const res: AnthropicModelResponse = {
       type: "anthropic" as const,
@@ -57,7 +55,7 @@ const buildModel = (anthropic: Anthropic, modelId: string) => {
         const toolCalls = msg.content.filter(
           c => c.type === "tool_use"
         ) as ToolUseBlock[];
-        return JSON.stringify(toolCalls?.[0].input) || "";
+        return JSON.stringify(toolCalls?.[0]?.input) || "";
       },
     };
     return res;

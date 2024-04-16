@@ -177,7 +177,6 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
     logger.info(`      attempt #${attempts + 1}`);
     const attemptResult = await getResponse(model, prompt, tool);
     attempts++;
-    console.log("XXXXXXX 1", JSON.stringify({ attemptResult }, null, 2));
     if (attemptResult instanceof ValidData) {
       const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
@@ -287,6 +286,16 @@ async function evaluate(
 ) {
   const res = mergeResults(modelsRes, humanScores);
   const arrays = unzipResults(res);
+  for (const modelNames in modelsRes) {
+    if (!arrays[modelNames]) {
+      arrays[modelNames] = [];
+    }
+  }
+  //for (const dsName in humanScores) {
+  //  if (!arrays[dsName]) {
+  //    arrays[dsName] = [];
+  //  }
+  //}
   console.table(arrays);
   const corrMat = calcCorrelation(Object.values(arrays));
   const varNames = Object.keys(arrays);
@@ -295,7 +304,9 @@ async function evaluate(
   for (let i = 0; i < varNames.length - 1; i++) {
     for (let j = i; j < varNames.length; j++) {
       const r = corrMat[i][j];
-      tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
+      if (r) {
+        tests[`${varNames[i]} vs ${varNames[j]}`] = r.print();
+      }
     }
   }
   printTests(tests);
@@ -425,9 +436,11 @@ export function mergeResults(
     }
     for (const w1 in res) {
       for (const w2 in res[w1]) {
-        res[w1][w2].models[modelName].avg =
-          res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
-          res[w1][w2].models[modelName].values.length;
+        if (res[w1][w2].models[modelName]?.values) {
+          res[w1][w2].models[modelName].avg =
+            res[w1][w2].models[modelName].values.reduce((a, b) => a + b, 0) /
+            res[w1][w2].models[modelName].values.length;
+        }
       }
     }
   }

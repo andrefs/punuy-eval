@@ -79,7 +79,7 @@ export function normalizeScale(
   return (
     targetScale.min +
     ((value - sourceScale.min) * (targetScale.max - targetScale.min)) /
-      (sourceScale.max - sourceScale.min)
+    (sourceScale.max - sourceScale.min)
   );
 }
 
@@ -88,12 +88,9 @@ export function parseToRawResults(raw: string[]) {
   const objs = [] as (SinglePairScore[] | null)[];
   for (const [i, r] of raw.entries()) {
     try {
-      console.log("XXXXXXXXXXXXX parseToRawResults 1", JSON.stringify({ r }));
       const obj = JSON.parse(r).scores as SinglePairScore[];
-      console.log("XXXXXXXXXXXXX parseToRawResults 2", JSON.stringify({ obj }));
       objs.push(obj);
     } catch (e) {
-      console.error("XXXXXXXXXXXXX parseToRawResults 3", { e });
       logger.warn(`Failed to parse result ${i + 1}: ${e}`);
       failed.push(i + 1);
       objs.push(null);
