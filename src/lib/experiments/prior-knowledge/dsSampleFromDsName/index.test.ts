@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import dsSampleFromDsName from "./dsSampleFromDsName";
-import { ExpVars, PromptGenerator } from "..";
-import { createMockDsPart, createMockModel } from "./mocks";
-import { DataIncomplete, DataPartiallyIncorrect } from "../../evaluation";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import dsSampleFromDsName from ".";
+import { ExpVars, PromptGenerator } from "../..";
+import { createMockDsPart, createMockModel } from "../mocks";
+import { DataIncomplete, DataPartiallyIncorrect } from "../../../evaluation";
+import { DsPartition } from "../../../dataset-adapters/DsPartition";
 
 describe("dsSampleFromDsName", () => {
   //describe("genPrompt", () => {

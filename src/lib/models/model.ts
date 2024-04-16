@@ -18,6 +18,8 @@ interface ToolObjectParam extends ToolBaseParam {
 interface ToolArrayParam extends ToolBaseParam {
   type: "array";
   items: ToolParam | ToolItemParam;
+  minItems?: number;
+  maxItems?: number;
 }
 interface ToolItemParam {
   type: string;
@@ -27,14 +29,15 @@ interface ToolBaseParam extends ToolItemParam {
 }
 type ToolParam = ToolObjectParam | ToolArrayParam | ToolBaseParam;
 
+export interface ToolSchema {
+  type: "object";
+  properties: Record<string, ToolParam>;
+  required: string[];
+}
 export interface ModelTool {
   name: string;
   description: string;
-  schema: {
-    type: "object";
-    properties: Record<string, ToolParam>;
-    required: string[];
-  };
+  schema: ToolSchema;
 }
 
 export interface ModelRequestParams {

@@ -1,8 +1,6 @@
-import { Model, ModelTool } from "../../models";
-import { MeasureType } from "punuy-datasets/src/lib/types";
+import { Model, ModelTool, ToolSchema } from "../../models";
 import {
   EvaluationResult,
-  EvaluationResultType,
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
@@ -14,17 +12,25 @@ import logger from "../../logger";
 import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 import { Value } from "@sinclair/typebox/value";
-
-export interface GenericExpTypes {
-  Data: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  DataSchema: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  Evaluation: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-}
+import {
+  AggregatedEvaluationResult,
+  ExpVarMatrix,
+  ExpVars,
+  ExpVarsFixedPrompt,
+  ExperimentData,
+  GenericExpTypes,
+  Prompt,
+  PromptGenerator,
+  QueryData,
+  TrialResult,
+  TrialsResultData,
+} from "./types";
+export * from "./types";
 
 export default class Experiment<T extends GenericExpTypes> {
   name: string;
   description: string;
-  schema: T["DataSchema"];
+  queryData: QueryData<T>;
   prompts?: (Prompt | PromptGenerator)[] = [];
   getResponse: (
     this: Experiment<T>,
@@ -39,7 +45,7 @@ export default class Experiment<T extends GenericExpTypes> {
   runTrial: (
     this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
-    schema: T["DataSchema"],
+    toolSchema: ToolSchema,
     maxRetries?: number
   ) => Promise<TrialResult<T["Data"]>>;
   runTrials: (
@@ -70,11 +76,11 @@ export default class Experiment<T extends GenericExpTypes> {
   constructor(
     name: string,
     description: string,
-    schema: T["DataSchema"],
+    queryData: QueryData<T>,
     runTrial: (
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
-      schema: T["DataSchema"],
+      toolSchema: ToolSchema,
       maxRetries?: number
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
@@ -85,9 +91,9 @@ export default class Experiment<T extends GenericExpTypes> {
   ) {
     this.name = name;
     this.description = description;
-    this.schema = schema;
+    this.queryData = queryData;
     this.validateSchema = function (this: Experiment<T>, value: unknown) {
-      return Value.Check(this.schema, value);
+      return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
     this.getResponse = async function (
@@ -127,7 +133,10 @@ export default class Experiment<T extends GenericExpTypes> {
       const results: T["Data"][] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
-        const res = await this.runTrial({ ...vars, prompt }, this.schema);
+        const res = await this.runTrial(
+          { ...vars, prompt },
+          this.queryData.toolSchema
+        );
         if (res.ok) {
           results.push(res.result!.data); // TODO: handle failed attempts
         }
@@ -161,7 +170,7 @@ export default class Experiment<T extends GenericExpTypes> {
         meta: {
           name: this.name,
           traceId: traceId ?? Date.now(),
-          schema: this.schema,
+          queryData: this.queryData,
         },
         variables: vars,
         results: {
@@ -185,8 +194,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       const varCombs = genValueCombinations(variables);
       logger.info(
-        `Preparing to run experiment ${
-          this.name
+        `Preparing to run experiment ${this.name
         }, ${trials} times on each variable combination:\n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
@@ -198,81 +206,4 @@ export default class Experiment<T extends GenericExpTypes> {
       return res;
     };
   }
-}
-
-export interface ExpVarMatrix {
-  model: Model[];
-  dpart: DsPartition[];
-  language?: ({ id: "pt" } | { id: "en" })[];
-  measureType?: { id: MeasureType }[];
-  prompt?: (Prompt | PromptGenerator)[];
-}
-
-export type ExpVarsFixedPrompt = Omit<ExpVars, "prompt"> & { prompt: Prompt };
-
-export interface ExpVars {
-  dpart: DsPartition;
-  model: Model;
-  language?: {
-    id: "pt" | "en";
-  };
-  measureType?: {
-    id: MeasureType;
-  };
-  prompt: Prompt | PromptGenerator;
-}
-
-export interface PromptGenerator {
-  id: string;
-  type?: MeasureType;
-  language: "pt" | "en";
-  generate: (vars: Omit<ExpVars, "prompt">) => Prompt;
-}
-
-export interface Prompt {
-  id: string;
-  type?: MeasureType;
-  language: "pt" | "en";
-  pairs?: [string, string][];
-  text: string;
-}
-
-export interface ExpMeta<T> {
-  name: string;
-  traceId: number;
-  schema: T;
-}
-
-export interface ExpResults<DataType, ExpectedType> {
-  /** Raw results from the trials */
-  raw: DataType[];
-  /** Evaluation results for each trial */
-  evaluation?: EvaluationResult<DataType, ExpectedType>[];
-  /** Aggregated evaluation results */
-  aggregated?: AggregatedEvaluationResult;
-}
-
-export interface ExperimentData<T extends GenericExpTypes> {
-  variables: ExpVars;
-  meta: ExpMeta<T["DataSchema"]>;
-  results: ExpResults<T["Data"], T["Evaluation"]>;
-}
-
-export interface TrialResult<DataType> {
-  totalTries: number;
-  failedAttempts: ValidationResult<DataType>[];
-  ok: boolean;
-  result?: ValidData<DataType>;
-}
-
-export interface TrialsResultData<DataType> {
-  variables: ExpVars;
-  data: DataType[];
-}
-
-export interface AggregatedEvaluationResult {
-  avg: number;
-  resultTypes: {
-    [key in EvaluationResultType]: number;
-  };
 }

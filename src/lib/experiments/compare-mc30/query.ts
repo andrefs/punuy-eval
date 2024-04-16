@@ -1,5 +1,6 @@
 import { Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
+import { ToolSchema } from "src/lib/models";
 
 const responseSchema = Type.Object({
   scores: Type.Array(
@@ -12,7 +13,7 @@ const responseSchema = Type.Object({
 export type QueryResponse = Static<typeof responseSchema>;
 const validateSchema = (value: unknown): value is QueryResponse =>
   Value.Check(responseSchema, value);
-const toolParams = {
+const toolSchema: ToolSchema = {
   type: "object" as const,
   properties: {
     scores: {
@@ -41,7 +42,7 @@ const toolParams = {
 };
 
 export default {
-  toolParams,
+  toolSchema,
   responseSchema,
   validateSchema,
 };

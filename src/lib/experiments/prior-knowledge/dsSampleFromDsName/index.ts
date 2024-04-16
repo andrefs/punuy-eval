@@ -1,19 +1,22 @@
-import Experiment, {
+import {
   ExpVars,
   ExpVarsFixedPrompt,
   GenericExpTypes,
   Prompt,
   TrialResult,
-} from "../experiment";
+} from "../../experiment/types";
 import {
   DataCorrect,
   DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
   ValidData,
-} from "../../evaluation";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
-import { Static, Type } from "@sinclair/typebox";
+} from "../../../evaluation";
+import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { Static } from "@sinclair/typebox";
+import query from "./query";
+import { ModelTool, ToolSchema } from "src/lib/models";
+import Experiment from "../../experiment";
 
 const numPairs = 5;
 
@@ -39,27 +42,22 @@ const promptGen = {
   },
 };
 
-const queryResponseSchema = Type.Object({
-  pairs: Type.Array(Type.Array(Type.String(), { minItems: 2, maxItems: 2 })),
-});
 interface ExpTypes extends GenericExpTypes {
-  Data: Static<typeof queryResponseSchema>;
-  Evaluation: Static<typeof queryResponseSchema>;
-  DataSchema: typeof queryResponseSchema;
+  Data: Static<typeof query.responseSchema>;
+  Evaluation: Static<typeof query.responseSchema>;
+  DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
   this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: ExpTypes["DataSchema"],
+  toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
-  const params = {
-    function: {
-      name: "evaluate_sample",
-      description: "evaluates the pairs sampled from the dataset.",
-      schema,
-    },
+  const tool: ModelTool = {
+    name: "evaluate_sample",
+    description: "evaluates the pairs sampled from the dataset.",
+    schema: toolSchema,
   };
 
   const gotValidData = false;
@@ -69,7 +67,7 @@ async function runTrial(
     const attemptResult = await this.getResponse(
       vars.model,
       vars.prompt.text,
-      params
+      tool
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
@@ -139,7 +137,7 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
 export default new Experiment(
   name,
   description,
-  queryResponseSchema,
+  query,
   runTrial,
   evaluateTrial,
   [promptGen]

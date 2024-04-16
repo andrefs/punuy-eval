@@ -21,8 +21,8 @@ import {
 import logger from "../../logger";
 import { MultiDatasetScores } from "../../dataset-adapters/collection";
 import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
-import { TrialResult } from "..";
 import query, { QueryResponse } from "./query";
+import { TrialResult } from "../experiment/types";
 
 export type CompareMC30ModelsResults = Partial<{
   [key in ModelIds]: QueryResponse[];
@@ -168,7 +168,7 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
   const tool: ModelTool = {
     name: "evaluate_scores",
     description: "Evaluate the word similarity scores.",
-    schema: query.toolParams,
+    schema: query.toolSchema,
   };
 
   let attempts = 0;
@@ -291,11 +291,7 @@ async function evaluate(
       arrays[modelNames] = [];
     }
   }
-  //for (const dsName in humanScores) {
-  //  if (!arrays[dsName]) {
-  //    arrays[dsName] = [];
-  //  }
-  //}
+
   console.table(arrays);
   const corrMat = calcCorrelation(Object.values(arrays));
   const varNames = Object.keys(arrays);
