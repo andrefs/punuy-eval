@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { Model, ModelTool, ModelResponse } from "./model";
 import logger from "../logger";
 import "dotenv/config";
+import { FunctionParameters } from "openai/resources/shared.mjs";
 
 const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
@@ -44,7 +45,7 @@ const buildModel = (openai: OpenAI, modelId: string) => {
           function: {
             name: toolParams.name,
             description: toolParams.description,
-            parameters: toolParams.schema,
+            parameters: toolParams.schema as unknown as FunctionParameters,
           },
         },
       ],

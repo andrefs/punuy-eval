@@ -4,7 +4,7 @@ import Experiment, {
   GenericExpTypes,
   Prompt,
   TrialResult,
-} from "../experiment";
+} from "../../experiment";
 import {
   DataCorrect,
   DataIncorrect,
@@ -12,9 +12,11 @@ import {
   EvaluationResult,
   NonUsableData,
   ValidData,
-} from "../../evaluation";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
-import { Static, Type } from "@sinclair/typebox";
+} from "../../../evaluation";
+import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { Static } from "@sinclair/typebox";
+import { ToolSchema } from "src/lib/models";
+import query from "./query";
 
 const name = "ds-values-exact-matches";
 const description =
@@ -34,32 +36,23 @@ const promptGen = {
     };
   },
 };
-const queryResponseSchema = Type.Object({
-  scores: Type.Array(
-    Type.Object({
-      words: Type.Array(Type.String(), { minItems: 2, maxItems: 2 }),
-      score: Type.Number(),
-    })
-  ),
-});
+
 interface ExpTypes extends GenericExpTypes {
-  Data: Static<typeof queryResponseSchema>;
-  Evaluation: Static<typeof queryResponseSchema>;
-  DataSchema: typeof queryResponseSchema;
+  Data: Static<typeof query.responseSchema>;
+  Evaluation: Static<typeof query.responseSchema>;
+  DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
   this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: ExpTypes["DataSchema"],
+  toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
-  const params = {
-    function: {
-      name: "validate_sample",
-      description: "Validates the pairs sampled from the dataset.",
-      schema,
-    },
+  const tool = {
+    name: "validate_sample",
+    description: "Validates the pairs sampled from the dataset.",
+    schema: toolSchema,
   };
 
   const gotValidData = false;
@@ -69,7 +62,7 @@ async function runTrial(
     const attemptResult = await this.getResponse(
       vars.model,
       vars.prompt.text,
-      params
+      tool
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
@@ -158,7 +151,7 @@ async function evaluateTrial(
 export default new Experiment(
   name,
   description,
-  queryResponseSchema,
+  query,
   runTrial,
   evaluateTrial,
   [promptGen]

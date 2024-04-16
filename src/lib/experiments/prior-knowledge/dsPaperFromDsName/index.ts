@@ -4,11 +4,13 @@ import Experiment, {
   GenericExpTypes,
   Prompt,
   TrialResult,
-} from "../experiment";
-import { DataCorrect, DataIncorrect, ValidData } from "../../evaluation";
+} from "../../experiment";
+import { DataCorrect, DataIncorrect, ValidData } from "../../../evaluation";
 import { distance } from "fastest-levenshtein";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
-import { Static, Type } from "@sinclair/typebox";
+import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { Static } from "@sinclair/typebox";
+import query from "./query";
+import { ModelTool, ToolSchema } from "src/lib/models";
 
 const name = "ds-paper-from-ds-name";
 const description =
@@ -25,29 +27,23 @@ const promptGen = {
     };
   },
 };
-const queryResponseSchema = Type.Object({
-  title: Type.String(),
-});
-
 interface ExpTypes extends GenericExpTypes {
-  Data: Static<typeof queryResponseSchema>;
+  Data: Static<typeof query.responseSchema>;
   Evaluation: { titles: string[] };
-  DataSchema: typeof queryResponseSchema;
+  DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
   this: Experiment<ExpTypes>,
   vars: ExpVarsFixedPrompt,
-  schema: ExpTypes["DataSchema"],
+  toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
-  const params = {
-    function: {
-      name: "return-paper-name",
-      description:
-        "Return the title of the scientific article describing this dataset",
-      schema,
-    },
+  const tool: ModelTool = {
+    name: "return_paper_name",
+    description:
+      "returns the title of the scientific article describing the dataset",
+    schema: toolSchema,
   };
 
   const gotValidData = false;
@@ -57,7 +53,7 @@ async function runTrial(
     const attemptResult = await this.getResponse(
       vars.model,
       vars.prompt.text,
-      params
+      tool
     );
     attempts++;
     if (attemptResult instanceof ValidData) {
@@ -114,7 +110,7 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
 export default new Experiment(
   name,
   description,
-  queryResponseSchema,
+  query,
   runTrial,
   evaluateTrial,
   [promptGen]
