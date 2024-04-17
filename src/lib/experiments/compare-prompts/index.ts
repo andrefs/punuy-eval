@@ -1,4 +1,4 @@
-import logger from "../../logger";
+import logger from "src/lib/logger";
 import { renderTable } from "console-table-printer";
 import { type Static } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";

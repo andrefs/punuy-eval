@@ -1,7 +1,7 @@
 import pcorrTest from "@stdlib/stats-pcorrtest";
 import { PartitionScale, PartitionData } from "punuy-datasets/src/lib/types";
 import { ExpVars } from "..";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 import logger from "src/lib/logger";
 import { PairScoreList, ScoreDict, SinglePairScore } from "../experiment/types";
 

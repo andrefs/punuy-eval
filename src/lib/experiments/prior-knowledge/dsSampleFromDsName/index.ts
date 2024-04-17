@@ -12,7 +12,7 @@ import {
   DataPartiallyIncorrect,
   ValidData,
 } from "../../../evaluation";
-import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 import { Static } from "@sinclair/typebox";
 import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";

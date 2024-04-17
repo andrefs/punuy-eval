@@ -5,6 +5,7 @@
 export type ValidationResultType =
   | "json-syntax-error"
   | "json-schema-error"
+  | "invalid-data"
   | "no-data"
   | "valid-data";
 
@@ -40,6 +41,15 @@ export class NoData extends ValidationResult<any> {
     super("no-data", false);
   }
 }
+export class InvalidData<DataType> extends ValidationResult<DataType> {
+  data: DataType;
+
+  constructor(data: DataType) {
+    super("invalid-data", false);
+    this.data = data;
+  }
+}
+
 export class ValidData<DataType> extends ValidationResult<DataType> {
   data: DataType;
 

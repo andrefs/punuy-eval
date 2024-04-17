@@ -1,6 +1,7 @@
 import { Model, ModelTool, ToolSchema } from "../../models";
 import {
   EvaluationResult,
+  InvalidData,
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
@@ -36,7 +37,8 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     model: Model,
     prompt: string,
-    params: ModelTool
+    params: ModelTool,
+    customPredicate?: (value: T["Data"]) => boolean
   ) => Promise<ValidationResult<T["Data"]>>;
   validateSchema: (
     this: Experiment<T>,
@@ -99,7 +101,8 @@ export default class Experiment<T extends GenericExpTypes> {
     this.getResponse = async function (
       model: Model,
       prompt: string,
-      params: ModelTool
+      params: ModelTool,
+      customPredicate?: (value: T["Data"]) => boolean
     ) {
       const result = await model.makeRequest(prompt, params);
 
@@ -112,7 +115,9 @@ export default class Experiment<T extends GenericExpTypes> {
         if (!this.validateSchema(got)) {
           return new JsonSchemaError(data);
         }
-        return new ValidData(got);
+        return !customPredicate || customPredicate(got)
+          ? new ValidData(got)
+          : new InvalidData(got);
       } catch (e) {
         return new JsonSyntaxError(data);
       }
@@ -194,7 +199,8 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       const varCombs = genValueCombinations(variables);
       logger.info(
-        `Preparing to run experiment ${this.name
+        `Preparing to run experiment ${
+          this.name
         }, ${trials} times on each variable combination:\n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
