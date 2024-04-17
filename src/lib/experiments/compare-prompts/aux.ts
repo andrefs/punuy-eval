@@ -79,7 +79,7 @@ export function normalizeScale(
   return (
     targetScale.min +
     ((value - sourceScale.min) * (targetScale.max - targetScale.min)) /
-    (sourceScale.max - sourceScale.min)
+      (sourceScale.max - sourceScale.min)
   );
 }
 
@@ -132,15 +132,14 @@ export function evalScores(
 ): ReturnType<typeof pcorrTest> {
   const got = rawResultsToAvg(raw.filter(x => x !== null));
   const pairsHash = pairsToHash(pairs);
-
   const targetScale = { min: 1, max: 5 };
-
   const expected = {} as ScoreDict;
+
   for (const entry of dpart.data) {
     const value = valueFromEntry(entry, dpart.scale, targetScale);
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();
-    if (got[w1] && got[w1][w2] && pairsHash[w1] && pairsHash[w1][w2]) {
+    if (w1 in got && w2 in got[w1] && pairsHash[w1] && pairsHash[w1][w2]) {
       expected[w1] = expected[w1] || {};
       expected[w1][w2] = value;
     }
