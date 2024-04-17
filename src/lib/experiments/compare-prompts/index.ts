@@ -1,6 +1,6 @@
 import logger from "../../logger";
 import { renderTable } from "console-table-printer";
-import { Type, type Static } from "@sinclair/typebox";
+import { type Static } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
 import {
