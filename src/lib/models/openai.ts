@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Model, ModelTool, ModelResponse } from "./model";
+import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { FunctionParameters } from "openai/resources/shared.mjs";
@@ -28,7 +28,11 @@ if (!configuration.apiKey) {
 }
 const openai = new OpenAI(configuration);
 
-const buildModel = (openai: OpenAI, modelId: string) => {
+const buildModel = (
+  openai: OpenAI,
+  modelId: string,
+  pricing?: ModelPricing
+) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
     const completion = await openai.chat.completions.create({
       model: modelId,
@@ -64,9 +68,33 @@ const buildModel = (openai: OpenAI, modelId: string) => {
     return res;
   };
 
-  return new Model(modelId, makeRequest);
+  return new Model(modelId, makeRequest, pricing);
 };
 
-export const gpt35turbo = buildModel(openai, "gpt-3.5-turbo-0125");
-export const gpt4 = buildModel(openai, "gpt-4-0613");
-export const gpt4turbo = buildModel(openai, "gpt-4-0125-preview");
+// updated at 2024-04-18
+const pricing = {
+  gpt35turbo: {
+    prompt: 0.0000005,
+    completion: 0.0000015,
+  },
+  gpt4turbo: {
+    prompt: 0.00003,
+    completion: 0.00006,
+  },
+  gpt4: {
+    prompt: 0.00001,
+    completion: 0.00003,
+  },
+};
+
+export const gpt35turbo = buildModel(
+  openai,
+  "gpt-3.5-turbo-0125",
+  pricing.gpt35turbo
+);
+export const gpt4 = buildModel(openai, "gpt-4", pricing.gpt4);
+export const gpt4turbo = buildModel(
+  openai,
+  "gpt-4-turbo-2024-04-09",
+  pricing.gpt4turbo
+);

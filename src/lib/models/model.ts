@@ -3,6 +3,10 @@ import { MakeAnthropicRequest } from "./anthropic";
 import { MakeCohereRequest } from "./cohere";
 import OpenAI from "openai";
 
+export interface ModelPricing {
+  prompt: number;
+  completion: number;
+}
 export interface ModelResponse {
   type: string;
   usage?: OpenAI.Completions.CompletionUsage;
@@ -49,9 +53,11 @@ export interface ModelRequestParams {
 export class Model {
   id: string;
   makeRequest: MakeRequest;
+  pricing?: ModelPricing;
 
-  constructor(id: string, makeRequest: MakeRequest) {
+  constructor(id: string, makeRequest: MakeRequest, pricing?: ModelPricing) {
     this.id = id;
     this.makeRequest = makeRequest;
+    this.pricing = pricing;
   }
 }
