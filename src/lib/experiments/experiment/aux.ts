@@ -2,6 +2,27 @@ import fs from "fs/promises";
 import oldFs from "fs";
 import { ExpVarMatrix, ExpVars, ExperimentData, GenericExpTypes } from ".";
 import logger from "../../logger";
+import { ModelResponse } from "src/lib/models";
+
+export function sumUsage(
+  accUs: ModelResponse["usage"],
+  newUs?: ModelResponse["usage"]
+): ModelResponse["usage"] {
+  if (!newUs && !accUs) {
+    return undefined;
+  }
+  if (!newUs) {
+    return accUs;
+  }
+  if (!accUs) {
+    return newUs;
+  }
+  return {
+    total_tokens: accUs.total_tokens + newUs.total_tokens,
+    prompt_tokens: accUs.prompt_tokens + newUs.prompt_tokens,
+    completion_tokens: accUs.completion_tokens + newUs.completion_tokens,
+  };
+}
 
 export async function saveExperimentData<T extends GenericExpTypes>(
   data: ExperimentData<T>

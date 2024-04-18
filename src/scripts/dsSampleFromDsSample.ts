@@ -9,7 +9,7 @@ const sampleFromSample = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await dsSampleFromDsSample.performMulti(vars, trials);
 
-  for (const r of res) {
+  for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },
       `${r.meta.name} ${r.results.aggregated?.avg}`

@@ -1,4 +1,4 @@
-import { Model, ModelTool, ToolSchema } from "../../models";
+import { Model, ModelResponse, ModelTool, ToolSchema } from "../../models";
 import {
   EvaluationResult,
   InvalidData,
@@ -10,7 +10,12 @@ import {
   combineEvaluations,
 } from "../../evaluation";
 import logger from "../../logger";
-import { genValueCombinations, getVarIds, saveExperimentData } from "./aux";
+import {
+  genValueCombinations,
+  getVarIds,
+  saveExperimentData,
+  sumUsage,
+} from "./aux";
 import { DsPartition } from "../../dataset-adapters/DsPartition";
 import { Value } from "@sinclair/typebox/value";
 import {
@@ -45,7 +50,10 @@ export default class Experiment<T extends GenericExpTypes> {
     prompt: string,
     params: ModelTool,
     customPredicate?: (value: T["Data"]) => boolean
-  ) => Promise<ValidationResult<T["Data"]>>;
+  ) => Promise<{
+    result: ValidationResult<T["Data"]>;
+    usage: ModelResponse["usage"];
+  }>;
   validateSchema: (
     this: Experiment<T>,
     got: any // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -79,7 +87,10 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     variables: ExpVarMatrix,
     trials: number
-  ) => Promise<ExperimentData<T>[]>;
+  ) => Promise<{
+    experiments: ExperimentData<T>[];
+    usage: ModelResponse["usage"];
+  }>;
 
   constructor(
     name: string,
@@ -112,19 +123,22 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       const gotValidData = false;
       let attempts = 0;
+      let totalUsage;
       const failedAttempts = [];
       while (!gotValidData && attempts < maxRetries) {
-        const attemptResult = await this.tryResponse(
+        const { result: attemptResult, usage } = await this.tryResponse(
           vars.model,
           vars.prompt.text,
           tool
         );
+        totalUsage = sumUsage(totalUsage, usage);
         attempts++;
         if (attemptResult instanceof ValidData) {
           const res: TrialResult<T["Data"]> = {
             totalTries: attempts,
             failedAttempts,
             ok: true,
+            usage: totalUsage,
             result: attemptResult,
           };
           return res;
@@ -134,6 +148,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
       const res: TrialResult<T["Data"]> = {
         totalTries: attempts,
+        usage: totalUsage,
         failedAttempts,
         ok: false,
       };
@@ -146,21 +161,29 @@ export default class Experiment<T extends GenericExpTypes> {
       customPredicate?: (value: T["Data"]) => boolean
     ) {
       const result = await model.makeRequest(prompt, params);
+      const usage = result?.usage;
 
       const data = result.getDataText();
       if (!data.trim()) {
-        return new NoData();
+        return { result: new NoData(), usage };
       }
       try {
         const got = JSON.parse(data) as T["Data"];
         if (!this.validateSchema(got)) {
-          return new JsonSchemaError(data);
+          return {
+            result: new JsonSchemaError(data),
+            usage,
+          };
         }
-        return !customPredicate || customPredicate(got)
-          ? new ValidData(got)
-          : new InvalidData(got);
+        return {
+          result:
+            !customPredicate || customPredicate(got)
+              ? new ValidData(got)
+              : new InvalidData(got),
+          usage,
+        };
       } catch (e) {
-        return new JsonSyntaxError(data);
+        return { result: new JsonSyntaxError(data), usage };
       }
     };
     this.runTrial = runTrial;
@@ -169,6 +192,7 @@ export default class Experiment<T extends GenericExpTypes> {
       vars: ExpVars,
       trials: number
     ) {
+      let totalUsage;
       const prompt =
         "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
       logger.info(
@@ -183,12 +207,14 @@ export default class Experiment<T extends GenericExpTypes> {
           { ...vars, prompt },
           this.queryData.toolSchema
         );
+        totalUsage = sumUsage(totalUsage, res.usage);
         if (res.ok) {
           results.push(res.result!.data); // TODO: handle failed attempts
         }
       }
       return {
         variables: vars,
+        usage: totalUsage,
         data: results,
       };
     };
@@ -219,6 +245,7 @@ export default class Experiment<T extends GenericExpTypes> {
           queryData: this.queryData,
         },
         variables: vars,
+        usage: trialsRes.usage,
         results: {
           raw: trialsRes.data,
         },
@@ -235,6 +262,7 @@ export default class Experiment<T extends GenericExpTypes> {
       variables: ExpVarMatrix,
       trials: number
     ) {
+      let totalUsage;
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
       }
@@ -249,8 +277,12 @@ export default class Experiment<T extends GenericExpTypes> {
       const res = [] as ExperimentData<T>[];
       for (const v of varCombs) {
         res.push(await this.perform(v, trials, Date.now()));
+        totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
       }
-      return res;
+      return {
+        experiments: res,
+        usage: totalUsage,
+      };
     };
   }
 }
