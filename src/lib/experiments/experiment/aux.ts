@@ -1,13 +1,24 @@
 import fs from "fs/promises";
 import oldFs from "fs";
-import { ExpVarMatrix, ExpVars, ExperimentData, GenericExpTypes } from ".";
+import {
+  ExpVarMatrix,
+  ExpVars,
+  ExperimentData,
+  GenericExpTypes,
+  Usage,
+} from ".";
 import logger from "../../logger";
-import { ModelResponse } from "src/lib/models";
+import { ModelPricing } from "src/lib/models";
 
-export function sumUsage(
-  accUs: ModelResponse["usage"],
-  newUs?: ModelResponse["usage"]
-): ModelResponse["usage"] {
+export function calcUsageCost(usage: Usage, pricing: ModelPricing): number {
+  return (
+    (usage.cost || 0) +
+    usage.input_tokens * pricing.input +
+    usage.output_tokens * pricing.output
+  );
+}
+
+export function sumUsage(accUs?: Usage, newUs?: Usage): Usage | undefined {
   if (!newUs && !accUs) {
     return undefined;
   }
@@ -19,8 +30,12 @@ export function sumUsage(
   }
   return {
     total_tokens: accUs.total_tokens + newUs.total_tokens,
-    prompt_tokens: accUs.prompt_tokens + newUs.prompt_tokens,
-    completion_tokens: accUs.completion_tokens + newUs.completion_tokens,
+    input_tokens: accUs.input_tokens + newUs.input_tokens,
+    output_tokens: accUs.output_tokens + newUs.output_tokens,
+    cost:
+      typeof accUs.cost === "number" && typeof newUs.cost === "number"
+        ? accUs.cost! + newUs.cost!
+        : undefined,
   };
 }
 

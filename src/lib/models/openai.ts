@@ -3,6 +3,7 @@ import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { FunctionParameters } from "openai/resources/shared.mjs";
+import { Usage } from "../experiments";
 
 const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
@@ -10,7 +11,7 @@ const configuration = {
 
 export interface OpenAIModelResponse extends ModelResponse {
   type: "openai";
-  usage?: OpenAI.Completions.CompletionUsage;
+  usage?: Usage;
   dataObj: OpenAI.Chat.Completions.ChatCompletion;
 }
 
@@ -58,7 +59,13 @@ const buildModel = (
     const res: OpenAIModelResponse = {
       type: "openai" as const,
       dataObj: completion,
-      usage: completion.usage,
+      usage: completion.usage
+        ? {
+            input_tokens: completion.usage?.prompt_tokens,
+            output_tokens: completion.usage?.completion_tokens,
+            total_tokens: completion.usage?.total_tokens,
+          }
+        : undefined,
       getDataText: () => {
         return (
           completion.choices[0].message.tool_calls?.[0].function.arguments || ""
@@ -74,16 +81,16 @@ const buildModel = (
 // updated at 2024-04-18
 const pricing = {
   gpt35turbo: {
-    prompt: 0.0000005,
-    completion: 0.0000015,
-  },
-  gpt4turbo: {
-    prompt: 0.00003,
-    completion: 0.00006,
+    input: 0.5 / 1_000_000,
+    output: 1.5 / 1_000_000,
   },
   gpt4: {
-    prompt: 0.00001,
-    completion: 0.00003,
+    input: 30 / 1_000_000,
+    output: 60 / 1_000_000,
+  },
+  gpt4turbo: {
+    input: 10 / 1_000_000,
+    output: 30 / 1_000_000,
   },
 };
 

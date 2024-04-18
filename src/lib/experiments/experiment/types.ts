@@ -84,20 +84,20 @@ export interface ExperimentData<T extends GenericExpTypes> {
   variables: ExpVars;
   meta: ExpMeta<T["DataSchema"]>;
   results: ExpResults<T["Data"], T["Evaluation"]>;
-  usage?: ModelResponse["usage"];
+  usage?: Usage;
 }
 
 export interface TrialResult<DataType> {
   totalTries: number;
   failedAttempts: ValidationResult<DataType>[];
   ok: boolean;
-  usage?: ModelResponse["usage"];
+  usage?: Usage;
   result?: ValidData<DataType>;
 }
 
 export interface TrialsResultData<DataType> {
   variables: ExpVars;
-  usage?: ModelResponse["usage"];
+  usage?: Usage;
   data: DataType[];
 }
 
@@ -114,4 +114,11 @@ export interface MultiDatasetScores {
       [dataset: string]: number;
     };
   };
+}
+
+export interface Usage {
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost?: number;
 }

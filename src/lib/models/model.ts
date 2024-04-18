@@ -1,15 +1,15 @@
 import { MakeOpenAIRequest } from "./openai";
 import { MakeAnthropicRequest } from "./anthropic";
 import { MakeCohereRequest } from "./cohere";
-import OpenAI from "openai";
+import { Usage } from "../experiments";
 
 export interface ModelPricing {
-  prompt: number;
-  completion: number;
+  input: number;
+  output: number;
 }
 export interface ModelResponse {
   type: string;
-  usage?: OpenAI.Completions.CompletionUsage;
+  usage?: Usage;
   dataObj: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   getDataText: () => string;
 }

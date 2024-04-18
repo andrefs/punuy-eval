@@ -1,4 +1,4 @@
-import { Model, ModelResponse, ModelTool, ToolSchema } from "../../models";
+import { Model, ModelTool, ToolSchema } from "../../models";
 import {
   EvaluationResult,
   InvalidData,
@@ -11,6 +11,7 @@ import {
 } from "../../evaluation";
 import logger from "../../logger";
 import {
+  calcUsageCost,
   genValueCombinations,
   getVarIds,
   saveExperimentData,
@@ -30,6 +31,7 @@ import {
   QueryData,
   TrialResult,
   TrialsResultData,
+  Usage,
 } from "./types";
 export * from "./types";
 
@@ -52,7 +54,7 @@ export default class Experiment<T extends GenericExpTypes> {
     customPredicate?: (value: T["Data"]) => boolean
   ) => Promise<{
     result: ValidationResult<T["Data"]>;
-    usage: ModelResponse["usage"];
+    usage?: Usage;
   }>;
   validateSchema: (
     this: Experiment<T>,
@@ -89,7 +91,7 @@ export default class Experiment<T extends GenericExpTypes> {
     trials: number
   ) => Promise<{
     experiments: ExperimentData<T>[];
-    usage: ModelResponse["usage"];
+    usage?: Usage;
   }>;
 
   constructor(
@@ -245,7 +247,15 @@ export default class Experiment<T extends GenericExpTypes> {
           queryData: this.queryData,
         },
         variables: vars,
-        usage: trialsRes.usage,
+        usage: trialsRes.usage
+          ? {
+              ...trialsRes.usage,
+              cost:
+                trialsRes.usage && vars.model.pricing
+                  ? calcUsageCost(trialsRes.usage, vars.model.pricing)
+                  : undefined,
+            }
+          : undefined,
         results: {
           raw: trialsRes.data,
         },

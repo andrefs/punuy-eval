@@ -9,6 +9,10 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await dsSampleFromDsName.performMulti(vars, trials);
 
+  if (res.usage) {
+    logger.info(`Usage: ${JSON.stringify(res.usage)}`);
+  }
+
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },

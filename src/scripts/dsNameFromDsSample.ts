@@ -7,7 +7,12 @@ const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
 const nameFromSample = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
+
   const res = await dsNameFromDsSample.performMulti(vars, trials);
+
+  if (res.usage) {
+    logger.info(`Usage: ${JSON.stringify(res.usage)}`);
+  }
 
   for (const r of res.experiments) {
     logger.info(
