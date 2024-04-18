@@ -1,5 +1,5 @@
 import logger from "../lib/logger";
-import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
+import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
 import { ExpVarMatrix, dsValuesExactMatches } from "../lib/experiments";
 import rg65 from "../lib/dataset-adapters/rg65_table1";
 
@@ -23,7 +23,7 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   dpart: [rg65],
-  model: [gpt35turbo, gpt4, gpt4turbo],
+  model: [claude3opus, commandRPlus, gpt4turbo],
 };
 
 valuesExactMatch(evm).then(() => {

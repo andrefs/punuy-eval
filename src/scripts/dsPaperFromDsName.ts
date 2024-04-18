@@ -1,5 +1,5 @@
 import { ExpVarMatrix, dsPaperFromDsName } from "../lib/experiments";
-import { gpt35turbo, gpt4, gpt4turbo } from "../lib/models";
+import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
 import logger from "../lib/logger";
 import rg65 from "../lib/dataset-adapters/rg65_table1";
 
@@ -23,7 +23,7 @@ const paperFromName = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   dpart: [rg65],
-  model: [gpt35turbo, gpt4, gpt4turbo],
+  model: [claude3opus, commandRPlus, gpt4turbo],
 };
 
 paperFromName(evm).then(() => {
