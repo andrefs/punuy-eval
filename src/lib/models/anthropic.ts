@@ -74,7 +74,7 @@ const buildModel = (
     return res;
   };
 
-  return new Model(modelId, makeRequest);
+  return new Model(modelId, makeRequest, pricing);
 };
 
 // updated at 2024-04-18

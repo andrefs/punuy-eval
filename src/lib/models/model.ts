@@ -2,6 +2,7 @@ import { MakeOpenAIRequest } from "./openai";
 import { MakeAnthropicRequest } from "./anthropic";
 import { MakeCohereRequest } from "./cohere";
 import { Usage } from "../experiments";
+import { MakeMistralRequest } from "./mistral";
 
 export interface ModelPricing {
   input: number;
@@ -14,7 +15,11 @@ export interface ModelResponse {
   getDataText: () => string;
 }
 
-type MakeRequest = MakeAnthropicRequest | MakeOpenAIRequest | MakeCohereRequest;
+type MakeRequest =
+  | MakeAnthropicRequest
+  | MakeOpenAIRequest
+  | MakeCohereRequest
+  | MakeMistralRequest;
 
 interface ToolObjectParam extends ToolBaseParam {
   type: "object";
