@@ -104,3 +104,11 @@ export interface AggregatedEvaluationResult {
     [key in EvaluationResultType]: number;
   };
 }
+
+export interface MultiDatasetScores {
+  [w1: string]: {
+    [w2: string]: {
+      [dataset: string]: number;
+    };
+  };
+}

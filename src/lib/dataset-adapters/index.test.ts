@@ -1,19 +1,24 @@
 import { describe, expect, it } from "vitest";
-// import { DsPartition } from "./DsPartition";
+import { DsPartition } from "./DsPartition";
+import fs from "fs/promises";
 
-// TODO
+// skip non-partition files and too-large partition files
+const skipFiles = ["index.test.ts", "DsPartition.ts", "bg100k_all.ts"];
 
-describe("dataset-adapters", () => {
-  it("TODO", () => {
-    expect(1).toBe(1);
-  });
-  //    describe("rg65", () => {
-  //      test("should load correct partition", async () => {
-  //        expect(() => {
-  //          const rg65 = require("./rg65_table1") as DsPartition; // eslint-disable-line
-  //          expect(rg65.id).toBe("rg65");
-  //          expect(rg65.partitionId).toBe("table1");
-  //        }).not.toThrow();
-  //      });
-  //    });
+describe.sequential("dataset-adapters", async () => {
+  const files = (await fs.readdir(__dirname)).filter(
+    f => !skipFiles.includes(f)
+  );
+
+  for (const file of files) {
+    describe(file, () => {
+      it("should load correct partition", async () => {
+        const dsPart = (await import(`./${file}`)).default as DsPartition;
+        const fileDsId = file.replace(/_.*\.ts$/, "");
+        const filePartId = file.replace(/^[^_]+_/, "").replace(/\.ts$/, "");
+        expect(dsPart.dataset.id).toBe(fileDsId);
+        expect([dsPart.partitionId, "rel", "sim"]).toContain(filePartId);
+      });
+    });
+  }
 });

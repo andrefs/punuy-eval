@@ -5,7 +5,7 @@ import {
   mergeResults,
   unzipResults,
 } from ".";
-import { MultiDatasetScores } from "../../dataset-adapters/collection";
+import { MultiDatasetScores } from "..";
 
 describe("compare-mc30", () => {
   describe("mergeResults", () => {
