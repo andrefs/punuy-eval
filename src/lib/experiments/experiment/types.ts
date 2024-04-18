@@ -122,4 +122,5 @@ export interface Usage {
   output_tokens: number;
   total_tokens: number;
   cost?: number;
+  costCurrency?: "$" | "€" | "£";
 }

@@ -87,10 +87,12 @@ const pricing = {
   commandR: {
     input: 0.5 / 1_000_000,
     output: 1.5 / 1_000_000,
+    currency: "$" as const,
   },
   commandRPlus: {
     input: 3 / 1_000_000,
     output: 15 / 1_000_000,
+    currency: "$" as const,
   },
 };
 

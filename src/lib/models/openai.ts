@@ -83,14 +83,17 @@ const pricing = {
   gpt35turbo: {
     input: 0.5 / 1_000_000,
     output: 1.5 / 1_000_000,
+    currency: "$" as const,
   },
   gpt4: {
     input: 30 / 1_000_000,
     output: 60 / 1_000_000,
+    currency: "$" as const,
   },
   gpt4turbo: {
     input: 10 / 1_000_000,
     output: 30 / 1_000_000,
+    currency: "$" as const,
   },
 };
 

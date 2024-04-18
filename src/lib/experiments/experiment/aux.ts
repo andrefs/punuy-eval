@@ -10,6 +10,7 @@ import {
 import logger from "../../logger";
 import { ModelPricing } from "src/lib/models";
 
+// TODO handle currency
 export function calcUsageCost(usage: Usage, pricing: ModelPricing): number {
   return (
     (usage.cost || 0) +

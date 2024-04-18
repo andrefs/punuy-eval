@@ -7,6 +7,7 @@ import { MakeMistralRequest } from "./mistral";
 export interface ModelPricing {
   input: number;
   output: number;
+  currency: "$" | "€" | "£";
 }
 export interface ModelResponse {
   type: string;

@@ -76,12 +76,36 @@ const buildModel = (
 
 // updated at 2024-04-18
 const pricing = {
-  mistralLarge: { input: 8 / 1_000_000, output: 24 / 1_000_000 },
-  mistralMedium: { input: 2.7 / 1_000_000, output: 8.1 / 1_000_000 },
-  mistralSmall: { input: 2 / 1_000_000, output: 6 / 1_000_000 },
-  openMistral7B: { input: 0.25 / 1_000_000, output: 0.25 / 1_000_000 },
-  openMistral8x7B: { input: 0.7 / 1_000_000, output: 0.7 / 1_000_000 },
-  openMistral8x22B: { input: 2 / 1_000_000, output: 6 / 1_000_000 },
+  mistralLarge: {
+    input: 8 / 1_000_000,
+    output: 24 / 1_000_000,
+    currency: "$" as const,
+  },
+  mistralMedium: {
+    input: 2.7 / 1_000_000,
+    output: 8.1 / 1_000_000,
+    currency: "$" as const,
+  },
+  mistralSmall: {
+    input: 2 / 1_000_000,
+    output: 6 / 1_000_000,
+    currency: "$" as const,
+  },
+  openMistral7B: {
+    input: 0.25 / 1_000_000,
+    output: 0.25 / 1_000_000,
+    currency: "$" as const,
+  },
+  openMistral8x7B: {
+    input: 0.7 / 1_000_000,
+    output: 0.7 / 1_000_000,
+    currency: "$" as const,
+  },
+  openMistral8x22B: {
+    input: 2 / 1_000_000,
+    output: 6 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
 export const mistralLarge = buildModel(

@@ -82,14 +82,17 @@ const pricing = {
   claude3opus: {
     input: 15 / 1_000_000,
     output: 75 / 1_000_000,
+    currency: "$" as const,
   },
   claude3sonnet: {
     input: 3 / 1_000_000,
     output: 15 / 1_000_000,
+    currency: "$" as const,
   },
   claude3haiku: {
     input: 0.25 / 1_000_000,
     output: 1.25 / 1_000_000,
+    currency: "$" as const,
   },
 };
 
