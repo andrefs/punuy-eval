@@ -18,25 +18,32 @@ export function calcUsageCost(usage: Usage, pricing: ModelPricing): number {
   );
 }
 
-export function sumUsage(accUs?: Usage, newUs?: Usage): Usage | undefined {
+export function sumUsage(
+  accUs?: Usage,
+  newUs?: Usage,
+  pricing?: ModelPricing
+): Usage | undefined {
   if (!newUs && !accUs) {
     return undefined;
   }
   if (!newUs) {
-    return accUs;
+    return pricing
+      ? { ...accUs!, cost: calcUsageCost(accUs!, pricing) }
+      : accUs;
   }
   if (!accUs) {
-    return newUs;
+    return pricing ? { ...newUs, cost: calcUsageCost(newUs, pricing) } : newUs;
   }
-  return {
+  const res: Usage = {
     total_tokens: accUs.total_tokens + newUs.total_tokens,
     input_tokens: accUs.input_tokens + newUs.input_tokens,
     output_tokens: accUs.output_tokens + newUs.output_tokens,
-    cost:
-      typeof accUs.cost === "number" && typeof newUs.cost === "number"
-        ? accUs.cost! + newUs.cost!
-        : undefined,
   };
+  res.cost = pricing
+    ? calcUsageCost(res, pricing)
+    : (accUs.cost || 0) + (newUs.cost || 0);
+
+  return res;
 }
 
 export async function saveExperimentData<T extends GenericExpTypes>(

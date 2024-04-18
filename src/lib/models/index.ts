@@ -11,4 +11,5 @@ export type ModelIds =
   | "claude3sonnet"
   | "claude3haiku"
   | "commandRPlus"
+  | "commandR"
   | "mistralLarge";
