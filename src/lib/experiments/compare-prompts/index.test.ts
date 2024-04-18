@@ -39,6 +39,7 @@ describe("comparePrompts", () => {
             } as Prompt,
           },
           meta: {
+            trials: 1,
             traceId: 1,
             name: "experiment-name",
             queryData: comparePrompts.query,
@@ -74,6 +75,7 @@ describe("comparePrompts", () => {
             } as Prompt,
           },
           meta: {
+            trials: 1,
             traceId: 2,
             name: "experiment-name",
             queryData: comparePrompts.query,

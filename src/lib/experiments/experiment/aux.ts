@@ -61,8 +61,8 @@ export async function saveExperimentData<T extends GenericExpTypes>(
   logger.info(
     `Saving experiment ${data.meta.name} with traceId ${
       data.meta.traceId
-    } to ${filename}. It ran ${
-      data.results.raw.length
+    } to ${filename}. It ran successfully ${data.results.raw.length}/${
+      data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 

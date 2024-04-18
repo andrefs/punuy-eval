@@ -133,6 +133,7 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
 
   const expData: ExperimentData<ExpTypes> = {
     meta: {
+      trials,
       name,
       traceId: traceId ?? Date.now(),
       queryData: query,

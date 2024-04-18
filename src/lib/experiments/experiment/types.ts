@@ -66,6 +66,7 @@ export interface Prompt {
 }
 
 export interface ExpMeta<T extends GenericExpTypes> {
+  trials: number;
   name: string;
   traceId: number;
   queryData: QueryData<T>;

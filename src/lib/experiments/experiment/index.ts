@@ -242,6 +242,7 @@ export default class Experiment<T extends GenericExpTypes> {
       const trialsRes = await this.runTrials(vars, trials);
       const expData: ExperimentData<T> = {
         meta: {
+          trials,
           name: this.name,
           traceId: traceId ?? Date.now(),
           queryData: this.queryData,
