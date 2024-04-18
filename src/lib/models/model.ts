@@ -1,9 +1,11 @@
 import { MakeOpenAIRequest } from "./openai";
 import { MakeAnthropicRequest } from "./anthropic";
 import { MakeCohereRequest } from "./cohere";
+import OpenAI from "openai";
 
 export interface ModelResponse {
   type: string;
+  usage?: OpenAI.Completions.CompletionUsage;
   dataObj: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   getDataText: () => string;
 }

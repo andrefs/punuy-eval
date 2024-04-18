@@ -144,7 +144,7 @@ const genPrompt = (pairs: string[][]) =>
   'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
   pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n");
 
-async function getResponse(model: Model, prompt: string, params: ModelTool) {
+async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   const result = await model.makeRequest(prompt, params);
 
   const data = result.getDataText();
@@ -162,19 +162,17 @@ async function getResponse(model: Model, prompt: string, params: ModelTool) {
   }
 }
 
-/** Run a single trial of the experiment, with a single model */
-async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
-  const tool: ModelTool = {
-    name: "evaluate_scores",
-    description: "Evaluate the word similarity scores.",
-    schema: query.toolSchema,
-  };
-
+async function getResponse(
+  model: Model,
+  prompt: string,
+  tool: ModelTool,
+  maxRetries = 3
+) {
   let attempts = 0;
   const failedAttempts = [];
   while (attempts < maxRetries) {
     logger.info(`      attempt #${attempts + 1}`);
-    const attemptResult = await getResponse(model, prompt, tool);
+    const attemptResult = await tryResponse(model, prompt, tool);
     attempts++;
     if (attemptResult instanceof ValidData) {
       const res: TrialResult<QueryResponse> = {
@@ -194,6 +192,18 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
     failedAttempts,
     ok: false,
   };
+  return res;
+}
+
+/** Run a single trial of the experiment, with a single model */
+async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
+  const tool: ModelTool = {
+    name: "evaluate_scores",
+    description: "Evaluate the word similarity scores.",
+    schema: query.toolSchema,
+  };
+
+  const res = await getResponse(model, prompt, tool, maxRetries);
   return res;
 }
 

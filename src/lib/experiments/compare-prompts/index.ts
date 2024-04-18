@@ -39,7 +39,7 @@ interface ExpTypes extends GenericExpTypes {
   Evaluation: ComparisonGroup[];
 }
 
-async function getResponse(model: Model, prompt: string, params: ModelTool) {
+async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   const result = await model.makeRequest(prompt, params);
 
   const data = result.getDataText();
@@ -57,18 +57,17 @@ async function getResponse(model: Model, prompt: string, params: ModelTool) {
   }
 }
 
-async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
-  const tool = {
-    name: "evaluate_scores",
-    description: "Evaluate the word similarity or relatedness scores",
-    schema: query.toolSchema,
-  };
-
+async function getResponse(
+  model: Model,
+  prompt: string,
+  tool: ModelTool,
+  maxRetries = 3
+) {
   let attempts = 0;
   const failedAttempts = [];
   while (attempts < maxRetries) {
     logger.info(`      attempt #${attempts + 1}`);
-    const attemptResult = await getResponse(vars.model, vars.prompt.text, tool);
+    const attemptResult = await tryResponse(model, prompt, tool);
     attempts++;
     if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${attempts} succeeded.`);
@@ -89,6 +88,17 @@ async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
     failedAttempts,
     ok: false,
   };
+  return res;
+}
+
+async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
+  const tool = {
+    name: "evaluate_scores",
+    description: "Evaluate the word similarity or relatedness scores",
+    schema: query.toolSchema,
+  };
+
+  const res = await getResponse(vars.model, vars.prompt.text, tool, maxRetries);
   return res;
 }
 

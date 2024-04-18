@@ -55,33 +55,7 @@ async function runTrial(
     schema: toolSchema,
   };
 
-  const gotValidData = false;
-  let attempts = 0;
-  const failedAttempts = [];
-  while (!gotValidData && attempts < maxRetries) {
-    const attemptResult = await this.getResponse(
-      vars.model,
-      vars.prompt.text,
-      tool
-    );
-    attempts++;
-    if (attemptResult instanceof ValidData) {
-      const res: TrialResult<ExpTypes["Data"]> = {
-        totalTries: attempts,
-        failedAttempts,
-        ok: true,
-        result: attemptResult,
-      };
-      return res;
-    }
-    failedAttempts.push(attemptResult);
-  }
-
-  const res: TrialResult<ExpTypes["Data"]> = {
-    totalTries: attempts,
-    failedAttempts,
-    ok: false,
-  };
+  const res = await this.getResponse(vars, tool, maxRetries);
   return res;
 }
 

@@ -35,6 +35,12 @@ export default class Experiment<T extends GenericExpTypes> {
   prompts?: (Prompt | PromptGenerator)[] = [];
   getResponse: (
     this: Experiment<T>,
+    vars: ExpVarsFixedPrompt,
+    tool: ModelTool,
+    maxRetries: number
+  ) => Promise<TrialResult<T["Data"]>>;
+  tryResponse: (
+    this: Experiment<T>,
     model: Model,
     prompt: string,
     params: ModelTool,
@@ -99,6 +105,41 @@ export default class Experiment<T extends GenericExpTypes> {
     };
     this.prompts = prompts;
     this.getResponse = async function (
+      this: Experiment<T>,
+      vars: ExpVarsFixedPrompt,
+      tool: ModelTool,
+      maxRetries: number = 3
+    ) {
+      const gotValidData = false;
+      let attempts = 0;
+      const failedAttempts = [];
+      while (!gotValidData && attempts < maxRetries) {
+        const attemptResult = await this.tryResponse(
+          vars.model,
+          vars.prompt.text,
+          tool
+        );
+        attempts++;
+        if (attemptResult instanceof ValidData) {
+          const res: TrialResult<T["Data"]> = {
+            totalTries: attempts,
+            failedAttempts,
+            ok: true,
+            result: attemptResult,
+          };
+          return res;
+        }
+        failedAttempts.push(attemptResult);
+      }
+
+      const res: TrialResult<T["Data"]> = {
+        totalTries: attempts,
+        failedAttempts,
+        ok: false,
+      };
+      return res;
+    };
+    this.tryResponse = async function (
       model: Model,
       prompt: string,
       params: ModelTool,

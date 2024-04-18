@@ -10,6 +10,7 @@ const configuration = {
 
 export interface OpenAIModelResponse extends ModelResponse {
   type: "openai";
+  usage?: OpenAI.Completions.CompletionUsage;
   dataObj: OpenAI.Chat.Completions.ChatCompletion;
 }
 
@@ -53,6 +54,7 @@ const buildModel = (openai: OpenAI, modelId: string) => {
     const res: OpenAIModelResponse = {
       type: "openai" as const,
       dataObj: completion,
+      usage: completion.usage,
       getDataText: () => {
         return (
           completion.choices[0].message.tool_calls?.[0].function.arguments || ""
