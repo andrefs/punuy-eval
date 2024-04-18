@@ -19,10 +19,9 @@ import {
   ValidData,
 } from "../../evaluation";
 import logger from "../../logger";
-import { MultiDatasetScores } from "../../dataset-adapters/collection";
 import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 import query, { QueryResponse } from "./query";
-import { TrialResult } from "../experiment/types";
+import { MultiDatasetScores, TrialResult } from "../experiment/types";
 
 export type CompareMC30ModelsResults = Partial<{
   [key in ModelIds]: QueryResponse[];
