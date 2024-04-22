@@ -35,7 +35,7 @@
     "fastest-levenshtein": "1.0.16",
     "not-a-log": "1.0.1",
     "openai": "4.28.4",
-    "pino": "8.19.0",
+    "pino": "8.20.0",
     "punuy-datasets": "git+https://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:x-oauth-basic@github.com/andrefs/punuy-datasets.git",
     "tsx": "4.7.1",
     "unplugin-auto-import": "0.17.5"
