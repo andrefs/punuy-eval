@@ -1,4 +1,7 @@
-import MistralClient, { ChatCompletionResponse } from "@mistralai/mistralai";
+import MistralClient, {
+  ChatCompletionResponse,
+  ToolChoice,
+} from "@mistralai/mistralai";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
@@ -42,6 +45,7 @@ const buildModel = (
           content: prompt,
         },
       ],
+      toolChoice: "any" as ToolChoice,
       tools: [
         {
           type: "function",

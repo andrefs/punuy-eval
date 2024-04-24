@@ -16,7 +16,7 @@ const run = async () => {
           "Give me a list of 10 French cheeses so that I could choose the best one.",
       },
     ],
-    toolChoice: "any",
+    toolChoice: "any" as ToolChoice,
     tools: [
       {
         type: "function",

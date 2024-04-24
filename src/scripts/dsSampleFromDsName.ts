@@ -31,7 +31,8 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   dpart: [rg65],
-  model: [gpt4turbo, claude3opus, commandRPlus, mistralLarge],
+  //model: [gpt4turbo, claude3opus, commandRPlus, mistralLarge],
+  model: [mistralLarge],
 };
 
 sampleFromName(evm).then(() => {
