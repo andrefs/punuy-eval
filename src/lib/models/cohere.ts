@@ -37,7 +37,7 @@ const buildModel = (
     prompt: string,
     toolParams: ModelTool
   ): Promise<CohereModelResponse> {
-    const prediction = await cohere.chat({
+    const req = {
       model: modelId,
       message: prompt,
       tools: [
@@ -58,7 +58,10 @@ const buildModel = (
           ),
         },
       ],
-    });
+    };
+
+    const prediction = await cohere.chat(req);
+
     const resp: CohereModelResponse = {
       type: "cohere" as const,
       dataObj: prediction,

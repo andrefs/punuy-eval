@@ -47,7 +47,6 @@ const buildModel = (
       tools: [
         {
           type: "function",
-          // omitting description seems to yield better results
           function: {
             name: toolParams.name,
             description: toolParams.description,

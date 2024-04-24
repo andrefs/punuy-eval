@@ -17,11 +17,9 @@ const run = async () => {
       },
     ],
     toolChoice: "any",
-
     tools: [
       {
         type: "function",
-        // omitting description seems to yield better results
         function: {
           name: "choose_cheese",
           description: "Choose the best French cheese.",

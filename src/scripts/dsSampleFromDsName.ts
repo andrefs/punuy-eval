@@ -1,5 +1,10 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
-import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
+import {
+  claude3opus,
+  commandRPlus,
+  gpt4turbo,
+  mistralLarge,
+} from "../lib/models";
 import rg65 from "../lib/dataset-adapters/rg65_table1";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
@@ -26,7 +31,7 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   dpart: [rg65],
-  model: [gpt4turbo, claude3opus, commandRPlus],
+  model: [gpt4turbo, claude3opus, commandRPlus, mistralLarge],
 };
 
 sampleFromName(evm).then(() => {
