@@ -65,7 +65,11 @@ const buildModel = (
           }
         : undefined,
       getDataText: () => {
-        return chatResponse.choices[0].message.content;
+        return (
+          chatResponse.choices[0]?.message.tool_calls?.filter(
+            tc => tc.function.name === toolParams.name
+          )?.[0].function.arguments || ""
+        );
       },
     };
     return res;
