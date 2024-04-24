@@ -33,7 +33,7 @@ const buildModel = (
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
-    const chatResponse = await mistral.chat({
+    const req = {
       model: modelId,
       messages: [
         { role: "system", content: "You are a helpful assistant." },
@@ -53,7 +53,10 @@ const buildModel = (
           },
         },
       ],
-    });
+    };
+
+    const chatResponse = await mistral.chat(req);
+
     const res: MistralModelResponse = {
       type: "mistral" as const,
       dataObj: chatResponse,
