@@ -123,11 +123,10 @@ export default class Experiment<T extends GenericExpTypes> {
       tool: ModelTool,
       maxRetries: number = 3
     ) {
-      const gotValidData = false;
       let attempts = 0;
       let totalUsage;
       const failedAttempts = [];
-      while (!gotValidData && attempts < maxRetries) {
+      while (attempts < maxRetries) {
         const { result: attemptResult, usage } = await this.tryResponse(
           vars.model,
           vars.prompt.text,
@@ -145,6 +144,9 @@ export default class Experiment<T extends GenericExpTypes> {
           };
           return res;
         }
+        logger.warn(
+          `      attempt #${attempts + 1} failed: ${attemptResult.type}`
+        );
         failedAttempts.push(attemptResult);
       }
 
@@ -286,8 +288,8 @@ export default class Experiment<T extends GenericExpTypes> {
           .join(",\n")}.`
       );
       const res = [] as ExperimentData<T>[];
-      for (const v of varCombs) {
-        res.push(await this.perform(v, trials, Date.now()));
+      for (const vc of varCombs) {
+        res.push(await this.perform(vc, trials, Date.now()));
         totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
       }
       return {

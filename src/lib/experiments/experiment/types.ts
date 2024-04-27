@@ -6,7 +6,7 @@ import {
   ValidData,
   ValidationResult,
 } from "src/lib/evaluation";
-import { Model, ModelResponse, ToolSchema } from "src/lib/models";
+import { Model, ToolSchema } from "src/lib/models";
 
 export interface QueryData<T extends GenericExpTypes> {
   responseSchema: T["DataSchema"];
