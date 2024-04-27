@@ -18,6 +18,7 @@ import {
   genValueCombinations,
   getVarIds,
   saveExperimentData,
+  sumUsage,
 } from "../experiment/aux";
 import { Model, ModelTool } from "src/lib/models";
 import {
@@ -46,23 +47,24 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
     result = await model.makeRequest(prompt, params);
   } catch (e) {
     return {
-      esult: new ExceptionThrown(),
+      result: new ExceptionThrown(),
       usage: undefined,
     };
   }
 
+  const usage = result?.usage;
   const data = result.getDataText();
   if (!data.trim()) {
-    return new NoData();
+    return { result: new NoData(), usage };
   }
   try {
     const got = JSON.parse(data) as ExpTypes["Data"];
     if (!validateSchema(got)) {
-      return new JsonSchemaError(data);
+      return { result: new JsonSchemaError(data), usage };
     }
-    return new ValidData(got);
+    return { result: new ValidData(got), usage };
   } catch (e) {
-    return new JsonSyntaxError(data);
+    return { result: new JsonSyntaxError(data), usage };
   }
 }
 
@@ -72,16 +74,23 @@ async function getResponse(
   tool: ModelTool,
   maxRetries = 3
 ) {
+  let totalUsage;
   const failedAttempts = [];
   while (failedAttempts.length < maxRetries) {
     logger.info(`      attempt #${failedAttempts.length + 1}`);
-    const attemptResult = await tryResponse(model, prompt, tool);
+    const { result: attemptResult, usage } = await tryResponse(
+      model,
+      prompt,
+      tool
+    );
+    totalUsage = sumUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: failedAttempts.length + 1,
         failedAttempts,
         ok: true,
+        usage: totalUsage,
         result: attemptResult,
       };
       return res;
@@ -96,6 +105,7 @@ async function getResponse(
 
   const res: TrialResult<ExpTypes["Data"]> = {
     totalTries: failedAttempts.length,
+    usage: totalUsage,
     failedAttempts,
     ok: false,
   };
