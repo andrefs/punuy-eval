@@ -4,6 +4,7 @@ import oldFs from "fs";
 
 import { Model, ModelTool } from "../../models";
 import {
+  ExceptionThrown,
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
@@ -145,9 +146,17 @@ const genPrompt = (pairs: string[][]) =>
   pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n");
 
 async function tryResponse(model: Model, prompt: string, params: ModelTool) {
-  const result = await model.makeRequest(prompt, params);
-  const usage = result?.usage;
+  let result;
+  try {
+    result = await model.makeRequest(prompt, params);
+  } catch (e) {
+    return {
+      result: new ExceptionThrown(),
+      usage: undefined,
+    };
+  }
 
+  const usage = result?.usage;
   const data = result.getDataText();
   if (!data.trim()) {
     return { result: new NoData(), usage };

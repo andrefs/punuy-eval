@@ -4,6 +4,7 @@ import logger from "../logger";
 import "dotenv/config";
 import { ToolUseBlock } from "@anthropic-ai/sdk/resources/beta/tools/messages.mjs";
 import { Usage } from "../experiments";
+import { RequestError } from "../evaluation";
 
 const configuration = {
   apiKey:
@@ -39,10 +40,15 @@ const buildModel = (
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
-    const msg = await anthropic.beta.tools.messages.create({
+    const req = {
       model: modelId,
       max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "user" as const,
+          content: prompt,
+        },
+      ],
       tools: [
         {
           name: toolParams.name,
@@ -52,26 +58,35 @@ const buildModel = (
           description: toolParams.description,
         },
       ],
-    });
-
-    const res: AnthropicModelResponse = {
-      type: "anthropic" as const,
-      dataObj: msg,
-      usage: msg.usage
-        ? {
-            input_tokens: msg.usage.input_tokens,
-            output_tokens: msg.usage.output_tokens,
-            total_tokens: msg.usage.input_tokens + msg.usage.output_tokens,
-          }
-        : undefined,
-      getDataText: () => {
-        const toolCalls = msg.content.filter(
-          c => c.type === "tool_use"
-        ) as ToolUseBlock[];
-        return JSON.stringify(toolCalls?.[0]?.input) || "";
-      },
     };
-    return res;
+    try {
+      const msg = await anthropic.beta.tools.messages.create(req);
+
+      const res: AnthropicModelResponse = {
+        type: "anthropic" as const,
+        dataObj: msg,
+        usage: msg.usage
+          ? {
+              input_tokens: msg.usage.input_tokens,
+              output_tokens: msg.usage.output_tokens,
+              total_tokens: msg.usage.input_tokens + msg.usage.output_tokens,
+            }
+          : undefined,
+        getDataText: () => {
+          const toolCalls = msg.content.filter(
+            c => c.type === "tool_use"
+          ) as ToolUseBlock[];
+          return JSON.stringify(toolCalls?.[0]?.input) || "";
+        },
+      };
+      return res;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "";
+      logger.error(
+        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+      );
+      throw new RequestError(message);
+    }
   };
 
   return new Model(modelId, makeRequest, pricing);

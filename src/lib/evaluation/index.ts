@@ -6,6 +6,7 @@ export type ValidationResultType =
   | "json-syntax-error"
   | "json-schema-error"
   | "invalid-data"
+  | "exception-thrown"
   | "no-data"
   | "valid-data";
 
@@ -50,12 +51,27 @@ export class InvalidData<DataType> extends ValidationResult<DataType> {
   }
 }
 
+export class ExceptionThrown extends ValidationResult<null> {
+  constructor() {
+    super("exception-thrown", false);
+  }
+}
+
 export class ValidData<DataType> extends ValidationResult<DataType> {
   data: DataType;
 
   constructor(data: DataType) {
     super("valid-data", true);
     this.data = data;
+  }
+}
+
+/** Exception */
+
+export class RequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RequestError";
   }
 }
 

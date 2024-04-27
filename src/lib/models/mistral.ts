@@ -6,6 +6,7 @@ import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
+import { RequestError } from "../evaluation";
 
 const apiKey =
   process.env.NODE_ENV === "test" ? "test" : process.env.MISTRAL_API_KEY;
@@ -58,27 +59,35 @@ const buildModel = (
       ],
     };
 
-    const chatResponse = await mistral.chat(req);
+    try {
+      const chatResponse = await mistral.chat(req);
 
-    const res: MistralModelResponse = {
-      type: "mistral" as const,
-      dataObj: chatResponse,
-      usage: chatResponse.usage
-        ? {
-            input_tokens: chatResponse.usage?.prompt_tokens,
-            output_tokens: chatResponse.usage?.completion_tokens,
-            total_tokens: chatResponse.usage?.total_tokens,
-          }
-        : undefined,
-      getDataText: () => {
-        return (
-          chatResponse.choices[0]?.message.tool_calls?.filter(
-            tc => tc.function.name === toolParams.name
-          )?.[0].function.arguments || ""
-        );
-      },
-    };
-    return res;
+      const res: MistralModelResponse = {
+        type: "mistral" as const,
+        dataObj: chatResponse,
+        usage: chatResponse.usage
+          ? {
+              input_tokens: chatResponse.usage?.prompt_tokens,
+              output_tokens: chatResponse.usage?.completion_tokens,
+              total_tokens: chatResponse.usage?.total_tokens,
+            }
+          : undefined,
+        getDataText: () => {
+          return (
+            chatResponse.choices[0]?.message.tool_calls?.filter(
+              tc => tc.function.name === toolParams.name
+            )?.[0].function.arguments || ""
+          );
+        },
+      };
+      return res;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "";
+      logger.error(
+        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+      );
+      throw new RequestError(message);
+    }
   };
 
   return new Model(modelId, makeRequest, pricing);
@@ -89,11 +98,6 @@ const pricing = {
   mistralLarge: {
     input: 8 / 1_000_000,
     output: 24 / 1_000_000,
-    currency: "$" as const,
-  },
-  mistralMedium: {
-    input: 2.7 / 1_000_000,
-    output: 8.1 / 1_000_000,
     currency: "$" as const,
   },
   mistralSmall: {
@@ -123,11 +127,7 @@ export const mistralLarge = buildModel(
   "mistral-large-latest",
   pricing.mistralLarge
 );
-export const mistralMedium = buildModel(
-  mistral,
-  "mistral-medium-latest",
-  pricing.mistralMedium
-);
+
 export const mistralSmall = buildModel(
   mistral,
   "mistral-small-latest",

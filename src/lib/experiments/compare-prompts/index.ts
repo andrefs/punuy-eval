@@ -21,6 +21,7 @@ import {
 } from "../experiment/aux";
 import { Model, ModelTool } from "src/lib/models";
 import {
+  ExceptionThrown,
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
@@ -40,7 +41,15 @@ interface ExpTypes extends GenericExpTypes {
 }
 
 async function tryResponse(model: Model, prompt: string, params: ModelTool) {
-  const result = await model.makeRequest(prompt, params);
+  let result;
+  try {
+    result = await model.makeRequest(prompt, params);
+  } catch (e) {
+    return {
+      esult: new ExceptionThrown(),
+      usage: undefined,
+    };
+  }
 
   const data = result.getDataText();
   if (!data.trim()) {

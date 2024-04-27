@@ -4,6 +4,7 @@ import logger from "../logger";
 import "dotenv/config";
 import { FunctionParameters } from "openai/resources/shared.mjs";
 import { Usage } from "../experiments";
+import { RequestError } from "../evaluation";
 
 const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
@@ -35,18 +36,18 @@ const buildModel = (
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
-    const completion = await openai.chat.completions.create({
+    const req = {
       model: modelId,
       messages: [
-        { role: "system", content: "You are a helpful assistant." },
+        { role: "system" as const, content: "You are a helpful assistant." },
         {
-          role: "user",
+          role: "user" as const,
           content: prompt,
         },
       ],
       tools: [
         {
-          type: "function",
+          type: "function" as const,
           function: {
             name: toolParams.name,
             description: toolParams.description,
@@ -54,24 +55,35 @@ const buildModel = (
           },
         },
       ],
-    });
-    const res: OpenAIModelResponse = {
-      type: "openai" as const,
-      dataObj: completion,
-      usage: completion.usage
-        ? {
-            input_tokens: completion.usage?.prompt_tokens,
-            output_tokens: completion.usage?.completion_tokens,
-            total_tokens: completion.usage?.total_tokens,
-          }
-        : undefined,
-      getDataText: () => {
-        return (
-          completion.choices[0].message.tool_calls?.[0].function.arguments || ""
-        );
-      },
     };
-    return res;
+
+    try {
+      const completion = await openai.chat.completions.create(req);
+      const res: OpenAIModelResponse = {
+        type: "openai" as const,
+        dataObj: completion,
+        usage: completion.usage
+          ? {
+              input_tokens: completion.usage?.prompt_tokens,
+              output_tokens: completion.usage?.completion_tokens,
+              total_tokens: completion.usage?.total_tokens,
+            }
+          : undefined,
+        getDataText: () => {
+          return (
+            completion.choices[0].message.tool_calls?.[0].function.arguments ||
+            ""
+          );
+        },
+      };
+      return res;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "";
+      logger.error(
+        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+      );
+      throw new RequestError(message);
+    }
   };
 
   return new Model(modelId, makeRequest, pricing);

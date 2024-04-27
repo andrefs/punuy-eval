@@ -3,6 +3,7 @@ import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
+import { RequestError } from "../evaluation";
 
 const configuration = {
   token: process.env.NODE_ENV === "test" ? "test" : process.env.COHERE_API_KEY,
@@ -59,27 +60,34 @@ const buildModel = (
         },
       ],
     };
+    try {
+      const prediction = await cohere.chat(req);
 
-    const prediction = await cohere.chat(req);
+      const resp: CohereModelResponse = {
+        type: "cohere" as const,
+        dataObj: prediction,
+        usage: prediction.meta?.billedUnits
+          ? {
+              input_tokens: prediction.meta.billedUnits.inputTokens || 0,
+              output_tokens: prediction.meta.billedUnits.outputTokens || 0,
+              total_tokens:
+                (prediction.meta.billedUnits.inputTokens || 0) +
+                (prediction.meta.billedUnits.outputTokens || 0),
+            }
+          : undefined,
+        getDataText: () => {
+          return JSON.stringify(prediction.toolCalls?.[0].parameters) || "";
+        },
+      };
 
-    const resp: CohereModelResponse = {
-      type: "cohere" as const,
-      dataObj: prediction,
-      usage: prediction.meta?.billedUnits
-        ? {
-            input_tokens: prediction.meta.billedUnits.inputTokens || 0,
-            output_tokens: prediction.meta.billedUnits.outputTokens || 0,
-            total_tokens:
-              (prediction.meta.billedUnits.inputTokens || 0) +
-              (prediction.meta.billedUnits.outputTokens || 0),
-          }
-        : undefined,
-      getDataText: () => {
-        return JSON.stringify(prediction.toolCalls?.[0].parameters) || "";
-      },
-    };
-
-    return resp;
+      return resp;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "";
+      logger.error(
+        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+      );
+      throw new RequestError(message);
+    }
   };
 
   return new Model(modelId, makeRequest, pricing);
