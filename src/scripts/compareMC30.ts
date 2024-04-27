@@ -9,7 +9,7 @@ import logger from "../lib/logger";
 import {
   gpt4turbo,
   claude3opus,
-  openMistral8x22B,
+  openMixtral8x22B,
   mistralLarge,
   commandRPlus,
 } from "src/lib/models";
@@ -24,7 +24,7 @@ const compareMC30 = async () => {
     claude3opus,
     commandRPlus,
     mistralLarge,
-    openMistral8x22B,
+    openMixtral8x22B,
   ];
   const res = await compareMc30.performMultiNoEval(models, trials, humanScores);
 

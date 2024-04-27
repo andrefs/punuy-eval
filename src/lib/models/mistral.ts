@@ -106,12 +106,12 @@ const pricing = {
     output: 0.25 / 1_000_000,
     currency: "$" as const,
   },
-  openMistral8x7B: {
+  openMixtral8x7B: {
     input: 0.7 / 1_000_000,
     output: 0.7 / 1_000_000,
     currency: "$" as const,
   },
-  openMistral8x22B: {
+  openMixtral8x22B: {
     input: 2 / 1_000_000,
     output: 6 / 1_000_000,
     currency: "$" as const,
@@ -138,13 +138,13 @@ export const openMistral7B = buildModel(
   "open-mistral-7b",
   pricing.openMistral7B
 );
-export const openMistral8x7B = buildModel(
+export const openMixtral8x7B = buildModel(
   mistral,
-  "open-mistral-8x7b",
-  pricing.openMistral8x7B
+  "open-mixtral-8x7b",
+  pricing.openMixtral8x7B
 );
-export const openMistral8x22B = buildModel(
+export const openMixtral8x22B = buildModel(
   mistral,
-  "open-mistral-8x22b",
-  pricing.openMistral8x22B
+  "open-mixtral-8x22b",
+  pricing.openMixtral8x22B
 );

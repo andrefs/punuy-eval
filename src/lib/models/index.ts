@@ -24,5 +24,5 @@ export type ModelIds =
   | "mistralMedium"
   | "mistralSmall"
   | "openMistral7B"
-  | "openMistral8x7B"
-  | "openMistral8x22B";
+  | "openMixtral8x7B"
+  | "openMixtral8x22B";
