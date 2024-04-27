@@ -123,20 +123,20 @@ export default class Experiment<T extends GenericExpTypes> {
       tool: ModelTool,
       maxRetries: number = 3
     ) {
-      let attempts = 0;
       let totalUsage;
       const failedAttempts = [];
-      while (attempts < maxRetries) {
+      while (failedAttempts.length < maxRetries) {
+        logger.info(`      attempt #${failedAttempts.length + 1}`);
         const { result: attemptResult, usage } = await this.tryResponse(
           vars.model,
           vars.prompt.text,
           tool
         );
         totalUsage = sumUsage(totalUsage, usage);
-        attempts++;
         if (attemptResult instanceof ValidData) {
+          logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
           const res: TrialResult<T["Data"]> = {
-            totalTries: attempts,
+            totalTries: failedAttempts.length + 1,
             failedAttempts,
             ok: true,
             usage: totalUsage,
@@ -145,13 +145,13 @@ export default class Experiment<T extends GenericExpTypes> {
           return res;
         }
         logger.warn(
-          `      attempt #${attempts + 1} failed: ${attemptResult.type}`
+          `      attempt #${failedAttempts.length} failed: ${attemptResult.type}`
         );
         failedAttempts.push(attemptResult);
       }
 
       const res: TrialResult<T["Data"]> = {
-        totalTries: attempts,
+        totalTries: failedAttempts.length,
         usage: totalUsage,
         failedAttempts,
         ok: false,

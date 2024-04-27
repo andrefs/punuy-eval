@@ -14,6 +14,7 @@ import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 import query, { QueryResponse } from "./query";
 import { MultiDatasetScores, TrialResult, Usage } from "../experiment/types";
 import { sumUsage } from "../experiment/aux";
+import { renderTable } from "console-table-printer";
 
 //export type CompareMC30ModelsResults = Partial<{
 //  [key in ModelIds]: QueryResponse[];
@@ -174,21 +175,20 @@ async function getResponse(
   tool: ModelTool,
   maxRetries: number = 3
 ) {
-  let attempts = 0;
   let totalUsage;
   const failedAttempts = [];
-  while (attempts < maxRetries) {
-    logger.info(`      attempt #${attempts + 1}`);
+  while (failedAttempts.length < maxRetries) {
+    logger.info(`      attempt #${failedAttempts.length + 1}`);
     const { result: attemptResult, usage } = await tryResponse(
       model,
       prompt,
       tool
     );
     totalUsage = sumUsage(totalUsage, usage);
-    attempts++;
     if (attemptResult instanceof ValidData) {
+      logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<QueryResponse> = {
-        totalTries: attempts,
+        totalTries: failedAttempts.length + 1,
         failedAttempts,
         ok: true,
         usage: totalUsage,
@@ -196,12 +196,16 @@ async function getResponse(
       };
       return res;
     }
-    logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
+    logger.warn(
+      `      attempt #${failedAttempts.length + 1} failed: ${
+        attemptResult.type
+      }`
+    );
     failedAttempts.push(attemptResult);
   }
 
   const res: TrialResult<QueryResponse> = {
-    totalTries: attempts,
+    totalTries: failedAttempts.length,
     usage: totalUsage,
     failedAttempts,
     ok: false,
@@ -299,11 +303,7 @@ export function unzipResults(results: MC30Results) {
         res[modelName] = res[modelName] || [];
         res[modelName].push(results[w1][w2].models[modelName].avg);
       }
-    }
-  }
 
-  for (const w1 in results) {
-    for (const w2 in results[w1]) {
       for (const dsName in results[w1][w2].human) {
         res[dsName] = res[dsName] || [];
         res[dsName].push(results[w1][w2].human[dsName]);
@@ -314,6 +314,27 @@ export function unzipResults(results: MC30Results) {
   return res;
 }
 
+function printPairValues(results: MC30Results) {
+  const table = [];
+  for (const w1 in results) {
+    for (const w2 in results[w1]) {
+      const row: { [key: string]: string } = { Pair: `${w1}, ${w2}` };
+      for (const modelName in results[w1][w2].models) {
+        const avg = results[w1][w2].models[modelName].avg;
+        row[modelName] = avg.toString();
+      }
+      for (const dsName in results[w1][w2].human) {
+        const score = results[w1][w2].human[dsName];
+        row[dsName] = score.toString();
+      }
+      table.push(row);
+    }
+  }
+
+  const tablePP = renderTable(table);
+  logger.info("\n" + tablePP);
+}
+
 async function evaluate(
   modelsRes: CompareMC30ModelResults[],
   humanScores: MultiDatasetScores,
@@ -321,13 +342,15 @@ async function evaluate(
 ) {
   const res = mergeResults(modelsRes, humanScores);
   const arrays = unzipResults(res);
-  for (const modelNames in modelsRes) {
+  for (const modelNames of modelsRes.map(exp => exp.variables.model.id)) {
     if (!arrays[modelNames]) {
       arrays[modelNames] = [];
     }
   }
 
-  console.table(arrays);
+  printPairValues(res);
+
+  //console.table(arrays);
   const corrMat = calcCorrelation(Object.values(arrays));
   const varNames = Object.keys(arrays);
 
@@ -344,7 +367,11 @@ async function evaluate(
   const simplifiedMatrix = simpleCorrMatrix(corrMat);
   console.log(simpMatrixCSV(varNames, simplifiedMatrix));
   const simpMatObj = simpMatrixToObject(varNames, simplifiedMatrix);
-  console.table(simpMatObj, varNames);
+  const table = Object.entries(simpMatObj).map(([v1, v2s]) => {
+    return { "(index)": v1, ...v2s };
+  });
+  const tablePP = renderTable(table);
+  logger.info("\n" + tablePP);
 
   const traceId = Date.now();
   const log: MC30LogFile = {
@@ -400,8 +427,8 @@ function simpleCorrMatrix(matrix: ReturnType<typeof pcorrtest>[][]) {
 
 function printTests(tests: { [dsVsds: string]: string }) {
   for (const test in tests) {
-    console.log(`----------------------\n${test}`);
-    console.log(tests[test]);
+    logger.debug(`----------------------\n${test}`);
+    logger.debug(tests[test]);
   }
 }
 

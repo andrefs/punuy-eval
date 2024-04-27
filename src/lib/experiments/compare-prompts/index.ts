@@ -63,28 +63,30 @@ async function getResponse(
   tool: ModelTool,
   maxRetries = 3
 ) {
-  let attempts = 0;
   const failedAttempts = [];
-  while (attempts < maxRetries) {
-    logger.info(`      attempt #${attempts + 1}`);
+  while (failedAttempts.length < maxRetries) {
+    logger.info(`      attempt #${failedAttempts.length + 1}`);
     const attemptResult = await tryResponse(model, prompt, tool);
-    attempts++;
     if (attemptResult instanceof ValidData) {
-      logger.info(`      attempt #${attempts} succeeded.`);
+      logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<ExpTypes["Data"]> = {
-        totalTries: attempts,
+        totalTries: failedAttempts.length + 1,
         failedAttempts,
         ok: true,
         result: attemptResult,
       };
       return res;
     }
-    logger.warn(`      attempt #${attempts + 1} failed: ${attemptResult.type}`);
+    logger.warn(
+      `      attempt #${failedAttempts.length + 1} failed: ${
+        attemptResult.type
+      }`
+    );
     failedAttempts.push(attemptResult);
   }
 
   const res: TrialResult<ExpTypes["Data"]> = {
-    totalTries: attempts,
+    totalTries: failedAttempts.length,
     failedAttempts,
     ok: false,
   };
