@@ -28,6 +28,10 @@ const compareMC30 = async () => {
   ];
   const res = await compareMc30.performMultiNoEval(models, trials, humanScores);
 
+  if (res.usage) {
+    logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);
+  }
+
   await compareMc30.evaluate(res.experiments, humanScores, trials);
 };
 

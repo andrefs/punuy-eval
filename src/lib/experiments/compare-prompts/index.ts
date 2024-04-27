@@ -173,7 +173,7 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   if (!variables?.prompt?.length) {
     variables.prompt = prompts;
   }
-
+  let totalUsage;
   const varCombs = [];
   const res = [];
 
@@ -214,8 +214,12 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
   );
   for (const vc of varCombs) {
     res.push(await perform(vc, trials, Date.now()));
+    totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
   }
-  return res;
+  return {
+    experiments: res,
+    usage: totalUsage,
+  };
 }
 
 //function failedMoreThanHalf(

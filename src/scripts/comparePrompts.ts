@@ -16,7 +16,12 @@ const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const comparePromptsMain = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await comparePrompts.performMulti(vars, trials);
-  await comparePrompts.evaluate(res);
+
+  if (res.usage) {
+    logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);
+  }
+
+  await comparePrompts.evaluate(res.experiments);
   //console.log(res);
 };
 
