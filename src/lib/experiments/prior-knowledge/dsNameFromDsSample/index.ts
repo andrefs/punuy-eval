@@ -6,7 +6,7 @@ import Experiment, {
   TrialResult,
 } from "../../experiment";
 import { NonEvaluatedData } from "../../../evaluation";
-import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";

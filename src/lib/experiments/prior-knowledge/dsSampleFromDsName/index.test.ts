@@ -3,7 +3,7 @@ import dsSampleFromDsName from ".";
 import { ExpVars, PromptGenerator } from "../..";
 import { createMockDsPart, createMockModel } from "../mocks";
 import { DataIncomplete, DataPartiallyIncorrect } from "../../../evaluation";
-import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../../dataset-partitions/DsPartition";
 
 describe("dsSampleFromDsName", () => {
   //describe("genPrompt", () => {

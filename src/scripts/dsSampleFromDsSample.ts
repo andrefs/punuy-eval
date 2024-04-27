@@ -1,7 +1,7 @@
 import logger from "../lib/logger";
 import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
 import { ExpVarMatrix, dsSampleFromDsSample } from "../lib/experiments";
-import rg65 from "../lib/dataset-adapters/rg65_table1";
+import rg65 from "../lib/dataset-partitions/rg65_table1";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;

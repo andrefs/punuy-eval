@@ -10,9 +10,8 @@ import {
   DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
-  ValidData,
 } from "../../../evaluation";
-import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import { ToolSchema } from "src/lib/models";
 import query from "./query";

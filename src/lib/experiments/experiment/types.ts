@@ -1,5 +1,5 @@
 import { MeasureType } from "punuy-datasets/src/lib/types";
-import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
+import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import {
   EvaluationResult,
   EvaluationResultType,

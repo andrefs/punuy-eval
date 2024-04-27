@@ -5,9 +5,9 @@ import Experiment, {
   Prompt,
   TrialResult,
 } from "../../experiment";
-import { DataCorrect, DataIncorrect, ValidData } from "../../../evaluation";
+import { DataCorrect, DataIncorrect } from "../../../evaluation";
 import { distance } from "fastest-levenshtein";
-import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";

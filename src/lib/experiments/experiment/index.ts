@@ -18,7 +18,7 @@ import {
   saveExperimentData,
   sumUsage,
 } from "./aux";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Value } from "@sinclair/typebox/value";
 import {
   AggregatedEvaluationResult,

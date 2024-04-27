@@ -1,4 +1,4 @@
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Model, OpenAIModelResponse } from "../../models";
 import { vi } from "vitest";
 

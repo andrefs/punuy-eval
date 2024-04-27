@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createMockDsPart, createMockModel } from "../mocks";
 import dsNameFromDsSample from ".";
 import { ExpVarsFixedPrompt, PromptGenerator } from "../..";
-import { DsPartition } from "../../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../../dataset-partitions/DsPartition";
 
 describe("dsNameFromDsSample", () => {
   describe("evaluateTrial", () => {

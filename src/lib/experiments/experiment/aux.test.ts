@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
 import { genValueCombinations, getVarIds } from "./aux";
-import { DsPartition } from "../../dataset-adapters/DsPartition";
+import { DsPartition } from "../../dataset-partitions/DsPartition";
 
 describe("experiment", () => {
   describe("getVarIds", () => {

@@ -11,7 +11,7 @@ import {
   ValidData,
 } from "../../evaluation";
 import logger from "../../logger";
-import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
+import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import query, { QueryResponse } from "./query";
 import { MultiDatasetScores, TrialResult, Usage } from "../experiment/types";
 import { sumUsage } from "../experiment/aux";

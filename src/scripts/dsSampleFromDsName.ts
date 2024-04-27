@@ -1,11 +1,14 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
 import {
+  claude3sonnet,
   claude3opus,
-  commandRPlus,
+  gpt35turbo,
+  gpt4,
   gpt4turbo,
   mistralLarge,
+  openMixtral8x22B,
 } from "../lib/models";
-import rg65 from "../lib/dataset-adapters/rg65_table1";
+import ds from "../lib/dataset-partitions";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 
@@ -26,13 +29,23 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
         r.results.aggregated?.avg
       }`
     );
+    logger.debug(
+      r.results.raw.map(r => r.pairs.map(p => `[${p[0]}, ${p[1]}]`)).join("\n")
+    );
   }
 };
 
 const evm: ExpVarMatrix = {
-  dpart: [rg65],
-  //model: [gpt4turbo, claude3opus, commandRPlus, mistralLarge],
-  model: [mistralLarge],
+  dpart: Object.values(ds).slice(-2),
+  model: [
+    gpt35turbo,
+    gpt4,
+    gpt4turbo,
+    claude3sonnet,
+    claude3opus,
+    mistralLarge,
+    openMixtral8x22B,
+  ],
 };
 
 sampleFromName(evm).then(() => {
