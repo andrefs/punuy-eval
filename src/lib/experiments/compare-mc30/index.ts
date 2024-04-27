@@ -2,16 +2,7 @@ import pcorrtest from "@stdlib/stats-pcorrtest";
 import fs from "fs/promises";
 import oldFs from "fs";
 
-import {
-  Model,
-  ModelIds,
-  ModelTool,
-  claude3opus,
-  commandRPlus,
-  gpt35turbo,
-  gpt4,
-  gpt4turbo,
-} from "../../models";
+import { Model, ModelTool } from "../../models";
 import {
   JsonSchemaError,
   JsonSyntaxError,
@@ -21,11 +12,19 @@ import {
 import logger from "../../logger";
 import { DsPartition } from "src/lib/dataset-adapters/DsPartition";
 import query, { QueryResponse } from "./query";
-import { MultiDatasetScores, TrialResult } from "../experiment/types";
+import { MultiDatasetScores, TrialResult, Usage } from "../experiment/types";
+import { sumUsage } from "../experiment/aux";
 
-export type CompareMC30ModelsResults = Partial<{
-  [key in ModelIds]: QueryResponse[];
-}>;
+//export type CompareMC30ModelsResults = Partial<{
+//  [key in ModelIds]: QueryResponse[];
+//}>;
+export type CompareMC30ModelResults = {
+  variables: {
+    model: Model;
+  };
+  usage: Usage | undefined;
+  data: QueryResponse[];
+};
 
 interface LoadDatasetScoresParams {
   rg65: DsPartition;
@@ -146,19 +145,26 @@ const genPrompt = (pairs: string[][]) =>
 
 async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   const result = await model.makeRequest(prompt, params);
+  const usage = result?.usage;
 
   const data = result.getDataText();
   if (!data.trim()) {
-    return new NoData();
+    return { result: new NoData(), usage };
   }
   try {
     const got = JSON.parse(data) as QueryResponse;
     if (!query.validateSchema(got)) {
-      return new JsonSchemaError(data);
+      return {
+        result: new JsonSchemaError(data),
+        usage,
+      };
     }
-    return new ValidData(got);
+    return {
+      result: new ValidData(got),
+      usage,
+    };
   } catch (e) {
-    return new JsonSyntaxError(data);
+    return { result: new JsonSyntaxError(data), usage };
   }
 }
 
@@ -166,19 +172,26 @@ async function getResponse(
   model: Model,
   prompt: string,
   tool: ModelTool,
-  maxRetries = 3
+  maxRetries: number = 3
 ) {
   let attempts = 0;
+  let totalUsage;
   const failedAttempts = [];
   while (attempts < maxRetries) {
     logger.info(`      attempt #${attempts + 1}`);
-    const attemptResult = await tryResponse(model, prompt, tool);
+    const { result: attemptResult, usage } = await tryResponse(
+      model,
+      prompt,
+      tool
+    );
+    totalUsage = sumUsage(totalUsage, usage);
     attempts++;
     if (attemptResult instanceof ValidData) {
       const res: TrialResult<QueryResponse> = {
         totalTries: attempts,
         failedAttempts,
         ok: true,
+        usage: totalUsage,
         result: attemptResult,
       };
       return res;
@@ -189,6 +202,7 @@ async function getResponse(
 
   const res: TrialResult<QueryResponse> = {
     totalTries: attempts,
+    usage: totalUsage,
     failedAttempts,
     ok: false,
   };
@@ -208,41 +222,53 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
 }
 
 /** Run multiple trials of the experiment, with a single model */
-async function runTrialsModel(trials: number, model: Model, prompt: string) {
-  logger.info(`  model ${model.id}.`);
+async function runTrials(trials: number, model: Model, prompt: string) {
+  let totalUsage;
+  logger.info(
+    `Running experiment ${name} ${trials} times on model ${model.id}.`
+  );
   logger.debug(`Prompt: ${prompt}`);
+
   const results = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrialModel(model, prompt);
+    totalUsage = sumUsage(totalUsage, res.usage);
     if (res.ok) {
       results.push(res.result!.data); // TODO: handle failed attempts
     }
   }
-  return results;
+  return {
+    variables: { model },
+    usage: totalUsage,
+    data: results,
+  };
 }
 
 /** Run multiple trials of the experiment, with multiple models */
-async function runTrials(trials: number, scores: MultiDatasetScores) {
+async function performMultiNoEval(
+  models: Model[],
+  trials: number,
+  scores: MultiDatasetScores
+) {
+  let totalUsage;
   const pairs = getPairs(scores);
   const prompt = genPrompt(pairs);
 
   logger.info(
-    `Running experiment ${name} with ${trials} trials on models [gpt35turbo, gpt4, gpt4turbo, commandRPlus, claude3opus] and datasets [mc30, rg65, ps65, ws353].`
+    `Preparing to run experiment ${name}, ${trials} times on each model:\n${models
+      .map(m => "\t" + m.id)
+      .join(",\n")}.`
   );
 
-  //const gpt35turbo_res = await runTrialsModel(trials, gpt35turbo, prompt);
-  //const gpt4_res = await runTrialsModel(trials, gpt4, prompt);
-  const gpt4turbo_res = await runTrialsModel(trials, gpt4turbo, prompt);
-  const commandRplus_res = await runTrialsModel(trials, commandRPlus, prompt);
-  const claude3opus_res = await runTrialsModel(trials, claude3opus, prompt);
-
+  const res: CompareMC30ModelResults[] = [];
+  for (const model of models) {
+    res.push(await runTrials(trials, model, prompt));
+    totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
+  }
   return {
-    //gpt35turbo: gpt35turbo_res,
-    //gpt4: gpt4_res,
-    gpt4turbo: gpt4turbo_res,
-    commandRplus: commandRplus_res,
-    claude3opus: claude3opus_res,
+    experiments: res,
+    usage: totalUsage,
   };
 }
 
@@ -289,7 +315,7 @@ export function unzipResults(results: MC30Results) {
 }
 
 async function evaluate(
-  modelsRes: CompareMC30ModelsResults,
+  modelsRes: CompareMC30ModelResults[],
   humanScores: MultiDatasetScores,
   trials: number
 ) {
@@ -424,13 +450,16 @@ export function calcCorrelation(data: number[][]) {
 
 /** Merge the results from the models and the human scores */
 export function mergeResults(
-  modelsRes: CompareMC30ModelsResults,
+  modelsRes: CompareMC30ModelResults[],
   humanScores: MultiDatasetScores
 ) {
   const res = {} as MC30Results;
 
-  for (const [modelName, model] of Object.entries(modelsRes)) {
-    for (const score of model.flatMap(({ scores }) => [...scores])) {
+  for (const exp of modelsRes) {
+    const model = exp.variables.model;
+    const modelName = model.id;
+
+    for (const score of exp.data.flatMap(({ scores }) => [...scores])) {
       const [w1, w2] = score.words;
       res[w1] = res[w1] || {};
       res[w1][w2] = res[w1][w2] || { human: {}, models: {} };
@@ -463,7 +492,7 @@ const CompareMC30Experiment = {
   description,
   genPrompt,
   query,
-  runTrials,
+  performMultiNoEval,
   evaluate,
 };
 

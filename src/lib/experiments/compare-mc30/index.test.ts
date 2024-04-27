@@ -1,21 +1,38 @@
 import { describe, expect, it } from "vitest";
 import {
-  CompareMC30ModelsResults,
+  CompareMC30ModelResults,
   calcCorrelation,
   mergeResults,
   unzipResults,
 } from ".";
 import { MultiDatasetScores } from "..";
+import { Model } from "src/lib/models";
 
 describe("compare-mc30", () => {
   describe("mergeResults", () => {
     it("should merge results", () => {
-      const modelRes: CompareMC30ModelsResults = {
-        gpt4: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
-        gpt4turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
-        gpt35turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
-        claude3opus: [],
-      };
+      const modelRes: CompareMC30ModelResults[] = [
+        {
+          variables: { model: { id: "gpt4" } as Model },
+          data: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
+          usage: undefined,
+        },
+        {
+          variables: { model: { id: "gpt4turbo" } as Model },
+          data: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
+          usage: undefined,
+        },
+        {
+          variables: { model: { id: "gpt35turbo" } as Model },
+          data: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
+          usage: undefined,
+        },
+        {
+          variables: { model: { id: "claude3opus" } as Model },
+          data: [],
+          usage: undefined,
+        },
+      ];
 
       const humanScores: MultiDatasetScores = {
         word1: {
@@ -63,12 +80,28 @@ describe("compare-mc30", () => {
 
   describe("unzipResults", () => {
     it("should unzip results", () => {
-      const modelRes: CompareMC30ModelsResults = {
-        gpt4: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
-        gpt4turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
-        gpt35turbo: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
-        claude3opus: [],
-      };
+      const modelRes: CompareMC30ModelResults[] = [
+        {
+          variables: { model: { id: "gpt4" } as Model },
+          data: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
+          usage: undefined,
+        },
+        {
+          variables: { model: { id: "gpt4turbo" } as Model },
+          data: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
+          usage: undefined,
+        },
+        {
+          variables: { model: { id: "gpt35turbo" } as Model },
+          data: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
+          usage: undefined,
+        },
+        {
+          variables: { model: { id: "claude3opus" } as Model },
+          data: [],
+          usage: undefined,
+        },
+      ];
 
       const humanScores: MultiDatasetScores = {
         word1: {
