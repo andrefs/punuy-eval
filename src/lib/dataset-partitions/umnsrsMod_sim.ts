@@ -3,5 +3,5 @@ import { DsPartition } from "./DsPartition";
 
 export default DsPartition.fromDataset(
   umnsrsMod,
-  "UMNSRS_similarity_mod449_word2vec.csv"
+  "UMNSRS_similarity_mod449_word2vec"
 );

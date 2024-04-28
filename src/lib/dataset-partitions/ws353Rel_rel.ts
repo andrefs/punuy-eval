@@ -3,5 +3,5 @@ import { DsPartition } from "./DsPartition";
 
 export default DsPartition.fromDataset(
   ws353Rel,
-  "wordsim_relatedness_goldstandard.txt"
+  "wordsim_relatedness_goldstandard"
 );

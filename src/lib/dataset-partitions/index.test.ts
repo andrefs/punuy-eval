@@ -3,7 +3,12 @@ import { DsPartition } from "./DsPartition";
 import fs from "fs/promises";
 
 // skip non-partition files and too-large partition files
-const skipFiles = ["index.test.ts", "DsPartition.ts", "bg100k_all.ts"];
+const skipFiles = [
+  "index.ts",
+  "index.test.ts",
+  "DsPartition.ts",
+  "bg100k_all.ts",
+];
 
 describe.sequential("dataset-adapters", async () => {
   const files = (await fs.readdir(__dirname)).filter(
