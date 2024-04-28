@@ -8,10 +8,12 @@ import {
   PartitionScale,
 } from "punuy-datasets/src/lib/types";
 
+export type DsPartitionMetadata = Omit<Metadata, "languages" | "measureTypes">;
+
 export class DsPartition implements Partition {
   dataset: {
     id: string;
-    metadata: Omit<Metadata, "languages" | "measureTypes">;
+    metadata: DsPartitionMetadata;
   };
   partitionId: string;
   id: string;
@@ -40,7 +42,7 @@ export class DsPartition implements Partition {
 
   constructor(
     dsId: string,
-    dsMetadata: Metadata,
+    dsMetadata: Metadata | DsPartitionMetadata,
     partitionId: string,
     language: "en" | "pt",
     measureType: MeasureType,
