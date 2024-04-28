@@ -72,14 +72,15 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
 };
 
 const evm: ExpVarMatrix = {
-  dpart: Object.values(dsParts),
+  //dpart: Object.values(dsParts),
+  dpart: [dsParts.geresid50],
   model: [
     //gpt35turbo,
-    //gpt4,
-    gpt4turbo,
-    claude3sonnet,
-    claude3opus,
-    mistralLarge,
+    ////gpt4,
+    //gpt4turbo,
+    //claude3sonnet,
+    //claude3opus,
+    //mistralLarge,
     openMixtral8x22B,
   ],
 };
