@@ -11,6 +11,13 @@ fi
 
 # generate a traceId with micro-second precision
 TRACE_ID=$(date +%s%3N)
-FOLDER="results/exp_$TRACE_ID"
+FOLDER="./results/exp_$TRACE_ID"
 
-tsx "$SCRIPT" "$TRACE_ID" "$TRIALS" | tee -a "$FOLDER/experiment.log"
+# create the folder
+mkdir -p "$FOLDER"
+
+# run the experiment (unbuffer is used to preserve color codes)
+unbuffer tsx "$SCRIPT" "$FOLDER" "$TRIALS" 2>&1 | tee -a "$FOLDER/experiment.log"
+
+# remove color codes from the log
+sed -i -e "s/\x1B[^m]*m//g" "$FOLDER/experiment.log"
