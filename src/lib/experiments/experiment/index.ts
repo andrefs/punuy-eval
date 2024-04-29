@@ -1,5 +1,4 @@
 import { Model, ModelTool, ToolSchema } from "../../models";
-import path from "path";
 import {
   EvaluationResult,
   InvalidData,
@@ -150,7 +149,9 @@ export default class Experiment<T extends GenericExpTypes> {
           return res;
         }
         logger.warn(
-          `      attempt #${failedAttempts.length} failed: ${attemptResult.type}`
+          `      attempt #${failedAttempts.length + 1} failed: ${
+            attemptResult.type
+          }`
         );
         failedAttempts.push(attemptResult);
       }

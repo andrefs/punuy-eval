@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import oldFs from "fs";
-import Experiment, {
+import {
   ExpVarMatrix,
   ExpVars,
   ExperimentData,
@@ -57,10 +57,8 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   const filename = path.join(folder, "experiment.json");
   const json = JSON.stringify({ experiment: data, usage }, null, 2);
 
-  logger.info(
-    `Saving all data from experiment ${expName} to ${filename}. ` +
-      `It ran successfully with ${data.length} variable combinations.`
-  );
+  logger.info(`Saving all data from experiment ${expName} to ${filename}.`);
+  logger.info(`It ran successfully with ${data.length} variable combinations.`);
 
   if (!oldFs.existsSync(folder)) {
     await fs.mkdir(folder, { recursive: true });
