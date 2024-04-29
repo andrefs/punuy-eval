@@ -3,6 +3,7 @@ import { MakeAnthropicRequest } from "./anthropic";
 import { MakeCohereRequest } from "./cohere";
 import { Usage } from "../experiments";
 import { MakeMistralRequest } from "./mistral";
+import { ModelProvider } from ".";
 
 export interface ModelPricing {
   input: number;
@@ -58,11 +59,18 @@ export interface ModelRequestParams {
 
 export class Model {
   id: string;
+  provider: ModelProvider;
   makeRequest: MakeRequest;
   pricing?: ModelPricing;
 
-  constructor(id: string, makeRequest: MakeRequest, pricing?: ModelPricing) {
+  constructor(
+    id: string,
+    provider: ModelProvider,
+    makeRequest: MakeRequest,
+    pricing?: ModelPricing
+  ) {
     this.id = id;
+    this.provider = provider;
     this.makeRequest = makeRequest;
     this.pricing = pricing;
   }

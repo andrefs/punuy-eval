@@ -7,6 +7,7 @@ import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
+import { ModelId, ModelProvider } from ".";
 
 const apiKey =
   process.env.NODE_ENV === "test" ? "test" : process.env.MISTRAL_API_KEY;
@@ -33,7 +34,7 @@ const mistral = new MistralClient(apiKey);
 
 const buildModel = (
   mistral: MistralClient,
-  modelId: string,
+  modelId: ModelId,
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
@@ -67,9 +68,10 @@ const buildModel = (
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-              input_tokens: chatResponse.usage?.prompt_tokens,
-              output_tokens: chatResponse.usage?.completion_tokens,
-              total_tokens: chatResponse.usage?.total_tokens,
+              inputTokens: chatResponse.usage?.prompt_tokens,
+              outputTokens: chatResponse.usage?.completion_tokens,
+              totalTokens: chatResponse.usage?.total_tokens,
+              modelId,
             }
           : undefined,
         getDataText: () => {
@@ -90,7 +92,7 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, makeRequest, pricing);
+  return new Model(modelId, "mistral" as ModelProvider, makeRequest, pricing);
 };
 
 // updated at 2024-04-18

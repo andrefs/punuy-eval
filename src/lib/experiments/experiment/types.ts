@@ -6,7 +6,7 @@ import {
   ValidData,
   ValidationResult,
 } from "src/lib/evaluation";
-import { Model, ToolSchema } from "src/lib/models";
+import { Model, ModelId, ToolSchema } from "src/lib/models";
 
 export interface QueryData<T extends GenericExpTypes> {
   responseSchema: T["DataSchema"];
@@ -85,20 +85,20 @@ export interface ExperimentData<T extends GenericExpTypes> {
   variables: ExpVars;
   meta: ExpMeta<T["DataSchema"]>;
   results: ExpResults<T["Data"], T["Evaluation"]>;
-  usage?: Usage;
+  usage?: Usages;
 }
 
 export interface TrialResult<DataType> {
   totalTries: number;
   failedAttempts: ValidationResult<DataType>[];
   ok: boolean;
-  usage?: Usage;
+  usage?: Usages;
   result?: ValidData<DataType>;
 }
 
 export interface TrialsResultData<DataType> {
   variables: ExpVars;
-  usage?: Usage;
+  usage?: Usages;
   data: DataType[];
 }
 
@@ -117,10 +117,12 @@ export interface MultiDatasetScores {
   };
 }
 
+export type Usages = { [key in ModelId]?: Usage };
 export interface Usage {
-  input_tokens: number;
-  output_tokens: number;
-  total_tokens: number;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  modelId: ModelId;
   cost?: number;
   costCurrency?: "$" | "€" | "£";
 }

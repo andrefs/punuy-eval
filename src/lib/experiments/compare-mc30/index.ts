@@ -14,9 +14,9 @@ import {
 import logger from "../../logger";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import query, { QueryResponse } from "./query";
-import { MultiDatasetScores, TrialResult, Usage } from "../experiment/types";
-import { sumUsage } from "../experiment/aux";
+import { MultiDatasetScores, TrialResult, Usages } from "../experiment/types";
 import { renderTable } from "console-table-printer";
+import { addUsage } from "../experiment/aux";
 
 //export type CompareMC30ModelsResults = Partial<{
 //  [key in ModelIds]: QueryResponse[];
@@ -25,7 +25,7 @@ export type CompareMC30ModelResults = {
   variables: {
     model: Model;
   };
-  usage: Usage | undefined;
+  usage: Usages;
   data: QueryResponse[];
 };
 
@@ -185,7 +185,7 @@ async function getResponse(
   tool: ModelTool,
   maxRetries: number = 3
 ) {
-  let totalUsage;
+  const totalUsage: Usages = {};
   const failedAttempts = [];
   while (failedAttempts.length < maxRetries) {
     logger.info(`      attempt #${failedAttempts.length + 1}`);
@@ -194,7 +194,7 @@ async function getResponse(
       prompt,
       tool
     );
-    totalUsage = sumUsage(totalUsage, usage);
+    addUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<QueryResponse> = {
@@ -237,7 +237,7 @@ async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
 
 /** Run multiple trials of the experiment, with a single model */
 async function runTrials(trials: number, model: Model, prompt: string) {
-  let totalUsage;
+  const totalUsage: Usages = {};
   logger.info(
     `Running experiment ${name} ${trials} times on model ${model.id}.`
   );
@@ -247,7 +247,7 @@ async function runTrials(trials: number, model: Model, prompt: string) {
   for (let i = 0; i < trials; i++) {
     logger.info(`    trial #${i + 1} of ${trials}`);
     const res = await runTrialModel(model, prompt);
-    totalUsage = sumUsage(totalUsage, res.usage);
+    addUsage(totalUsage, res.usage);
     if (res.ok) {
       results.push(res.result!.data); // TODO: handle failed attempts
     }
@@ -265,7 +265,7 @@ async function performMultiNoEval(
   trials: number,
   scores: MultiDatasetScores
 ) {
-  let totalUsage;
+  const totalUsage: Usages = {};
   const pairs = getPairs(scores);
   const prompt = genPrompt(pairs);
 
@@ -278,7 +278,7 @@ async function performMultiNoEval(
   const res: CompareMC30ModelResults[] = [];
   for (const model of models) {
     res.push(await runTrials(trials, model, prompt));
-    totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
+    addUsage(totalUsage, res[res.length - 1].usage);
   }
   return {
     experiments: res,

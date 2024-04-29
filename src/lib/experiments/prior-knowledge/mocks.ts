@@ -72,6 +72,7 @@ export const createMockDsPart = (): DsPartition => ({
 export const createMockModel = (result: string) =>
   new Model(
     "test",
+    "openai",
     vi.fn(() =>
       Promise.resolve({
         type: "openai",

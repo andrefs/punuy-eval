@@ -37,7 +37,12 @@ const compareMC30 = async () => {
   const res = await compareMc30.performMultiNoEval(models, trials, humanScores);
 
   if (res.usage) {
-    logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);
+    logger.info(
+      "Usage estimate:\n" +
+        Object.values(res.usage)
+          .map(u => `\t${JSON.stringify(u)}`)
+          .join("\n")
+    );
   }
 
   await compareMc30.evaluate(res.experiments, humanScores, trials, folder);

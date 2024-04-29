@@ -5,6 +5,7 @@ import "dotenv/config";
 import { ToolUseBlock } from "@anthropic-ai/sdk/resources/beta/tools/messages.mjs";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
+import { ModelId, ModelProvider } from ".";
 
 const configuration = {
   apiKey:
@@ -33,7 +34,7 @@ const anthropic = new Anthropic(configuration);
 
 const buildModel = (
   anthropic: Anthropic,
-  modelId: string,
+  modelId: ModelId,
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (
@@ -67,9 +68,10 @@ const buildModel = (
         dataObj: msg,
         usage: msg.usage
           ? {
-              input_tokens: msg.usage.input_tokens,
-              output_tokens: msg.usage.output_tokens,
-              total_tokens: msg.usage.input_tokens + msg.usage.output_tokens,
+              inputTokens: msg.usage.input_tokens,
+              outputTokens: msg.usage.output_tokens,
+              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+              modelId,
             }
           : undefined,
         getDataText: () => {
@@ -89,7 +91,7 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, makeRequest, pricing);
+  return new Model(modelId, "anthropic" as ModelProvider, makeRequest, pricing);
 };
 
 // updated at 2024-04-18

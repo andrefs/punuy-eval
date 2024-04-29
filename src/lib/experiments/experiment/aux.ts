@@ -7,51 +7,54 @@ import {
   ExperimentData,
   GenericExpTypes,
   Usage,
+  Usages,
 } from ".";
 import logger from "../../logger";
-import { ModelPricing } from "src/lib/models";
+import { ModelId, getModelById } from "src/lib/models";
 
-// TODO handle currency
-export function calcUsageCost(usage: Usage, pricing: ModelPricing): number {
-  return (
-    (usage.cost || 0) +
-    usage.input_tokens * pricing.input +
-    usage.output_tokens * pricing.output
-  );
+export function calcUsageCost(usage: Usages | undefined) {
+  if (!usage) {
+    return;
+  }
+  for (const [modelId, us] of Object.entries(usage)) {
+    const pricing = getModelById(modelId as ModelId)!.pricing;
+    if (!pricing) {
+      continue;
+    }
+    usage[modelId as ModelId]!.cost =
+      (us.cost || 0) +
+      us.inputTokens * pricing.input +
+      us.outputTokens * pricing.output;
+  }
 }
 
-export function sumUsage(
-  accUs?: Usage,
-  newUs?: Usage,
-  pricing?: ModelPricing
-): Usage | undefined {
-  if (!newUs && !accUs) {
-    return undefined;
-  }
+export function addUsage(usages: Usages, newUs?: Usage | Usages) {
   if (!newUs) {
-    return pricing
-      ? { ...accUs!, cost: calcUsageCost(accUs!, pricing) }
-      : accUs;
+    return;
   }
-  if (!accUs) {
-    return pricing ? { ...newUs, cost: calcUsageCost(newUs, pricing) } : newUs;
-  }
-  const res: Usage = {
-    total_tokens: accUs.total_tokens + newUs.total_tokens,
-    input_tokens: accUs.input_tokens + newUs.input_tokens,
-    output_tokens: accUs.output_tokens + newUs.output_tokens,
-  };
-  res.cost = pricing
-    ? calcUsageCost(res, pricing)
-    : (accUs.cost || 0) + (newUs.cost || 0);
 
-  return res;
+  const _newUs = "modelId" in newUs ? { [newUs.modelId]: newUs } : newUs;
+  for (const [modelId, nus] of Object.entries(_newUs)) {
+    if (modelId in usages) {
+      const ous = usages[modelId as ModelId]!;
+      usages[modelId as ModelId] = {
+        modelId: ous.modelId,
+        totalTokens: ous.totalTokens + nus.totalTokens,
+        inputTokens: ous.inputTokens + nus.inputTokens,
+        outputTokens: ous.outputTokens + nus.outputTokens,
+      };
+    } else {
+      usages[modelId as ModelId] = nus;
+    }
+  }
+  calcUsageCost(usages);
+  return;
 }
 
 export async function saveExperimentsData<T extends GenericExpTypes>(
   expName: string,
   data: ExperimentData<T>[],
-  usage: Usage,
+  usage: Usages,
   folder: string
 ) {
   const filename = path.join(folder, "experiment.json");

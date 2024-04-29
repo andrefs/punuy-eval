@@ -15,22 +15,22 @@ describe("compare-mc30", () => {
         {
           variables: { model: { id: "gpt4" } as Model },
           data: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
-          usage: undefined,
+          usage: {},
         },
         {
           variables: { model: { id: "gpt4turbo" } as Model },
           data: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
-          usage: undefined,
+          usage: {},
         },
         {
           variables: { model: { id: "gpt35turbo" } as Model },
           data: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
-          usage: undefined,
+          usage: {},
         },
         {
           variables: { model: { id: "claude3opus" } as Model },
           data: [],
-          usage: undefined,
+          usage: {},
         },
       ];
 
@@ -84,22 +84,22 @@ describe("compare-mc30", () => {
         {
           variables: { model: { id: "gpt4" } as Model },
           data: [{ scores: [{ words: ["word1", "word2"], score: 0.5 }] }],
-          usage: undefined,
+          usage: {},
         },
         {
           variables: { model: { id: "gpt4turbo" } as Model },
           data: [{ scores: [{ words: ["word1", "word2"], score: 0.1 }] }],
-          usage: undefined,
+          usage: {},
         },
         {
           variables: { model: { id: "gpt35turbo" } as Model },
           data: [{ scores: [{ words: ["word1", "word2"], score: 0.9 }] }],
-          usage: undefined,
+          usage: {},
         },
         {
           variables: { model: { id: "claude3opus" } as Model },
           data: [],
-          usage: undefined,
+          usage: {},
         },
       ];
 

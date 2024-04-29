@@ -21,7 +21,7 @@ import {
   genValueCombinations,
   getVarIds,
   saveExpVarCombData,
-  sumUsage,
+  addUsage,
 } from "../experiment/aux";
 import { Model, ModelTool } from "src/lib/models";
 import {
@@ -31,7 +31,7 @@ import {
   NoData,
   ValidData,
 } from "src/lib/evaluation";
-import { ExpScore, PairScoreList } from "../experiment/types";
+import { ExpScore, PairScoreList, Usages } from "../experiment/types";
 import query from "./query";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
@@ -77,7 +77,7 @@ async function getResponse(
   tool: ModelTool,
   maxRetries = 3
 ) {
-  let totalUsage;
+  const totalUsage: Usages = {};
   const failedAttempts = [];
   while (failedAttempts.length < maxRetries) {
     logger.info(`      attempt #${failedAttempts.length + 1}`);
@@ -86,7 +86,7 @@ async function getResponse(
       prompt,
       tool
     );
-    totalUsage = sumUsage(totalUsage, usage);
+    addUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
       logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<ExpTypes["Data"]> = {
@@ -185,7 +185,7 @@ async function performMulti(
   if (!variables?.prompt?.length) {
     variables.prompt = prompts;
   }
-  let totalUsage;
+  const totalUsage: Usages = {};
   const varCombs = [];
   const res = [];
 
@@ -226,7 +226,7 @@ async function performMulti(
   );
   for (const vc of varCombs) {
     res.push(await perform(vc, trials, Date.now(), folder));
-    totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
+    addUsage(totalUsage, res[res.length - 1].usage);
   }
   return {
     experiments: res,

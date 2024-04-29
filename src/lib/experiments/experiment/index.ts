@@ -13,6 +13,7 @@ import {
 import logger from "../../logger";
 import {
   ComparisonGroup,
+  addUsage,
   calcUsageCost,
   calcVarValues,
   genValueCombinations,
@@ -20,7 +21,6 @@ import {
   getVarIds,
   saveExpVarCombData,
   saveExperimentsData,
-  sumUsage,
 } from "./aux";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Value } from "@sinclair/typebox/value";
@@ -38,6 +38,7 @@ import {
   TrialResult,
   TrialsResultData,
   Usage,
+  Usages,
 } from "./types";
 import { renderTable } from "console-table-printer";
 export * from "./types";
@@ -100,7 +101,7 @@ export default class Experiment<T extends GenericExpTypes> {
     folder: string
   ) => Promise<{
     experiments: ExperimentData<T>[];
-    usage?: Usage;
+    usage?: Usages;
   }>;
   expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
   printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
@@ -138,7 +139,7 @@ export default class Experiment<T extends GenericExpTypes> {
       tool: ModelTool,
       maxRetries: number = 3
     ) {
-      let totalUsage;
+      const totalUsage: Usages = {};
       const failedAttempts = [];
       while (failedAttempts.length < maxRetries) {
         logger.info(`      attempt #${failedAttempts.length + 1}`);
@@ -147,7 +148,7 @@ export default class Experiment<T extends GenericExpTypes> {
           vars.prompt.text,
           tool
         );
-        totalUsage = sumUsage(totalUsage, usage);
+        addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
           logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
           const res: TrialResult<T["Data"]> = {
@@ -221,7 +222,7 @@ export default class Experiment<T extends GenericExpTypes> {
       vars: ExpVars,
       trials: number
     ) {
-      let totalUsage;
+      const totalUsage: Usages = {};
 
       logger.info(
         `Running experiment ${this.name} ${trials} times on model ${vars.model.id}.`
@@ -231,7 +232,7 @@ export default class Experiment<T extends GenericExpTypes> {
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
         const res = await this.runTrial(vars, this.queryData.toolSchema);
-        totalUsage = sumUsage(totalUsage, res.usage);
+        addUsage(totalUsage, res.usage);
         if (res.ok) {
           results.push(res.result!.data); // TODO: handle failed attempts
         }
@@ -263,6 +264,7 @@ export default class Experiment<T extends GenericExpTypes> {
       folder: string
     ): Promise<ExperimentData<T>> {
       const trialsRes = await this.runTrials(vars, trials);
+      calcUsageCost(trialsRes.usage);
       const expData: ExperimentData<T> = {
         meta: {
           trials,
@@ -271,15 +273,7 @@ export default class Experiment<T extends GenericExpTypes> {
           queryData: this.queryData,
         },
         variables: vars,
-        usage: trialsRes.usage
-          ? {
-              ...trialsRes.usage,
-              cost:
-                trialsRes.usage && vars.model.pricing
-                  ? calcUsageCost(trialsRes.usage, vars.model.pricing)
-                  : undefined,
-            }
-          : undefined,
+        usage: trialsRes.usage,
         results: {
           raw: trialsRes.data,
         },
@@ -297,7 +291,7 @@ export default class Experiment<T extends GenericExpTypes> {
       trials: number,
       folder: string
     ) {
-      let totalUsage;
+      const totalUsage: Usages = {};
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
       }
@@ -312,9 +306,9 @@ export default class Experiment<T extends GenericExpTypes> {
       const res = [] as ExperimentData<T>[];
       for (const vc of varCombs) {
         res.push(await this.perform(vc, trials, Date.now(), folder));
-        totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
+        addUsage(totalUsage, res[res.length - 1].usage);
       }
-      saveExperimentsData(this.name, res, totalUsage as Usage, folder);
+      saveExperimentsData(this.name, res, totalUsage, folder);
       if (this.expDataToExpScore) {
         this.printExpResTable(res);
       }

@@ -1,7 +1,15 @@
 import logger from "../lib/logger";
-import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
+import {
+  claude3opus,
+  claude3sonnet,
+  gpt35turbo,
+  gpt4,
+  gpt4turbo,
+  mistralLarge,
+  openMixtral8x22B,
+} from "../lib/models";
 import { ExpVarMatrix, dsValuesExactMatches } from "../lib/experiments";
-import rg65 from "../lib/dataset-partitions/rg65_table1";
+import dsParts from "../lib/dataset-partitions";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import path from "path";
 
@@ -14,7 +22,12 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
   const res = await dsValuesExactMatches.performMulti(vars, trials, folder);
 
   if (res.usage) {
-    logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);
+    logger.info(
+      "Usage estimate:\n" +
+        Object.values(res.usage)
+          .map(u => `\t${JSON.stringify(u)}`)
+          .join("\n")
+    );
   }
 
   for (const r of res.experiments) {
@@ -24,12 +37,37 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
         r.results.aggregated?.avg
       }`
     );
+    logger.debug(
+      r.results.raw
+        .map(r =>
+          r.scores.map(s => `[${s.words[0]}, ${s.words[1]}], ${s.score}]`)
+        )
+        .join("\n")
+    );
   }
 };
 
 const evm: ExpVarMatrix = {
-  dpart: [rg65],
-  model: [claude3opus, commandRPlus, gpt4turbo],
+  dpart: [dsParts.rg65_table1, dsParts.wp300_wp],
+  model: [
+    //gpt35turbo,
+    //gpt4,
+    //gpt4turbo,
+    //claude3sonnet,
+    //claude3opus,
+    mistralLarge,
+    openMixtral8x22B,
+  ],
+  //dpart: Object.values(dsParts),
+  //model: [
+  //  gpt35turbo,
+  //  gpt4,
+  //  gpt4turbo,
+  //  claude3sonnet,
+  //  claude3opus,
+  //  mistralLarge,
+  //  openMixtral8x22B,
+  //],
 };
 
 valuesExactMatch(evm).then(() => {

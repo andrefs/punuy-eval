@@ -5,6 +5,7 @@ import "dotenv/config";
 import { FunctionParameters } from "openai/resources/shared.mjs";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
+import { ModelId, ModelProvider } from ".";
 
 const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
@@ -32,7 +33,7 @@ const openai = new OpenAI(configuration);
 
 const buildModel = (
   openai: OpenAI,
-  modelId: string,
+  modelId: ModelId,
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
@@ -64,9 +65,10 @@ const buildModel = (
         dataObj: completion,
         usage: completion.usage
           ? {
-              input_tokens: completion.usage?.prompt_tokens,
-              output_tokens: completion.usage?.completion_tokens,
-              total_tokens: completion.usage?.total_tokens,
+              inputTokens: completion.usage?.prompt_tokens,
+              outputTokens: completion.usage?.completion_tokens,
+              totalTokens: completion.usage?.total_tokens,
+              modelId,
             }
           : undefined,
         getDataText: () => {
@@ -86,7 +88,7 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, makeRequest, pricing);
+  return new Model(modelId, "openai" as ModelProvider, makeRequest, pricing);
 };
 
 // updated at 2024-04-18

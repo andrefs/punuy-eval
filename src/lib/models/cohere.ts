@@ -4,6 +4,7 @@ import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
+import { ModelId, ModelProvider } from ".";
 
 const configuration = {
   token: process.env.NODE_ENV === "test" ? "test" : process.env.COHERE_API_KEY,
@@ -31,7 +32,7 @@ const cohere = new CohereClient(configuration);
 
 const buildModel = (
   cohere: CohereClient,
-  modelId: string,
+  modelId: ModelId,
   pricing?: ModelPricing
 ): Model => {
   const makeRequest = async function (
@@ -68,11 +69,12 @@ const buildModel = (
         dataObj: prediction,
         usage: prediction.meta?.billedUnits
           ? {
-              input_tokens: prediction.meta.billedUnits.inputTokens || 0,
-              output_tokens: prediction.meta.billedUnits.outputTokens || 0,
-              total_tokens:
+              inputTokens: prediction.meta.billedUnits.inputTokens || 0,
+              outputTokens: prediction.meta.billedUnits.outputTokens || 0,
+              totalTokens:
                 (prediction.meta.billedUnits.inputTokens || 0) +
                 (prediction.meta.billedUnits.outputTokens || 0),
+              modelId,
             }
           : undefined,
         getDataText: () => {
@@ -90,7 +92,7 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, makeRequest, pricing);
+  return new Model(modelId, "cohere" as ModelProvider, makeRequest, pricing);
 };
 
 // updated on 2024-04-18
