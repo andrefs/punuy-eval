@@ -16,6 +16,7 @@ import { Static } from "@sinclair/typebox";
 import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";
 import Experiment from "../../experiment";
+import logger from "src/lib/logger";
 
 const numPairs = 5;
 
@@ -49,7 +50,7 @@ interface ExpTypes extends GenericExpTypes {
 
 async function runTrial(
   this: Experiment<ExpTypes>,
-  vars: ExpVarsFixedPrompt,
+  vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
@@ -58,8 +59,11 @@ async function runTrial(
     description: "evaluates the pairs sampled from the dataset.",
     schema: toolSchema,
   };
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
-  const res = await this.getResponse(vars, tool, maxRetries);
+  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 

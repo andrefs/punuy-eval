@@ -15,6 +15,8 @@ import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import { ToolSchema } from "src/lib/models";
 import query from "./query";
+import { shuffle } from "fast-shuffle";
+import logger from "src/lib/logger";
 
 const name = "ds-sample-from-ds-sample";
 const description =
@@ -30,7 +32,7 @@ const promptGen = {
       text:
         `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${vars.dpart.measureType} score as reported by humans. ` +
         `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included in my list.\n` +
-        vars.dpart.data
+        shuffle(vars.dpart.data)
           .slice(0, 10)
           .map(({ term1, term2 }) => `${term1} ${term2}`)
           .join("\n"),
@@ -45,7 +47,7 @@ interface ExpTypes extends GenericExpTypes {
 
 async function runTrial(
   this: Experiment<ExpTypes>,
-  vars: ExpVarsFixedPrompt,
+  vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
@@ -55,7 +57,11 @@ async function runTrial(
     schema: toolSchema,
   };
 
-  const res = await this.getResponse(vars, tool, maxRetries);
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+
+  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 

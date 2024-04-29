@@ -10,6 +10,8 @@ import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";
+import { shuffle } from "fast-shuffle";
+import logger from "src/lib/logger";
 
 const name = "ds-name-from-ds-sample";
 const description =
@@ -22,7 +24,7 @@ const promptGen = {
     language: "en" as const,
     text:
       `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
-      vars.dpart.data
+      shuffle(vars.dpart.data)
         .slice(0, 10)
         .map(({ term1, term2 }) => `${term1} ${term2}`)
         .join("\n"),
@@ -37,7 +39,7 @@ interface ExpTypes extends GenericExpTypes {
 
 async function runTrial(
   this: Experiment<ExpTypes>,
-  vars: ExpVarsFixedPrompt,
+  vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
@@ -47,7 +49,11 @@ async function runTrial(
     schema: toolSchema,
   };
 
-  const res = await this.getResponse(vars, tool, maxRetries);
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+
+  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 

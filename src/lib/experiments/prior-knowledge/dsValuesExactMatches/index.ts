@@ -16,6 +16,8 @@ import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import { ToolSchema } from "src/lib/models";
 import query from "./query";
+import { shuffle } from "fast-shuffle";
+import logger from "src/lib/logger";
 
 const name = "ds-values-exact-matches";
 const description =
@@ -29,7 +31,7 @@ const promptGen = {
       language: "en" as const,
       text:
         'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
-        vars.dpart.data
+        shuffle(vars.dpart.data)
           .map(({ term1, term2 }) => `${term1},${term2}`)
           .join("\n"),
     };
@@ -44,7 +46,7 @@ interface ExpTypes extends GenericExpTypes {
 
 async function runTrial(
   this: Experiment<ExpTypes>,
-  vars: ExpVarsFixedPrompt,
+  vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<ExpTypes["Data"]>> {
@@ -54,7 +56,11 @@ async function runTrial(
     schema: toolSchema,
   };
 
-  const res = await this.getResponse(vars, tool, maxRetries);
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+
+  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 
