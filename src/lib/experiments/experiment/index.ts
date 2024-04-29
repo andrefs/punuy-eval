@@ -332,7 +332,7 @@ export default class Experiment<T extends GenericExpTypes> {
         return;
       }
       const expScores = exps.map(e => this.expDataToExpScore!(e));
-      const { varValues, varNames } = calcVarValues(exps);
+      const { varNames } = calcVarValues(exps);
 
       const comparisons: ComparisonGroup[] = [];
       for (const [i, v1] of varNames.entries()) {

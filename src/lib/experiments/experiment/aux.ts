@@ -2,7 +2,6 @@ import fs from "fs/promises";
 import path from "path";
 import oldFs from "fs";
 import {
-  AggregatedEvaluationResult,
   ExpVarMatrix,
   ExpVars,
   ExperimentData,
