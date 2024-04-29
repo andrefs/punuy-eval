@@ -1,7 +1,15 @@
 import logger from "../lib/logger";
-import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
+import {
+  claude3opus,
+  claude3sonnet,
+  gpt35turbo,
+  gpt4,
+  gpt4turbo,
+  mistralLarge,
+  openMixtral8x22B,
+} from "../lib/models";
 import { ExpVarMatrix, dsSampleFromDsSample } from "../lib/experiments";
-import rg65 from "../lib/dataset-partitions/rg65_table1";
+import dsParts from "../lib/dataset-partitions";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import path from "path";
 
@@ -26,8 +34,26 @@ const sampleFromSample = async (vars: ExpVarMatrix) => {
 };
 
 const evm: ExpVarMatrix = {
-  dpart: [rg65],
-  model: [claude3opus, commandRPlus, gpt4turbo],
+  dpart: [dsParts.rg65_table1, dsParts.wp300_wp],
+  model: [
+    //gpt35turbo,
+    //gpt4,
+    //gpt4turbo,
+    //claude3sonnet,
+    //claude3opus,
+    mistralLarge,
+    openMixtral8x22B,
+  ],
+  //dpart: Object.values(dsParts),
+  //model: [
+  //  gpt35turbo,
+  //  gpt4,
+  //  gpt4turbo,
+  //  claude3sonnet,
+  //  claude3opus,
+  //  mistralLarge,
+  //  openMixtral8x22B,
+  //],
 };
 
 sampleFromSample(evm).then(() => {
