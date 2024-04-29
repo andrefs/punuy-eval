@@ -337,10 +337,9 @@ export default class Experiment<T extends GenericExpTypes> {
       const comparisons: ComparisonGroup[] = [];
       for (const [i, v1] of varNames.entries()) {
         for (const v2 of varNames.slice(i + 1)) {
-          if (varValues[v1].size === 1 && varValues[v2].size === 1) {
-            // No need to compare if both variables have only one value
-            continue;
-          }
+          //if (varValues[v1].size === 1 && varValues[v2].size === 1) {
+          //  continue;
+          //}
 
           let compGroups = [] as ComparisonGroup[];
           const fixedNames = varNames.filter(v => v !== v1 && v !== v2);
@@ -362,12 +361,16 @@ export default class Experiment<T extends GenericExpTypes> {
             group.data[v1Val][v2Val] = score;
           }
 
-          // keep only groups with more than one value for each variable
-          compGroups = compGroups.filter(
-            g =>
-              Object.keys(g.data).length > 1 &&
-              Object.keys(g.data).every(k => Object.keys(g.data[k]).length > 1)
-          );
+          if (compGroups.length > 1) {
+            // keep only groups with more than one value for each variable
+            compGroups = compGroups.filter(
+              g =>
+                Object.keys(g.data).length > 1 &&
+                Object.keys(g.data).every(
+                  k => Object.keys(g.data[k]).length > 1
+                )
+            );
+          }
 
           comparisons.push(...compGroups);
         }
