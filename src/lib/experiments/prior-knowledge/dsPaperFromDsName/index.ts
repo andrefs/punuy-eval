@@ -92,5 +92,6 @@ export default new Experiment(
   query,
   runTrial,
   evaluateTrial,
+  undefined,
   [promptGen]
 );

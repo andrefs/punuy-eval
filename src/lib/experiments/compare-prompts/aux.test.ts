@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
-import {
-  ComparisonGroup,
-  evalScores,
-  getFixedValueGroup,
-  normalizeScale,
-  rawResultsToAvg,
-} from "./aux";
+import { evalScores, normalizeScale, rawResultsToAvg } from "./aux";
 import { ExpVars, Prompt } from "..";
 import { Model } from "../../models";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import { PairScoreList } from "../experiment/types";
 import pcorrTest from "@stdlib/stats-pcorrtest";
+import { ComparisonGroup, getFixedValueGroup } from "../experiment/aux";
 
 describe("compare-prompts aux", () => {
   describe("getFixedValueGroup", () => {

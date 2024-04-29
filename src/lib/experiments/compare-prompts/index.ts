@@ -12,9 +12,12 @@ import {
   TrialResult,
   TrialsResultData,
 } from "..";
-import { ComparisonGroup, evalScores, getFixedValueGroup } from "./aux";
+import { evalScores } from "./aux";
 import prompts from "./prompts";
 import {
+  ComparisonGroup,
+  getFixedValueGroup,
+  calcVarValues,
   genValueCombinations,
   getVarIds,
   saveExpVarCombData,
@@ -28,7 +31,7 @@ import {
   NoData,
   ValidData,
 } from "src/lib/evaluation";
-import { PairScoreList } from "../experiment/types";
+import { ExpScore, PairScoreList } from "../experiment/types";
 import query from "./query";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
@@ -253,11 +256,6 @@ async function performMulti(
 //  }
 //}
 
-interface ExpScore {
-  variables: ExpVars;
-  corr: ReturnType<typeof evalScores>;
-}
-
 /**
  * Evaluate the scores of the experiments
  * Correlate results of each experiment with its dataset
@@ -278,25 +276,10 @@ function expEvalScores(exps: ExperimentData<ExpTypes>[]): ExpScore[] {
     const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
     res.push({
       variables: exp.variables,
-      corr,
+      score: corr.pcorr,
     });
   }
   return res;
-}
-
-function calcVarValues(exps: ExperimentData<ExpTypes>[]) {
-  const varValues: { [key: string]: Set<string> } = {};
-  for (const r of exps) {
-    for (const v in r.variables) {
-      if (!varValues[v]) {
-        varValues[v] = new Set();
-      }
-      const value = r.variables[v as keyof ExpVars]!;
-      varValues[v].add(value.id);
-    }
-  }
-  const varNames = Object.keys(varValues).sort() as (keyof ExpVars)[];
-  return { varValues, varNames };
 }
 
 function logExpScores(expScores: ExpScore[]) {
@@ -304,7 +287,7 @@ function logExpScores(expScores: ExpScore[]) {
     logger.info(
       `Exp with variables ${JSON.stringify(
         getVarIds(expScore.variables)
-      )} has correlation ${expScore.corr.pcorr}.`
+      )} has correlation ${expScore.score}.`
     );
   }
 }
@@ -329,7 +312,7 @@ async function evaluate(exps: ExperimentData<ExpTypes>[]) {
       for (const expScore of expScores) {
         const v1Val = expScore.variables[v1]!.id;
         const v2Val = expScore.variables[v2]!.id;
-        const corr = Number(expScore.corr.pcorr.toFixed(3));
+        const corr = Number(expScore.score.toFixed(3));
 
         const group = getFixedValueGroup(
           compGroups,

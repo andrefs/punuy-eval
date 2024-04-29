@@ -124,3 +124,8 @@ export interface Usage {
   cost?: number;
   costCurrency?: "$" | "€" | "£";
 }
+
+export interface ExpScore {
+  variables: ExpVars;
+  score: number;
+}

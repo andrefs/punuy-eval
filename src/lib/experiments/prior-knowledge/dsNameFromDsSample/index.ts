@@ -71,5 +71,6 @@ export default new Experiment<ExpTypes>(
   query,
   runTrial,
   evaluateTrial,
+  undefined,
   [promptGen]
 );

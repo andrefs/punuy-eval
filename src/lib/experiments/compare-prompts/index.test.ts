@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { ExperimentData, GenericExpTypes, Prompt, comparePrompts } from "..";
 import { createMockDsPart, createMockModel } from "../prior-knowledge/mocks";
 import { Type, Static } from "@sinclair/typebox";
-import { ComparisonGroup } from "./aux";
+import { ComparisonGroup } from "../experiment/aux";
 
 const mockSchema = Type.Object({
   scores: Type.Array(

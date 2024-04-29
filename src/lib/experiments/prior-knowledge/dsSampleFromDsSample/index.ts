@@ -1,6 +1,7 @@
 import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
+  ExperimentData,
   GenericExpTypes,
   Prompt,
   TrialResult,
@@ -110,11 +111,22 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   return new DataCorrect(got, expected);
 }
 
+function expDataToExpScore(
+  this: Experiment<ExpTypes>,
+  data: ExperimentData<ExpTypes>
+) {
+  return {
+    variables: data.variables,
+    score: data.results.aggregated!.avg,
+  };
+}
+
 export default new Experiment(
   name,
   description,
   query,
   runTrial,
   evaluateTrial,
+  expDataToExpScore,
   [promptGen]
 );

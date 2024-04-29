@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import oldFs from "fs";
 import {
+  AggregatedEvaluationResult,
   ExpVarMatrix,
   ExpVars,
   ExperimentData,
@@ -135,4 +136,62 @@ function genVCHelper(vars: ExpVarMatrix): Partial<ExpVars>[] {
     }
   }
   return res;
+}
+
+export function calcVarValues<T extends GenericExpTypes>(
+  exps: ExperimentData<T>[]
+) {
+  const varValues: { [key: string]: Set<string> } = {};
+  for (const r of exps) {
+    for (const v in r.variables) {
+      if (!varValues[v]) {
+        varValues[v] = new Set();
+      }
+      const value = r.variables[v as keyof ExpVars]!;
+      varValues[v].add(value.id);
+    }
+  }
+  const varNames = Object.keys(varValues).sort() as (keyof ExpVars)[];
+  return { varValues, varNames };
+}
+
+export interface ComparisonGroup {
+  fixedValueConfig: FixedValueConfig;
+  variables: [keyof ExpVars, keyof ExpVars];
+  data: {
+    [v1: string]: {
+      [v2: string]: number;
+    };
+  };
+}
+export interface FixedValueConfig {
+  [varName: string]: string;
+}
+
+/**
+ * Get a comparison group with the given fixed values, or create a new one if it doesn't exist
+ */
+export function getFixedValueGroup(
+  compGroups: ComparisonGroup[],
+  variables: ExpVars,
+  fixedNames: (keyof ExpVars)[],
+  v1: keyof ExpVars,
+  v2: keyof ExpVars
+): ComparisonGroup {
+  for (const g of compGroups) {
+    if (fixedNames.every(f => variables[f]!.id === g.fixedValueConfig[f])) {
+      return g;
+    }
+  }
+  const fvc = {} as FixedValueConfig;
+  for (const f of fixedNames) {
+    fvc[f] = variables[f]!.id;
+  }
+  const newGroup = {
+    fixedValueConfig: fvc,
+    data: {},
+    variables: [v1, v2] as [keyof ExpVars, keyof ExpVars],
+  };
+  compGroups.push(newGroup);
+  return newGroup;
 }

@@ -12,8 +12,11 @@ import {
 } from "../../evaluation";
 import logger from "../../logger";
 import {
+  ComparisonGroup,
   calcUsageCost,
+  calcVarValues,
   genValueCombinations,
+  getFixedValueGroup,
   getVarIds,
   saveExpVarCombData,
   saveExperimentsData,
@@ -23,6 +26,7 @@ import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Value } from "@sinclair/typebox/value";
 import {
   AggregatedEvaluationResult,
+  ExpScore,
   ExpVarMatrix,
   ExpVars,
   ExpVarsFixedPrompt,
@@ -35,6 +39,7 @@ import {
   TrialsResultData,
   Usage,
 } from "./types";
+import { renderTable } from "console-table-printer";
 export * from "./types";
 
 export default class Experiment<T extends GenericExpTypes> {
@@ -97,6 +102,8 @@ export default class Experiment<T extends GenericExpTypes> {
     experiments: ExperimentData<T>[];
     usage?: Usage;
   }>;
+  expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
+  printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
 
   constructor(
     name: string,
@@ -112,6 +119,10 @@ export default class Experiment<T extends GenericExpTypes> {
       dpart: DsPartition,
       got: T["Data"]
     ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>,
+    expDataToExpScore?: (
+      this: Experiment<T>,
+      exp: ExperimentData<T>
+    ) => ExpScore,
     prompts?: (Prompt | PromptGenerator)[]
   ) {
     this.name = name;
@@ -304,10 +315,77 @@ export default class Experiment<T extends GenericExpTypes> {
         totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
       }
       saveExperimentsData(this.name, res, totalUsage as Usage, folder);
+      if (this.expDataToExpScore) {
+        this.printExpResTable(res);
+      }
       return {
         experiments: res,
         usage: totalUsage,
       };
+    };
+    this.expDataToExpScore = expDataToExpScore;
+    this.printExpResTable = function (
+      this: Experiment<T>,
+      exps: ExperimentData<T>[]
+    ) {
+      if (!this.expDataToExpScore) {
+        return;
+      }
+      const expScores = exps.map(e => this.expDataToExpScore!(e));
+      const { varValues, varNames } = calcVarValues(exps);
+
+      const comparisons: ComparisonGroup[] = [];
+      for (const [i, v1] of varNames.entries()) {
+        for (const v2 of varNames.slice(i + 1)) {
+          if (varValues[v1].size === 1 && varValues[v2].size === 1) {
+            // No need to compare if both variables have only one value
+            continue;
+          }
+
+          let compGroups = [] as ComparisonGroup[];
+          const fixedNames = varNames.filter(v => v !== v1 && v !== v2);
+
+          for (const expScore of expScores) {
+            const v1Val = expScore.variables[v1]!.id;
+            const v2Val = expScore.variables[v2]!.id;
+            const score = Number(expScore.score.toFixed(3));
+
+            const group = getFixedValueGroup(
+              compGroups,
+              expScore.variables,
+              fixedNames,
+              v1,
+              v2
+            );
+
+            group.data[v1Val] = group.data[v1Val] || {};
+            group.data[v1Val][v2Val] = score;
+          }
+
+          // keep only groups with more than one value for each variable
+          compGroups = compGroups.filter(
+            g =>
+              Object.keys(g.data).length > 1 &&
+              Object.keys(g.data).every(k => Object.keys(g.data[k]).length > 1)
+          );
+
+          comparisons.push(...compGroups);
+        }
+      }
+
+      for (const comp of comparisons) {
+        const table = Object.entries(comp.data).map(([v1, v2s]) => {
+          return { "(index)": v1, ...v2s };
+        });
+        const tablePP = renderTable(table);
+        logger.info(
+          `Comparing ${comp.variables
+            .map(v => `[${v}]`)
+            .join(" and ")} with fixed variables ${JSON.stringify(
+            comp.fixedValueConfig
+          )}\n${tablePP}`
+        );
+      }
     };
   }
 }
