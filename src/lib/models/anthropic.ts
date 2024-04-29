@@ -119,10 +119,10 @@ export const claude3opus = buildModel(
 export const claude3sonnet = buildModel(
   anthropic,
   "claude-3-sonnet-20240229",
-  pricing.claude3haiku
+  pricing.claude3sonnet
 );
 export const claude3haiku = buildModel(
   anthropic,
   "claude-3-haiku-20240307",
-  pricing.claude3sonnet
+  pricing.claude3haiku
 );
