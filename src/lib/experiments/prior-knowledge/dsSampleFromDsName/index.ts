@@ -21,7 +21,7 @@ const numPairs = 5;
 
 const name = "ds-sample-from-ds-name";
 const description =
-  "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset";
+  "Check if LLM knows a dataset by asking it to list 5 pairs included in the dataset. Ignore word case and pair word order.";
 const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
@@ -65,7 +65,9 @@ async function runTrial(
 
 async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
+  const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 
+  const baseLine = Math.min(numPairs, dpart.data.length);
   for (const { term1, term2 } of dpart.data) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
@@ -80,11 +82,15 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   for (const [term1, term2] of got.pairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
+    // pair is repeated
+    if (gotDict[w1]?.[w2] || gotDict[w2]?.[w1]) {
+      continue;
+    }
+    gotDict[w1] = gotDict[w1] || {};
+    gotDict[w1][w2] = true;
 
     if (expectedDict[w1]?.[w2] || expectedDict[w2]?.[w1]) {
       i++;
-      expectedDict[w1][w2] = false;
-      expectedDict[w2][w1] = false;
     } else {
       dataIncorrect = true;
     }
@@ -99,10 +105,10 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
     return new DataIncorrect(got, expected);
   }
   if (dataIncorrect) {
-    return new DataPartiallyIncorrect(i / numPairs, got, expected);
+    return new DataPartiallyIncorrect(i / baseLine, got, expected);
   }
-  if (i < numPairs) {
-    return new DataIncomplete(i / numPairs, got, expected);
+  if (i < baseLine) {
+    return new DataIncomplete(i / baseLine, got, expected);
   }
   return new DataCorrect(got, expected);
 }

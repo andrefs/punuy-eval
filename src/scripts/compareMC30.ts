@@ -15,7 +15,11 @@ import {
   gpt4,
   claude3sonnet,
 } from "src/lib/models";
-const trials = process.argv[2] ? parseInt(process.argv[2]) : 1;
+import path from "path";
+
+const folder =
+  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
+const trials = process.argv[3] ? parseInt(process.argv[3]) : 1;
 
 const compareMC30 = async () => {
   logger.info("Starting");
@@ -36,7 +40,7 @@ const compareMC30 = async () => {
     logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);
   }
 
-  await compareMc30.evaluate(res.experiments, humanScores, trials);
+  await compareMc30.evaluate(res.experiments, humanScores, trials, folder);
 };
 
 compareMC30().then(() => {

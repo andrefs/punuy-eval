@@ -1,4 +1,5 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
+import path from "path";
 import {
   claude3sonnet,
   claude3opus,
@@ -48,11 +49,13 @@ for (const [dsId, parts] of Object.entries(partsByDs)) {
   dsParts[dsId] = parts.length > 1 ? mergeParts(parts, "__merged") : parts[0];
 }
 
-const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const folder =
+  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
+const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
 
 const sampleFromName = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await dsSampleFromDsName.performMulti(vars, trials);
+  const res = await dsSampleFromDsName.performMulti(vars, trials, folder);
 
   if (res.usage) {
     logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);

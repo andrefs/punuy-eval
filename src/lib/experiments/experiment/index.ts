@@ -1,4 +1,5 @@
 import { Model, ModelTool, ToolSchema } from "../../models";
+import path from "path";
 import {
   EvaluationResult,
   InvalidData,
@@ -15,7 +16,8 @@ import {
   calcUsageCost,
   genValueCombinations,
   getVarIds,
-  saveExperimentData,
+  saveExpVarCombData,
+  saveExperimentsData,
   sumUsage,
 } from "./aux";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
@@ -84,12 +86,14 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVars,
     trials: number,
-    traceId?: number
+    traceId: number,
+    folder: string
   ) => Promise<ExperimentData<T>>;
   performMulti: (
     this: Experiment<T>,
     variables: ExpVarMatrix,
-    trials: number
+    trials: number,
+    folder: string
   ) => Promise<{
     experiments: ExperimentData<T>[];
     usage?: Usage;
@@ -248,7 +252,8 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
-      traceId?: number
+      traceId: number,
+      folder: string
     ): Promise<ExperimentData<T>> {
       const trialsRes = await this.runTrials(vars, trials);
       const expData: ExperimentData<T> = {
@@ -276,13 +281,14 @@ export default class Experiment<T extends GenericExpTypes> {
       expData.results.evaluation = evaluation;
       expData.results.aggregated = aggregated;
 
-      await saveExperimentData(expData);
+      await saveExpVarCombData(expData, folder);
       return expData;
     };
     this.performMulti = async function (
       this: Experiment<T>,
       variables: ExpVarMatrix,
-      trials: number
+      trials: number,
+      folder: string
     ) {
       let totalUsage;
       if (!variables?.prompt?.length) {
@@ -298,9 +304,10 @@ export default class Experiment<T extends GenericExpTypes> {
       );
       const res = [] as ExperimentData<T>[];
       for (const vc of varCombs) {
-        res.push(await this.perform(vc, trials, Date.now()));
+        res.push(await this.perform(vc, trials, Date.now(), folder));
         totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
       }
+      saveExperimentsData(this.name, res, totalUsage as Usage, folder);
       return {
         experiments: res,
         usage: totalUsage,

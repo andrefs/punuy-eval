@@ -1,6 +1,7 @@
 import fs from "fs/promises";
+import path from "path";
 import oldFs from "fs";
-import {
+import Experiment, {
   ExpVarMatrix,
   ExpVars,
   ExperimentData,
@@ -47,16 +48,40 @@ export function sumUsage(
   return res;
 }
 
-export async function saveExperimentData<T extends GenericExpTypes>(
-  data: ExperimentData<T>
+export async function saveExperimentsData<T extends GenericExpTypes>(
+  expName: string,
+  data: ExperimentData<T>[],
+  usage: Usage,
+  folder: string
 ) {
-  const ts = data.meta.traceId;
+  const filename = path.join(folder, "experiment.json");
+  const json = JSON.stringify({ experiment: data, usage }, null, 2);
+
+  logger.info(
+    `Saving all data from experiment ${expName} to ${filename}. ` +
+      `It ran successfully with ${data.length} variable combinations.`
+  );
+
+  if (!oldFs.existsSync(folder)) {
+    await fs.mkdir(folder, { recursive: true });
+  }
+
+  await fs.writeFile(filename, json);
+}
+
+export async function saveExpVarCombData<T extends GenericExpTypes>(
+  data: ExperimentData<T>,
+  folder: string
+) {
+  const traceId = data.meta.traceId;
   const dpartId = data.variables.dpart.id;
   const promptId = data.variables.prompt.id;
   const expName = data.meta.name;
   const modelId = data.variables.model.id;
-  const rootFolder = "./results";
-  const filename = `${rootFolder}/${ts}_${expName}_${promptId}_${dpartId}_${modelId}.json`;
+  const filename = path.join(
+    folder,
+    `expVC_${traceId}_${expName}_${promptId}_${dpartId}_${modelId}.json`
+  );
   const json = JSON.stringify(data, null, 2);
 
   logger.info(
@@ -67,8 +92,8 @@ export async function saveExperimentData<T extends GenericExpTypes>(
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
-  if (!oldFs.existsSync(rootFolder)) {
-    await fs.mkdir(rootFolder);
+  if (!oldFs.existsSync(folder)) {
+    await fs.mkdir(folder, { recursive: true });
   }
 
   await fs.writeFile(filename, json);

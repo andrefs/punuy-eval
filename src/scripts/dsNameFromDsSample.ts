@@ -3,13 +3,16 @@ import { ExpVarMatrix, dsNameFromDsSample } from "../lib/experiments";
 import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
 import rg65 from "../lib/dataset-partitions/rg65_table1";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
+import path from "path";
 
-const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const folder =
+  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
+const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
 
 const nameFromSample = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
 
-  const res = await dsNameFromDsSample.performMulti(vars, trials);
+  const res = await dsNameFromDsSample.performMulti(vars, trials, folder);
 
   if (res.usage) {
     logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);

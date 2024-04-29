@@ -10,12 +10,15 @@ import ws353Sim from "../lib/dataset-partitions/ws353Sim_sim";
 import ws353Rel from "../lib/dataset-partitions/ws353Rel_rel";
 import mturk287 from "../lib/dataset-partitions/mt287_mturk";
 import yp130 from "../lib/dataset-partitions/yp130_verbpairs";
+import path from "path";
 
+const folder =
+  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
 const comparePromptsMain = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await comparePrompts.performMulti(vars, trials);
+  const res = await comparePrompts.performMulti(vars, trials, folder);
 
   if (res.usage) {
     logger.info(`Usage estimate: ${JSON.stringify(res.usage)}`);

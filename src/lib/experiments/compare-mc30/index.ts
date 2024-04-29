@@ -1,4 +1,5 @@
 import pcorrtest from "@stdlib/stats-pcorrtest";
+import path from "path";
 import fs from "fs/promises";
 import oldFs from "fs";
 
@@ -347,7 +348,8 @@ function printPairValues(results: MC30Results) {
 async function evaluate(
   modelsRes: CompareMC30ModelResults[],
   humanScores: MultiDatasetScores,
-  trials: number
+  trials: number,
+  folder: string
 ) {
   const res = mergeResults(modelsRes, humanScores);
   const arrays = unzipResults(res);
@@ -394,21 +396,20 @@ async function evaluate(
     tests,
   };
 
-  await saveFile(log);
+  await saveFile(log, folder);
 }
 
-async function saveFile(log: MC30LogFile) {
+async function saveFile(log: MC30LogFile, folder: string) {
   const traceId = log.traceId;
-  const rootFolder = "./results";
-  const filename = `${rootFolder}/${traceId}_${name}.json`;
+  const filename = path.join(folder, `${traceId}_${name}.json`);
   logger.info(
     `Saving experiment ${name} with ${log.trials} trials to ${filename}.`
   );
 
   const json = JSON.stringify(log, null, 2);
 
-  if (!oldFs.existsSync(rootFolder)) {
-    await fs.mkdir(rootFolder);
+  if (!oldFs.existsSync(folder)) {
+    await fs.mkdir(folder, { recursive: true });
   }
 
   await fs.writeFile(filename, json);

@@ -17,7 +17,7 @@ import prompts from "./prompts";
 import {
   genValueCombinations,
   getVarIds,
-  saveExperimentData,
+  saveExpVarCombData,
   sumUsage,
 } from "../experiment/aux";
 import { Model, ModelTool } from "src/lib/models";
@@ -146,7 +146,12 @@ async function runTrials(
   };
 }
 
-async function perform(vars: ExpVars, trials: number, traceId?: number) {
+async function perform(
+  vars: ExpVars,
+  trials: number,
+  traceId: number,
+  folder: string
+) {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
@@ -156,7 +161,7 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
     meta: {
       trials,
       name,
-      traceId: traceId ?? Date.now(),
+      traceId,
       queryData: query,
     },
     variables: varsFixedPrompt,
@@ -165,11 +170,15 @@ async function perform(vars: ExpVars, trials: number, traceId?: number) {
     },
   };
 
-  await saveExperimentData(expData);
+  await saveExpVarCombData(expData, folder);
   return expData;
 }
 
-async function performMulti(variables: ExpVarMatrix, trials: number) {
+async function performMulti(
+  variables: ExpVarMatrix,
+  trials: number,
+  folder: string
+) {
   if (!variables?.prompt?.length) {
     variables.prompt = prompts;
   }
@@ -213,7 +222,7 @@ async function performMulti(variables: ExpVarMatrix, trials: number) {
       .join(",\n")}.`
   );
   for (const vc of varCombs) {
-    res.push(await perform(vc, trials, Date.now()));
+    res.push(await perform(vc, trials, Date.now(), folder));
     totalUsage = sumUsage(totalUsage, res[res.length - 1].usage);
   }
   return {
