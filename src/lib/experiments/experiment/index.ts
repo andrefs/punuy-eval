@@ -105,6 +105,7 @@ export default class Experiment<T extends GenericExpTypes> {
   }>;
   expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
   printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
+  printUsage: (this: Experiment<T>, usage: Usages | undefined) => void;
 
   constructor(
     name: string,
@@ -282,6 +283,7 @@ export default class Experiment<T extends GenericExpTypes> {
       expData.results.evaluation = evaluation;
       expData.results.aggregated = aggregated;
 
+      this.printUsage(expData.usage);
       await saveExpVarCombData(expData, folder);
       return expData;
     };
@@ -383,6 +385,20 @@ export default class Experiment<T extends GenericExpTypes> {
           )}\n${tablePP}`
         );
       }
+    };
+    this.printUsage = function (
+      this: Experiment<T>,
+      usage: Usages | undefined
+    ) {
+      if (!usage) {
+        return;
+      }
+      logger.info(
+        "Usage estimate:\n" +
+          Object.values(usage)
+            .map(u => `\t${JSON.stringify(u)}`)
+            .join("\n")
+      );
     };
   }
 }

@@ -13,14 +13,7 @@ const paperFromName = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await dsPaperFromDsName.performMulti(vars, trials, folder);
 
-  if (res.usage) {
-    logger.info(
-      "Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
-    );
-  }
+  dsPaperFromDsName.printUsage(res.usage);
 
   for (const r of res.experiments) {
     logger.info(

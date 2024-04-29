@@ -14,14 +14,7 @@ const nameFromSample = async (vars: ExpVarMatrix) => {
 
   const res = await dsNameFromDsSample.performMulti(vars, trials, folder);
 
-  if (res.usage) {
-    logger.info(
-      "Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
-    );
-  }
+  dsNameFromDsSample.printUsage(res.usage);
 
   for (const r of res.experiments) {
     logger.info(

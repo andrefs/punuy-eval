@@ -21,14 +21,7 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await dsValuesExactMatches.performMulti(vars, trials, folder);
 
-  if (res.usage) {
-    logger.info(
-      "Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
-    );
-  }
+  dsValuesExactMatches.printUsage(res.usage);
 
   for (const r of res.experiments) {
     logger.info(
