@@ -22,9 +22,7 @@ export function calcUsageCost(usage: Usages | undefined) {
       continue;
     }
     usage[modelId as ModelId]!.cost =
-      (us.cost || 0) +
-      us.inputTokens * pricing.input +
-      us.outputTokens * pricing.output;
+      us.inputTokens * pricing.input + us.outputTokens * pricing.output;
   }
 }
 
@@ -48,7 +46,6 @@ export function addUsage(usages: Usages, newUs?: Usage | Usages) {
     }
   }
   calcUsageCost(usages);
-  return;
 }
 
 export async function saveExperimentsData<T extends GenericExpTypes>(

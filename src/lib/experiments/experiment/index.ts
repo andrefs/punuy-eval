@@ -143,7 +143,8 @@ export default class Experiment<T extends GenericExpTypes> {
       const totalUsage: Usages = {};
       const failedAttempts = [];
       while (failedAttempts.length < maxRetries) {
-        logger.info(`      attempt #${failedAttempts.length + 1}`);
+        const faCount = failedAttempts.length + 1;
+        logger.info(`    attempt #${faCount}`);
         const { result: attemptResult, usage } = await this.tryResponse(
           vars.model,
           vars.prompt.text,
@@ -151,7 +152,7 @@ export default class Experiment<T extends GenericExpTypes> {
         );
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
+          logger.info(`    attempt #${faCount} succeeded.`);
           const res: TrialResult<T["Data"]> = {
             totalTries: failedAttempts.length + 1,
             failedAttempts,
@@ -161,12 +162,21 @@ export default class Experiment<T extends GenericExpTypes> {
           };
           return res;
         }
-        logger.warn(
-          `      attempt #${failedAttempts.length + 1} failed: ${
-            attemptResult.type
-          }`
-        );
+        logger.warn(`    attempt #${faCount} failed: ${attemptResult.type}`);
         failedAttempts.push(attemptResult);
+
+        // add exponential backoff if the number of failed attempts is less than the max
+        if (failedAttempts.length < maxRetries - 1) {
+          await new Promise(resolve => {
+            logger.info(
+              `      waiting for ${Math.pow(
+                2,
+                faCount - 1
+              )} seconds before retrying.`
+            );
+            setTimeout(resolve, Math.pow(2, faCount - 1) * 1000);
+          });
+        }
       }
 
       const res: TrialResult<T["Data"]> = {
