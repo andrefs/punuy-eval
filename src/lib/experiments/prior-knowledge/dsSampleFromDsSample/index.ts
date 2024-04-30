@@ -21,7 +21,7 @@ import { getRandom } from "src/lib/utils";
 
 const name = "ds-sample-from-ds-sample";
 const description =
-  "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
+  "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more. Ignore word case and pair word order.";
 const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,

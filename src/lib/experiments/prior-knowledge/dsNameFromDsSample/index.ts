@@ -10,13 +10,12 @@ import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";
-import { shuffle } from "fast-shuffle";
 import logger from "src/lib/logger";
 import { getRandom } from "src/lib/utils";
 
 const name = "ds-name-from-ds-sample";
 const description =
-  "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
+  "Check if LLM knows a dataset by giving it 10 pairs of words and asking its name.";
 const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
