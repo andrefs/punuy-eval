@@ -14,6 +14,11 @@ export interface ModelResponse {
   type: string;
   usage?: Usage;
   dataObj: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  /**
+   * Get the text data from the response object
+   * @returns {string} The text data
+   * @throws If the text data cannot be extracted
+   */
   getDataText: () => string;
 }
 

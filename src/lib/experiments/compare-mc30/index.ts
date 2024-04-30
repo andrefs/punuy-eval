@@ -148,8 +148,12 @@ const genPrompt = (pairs: string[][]) =>
 
 async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   let result;
+  let usage;
+  let data;
   try {
     result = await model.makeRequest(prompt, params);
+    usage = result?.usage;
+    data = result.getDataText();
   } catch (e) {
     return {
       result: new ExceptionThrown(),
@@ -157,8 +161,6 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
     };
   }
 
-  const usage = result?.usage;
-  const data = result.getDataText();
   if (!data.trim()) {
     return { result: new NoData(), usage };
   }

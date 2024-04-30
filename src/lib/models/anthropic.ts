@@ -75,10 +75,18 @@ const buildModel = (
             }
           : undefined,
         getDataText: () => {
-          const toolCalls = msg.content.filter(
-            c => c.type === "tool_use"
-          ) as ToolUseBlock[];
-          return JSON.stringify(toolCalls?.[0]?.input) || "";
+          let dataText;
+          try {
+            const toolCalls = msg.content.filter(
+              c => c.type === "tool_use"
+            ) as ToolUseBlock[];
+            dataText = JSON.stringify(toolCalls?.[0]?.input) || "";
+          } catch (e) {
+            logger.error(`Error getting data text from model ${modelId}: ${e}`);
+            logger.error(`Response object: ${JSON.stringify(msg)}`);
+            throw e;
+          }
+          return dataText;
         },
       };
       return res;

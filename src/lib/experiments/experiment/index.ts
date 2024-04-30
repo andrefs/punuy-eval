@@ -194,8 +194,12 @@ export default class Experiment<T extends GenericExpTypes> {
       customPredicate?: (value: T["Data"]) => boolean
     ) {
       let result;
+      let data;
+      let usage;
       try {
         result = await model.makeRequest(prompt, params);
+        usage = result?.usage;
+        data = result.getDataText();
       } catch (e) {
         return {
           result: new ExceptionThrown(),
@@ -203,8 +207,6 @@ export default class Experiment<T extends GenericExpTypes> {
         };
       }
 
-      const usage = result?.usage;
-      const data = result.getDataText();
       if (!data.trim()) {
         return { result: new NoData(), usage };
       }

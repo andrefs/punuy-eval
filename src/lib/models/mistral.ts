@@ -75,11 +75,18 @@ const buildModel = (
             }
           : undefined,
         getDataText: () => {
-          return (
-            chatResponse.choices[0]?.message.tool_calls?.filter(
-              tc => tc.function.name === toolParams.name
-            )?.[0].function.arguments || ""
-          );
+          let dataText;
+          try {
+            dataText =
+              chatResponse.choices[0]?.message.tool_calls?.filter(
+                tc => tc.function.name === toolParams.name
+              )?.[0].function.arguments || "";
+          } catch (e) {
+            logger.error(`Error getting data text from model ${modelId}: ${e}`);
+            logger.error(`Response object: ${JSON.stringify(chatResponse)}`);
+            throw e;
+          }
+          return dataText;
         },
       };
       return res;
