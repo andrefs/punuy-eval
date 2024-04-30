@@ -27,7 +27,7 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      await dsSampleFromDsName.runTrials(vars, 2);
+      await dsSampleFromDsName.runTrials(vars, 2, 1);
       expect(model.makeRequest).toHaveBeenCalled();
     });
 
@@ -42,7 +42,7 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      const tr = await dsSampleFromDsName.runTrials(vars, 2);
+      const tr = await dsSampleFromDsName.runTrials(vars, 2, 1);
       expect(tr.data.length).toEqual(2);
       expect(tr.data[0]).toMatchInlineSnapshot(`
         {
@@ -76,7 +76,7 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      const tr = await dsSampleFromDsName.runTrials(vars, 1);
+      const tr = await dsSampleFromDsName.runTrials(vars, 1, 1);
       expect(model.makeRequest).toHaveBeenCalled();
       expect(tr.data.length).toEqual(0);
     });

@@ -15,7 +15,7 @@ import {
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import query from "./query";
-import { ModelTool, ToolSchema } from "src/lib/models";
+import { ModelTool, ToolSchema } from "src/lib/models/model";
 import Experiment from "../../experiment";
 import logger from "src/lib/logger";
 

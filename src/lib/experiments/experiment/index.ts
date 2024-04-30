@@ -52,7 +52,7 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
     tool: ModelTool,
-    maxRetries: number
+    maxAttempts: number
   ) => Promise<TrialResult<T["Data"]>>;
   tryResponse: (
     this: Experiment<T>,
@@ -72,12 +72,13 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVars | ExpVarsFixedPrompt,
     toolSchema: ToolSchema,
-    maxRetries?: number
+    maxAttempts?: number
   ) => Promise<TrialResult<T["Data"]>>;
   runTrials: (
     this: Experiment<T>,
     vars: ExpVars,
-    trials: number
+    trials: number,
+    maxAttempts?: number
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
@@ -115,7 +116,7 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars | ExpVarsFixedPrompt,
       toolSchema: ToolSchema,
-      maxRetries?: number
+      maxAttempts?: number
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
@@ -233,7 +234,8 @@ export default class Experiment<T extends GenericExpTypes> {
     this.runTrials = async function (
       this: Experiment<T>,
       vars: ExpVars,
-      trials: number
+      trials: number,
+      maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
 
@@ -244,7 +246,11 @@ export default class Experiment<T extends GenericExpTypes> {
       const results: T["Data"][] = [];
       for (let i = 0; i < trials; i++) {
         logger.info(`  trial #${i + 1} of ${trials}`);
-        const res = await this.runTrial(vars, this.queryData.toolSchema);
+        const res = await this.runTrial(
+          vars,
+          this.queryData.toolSchema,
+          maxAttempts
+        );
         addUsage(totalUsage, res.usage);
         if (res.ok) {
           results.push(res.result!.data); // TODO: handle failed attempts
