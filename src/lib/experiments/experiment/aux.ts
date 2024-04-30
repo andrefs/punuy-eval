@@ -66,8 +66,10 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
 
   const json = JSON.stringify(newData, null, 2);
 
-  logger.info(`Saving all data from experiment ${expName} to ${filename}.`);
-  logger.info(`It ran successfully with ${data.length} variable combinations.`);
+  logger.info(`💾 Saving all data from experiment ${expName} to ${filename}.`);
+  logger.info(
+    `🥇 It ran successfully with ${data.length} variable combinations.`
+  );
 
   if (!oldFs.existsSync(folder)) {
     await fs.mkdir(folder, { recursive: true });
@@ -93,10 +95,10 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
   const name = data.meta.name;
 
   logger.info(
-    `Saving experiment ${name} with traceId ${traceId} to ${filename}.`
+    `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `It ran successfully ${data.results.raw.length}/${
+    `🥇 It ran successfully ${data.results.raw.length}/${
       data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );

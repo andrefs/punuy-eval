@@ -198,7 +198,7 @@ async function getResponse(
     );
     addUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
-      logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
+      logger.info(`      ✅ attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<QueryResponse> = {
         totalTries: failedAttempts.length + 1,
         failedAttempts,
@@ -209,7 +209,7 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `      attempt #${failedAttempts.length + 1} failed: ${
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${
         attemptResult.type
       }`
     );
@@ -247,7 +247,7 @@ async function runTrials(trials: number, model: Model, prompt: string) {
 
   const results = [];
   for (let i = 0; i < trials; i++) {
-    logger.info(`    trial #${i + 1} of ${trials}`);
+    logger.info(`   ⚔️  trial #${i + 1} of ${trials}`);
     const res = await runTrialModel(model, prompt);
     addUsage(totalUsage, res.usage);
     if (res.ok) {
@@ -405,7 +405,7 @@ async function saveFile(log: MC30LogFile, folder: string) {
   const traceId = log.traceId;
   const filename = path.join(folder, `${traceId}_${name}.json`);
   logger.info(
-    `Saving experiment ${name} with ${log.trials} trials to ${filename}.`
+    `💾 Saving experiment ${name} with ${log.trials} trials to ${filename}.`
   );
 
   const json = JSON.stringify(log, null, 2);

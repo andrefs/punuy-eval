@@ -82,7 +82,7 @@ async function getResponse(
   const totalUsage: Usages = {};
   const failedAttempts = [];
   while (failedAttempts.length < maxRetries) {
-    logger.info(`      attempt #${failedAttempts.length + 1}`);
+    logger.info(`    💪 attempt #${failedAttempts.length + 1}`);
     const { result: attemptResult, usage } = await tryResponse(
       model,
       prompt,
@@ -90,7 +90,7 @@ async function getResponse(
     );
     addUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
-      logger.info(`      attempt #${failedAttempts.length + 1} succeeded.`);
+      logger.info(`     ✅ attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<ExpTypes["Data"]> = {
         totalTries: failedAttempts.length + 1,
         failedAttempts,
@@ -101,7 +101,7 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `      attempt #${failedAttempts.length + 1} failed: ${
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${
         attemptResult.type
       }`
     );
@@ -139,7 +139,7 @@ async function runTrials(
 
   const results: ExpTypes["Data"][] = [];
   for (let i = 0; i < trials; i++) {
-    logger.info(`    trial #${i + 1} of ${trials}`);
+    logger.info(`   ⚔️  trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
     if (res.ok && res.result) {
       results.push(res.result.data);
@@ -345,7 +345,7 @@ async function evaluate(exps: ExperimentData<ExpTypes>[]) {
     });
     const tablePP = renderTable(table);
     logger.info(
-      `Comparing ${comp.variables
+      `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
         comp.fixedValueConfig

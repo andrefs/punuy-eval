@@ -145,15 +145,16 @@ export default class Experiment<T extends GenericExpTypes> {
       const failedAttempts = [];
       while (failedAttempts.length < maxAttempts) {
         const faCount = failedAttempts.length + 1;
-        logger.info(`    attempt #${faCount}`);
+        logger.info(`    💪 attempt #${faCount}`);
         const { result: attemptResult, usage } = await this.tryResponse(
           vars.model,
           vars.prompt.text,
           tool
         );
+
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`    attempt #${faCount} succeeded.`);
+          logger.info(`    ✅ attempt #${faCount} succeeded.`);
           const res: TrialResult<T["Data"]> = {
             totalTries: failedAttempts.length + 1,
             failedAttempts,
@@ -163,14 +164,14 @@ export default class Experiment<T extends GenericExpTypes> {
           };
           return res;
         }
-        logger.warn(`    attempt #${faCount} failed: ${attemptResult.type}`);
+        logger.warn(`    ❗ attempt #${faCount} failed: ${attemptResult.type}`);
         failedAttempts.push(attemptResult);
 
         // add exponential backoff if the number of failed attempts is less than the max
         if (failedAttempts.length < maxAttempts) {
           await new Promise(resolve => {
             logger.info(
-              `      waiting for ${Math.pow(
+              `      ⌛ waiting for ${Math.pow(
                 2,
                 faCount - 1
               )} seconds before retrying.`
@@ -240,12 +241,12 @@ export default class Experiment<T extends GenericExpTypes> {
       const totalUsage: Usages = {};
 
       logger.info(
-        `Running experiment ${this.name} ${trials} times on model ${vars.model.id}.`
+        `🧪 Running experiment ${this.name} ${trials} times on model ${vars.model.id}.`
       );
 
       const results: T["Data"][] = [];
       for (let i = 0; i < trials; i++) {
-        logger.info(`  trial #${i + 1} of ${trials}`);
+        logger.info(`  ⚔️  trial #${i + 1} of ${trials}`);
         const res = await this.runTrial(
           vars,
           this.queryData.toolSchema,
@@ -317,7 +318,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       const varCombs = genValueCombinations(variables);
       logger.info(
-        `Preparing to run experiment ${
+        `🔬 Preparing to run experiment ${
           this.name
         }, ${trials} times on each variable combination:\n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
@@ -326,7 +327,7 @@ export default class Experiment<T extends GenericExpTypes> {
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
-          `Running experiment ${index}/${varCombs.length}: ${
+          `⚗️  Running experiment ${index}/${varCombs.length}: ${
             this.name
           } with variables ${JSON.stringify(getVarIds(vc))}.`
         );
@@ -401,7 +402,7 @@ export default class Experiment<T extends GenericExpTypes> {
         });
         const tablePP = renderTable(table);
         logger.info(
-          `Comparing ${comp.variables
+          `🆚 Comparing ${comp.variables
             .map(v => `[${v}]`)
             .join(" and ")} with fixed variables ${JSON.stringify(
             comp.fixedValueConfig
@@ -417,7 +418,7 @@ export default class Experiment<T extends GenericExpTypes> {
         return;
       }
       logger.info(
-        "Usage estimate:\n" +
+        "📈 Usage estimate:\n" +
           Object.values(usage)
             .map(u => `\t${JSON.stringify(u)}`)
             .join("\n")

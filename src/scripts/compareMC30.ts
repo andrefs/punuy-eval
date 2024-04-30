@@ -22,7 +22,7 @@ const folder =
 const trials = process.argv[3] ? parseInt(process.argv[3]) : 1;
 
 const compareMC30 = async () => {
-  logger.info("Starting");
+  logger.info("🚀 Starting");
 
   const humanScores = await loadDatasetScores({ rg65, mc30, ws353, ps65 });
   const models = [
@@ -38,7 +38,7 @@ const compareMC30 = async () => {
 
   if (res.usage) {
     logger.info(
-      "Usage estimate:\n" +
+      "📈 Usage estimate:\n" +
         Object.values(res.usage)
           .map(u => `\t${JSON.stringify(u)}`)
           .join("\n")

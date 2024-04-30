@@ -10,7 +10,7 @@ const folder =
 const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
 
 const nameFromSample = async (vars: ExpVarMatrix) => {
-  logger.info("Starting");
+  logger.info("🚀 Starting");
 
   const res = await dsNameFromDsSample.performMulti(vars, trials, folder);
 

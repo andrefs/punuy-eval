@@ -17,12 +17,12 @@ const folder =
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 
 const comparePromptsMain = async (vars: ExpVarMatrix) => {
-  logger.info("Starting");
+  logger.info("🚀 Starting");
   const res = await comparePrompts.performMulti(vars, trials, folder);
 
   if (res.usage) {
     logger.info(
-      "Usage estimate:\n" +
+      "📈 Usage estimate:\n" +
         Object.values(res.usage)
           .map(u => `\t${JSON.stringify(u)}`)
           .join("\n")

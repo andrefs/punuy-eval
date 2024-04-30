@@ -18,7 +18,7 @@ const folder =
 const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
 
 const valuesExactMatch = async (vars: ExpVarMatrix) => {
-  logger.info("Starting");
+  logger.info("🚀 Starting");
   const res = await dsValuesExactMatches.performMulti(vars, trials, folder);
 
   dsValuesExactMatches.printUsage(res.usage);
