@@ -27,7 +27,12 @@ if (!configuration.apiKey) {
     "OpenAI API key not configured, please follow instructions in README.md"
   );
 } else {
-  logger.info("OpenAI API key loaded from environment variable");
+  logger.info(
+    `OpenAI API key loaded from environment variable: ${configuration.apiKey.slice(
+      0,
+      5
+    )}...`
+  );
 }
 const openai = new OpenAI(configuration);
 

@@ -28,7 +28,12 @@ if (!configuration.apiKey) {
     "Anthropic API key not configured, please follow instructions in README.md"
   );
 } else {
-  logger.info("Anthropic API key loaded from environment variable");
+  logger.info(
+    `Anthropic API key loaded from environment variable: ${configuration.apiKey.slice(
+      0,
+      5
+    )}...`
+  );
 }
 const anthropic = new Anthropic(configuration);
 

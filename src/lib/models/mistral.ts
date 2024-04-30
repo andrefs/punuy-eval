@@ -28,7 +28,9 @@ if (!apiKey) {
     "Mistral API key not configured, please follow instructions in README.md"
   );
 } else {
-  logger.info("Mistral API key loaded from environment variable");
+  logger.info(
+    `Mistral API key loaded from environment variable: ${apiKey.slice(0, 5)}...`
+  );
 }
 const mistral = new MistralClient(apiKey);
 

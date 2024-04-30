@@ -26,7 +26,12 @@ if (!configuration.token) {
     "Cohere API key not configured, please follow instructions in README.md"
   );
 } else {
-  logger.info("Cohere API key loaded from environment variable");
+  logger.info(
+    `Cohere API key loaded from environment variable: ${configuration.token.slice(
+      0,
+      5
+    )}...`
+  );
 }
 const cohere = new CohereClient(configuration);
 
