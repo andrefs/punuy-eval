@@ -17,12 +17,12 @@ import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
 import { ToolSchema } from "src/lib/models";
 import query from "./query";
-import { shuffle } from "fast-shuffle";
 import logger from "src/lib/logger";
+import { getRandom } from "src/lib/utils";
 
 const name = "ds-values-exact-matches";
 const description =
-  "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more.";
+  "Check if LLM knows a dataset by asking it to rate the similarity of pairs of words from the dataset and checking whether values match exactly the ones in the dataset.";
 const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
@@ -31,8 +31,8 @@ const promptGen = {
       id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
       text:
-        'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
-        shuffle(vars.dpart.data)
+        'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely dissimilar" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
+        getRandom(vars.dpart.data, 100)
           .map(({ term1, term2 }) => `${term1},${term2}`)
           .join("\n"),
     };

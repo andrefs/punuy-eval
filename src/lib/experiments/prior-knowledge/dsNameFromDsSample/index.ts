@@ -12,6 +12,7 @@ import query from "./query";
 import { ModelTool, ToolSchema } from "src/lib/models";
 import { shuffle } from "fast-shuffle";
 import logger from "src/lib/logger";
+import { getRandom } from "src/lib/utils";
 
 const name = "ds-name-from-ds-sample";
 const description =
@@ -24,8 +25,7 @@ const promptGen = {
     language: "en" as const,
     text:
       `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
-      shuffle(vars.dpart.data)
-        .slice(0, 10)
+      getRandom(vars.dpart.data, 10)
         .map(({ term1, term2 }) => `${term1} ${term2}`)
         .join("\n"),
   }),

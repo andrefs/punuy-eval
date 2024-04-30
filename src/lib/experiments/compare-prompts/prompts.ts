@@ -1,6 +1,6 @@
+import { getRandom } from "src/lib/utils";
 import { name } from ".";
 import { ExpVars, Prompt, PromptGenerator } from "..";
-import { shuffle } from "fast-shuffle";
 
 const prompts: PromptGenerator[] = [
   {
@@ -84,9 +84,9 @@ const prompts: PromptGenerator[] = [
 ].map(p => ({
   ...p,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
-    const pairs = shuffle(vars.dpart.data)
-      .slice(0, 10)
-      .map(({ term1, term2 }) => [term1, term2] as [string, string]);
+    const pairs = getRandom(vars.dpart.data, 10).map(
+      ({ term1, term2 }) => [term1, term2] as [string, string]
+    );
 
     return {
       ...p,
