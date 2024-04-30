@@ -93,7 +93,7 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}.\nRequest object: ${req}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }

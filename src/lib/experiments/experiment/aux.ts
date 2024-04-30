@@ -54,8 +54,17 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   usage: Usages,
   folder: string
 ) {
+  let newData = [];
   const filename = path.join(folder, "experiment.json");
-  const json = JSON.stringify({ experiment: data, usage }, null, 2);
+  // read existing data
+  // if it exists, merge the new data with the old one
+  if (oldFs.existsSync(filename)) {
+    const oldData = JSON.parse(await fs.readFile(filename, "utf-8"));
+    newData = oldData;
+  }
+  newData.push({ experiment: data, usage });
+
+  const json = JSON.stringify(newData, null, 2);
 
   logger.info(`Saving all data from experiment ${expName} to ${filename}.`);
   logger.info(`It ran successfully with ${data.length} variable combinations.`);

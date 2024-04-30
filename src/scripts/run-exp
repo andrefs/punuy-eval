@@ -1,16 +1,16 @@
 #!/bin/bash
 
-SCRIPT=$1
-TRIALS=$2
+SCRIPT="$1"
+TRIALS="$2"
+# generate a trace ID with micro-second precision
+TRACE_ID="${3:-$(date +%s%3N)}"
 
 # sanity check (SCRIPT is mandatory, TRIALS is optional)
 if [ -z "$SCRIPT" ]; then
-	echo "Usage: $0 <script> [trials=3]"
+	echo "Usage: $0 <script> [trials=3] [trace_id]"
 	exit 1
 fi
 
-# generate a traceId with micro-second precision
-TRACE_ID=$(date +%s%3N)
 FOLDER="./results/exp_$TRACE_ID"
 
 # create the folder

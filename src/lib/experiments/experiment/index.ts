@@ -138,11 +138,11 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
-      maxRetries: number = 3
+      maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
       const failedAttempts = [];
-      while (failedAttempts.length < maxRetries) {
+      while (failedAttempts.length < maxAttempts) {
         const faCount = failedAttempts.length + 1;
         logger.info(`    attempt #${faCount}`);
         const { result: attemptResult, usage } = await this.tryResponse(
@@ -166,7 +166,7 @@ export default class Experiment<T extends GenericExpTypes> {
         failedAttempts.push(attemptResult);
 
         // add exponential backoff if the number of failed attempts is less than the max
-        if (failedAttempts.length < maxRetries - 1) {
+        if (failedAttempts.length < maxAttempts) {
           await new Promise(resolve => {
             logger.info(
               `      waiting for ${Math.pow(
