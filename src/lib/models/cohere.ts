@@ -81,7 +81,7 @@ const buildModel = (
           let dataText;
           try {
             dataText =
-              JSON.stringify(prediction.toolCalls?.[0].parameters) || "";
+              JSON.stringify(prediction.toolCalls?.[0]?.parameters) || "";
           } catch (e) {
             logger.error(`Error getting data text from model ${modelId}: ${e}`);
             logger.error(`Response object: ${JSON.stringify(prediction)}`);
