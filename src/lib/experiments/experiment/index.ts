@@ -318,7 +318,12 @@ export default class Experiment<T extends GenericExpTypes> {
           .join(",\n")}.`
       );
       const res = [] as ExperimentData<T>[];
-      for (const vc of varCombs) {
+      for (const [index, vc] of varCombs.entries()) {
+        logger.info(
+          `Running experiment ${index}/${varCombs.length}: ${
+            this.name
+          } with variables ${JSON.stringify(getVarIds(vc))}.`
+        );
         res.push(await this.perform(vc, trials, Date.now(), folder));
         addUsage(totalUsage, res[res.length - 1].usage);
       }

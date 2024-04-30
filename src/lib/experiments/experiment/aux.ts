@@ -81,11 +81,13 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `expVC_${traceId}_${expName}_${promptId}_${dpartId}_${modelId}.json`
   );
   const json = JSON.stringify(data, null, 2);
+  const name = data.meta.name;
 
   logger.info(
-    `Saving experiment ${data.meta.name} with traceId ${
-      data.meta.traceId
-    } to ${filename}. It ran successfully ${data.results.raw.length}/${
+    `Saving experiment ${name} with traceId ${traceId} to ${filename}.`
+  );
+  logger.info(
+    `It ran successfully ${data.results.raw.length}/${
       data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
