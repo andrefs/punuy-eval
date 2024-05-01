@@ -85,7 +85,7 @@ export default class Experiment<T extends GenericExpTypes> {
     got: T["Data"]
   ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>;
   evaluate: (exp: ExperimentData<T>) => Promise<{
-    evaluation: EvaluationResult<T>[];
+    evaluation: EvaluationResult<T["Data"], T["Evaluation"]>[];
     aggregated: AggregatedEvaluationResult;
   }>;
   perform: (

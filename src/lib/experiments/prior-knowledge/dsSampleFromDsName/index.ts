@@ -72,7 +72,7 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 
-  const baseLine = Math.min(numPairs, dpart.data.length);
+  const baseLine = Math.max(got.pairs.length, numPairs);
   for (const { term1, term2 } of dpart.data) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
@@ -83,10 +83,11 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
     expectedDict[w2][w1] = true;
   }
   let i = 0;
-  let dataIncorrect = false;
+  let foundWrongPair = false;
   for (const [term1, term2] of got.pairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
+
     // pair is repeated
     if (gotDict[w1]?.[w2] || gotDict[w2]?.[w1]) {
       continue;
@@ -97,7 +98,7 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
     if (expectedDict[w1]?.[w2] || expectedDict[w2]?.[w1]) {
       i++;
     } else {
-      dataIncorrect = true;
+      foundWrongPair = true;
     }
   }
 
@@ -109,7 +110,7 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   if (i === 0) {
     return new DataIncorrect(got, expected);
   }
-  if (dataIncorrect) {
+  if (foundWrongPair) {
     return new DataPartiallyIncorrect(i / baseLine, got, expected);
   }
   if (i < baseLine) {

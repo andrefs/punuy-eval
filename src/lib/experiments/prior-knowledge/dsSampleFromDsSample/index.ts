@@ -19,6 +19,9 @@ import query from "./query";
 import logger from "src/lib/logger";
 import { getRandom } from "src/lib/utils";
 
+const sampleSize = 10;
+const askSize = 5;
+
 const name = "ds-sample-from-ds-sample";
 const description =
   "Check if LLM knows a dataset by giving it 10 pairs and asking for 5 more. Ignore word case and pair word order.";
@@ -32,14 +35,14 @@ const promptGen = {
       language: "en" as const,
       text:
         `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${vars.dpart.measureType} score as reported by humans. ` +
-        `I only have 10 of the pairs included in the dataset. Please give me a list of 5 other pairs of concepts belonging to the same dataset but not included on my list.\n` +
-        getRandom(vars.dpart.data, 10)
+        `I only have ${sampleSize} of the pairs included in the dataset. Please give me a list of ${askSize} other pairs of concepts belonging to the same dataset but not included on my list.\n` +
+        getRandom(vars.dpart.data, sampleSize)
           .map(({ term1, term2 }) => `${term1} ${term2}`)
           .join("\n"),
     };
   },
 };
-interface ExpTypes extends GenericExpTypes {
+export interface ExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
@@ -67,7 +70,9 @@ async function runTrial(
 
 async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
+  const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 
+  const baseLine = Math.max(got.pairs.length, askSize);
   for (const { term1, term2 } of dpart.data) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
@@ -78,17 +83,22 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
     expectedDict[w2][w1] = true;
   }
   let i = 0;
-  let dataIncorrect = false;
+  let foundWrongPair = false;
   for (const [term1, term2] of got.pairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
 
+    // pair is repeated
+    if (gotDict[w1]?.[w2] || gotDict[w2]?.[w1]) {
+      continue;
+    }
+    gotDict[w1] = gotDict[w1] || {};
+    gotDict[w1][w2] = true;
+
     if (expectedDict[w1]?.[w2] || expectedDict[w2]?.[w1]) {
       i++;
-      expectedDict[w1][w2] = false;
-      expectedDict[w2][w1] = false;
     } else {
-      dataIncorrect = true;
+      foundWrongPair = true;
     }
   }
 
@@ -101,11 +111,11 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
   if (i === 0) {
     return new DataIncorrect(got, expected);
   }
-  if (dataIncorrect) {
-    return new DataPartiallyIncorrect(i / 5, got, expected);
+  if (foundWrongPair) {
+    return new DataPartiallyIncorrect(i / baseLine, got, expected);
   }
-  if (i < 5) {
-    return new DataIncomplete(i / 5, got, expected);
+  if (i < baseLine) {
+    return new DataIncomplete(i / baseLine, got, expected);
   }
   return new DataCorrect(got, expected);
 }
