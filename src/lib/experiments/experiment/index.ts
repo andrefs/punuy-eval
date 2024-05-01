@@ -400,16 +400,32 @@ export default class Experiment<T extends GenericExpTypes> {
       }
 
       for (const comp of comparisons) {
-        const table = Object.entries(comp.data).map(([v1, v2s]) => {
-          return { "(index)": v1, ...v2s };
-        });
+        let csv = "";
+        const columnNames: { [key: string]: boolean } = {};
+        const rowNames: { [key: string]: boolean } = {};
+        const table = [];
+        for (const [v1, v2s] of Object.entries(comp.data)) {
+          rowNames[v1] = true;
+          for (const v2 of Object.keys(v2s)) {
+            columnNames[v2] = true;
+          }
+          table.push({ "(index)": v1, ...v2s });
+        }
+        csv += "," + Object.keys(columnNames).sort().join(",") + "\n";
+        for (const rN of Object.keys(rowNames).sort()) {
+          const line = [rN.toString()];
+          for (const cN of Object.keys(columnNames).sort()) {
+            line.push(comp.data[rN][cN]?.toString() || "");
+          }
+          csv += line.join(",") + "\n";
+        }
         const tablePP = renderTable(table);
         logger.info(
           `🆚 Comparing ${comp.variables
             .map(v => `[${v}]`)
             .join(" and ")} with fixed variables ${JSON.stringify(
             comp.fixedValueConfig
-          )}\n${tablePP}`
+          )}\n${tablePP}\n${csv}`
         );
       }
     };
