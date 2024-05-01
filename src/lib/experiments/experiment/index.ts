@@ -367,7 +367,10 @@ export default class Experiment<T extends GenericExpTypes> {
           for (const expScore of expScores) {
             const v1Val = expScore.variables[v1]!.id;
             const v2Val = expScore.variables[v2]!.id;
-            const score = Number(expScore.score.toFixed(3));
+            const score =
+              typeof expScore.score === "number" && !isNaN(expScore.score)
+                ? Number(expScore.score.toFixed(3))
+                : null;
 
             const group = getFixedValueGroup(
               compGroups,

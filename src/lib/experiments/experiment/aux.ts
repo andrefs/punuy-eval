@@ -172,7 +172,7 @@ export interface ComparisonGroup {
   variables: [keyof ExpVars, keyof ExpVars];
   data: {
     [v1: string]: {
-      [v2: string]: number;
+      [v2: string]: number | null;
     };
   };
 }
