@@ -43,18 +43,18 @@ const promptGen = {
   },
 };
 
-interface ExpTypes extends GenericExpTypes {
+interface SFNExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
-  this: Experiment<ExpTypes>,
+  this: Experiment<SFNExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
-): Promise<TrialResult<ExpTypes["Data"]>> {
+): Promise<TrialResult<SFNExpTypes["Data"]>> {
   const tool: ModelTool = {
     name: "evaluate_sample",
     description: "evaluates the pairs sampled from the dataset.",
@@ -68,7 +68,7 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
+async function evaluateTrial(dpart: DsPartition, got: SFNExpTypes["Data"]) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 
@@ -102,7 +102,7 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
     }
   }
 
-  const expected: ExpTypes["Data"] = {
+  const expected: SFNExpTypes["Data"] = {
     pairs: Object.keys(expectedDict).flatMap(w1 =>
       Object.keys(expectedDict[w1]).map(w2 => [w1, w2] as [string, string])
     ),
@@ -120,8 +120,8 @@ async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
 }
 
 function expDataToExpScore(
-  this: Experiment<ExpTypes>,
-  data: ExperimentData<ExpTypes>
+  this: Experiment<SFNExpTypes>,
+  data: ExperimentData<SFNExpTypes>
 ) {
   return {
     variables: data.variables,

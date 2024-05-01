@@ -1,6 +1,6 @@
 import { ExperimentData, dsSampleFromDsSample } from "src/lib/experiments";
 import { promises as fs } from "fs";
-import { ExpTypes } from "src/lib/experiments/prior-knowledge/dsSampleFromDsSample";
+import { SFSExpTypes } from "src/lib/experiments/prior-knowledge/dsSampleFromDsSample";
 import path from "path";
 
 const DIR_PATH = process.argv[2];
@@ -16,7 +16,7 @@ async function getFileNames(path: string) {
 
 async function readFile(fileName: string) {
   const json = await fs.readFile(fileName, "utf8");
-  const obj = JSON.parse(json) as ExperimentData<ExpTypes>;
+  const obj = JSON.parse(json) as ExperimentData<SFSExpTypes>;
   return obj;
 }
 

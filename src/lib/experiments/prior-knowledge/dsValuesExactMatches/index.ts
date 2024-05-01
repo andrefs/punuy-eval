@@ -39,18 +39,18 @@ const promptGen = {
   },
 };
 
-interface ExpTypes extends GenericExpTypes {
+interface VEMExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
-  this: Experiment<ExpTypes>,
+  this: Experiment<VEMExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
-): Promise<TrialResult<ExpTypes["Data"]>> {
+): Promise<TrialResult<VEMExpTypes["Data"]>> {
   const tool = {
     name: "validate_sample",
     description: "Validates the pairs sampled from the dataset.",
@@ -67,8 +67,8 @@ async function runTrial(
 
 async function evaluateTrial(
   dpart: DsPartition,
-  got: ExpTypes["Data"]
-): Promise<EvaluationResult<ExpTypes["Data"]>> {
+  got: VEMExpTypes["Data"]
+): Promise<EvaluationResult<VEMExpTypes["Data"]>> {
   const res = {} as {
     [w1: string]: {
       [w2: string]: {
@@ -78,7 +78,7 @@ async function evaluateTrial(
     };
   };
 
-  const expected: ExpTypes["Data"] = { scores: [] };
+  const expected: VEMExpTypes["Data"] = { scores: [] };
 
   for (const row of dpart.data) {
     const w1 = row.term1.toLowerCase();
@@ -129,8 +129,8 @@ async function evaluateTrial(
 }
 
 function expDataToExpScore(
-  this: Experiment<ExpTypes>,
-  data: ExperimentData<ExpTypes>
+  this: Experiment<VEMExpTypes>,
+  data: ExperimentData<VEMExpTypes>
 ) {
   return {
     variables: data.variables,

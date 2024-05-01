@@ -30,18 +30,18 @@ const promptGen = {
   }),
 };
 
-interface ExpTypes extends GenericExpTypes {
+interface NFSExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: { name: string; year: string };
   DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
-  this: Experiment<ExpTypes>,
+  this: Experiment<NFSExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
-): Promise<TrialResult<ExpTypes["Data"]>> {
+): Promise<TrialResult<NFSExpTypes["Data"]>> {
   const tool: ModelTool = {
     name: "validate_dataset_name",
     description: "Validates the dataset name.",
@@ -56,15 +56,15 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
-  const res: ExpTypes["Evaluation"] = {
+async function evaluateTrial(dpart: DsPartition, got: NFSExpTypes["Data"]) {
+  const res: NFSExpTypes["Evaluation"] = {
     name: dpart.dataset.metadata.name,
     year: dpart.dataset.metadata.date.slice(0, 4),
   };
   return new NonEvaluatedData(got, res);
 }
 
-export default new Experiment<ExpTypes>(
+export default new Experiment<NFSExpTypes>(
   name,
   description,
   query,

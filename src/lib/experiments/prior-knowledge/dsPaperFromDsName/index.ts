@@ -28,18 +28,18 @@ const promptGen = {
     };
   },
 };
-interface ExpTypes extends GenericExpTypes {
+interface PFNExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: { titles: string[] };
   DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
-  this: Experiment<ExpTypes>,
+  this: Experiment<PFNExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
-): Promise<TrialResult<ExpTypes["Data"]>> {
+): Promise<TrialResult<PFNExpTypes["Data"]>> {
   const tool: ModelTool = {
     name: "return_paper_name",
     description:
@@ -55,7 +55,7 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: ExpTypes["Data"]) {
+async function evaluateTrial(dpart: DsPartition, got: PFNExpTypes["Data"]) {
   const expected = dpart.dataset.metadata.papers.map(p => ({
     title: p.title,
   }));

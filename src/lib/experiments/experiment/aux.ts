@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import oldFs from "fs";
-import {
+import Experiment, {
   ExpVarMatrix,
   ExpVars,
   ExperimentData,
@@ -46,6 +46,27 @@ export function addUsage(usages: Usages, newUs?: Usage | Usages) {
     }
   }
   calcUsageCost(usages);
+}
+
+export async function sanityCheck<T extends GenericExpTypes>(
+  this: Experiment<T>,
+  folder: string
+) {
+  if (!oldFs.existsSync(folder)) {
+    return;
+  }
+  const oldExpData = JSON.parse(
+    await fs.readFile(path.join(folder, "experiment.json"), "utf-8")
+  ) as {
+    experiment: ExperimentData<T>[];
+    usage: Usages;
+  }[];
+
+  if (oldExpData?.[0].experiment[0].meta.name !== this.name) {
+    throw new Error(
+      `Experiment name mismatch in folder ${folder}: ${oldExpData?.[0].experiment[0].meta.name} !== ${this.name}`
+    );
+  }
 }
 
 export async function saveExperimentsData<T extends GenericExpTypes>(

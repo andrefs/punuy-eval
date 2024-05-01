@@ -19,6 +19,7 @@ import {
   genValueCombinations,
   getFixedValueGroup,
   getVarIds,
+  sanityCheck,
   saveExpVarCombData,
   saveExperimentsData,
 } from "./aux";
@@ -107,6 +108,13 @@ export default class Experiment<T extends GenericExpTypes> {
   expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
   printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
   printUsage: (this: Experiment<T>, usage: Usages | undefined) => void;
+  /**
+   * Make sure experiment can run with these parameters
+   * @param folder - path to the folder where the data will be saved
+   * @returns - void
+   * @throws - Error if the folder already exists with a different experiment
+   */
+  sanityCheck: (folder: string) => Promise<void>;
 
   constructor(
     name: string,
@@ -306,12 +314,14 @@ export default class Experiment<T extends GenericExpTypes> {
       await saveExpVarCombData(expData, folder);
       return expData;
     };
+    this.sanityCheck = sanityCheck;
     this.performMulti = async function (
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
       folder: string
     ) {
+      await this.sanityCheck(folder);
       const totalUsage: Usages = {};
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
