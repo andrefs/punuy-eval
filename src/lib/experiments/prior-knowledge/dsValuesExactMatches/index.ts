@@ -20,6 +20,7 @@ import query from "./query";
 import logger from "src/lib/logger";
 import { getRandom } from "src/lib/utils";
 
+const numberOfPairs = 10;
 const name = "ds-values-exact-matches";
 const description =
   "Check if LLM knows a dataset by asking it to rate the similarity of pairs of words from the dataset and checking whether values match exactly the ones in the dataset.";
@@ -31,9 +32,9 @@ const promptGen = {
       id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
       text:
-        'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely dissimilar" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
-        getRandom(vars.dpart.data, 100)
-          .map(({ term1, term2 }) => `${term1},${term2}`)
+        'Please rate the semantic similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely dissimilar" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
+        getRandom(vars.dpart.data, numberOfPairs)
+          .map(({ term1, term2 }) => `${term1}, ${term2}`)
           .join("\n"),
     };
   },
@@ -125,7 +126,11 @@ async function evaluateTrial(
   if (exactMatches === 0) {
     return new DataIncorrect(got, expected);
   }
-  return new DataPartiallyIncorrect((exactMatches / i) * 100, got, expected);
+  return new DataPartiallyIncorrect(
+    exactMatches / got.scores.length,
+    got,
+    expected
+  );
 }
 
 function expDataToExpScore(

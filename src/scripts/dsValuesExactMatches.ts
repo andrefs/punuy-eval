@@ -41,26 +41,16 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
 };
 
 const evm: ExpVarMatrix = {
-  dpart: [dsParts.rg65_table1, dsParts.wp300_wp],
+  dpart: Object.values(dsParts),
   model: [
-    //gpt35turbo,
-    //gpt4,
-    //gpt4turbo,
+    gpt35turbo,
+    gpt4,
+    gpt4turbo,
     //claude3sonnet,
-    //claude3opus,
+    claude3opus,
     mistralLarge,
     openMixtral8x22B,
   ],
-  //dpart: Object.values(dsParts),
-  //model: [
-  //  gpt35turbo,
-  //  gpt4,
-  //  gpt4turbo,
-  //  claude3sonnet,
-  //  claude3opus,
-  //  mistralLarge,
-  //  openMixtral8x22B,
-  //],
 };
 
 valuesExactMatch(evm).then(() => {

@@ -344,7 +344,7 @@ export default class Experiment<T extends GenericExpTypes> {
         res.push(await this.perform(vc, trials, Date.now(), folder));
         addUsage(totalUsage, res[res.length - 1].usage);
       }
-      saveExperimentsData(this.name, res, totalUsage, folder);
+      await saveExperimentsData(this.name, res, totalUsage, folder);
       if (this.expDataToExpScore) {
         this.printExpResTable(res);
       }

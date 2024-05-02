@@ -52,7 +52,7 @@ export async function sanityCheck<T extends GenericExpTypes>(
   this: Experiment<T>,
   folder: string
 ) {
-  if (!oldFs.existsSync(folder)) {
+  if (!oldFs.existsSync(path.join(folder, "experiment.json"))) {
     return;
   }
   const oldExpData = JSON.parse(
