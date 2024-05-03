@@ -13,9 +13,9 @@ import dsParts from "../lib/dataset-partitions";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import path from "path";
 
+const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
-  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
-const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
+  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
 const valuesExactMatch = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");

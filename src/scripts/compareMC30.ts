@@ -17,9 +17,9 @@ import {
 } from "src/lib/models";
 import path from "path";
 
+const trials = process.argv[2] ? parseInt(process.argv[2]) : 1;
 const folder =
-  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
-const trials = process.argv[3] ? parseInt(process.argv[3]) : 1;
+  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
 const compareMC30 = async () => {
   logger.info("🚀 Starting");

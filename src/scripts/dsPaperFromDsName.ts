@@ -5,9 +5,9 @@ import rg65 from "../lib/dataset-partitions/rg65_table1";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import path from "path";
 
+const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
-  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
-const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
+  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
 const paperFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");

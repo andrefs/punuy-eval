@@ -12,9 +12,9 @@ import mturk287 from "../lib/dataset-partitions/mt287_mturk";
 import yp130 from "../lib/dataset-partitions/yp130_verbpairs";
 import path from "path";
 
-const folder =
-  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const folder =
+  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
 const comparePromptsMain = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");

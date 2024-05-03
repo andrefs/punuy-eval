@@ -49,9 +49,9 @@ for (const [dsId, parts] of Object.entries(partsByDs)) {
   dsParts[dsId] = parts.length > 1 ? mergeParts(parts, "__merged") : parts[0];
 }
 
+const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
-  process.argv[2] || path.join(".", "results", `exp_${Date.now()}`);
-const trials = process.argv[3] ? parseInt(process.argv[3]) : 3;
+  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
 const sampleFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
