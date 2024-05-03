@@ -68,7 +68,12 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: SFNExpTypes["Data"]) {
+async function evaluateTrial(
+  this: Experiment<SFNExpTypes>,
+  dpart: DsPartition,
+  prompt: Prompt,
+  got: SFNExpTypes["Data"]
+) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 

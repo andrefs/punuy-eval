@@ -14,7 +14,12 @@ import {
 import logger from "../../logger";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import query, { QueryResponse } from "./query";
-import { MultiDatasetScores, TrialResult, Usages } from "../experiment/types";
+import {
+  MultiDatasetScores,
+  Prompt,
+  TrialResult,
+  Usages,
+} from "../experiment/types";
 import { renderTable } from "console-table-printer";
 import { addUsage } from "../experiment/aux";
 
@@ -142,9 +147,15 @@ const getPairs = (scores: MultiDatasetScores) => {
 const name = "compare-mc30";
 const description =
   "Compare the scores of multiple AI models with the scores from multiple human annotations of the MC30 pair set.";
-const genPrompt = (pairs: string[][]) =>
-  'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
-  pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n");
+const genPrompt = (pairs: [string, string][]): Prompt => ({
+  id: "compare-mc30-prompt",
+  language: "en",
+  type: "similarity",
+  pairs,
+  text:
+    'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
+    pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n"),
+});
 
 async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   let result;
@@ -183,7 +194,7 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
 
 async function getResponse(
   model: Model,
-  prompt: string,
+  prompt: Prompt,
   tool: ModelTool,
   maxRetries: number = 3
 ) {
@@ -193,13 +204,14 @@ async function getResponse(
     logger.info(`      attempt #${failedAttempts.length + 1}`);
     const { result: attemptResult, usage } = await tryResponse(
       model,
-      prompt,
+      prompt.text,
       tool
     );
     addUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
       logger.info(`      ✅ attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<QueryResponse> = {
+        prompt,
         totalTries: failedAttempts.length + 1,
         failedAttempts,
         ok: true,
@@ -217,6 +229,7 @@ async function getResponse(
   }
 
   const res: TrialResult<QueryResponse> = {
+    prompt,
     totalTries: failedAttempts.length,
     usage: totalUsage,
     failedAttempts,
@@ -226,19 +239,20 @@ async function getResponse(
 }
 
 /** Run a single trial of the experiment, with a single model */
-async function runTrialModel(model: Model, prompt: string, maxRetries = 3) {
+async function runTrialModel(model: Model, prompt: Prompt, maxRetries = 3) {
   const tool: ModelTool = {
     name: "evaluate_scores",
     description: "Evaluate the word similarity scores.",
     schema: query.toolSchema,
   };
 
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
   const res = await getResponse(model, prompt, tool, maxRetries);
   return res;
 }
 
 /** Run multiple trials of the experiment, with a single model */
-async function runTrials(trials: number, model: Model, prompt: string) {
+async function runTrials(trials: number, model: Model, prompt: Prompt) {
   const totalUsage: Usages = {};
   logger.info(
     `Running experiment ${name} ${trials} times on model ${model.id}.`

@@ -68,7 +68,12 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: SFSExpTypes["Data"]) {
+async function evaluateTrial(
+  this: Experiment<SFSExpTypes>,
+  dpart: DsPartition,
+  prompt: Prompt,
+  got: SFSExpTypes["Data"]
+) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 
@@ -82,6 +87,7 @@ async function evaluateTrial(dpart: DsPartition, got: SFSExpTypes["Data"]) {
     expectedDict[w2] = expectedDict[w2] || {};
     expectedDict[w2][w1] = true;
   }
+
   let i = 0;
   let foundWrongPair = false;
   for (const [term1, term2] of got.pairs) {

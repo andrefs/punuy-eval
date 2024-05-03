@@ -67,7 +67,9 @@ async function runTrial(
 }
 
 async function evaluateTrial(
+  this: Experiment<VEMExpTypes>,
   dpart: DsPartition,
+  prompt: Prompt,
   got: VEMExpTypes["Data"]
 ): Promise<EvaluationResult<VEMExpTypes["Data"]>> {
   const res = {} as {

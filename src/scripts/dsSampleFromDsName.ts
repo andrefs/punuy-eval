@@ -67,7 +67,9 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
       }`
     );
     logger.debug(
-      r.results.raw.map(r => r.pairs.map(p => `[${p[0]}, ${p[1]}]`)).join("\n")
+      r.results.raw
+        .map(r => r.data.pairs.map(p => `[${p[0]}, ${p[1]}]`))
+        .join("\n")
     );
   }
 };

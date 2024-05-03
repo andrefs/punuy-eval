@@ -31,7 +31,7 @@ import {
   NoData,
   ValidData,
 } from "src/lib/evaluation";
-import { ExpScore, PairScoreList, Usages } from "../experiment/types";
+import { ExpScore, PairScoreList, Prompt, Usages } from "../experiment/types";
 import query from "./query";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
@@ -75,7 +75,7 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
 
 async function getResponse(
   model: Model,
-  prompt: string,
+  prompt: Prompt,
   tool: ModelTool,
   maxRetries = 3
 ) {
@@ -85,13 +85,14 @@ async function getResponse(
     logger.info(`    💪 attempt #${failedAttempts.length + 1}`);
     const { result: attemptResult, usage } = await tryResponse(
       model,
-      prompt,
+      prompt.text,
       tool
     );
     addUsage(totalUsage, usage);
     if (attemptResult instanceof ValidData) {
       logger.info(`     ✅ attempt #${failedAttempts.length + 1} succeeded.`);
       const res: TrialResult<ExpTypes["Data"]> = {
+        prompt,
         totalTries: failedAttempts.length + 1,
         failedAttempts,
         ok: true,
@@ -109,6 +110,7 @@ async function getResponse(
   }
 
   const res: TrialResult<ExpTypes["Data"]> = {
+    prompt,
     totalTries: failedAttempts.length,
     usage: totalUsage,
     failedAttempts,
@@ -117,37 +119,42 @@ async function getResponse(
   return res;
 }
 
-async function runTrial(vars: ExpVarsFixedPrompt, maxRetries = 3) {
+async function runTrial(vars: ExpVars, maxRetries = 3) {
   const tool = {
     name: "evaluate_scores",
     description: "Evaluate the word similarity or relatedness scores",
     schema: query.toolSchema,
   };
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
-  const res = await getResponse(vars.model, vars.prompt.text, tool, maxRetries);
+  const res = await getResponse(vars.model, prompt, tool, maxRetries);
   return res;
 }
 
 async function runTrials(
-  vars: ExpVarsFixedPrompt,
+  vars: ExpVars,
   trials: number
 ): Promise<TrialsResultData<ExpTypes["Data"]>> {
   logger.info(
     `Running experiment ${name} ${trials} times on model ${vars.model.id}.`
   );
-  logger.debug(`Prompt (${vars.prompt.id}): ${vars.prompt.text}`);
 
-  const results: ExpTypes["Data"][] = [];
+  const results = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`   ⚔️  trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
     if (res.ok && res.result) {
-      results.push(res.result.data);
+      results.push({
+        data: res.result.data,
+        prompt: res.prompt,
+      });
     }
   }
   return {
     variables: vars,
-    data: results,
+    trials: results,
   };
 }
 
@@ -157,10 +164,10 @@ async function perform(
   traceId: number,
   folder: string
 ) {
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
-  const trialsRes = await runTrials(varsFixedPrompt, trials);
+  //const prompt =
+  //  "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  //const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
+  const trialsRes = await runTrials(vars, trials);
 
   const expData: ExperimentData<ExpTypes> = {
     meta: {
@@ -169,9 +176,9 @@ async function perform(
       traceId,
       queryData: query,
     },
-    variables: varsFixedPrompt,
+    variables: vars,
     results: {
-      raw: trialsRes.data,
+      raw: trialsRes.trials,
     },
   };
 
@@ -273,7 +280,7 @@ function expEvalScores(exps: ExperimentData<ExpTypes>[]): ExpScore[] {
     );
 
     const rawResults: PairScoreList[] = exp.results.raw.map(r => {
-      return r.scores as PairScoreList;
+      return r.data.scores as PairScoreList;
     });
     const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
     res.push({

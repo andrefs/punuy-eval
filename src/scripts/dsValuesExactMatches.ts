@@ -33,7 +33,7 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
     logger.debug(
       r.results.raw
         .map(r =>
-          r.scores.map(s => `[${s.words[0]}, ${s.words[1]}], ${s.score}]`)
+          r.data.scores.map(s => `[${s.words[0]}, ${s.words[1]}], ${s.score}]`)
         )
         .join("\n")
     );

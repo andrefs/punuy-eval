@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import dsSampleFromDsName from ".";
-import { ExpVars, PromptGenerator } from "../..";
+import { ExpVars, Prompt, PromptGenerator } from "../..";
 import { createMockDsPart, createMockModel } from "../mocks";
 import { DataIncomplete, DataPartiallyIncorrect } from "../../../evaluation";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
@@ -43,8 +43,8 @@ describe("dsSampleFromDsName", () => {
       };
 
       const tr = await dsSampleFromDsName.runTrials(vars, 2, 1);
-      expect(tr.data.length).toEqual(2);
-      expect(tr.data[0]).toMatchInlineSnapshot(`
+      expect(tr.trials.length).toEqual(2);
+      expect(tr.trials[0]).toMatchInlineSnapshot(`
         {
           "pairs": [
             [
@@ -54,7 +54,7 @@ describe("dsSampleFromDsName", () => {
           ],
         }
       `);
-      expect(tr.data[1]).toMatchInlineSnapshot(`
+      expect(tr.trials[1]).toMatchInlineSnapshot(`
         {
           "pairs": [
             [
@@ -78,7 +78,7 @@ describe("dsSampleFromDsName", () => {
 
       const tr = await dsSampleFromDsName.runTrials(vars, 1, 1);
       expect(model.makeRequest).toHaveBeenCalled();
-      expect(tr.data.length).toEqual(0);
+      expect(tr.trials.length).toEqual(0);
     });
   });
 
@@ -116,21 +116,29 @@ describe("dsSampleFromDsName", () => {
     it("should return DataIncorrect if data is incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, {
-        pairs: [["fail", "fail"]],
-      });
+      const result = await dsSampleFromDsName.evaluateTrial(
+        dpart,
+        {} as Prompt,
+        {
+          pairs: [["fail", "fail"]],
+        }
+      );
       expect(result.type).toEqual("data-incorrect");
     });
 
     it("should return DataPartiallyIncorrect if data is partially incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, {
-        pairs: [
-          ["testWord1", "failWord"],
-          ["testWord1", "testWord2"],
-        ],
-      });
+      const result = await dsSampleFromDsName.evaluateTrial(
+        dpart,
+        {} as Prompt,
+        {
+          pairs: [
+            ["testWord1", "failWord"],
+            ["testWord1", "testWord2"],
+          ],
+        }
+      );
       expect(result.type).toEqual("data-partially-incorrect");
       expect(
         (result as DataPartiallyIncorrect<{ pairs: [string, string] }>)
@@ -141,13 +149,17 @@ describe("dsSampleFromDsName", () => {
     it("should return DataIncomplete if data is incomplete", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, {
-        pairs: [
-          ["testWord1", "testWord2"],
-          ["testWord3", "testWord4"],
-          ["testWord5", "testWord6"],
-        ],
-      });
+      const result = await dsSampleFromDsName.evaluateTrial(
+        dpart,
+        {} as Prompt,
+        {
+          pairs: [
+            ["testWord1", "testWord2"],
+            ["testWord3", "testWord4"],
+            ["testWord5", "testWord6"],
+          ],
+        }
+      );
       expect(result.type).toEqual("data-incomplete");
       expect(
         (result as DataIncomplete<{ pairs: [string, string] }>).percentage
@@ -157,15 +169,19 @@ describe("dsSampleFromDsName", () => {
     it("should return DataCorrect if data is correct", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, {
-        pairs: [
-          ["testWord1", "testWord2"],
-          ["testWord4", "testWord3"],
-          ["testWord5", "testWord6"],
-          ["testWord7", "testWord8"],
-          ["testWord9", "testWord10"],
-        ],
-      });
+      const result = await dsSampleFromDsName.evaluateTrial(
+        dpart,
+        {} as Prompt,
+        {
+          pairs: [
+            ["testWord1", "testWord2"],
+            ["testWord4", "testWord3"],
+            ["testWord5", "testWord6"],
+            ["testWord7", "testWord8"],
+            ["testWord9", "testWord10"],
+          ],
+        }
+      );
       expect(result.type).toEqual("data-correct");
     });
   });

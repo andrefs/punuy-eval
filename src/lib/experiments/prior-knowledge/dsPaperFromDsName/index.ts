@@ -55,7 +55,12 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: PFNExpTypes["Data"]) {
+async function evaluateTrial(
+  this: Experiment<PFNExpTypes>,
+  dpart: DsPartition,
+  prompt: Prompt,
+  got: PFNExpTypes["Data"]
+) {
   const expected = dpart.dataset.metadata.papers.map(p => ({
     title: p.title,
   }));

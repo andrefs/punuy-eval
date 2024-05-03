@@ -74,7 +74,10 @@ export interface ExpMeta<T extends GenericExpTypes> {
 
 export interface ExpResults<DataType, ExpectedType> {
   /** Raw results from the trials */
-  raw: DataType[];
+  raw: {
+    data: DataType;
+    prompt: Prompt;
+  }[];
   /** Evaluation results for each trial */
   evaluation?: EvaluationResult<DataType, ExpectedType>[];
   /** Aggregated evaluation results */
@@ -89,6 +92,7 @@ export interface ExperimentData<T extends GenericExpTypes> {
 }
 
 export interface TrialResult<DataType> {
+  prompt: Prompt;
   totalTries: number;
   failedAttempts: ValidationResult<DataType>[];
   ok: boolean;
@@ -99,7 +103,10 @@ export interface TrialResult<DataType> {
 export interface TrialsResultData<DataType> {
   variables: ExpVars;
   usage?: Usages;
-  data: DataType[];
+  trials: {
+    data: DataType;
+    prompt: Prompt;
+  }[];
 }
 
 export interface AggregatedEvaluationResult {

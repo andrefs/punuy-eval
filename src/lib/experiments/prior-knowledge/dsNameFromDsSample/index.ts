@@ -56,7 +56,12 @@ async function runTrial(
   return res;
 }
 
-async function evaluateTrial(dpart: DsPartition, got: NFSExpTypes["Data"]) {
+async function evaluateTrial(
+  this: Experiment<NFSExpTypes>,
+  dpart: DsPartition,
+  prompt: Prompt,
+  got: NFSExpTypes["Data"]
+) {
   const res: NFSExpTypes["Evaluation"] = {
     name: dpart.dataset.metadata.name,
     year: dpart.dataset.metadata.date.slice(0, 4),

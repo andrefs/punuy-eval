@@ -83,6 +83,7 @@ export default class Experiment<T extends GenericExpTypes> {
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
+    prompt: Prompt,
     got: T["Data"]
   ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>;
   evaluate: (exp: ExperimentData<T>) => Promise<{
@@ -128,6 +129,7 @@ export default class Experiment<T extends GenericExpTypes> {
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
+      prompt: Prompt,
       got: T["Data"]
     ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>,
     expDataToExpScore?: (
@@ -164,6 +166,7 @@ export default class Experiment<T extends GenericExpTypes> {
         if (attemptResult instanceof ValidData) {
           logger.info(`    ✅ attempt #${faCount} succeeded.`);
           const res: TrialResult<T["Data"]> = {
+            prompt: vars.prompt,
             totalTries: failedAttempts.length + 1,
             failedAttempts,
             ok: true,
@@ -190,6 +193,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
 
       const res: TrialResult<T["Data"]> = {
+        prompt: vars.prompt,
         totalTries: failedAttempts.length,
         usage: totalUsage,
         failedAttempts,
@@ -262,13 +266,16 @@ export default class Experiment<T extends GenericExpTypes> {
         );
         addUsage(totalUsage, res.usage);
         if (res.ok) {
-          results.push(res.result!.data); // TODO: handle failed attempts
+          results.push({
+            data: res.result!.data,
+            prompt: res.prompt,
+          }); // TODO: handle failed attempts
         }
       }
       return {
         variables: vars,
         usage: totalUsage,
-        data: results,
+        trials: results,
       };
     };
     this.evaluateTrial = evaluateTrial;
@@ -277,7 +284,9 @@ export default class Experiment<T extends GenericExpTypes> {
       exp: ExperimentData<T>
     ) {
       const trialEvaluationResults = await Promise.all(
-        exp.results.raw.map(d => this.evaluateTrial(exp.variables.dpart, d))
+        exp.results.raw.map(d =>
+          this.evaluateTrial(exp.variables.dpart, d.prompt, d.data)
+        )
       );
       return {
         evaluation: trialEvaluationResults,
@@ -303,7 +312,7 @@ export default class Experiment<T extends GenericExpTypes> {
         variables: vars,
         usage: trialsRes.usage,
         results: {
-          raw: trialsRes.data,
+          raw: trialsRes.trials,
         },
       };
       const { evaluation, aggregated } = await this.evaluate(expData);

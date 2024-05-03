@@ -47,13 +47,16 @@ describe("comparePrompts", () => {
           results: {
             raw: [
               {
-                scores: [
-                  { words: ["testWord1", "testWord2"], score: 0.5 },
-                  { words: ["testWord3", "testWord4"], score: 0.9 },
-                  { words: ["testWord5", "testWord6"], score: 0.9 },
-                  { words: ["testWord7", "testWord8"], score: 0.9 },
-                  { words: ["testWord9", "testWord10"], score: 0.9 },
-                ],
+                prompt: {} as Prompt,
+                data: {
+                  scores: [
+                    { words: ["testWord1", "testWord2"], score: 0.5 },
+                    { words: ["testWord3", "testWord4"], score: 0.9 },
+                    { words: ["testWord5", "testWord6"], score: 0.9 },
+                    { words: ["testWord7", "testWord8"], score: 0.9 },
+                    { words: ["testWord9", "testWord10"], score: 0.9 },
+                  ],
+                },
               },
             ],
           },
@@ -83,13 +86,16 @@ describe("comparePrompts", () => {
           results: {
             raw: [
               {
-                scores: [
-                  { words: ["testWord1", "testWord2"], score: 0.5 },
-                  { words: ["testWord3", "testWord4"], score: 0.9 },
-                  { words: ["testWord5", "testWord6"], score: 0.9 },
-                  { words: ["testWord7", "testWord8"], score: 0.9 },
-                  { words: ["testWord9", "testWord10"], score: 0.9 },
-                ],
+                prompt: {} as Prompt,
+                data: {
+                  scores: [
+                    { words: ["testWord1", "testWord2"], score: 0.5 },
+                    { words: ["testWord3", "testWord4"], score: 0.9 },
+                    { words: ["testWord5", "testWord6"], score: 0.9 },
+                    { words: ["testWord7", "testWord8"], score: 0.9 },
+                    { words: ["testWord9", "testWord10"], score: 0.9 },
+                  ],
+                },
               },
             ],
           },

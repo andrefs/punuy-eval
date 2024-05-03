@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMockDsPart, createMockModel } from "../mocks";
 import dsNameFromDsSample from ".";
-import { ExpVarsFixedPrompt, PromptGenerator } from "../..";
+import { ExpVarsFixedPrompt, Prompt, PromptGenerator } from "../..";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
 
 describe("dsNameFromDsSample", () => {
@@ -36,6 +36,7 @@ describe("dsNameFromDsSample", () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
+        {} as Prompt,
         {
           name: mockDsPartition.dataset.metadata.name,
           year: "2021",
@@ -49,6 +50,7 @@ describe("dsNameFromDsSample", () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
+        {} as Prompt,
         {
           name: mockDsPartition.dataset.metadata.name,
           year: "2021",
