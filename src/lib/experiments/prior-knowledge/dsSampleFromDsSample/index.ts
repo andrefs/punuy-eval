@@ -11,6 +11,7 @@ import {
   DataIncomplete,
   DataIncorrect,
   DataPartiallyIncorrect,
+  NonUsableData,
 } from "../../../evaluation";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
 import { Static } from "@sinclair/typebox";
@@ -76,8 +77,16 @@ async function evaluateTrial(
 ) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
+  const askedDict: { [word: string]: { [word: string]: boolean } } = {};
+  for (const [term1, term2] of prompt.pairs!) {
+    const w1 = term1.toLowerCase();
+    const w2 = term2.toLowerCase();
+    askedDict[w1] = askedDict[w1] || {};
+    askedDict[w1][w2] = true;
+    askedDict[w2] = askedDict[w2] || {};
+    askedDict[w2][w1] = true;
+  }
 
-  const baseLine = Math.max(got.pairs.length, askSize);
   for (const { term1, term2 } of dpart.data) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
@@ -88,40 +97,51 @@ async function evaluateTrial(
     expectedDict[w2][w1] = true;
   }
 
-  let i = 0;
+  let correctPairs = 0;
+  let validPairs = 0;
   let foundWrongPair = false;
   for (const [term1, term2] of got.pairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
 
+    // pair  belongs to asked pairs
+    if (askedDict[w1]?.[w2] || askedDict[w2]?.[w1]) {
+      continue;
+    }
     // pair is repeated
     if (gotDict[w1]?.[w2] || gotDict[w2]?.[w1]) {
       continue;
     }
+    validPairs++;
+
     gotDict[w1] = gotDict[w1] || {};
     gotDict[w1][w2] = true;
 
     if (expectedDict[w1]?.[w2] || expectedDict[w2]?.[w1]) {
-      i++;
+      correctPairs++;
     } else {
       foundWrongPair = true;
     }
   }
 
+  const baseLine = Math.max(validPairs, askSize);
   const expected: SFSExpTypes["Data"] = {
     pairs: Object.keys(expectedDict).flatMap(w1 =>
       Object.keys(expectedDict[w1]).map(w2 => [w1, w2] as [string, string])
     ),
   };
 
-  if (i === 0) {
+  if (validPairs === 0) {
+    return new NonUsableData(got, expected);
+  }
+  if (correctPairs === 0) {
     return new DataIncorrect(got, expected);
   }
   if (foundWrongPair) {
-    return new DataPartiallyIncorrect(i / baseLine, got, expected);
+    return new DataPartiallyIncorrect(correctPairs / baseLine, got, expected);
   }
-  if (i < baseLine) {
-    return new DataIncomplete(i / baseLine, got, expected);
+  if (correctPairs < baseLine) {
+    return new DataIncomplete(correctPairs / baseLine, got, expected);
   }
   return new DataCorrect(got, expected);
 }
