@@ -31,15 +31,17 @@ const promptGen = {
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
     const numberOfPairs = vars.dpart.data.length;
+    const pairs = getRandom(vars.dpart.data, sampleSize).map(
+      ({ term1, term2 }) => [term1, term2] as [string, string]
+    );
     return {
       id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
+      pairs,
       text:
         `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${vars.dpart.measureType} score as reported by humans. ` +
         `I only have ${sampleSize} of the pairs included in the dataset. Please give me a list of ${askSize} other pairs of concepts belonging to the same dataset but not included on my list.\n` +
-        getRandom(vars.dpart.data, sampleSize)
-          .map(({ term1, term2 }) => `${term1} ${term2}`)
-          .join("\n"),
+        pairs.map(([term1, term2]) => `${term1} ${term2}`).join("\n"),
     };
   },
 };
