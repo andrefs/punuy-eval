@@ -111,9 +111,54 @@ async function evaluateTrial(
     i++;
     const w1 = words[0].toLowerCase();
     const w2 = words[1].toLowerCase();
-    if (res[w1] && res[w1][w2] && res[w1][w2].expected === score) {
-      exactMatches++;
+
+    // match truncating to max 2 decimal places
+    if (res[w1] && res[w1][w2]) {
+      let g = score.toString();
+      const gParts = g.split(".");
+      g = gParts[0] + (gParts[1] ? "." + gParts[1].slice(0, 2) : "");
+
+      let e = res[w1][w2].expected!.toString();
+      const eParts = e.split(".");
+      e = eParts[0] + (eParts[1] ? "." + eParts[1].slice(0, 2) : "");
+
+      if (g === e) {
+        exactMatches++;
+      }
     }
+
+    // // match rounding to the same number of decimal places
+    // if (res[w1] && res[w1][w2]) {
+    //   const g = score.toString();
+    //   const decPlaces = g.split(".")[1]?.length || 0;
+    //   const e = res[w1][w2].expected?.toFixed(decPlaces) || "";
+    //   if (g === e) {
+    //     exactMatches++;
+    //   }
+    // }
+
+    // // match truncating to the same number of decimal places
+    // if (res[w1] && res[w1][w2]) {
+    //   let g = score.toString();
+    //   const gDecPlaces = g.split(".")[1]?.length || 0;
+    //   let e = res[w1][w2].expected!.toString();
+    //   const eDecPlaces = e?.split(".")[1]?.length || 0;
+    //   const decPlaces = Math.min(gDecPlaces, eDecPlaces);
+    //   g = g.split(".")[0] + (decPlaces ? "." + g.split(".")[1] : "");
+    //   e = e?.split(".")[0] + (decPlaces ? "." + e.split(".")[1] : "");
+    //   if (g === e) {
+    //     exactMatches++;
+    //   }
+    // }
+
+    // // match truncating to 1 decimal place
+    // if (
+    //   res[w1] &&
+    //   res[w1][w2] &&
+    //   res[w1][w2].expected?.toFixed(1) === score.toFixed(1)
+    // ) {
+    //   exactMatches++;
+    // }
 
     res[w1] = res[w1] || {};
     res[w1][w2] = res[w1][w2] || { expected: null, got: null };
