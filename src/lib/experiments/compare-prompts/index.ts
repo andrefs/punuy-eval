@@ -229,7 +229,9 @@ async function performMulti(
     }
   }
   logger.info(
-    `Preparing to run experiment ${name}, ${trials} times on each variable combination:\n${varCombs
+    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${
+      varCombs.length
+    }):\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
   );

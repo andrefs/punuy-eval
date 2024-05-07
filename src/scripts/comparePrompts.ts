@@ -1,5 +1,13 @@
 import { ExpVarMatrix, comparePrompts } from "../lib/experiments";
-import { claude3opus, commandRPlus, gpt4turbo } from "../lib/models";
+import {
+  claude3opus,
+  claude3sonnet,
+  gpt35turbo,
+  gpt4,
+  gpt4turbo,
+  mistralLarge,
+  openMixtral8x22B,
+} from "../lib/models";
 import logger from "../lib/logger";
 
 import pt65 from "../lib/dataset-partitions/pt65_main";
@@ -48,7 +56,15 @@ const evm: ExpVarMatrix = {
     ws353Sim,
     yp130,
   ],
-  model: [gpt4turbo, claude3opus, commandRPlus],
+  model: [
+    //gpt35turbo,
+    //gpt4,
+    gpt4turbo,
+    //claude3sonnet,
+    claude3opus,
+    mistralLarge,
+    openMixtral8x22B,
+  ],
 };
 
 comparePromptsMain(evm).then(() => {
