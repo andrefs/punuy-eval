@@ -137,6 +137,7 @@ async function runTrials(
   vars: ExpVars,
   trials: number
 ): Promise<TrialsResultData<ExpTypes["Data"]>> {
+  const totalUsage: Usages = {};
   logger.info(
     `Running experiment ${name} ${trials} times on model ${vars.model.id}.`
   );
@@ -145,6 +146,7 @@ async function runTrials(
   for (let i = 0; i < trials; i++) {
     logger.info(`   ⚔️  trial #${i + 1} of ${trials}`);
     const res = await runTrial(vars);
+    addUsage(totalUsage, res.usage);
     if (res.ok && res.result) {
       results.push({
         data: res.result.data,
@@ -154,6 +156,7 @@ async function runTrials(
   }
   return {
     variables: vars,
+    usage: totalUsage,
     trials: results,
   };
 }
@@ -164,9 +167,6 @@ async function perform(
   traceId: number,
   folder: string
 ) {
-  //const prompt =
-  //  "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  //const varsFixedPrompt = { ...vars, prompt } as ExpVarsFixedPrompt;
   const trialsRes = await runTrials(vars, trials);
 
   const expData: ExperimentData<ExpTypes> = {
@@ -177,6 +177,7 @@ async function perform(
       queryData: query,
     },
     variables: vars,
+    usage: trialsRes.usage,
     results: {
       raw: trialsRes.trials,
     },
@@ -211,7 +212,7 @@ async function performMulti(
       );
       if (filtPrompts.length === 0 || filtDatasets.length === 0) {
         logger.warn(
-          `No prompts or datasets for language [${l}] and measure type [${mt}]. Skipping.`
+          `No prompts or datasets for language [${l.id}] and measure type [${mt.id}]. Skipping.`
         );
         continue;
       }
@@ -277,18 +278,20 @@ async function performMulti(
 function expEvalScores(exps: ExperimentData<ExpTypes>[]): ExpScore[] {
   const res = [];
   for (const exp of exps) {
-    const lcPairs = (exp.variables as ExpVarsFixedPrompt).prompt.pairs!.map(
-      p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
-    );
+    for (const trial of exp.results.raw) {
+      const lcPairs = trial.prompt.pairs!.map(
+        p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
+      );
 
-    const rawResults: PairScoreList[] = exp.results.raw.map(r => {
-      return r.data.scores as PairScoreList;
-    });
-    const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
-    res.push({
-      variables: exp.variables,
-      score: corr.pcorr,
-    });
+      const rawResults: PairScoreList[] = exp.results.raw.map(r => {
+        return r.data.scores as PairScoreList;
+      });
+      const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
+      res.push({
+        variables: exp.variables,
+        score: corr.pcorr,
+      });
+    }
   }
   return res;
 }

@@ -117,5 +117,6 @@ export function evalScores(
     }
   }
 
-  return pcorrTest(gotArr, expArr);
+  const corr = pcorrTest(gotArr, expArr);
+  return corr;
 }

@@ -43,26 +43,26 @@ const comparePromptsMain = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   dpart: [
-    // pt rel
-    pt65,
-    lxws353,
-    // pt sim
-    lxsimlex999,
-    lxrw2034,
-    // en rel
-    ws353Rel,
-    mturk287,
-    // en sim
-    ws353Sim,
+    // // pt rel
+    // pt65,
+    // lxws353,
+    // // pt sim
+    // lxsimlex999,
+    // lxrw2034,
+    // // en rel
+    // ws353Rel,
+    // mturk287,
+    // // en sim
+    // ws353Sim,
     yp130,
   ],
   model: [
-    //gpt35turbo,
-    //gpt4,
-    gpt4turbo,
-    //claude3sonnet,
-    claude3opus,
-    mistralLarge,
+    // //gpt35turbo,
+    // //gpt4,
+    // gpt4turbo,
+    // //claude3sonnet,
+    // claude3opus,
+    // mistralLarge,
     openMixtral8x22B,
   ],
 };
