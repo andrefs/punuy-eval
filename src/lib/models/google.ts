@@ -1,4 +1,10 @@
-import { Model, ModelResponse, ModelPricing, ModelTool } from "./model";
+import {
+  Model,
+  ModelResponse,
+  ModelPricing,
+  ModelTool,
+  modelToolToGoogleFunctionDecl,
+} from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
@@ -17,16 +23,16 @@ const configuration = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.GOOGLE_API_KEY,
 };
 
-export interface VertexModelResponse extends ModelResponse {
+export interface GoogleModelResponse extends ModelResponse {
   type: "google";
   usage?: Usage;
   dataObj: GenerateContentCandidate;
 }
 
-export type MakeVertexRequest = (
+export type MakeGoogleRequest = (
   prompt: string,
   params: ModelTool
-) => Promise<VertexModelResponse>;
+) => Promise<GoogleModelResponse>;
 
 if (!configuration.apiKey) {
   logger.error(
@@ -40,6 +46,13 @@ if (!configuration.apiKey) {
     )}...`
   );
 }
+
+logger.warn(
+  `REMEMBER: Google AI currently cannot be used in Europe, you need to either use a VPN or use Vertex AI instead.`
+);
+logger.info(
+  "https://ai.google.dev/gemini-api/docs/available-regions#available_regions"
+);
 
 const safetySettings = [
   {
@@ -94,13 +107,7 @@ const buildModel = (
       ],
       tools: [
         {
-          functionDeclarations: [
-            {
-              name: toolParams.name,
-              description: toolParams.description,
-              parameters: toolParams.schema,
-            },
-          ],
+          functionDeclarations: [modelToolToGoogleFunctionDecl(toolParams)],
         },
       ],
       toolConfig: {
@@ -113,7 +120,7 @@ const buildModel = (
 
     try {
       const result = await model.generateContent(req);
-      const res: VertexModelResponse = {
+      const res: GoogleModelResponse = {
         type: "google" as const,
         dataObj: result.response.candidates![0],
         usage: result.response.usageMetadata
@@ -150,7 +157,5 @@ const buildModel = (
   return new Model(modelId, "google" as ModelProvider, makeRequest, pricing);
 };
 
-// updated at 2024-04-18
-const pricing = {};
-
 export const gemini10pro = buildModel(genAI, "gemini-1.0-pro");
+export const gemini15pro = buildModel(genAI, "gemini-1.5-pro-latest");

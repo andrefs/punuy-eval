@@ -3,7 +3,7 @@ import { MakeAnthropicRequest } from "./anthropic";
 import { MakeCohereRequest } from "./cohere";
 import { Usage } from "../experiments";
 import { MakeMistralRequest } from "./mistral";
-import { ModelProvider } from ".";
+import { MakeGoogleRequest, ModelProvider } from ".";
 import {
   FunctionDeclaration,
   FunctionDeclarationSchema,
@@ -31,6 +31,7 @@ type MakeRequest =
   | MakeAnthropicRequest
   | MakeOpenAIRequest
   | MakeCohereRequest
+  | MakeGoogleRequest
   | MakeMistralRequest;
 
 export interface ToolSchema {
@@ -123,7 +124,7 @@ function toolBaseParamToGoogleFDSchema(param: ToolBaseParam | ToolItemParam) {
 
 type ToolParam = ToolObjectParam | ToolArrayParam | ToolBaseParam;
 
-export function modelToolToGoogleFDSchema(
+export function modelToolToGoogleFunctionDecl(
   tool: ModelTool
 ): FunctionDeclaration {
   return {
