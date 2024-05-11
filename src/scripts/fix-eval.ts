@@ -35,7 +35,9 @@ async function getExpFromName(expName: string) {
 // get all json files names in the directory
 async function getFileNames(path: string) {
   const files = await fs.readdir(path);
-  return files.filter(file => file.endsWith(".json"));
+  return files.filter(
+    file => file.startsWith("expVC_") && file.endsWith(".json")
+  );
 }
 
 async function createFileBackupCopy(fileName: string) {
