@@ -21,7 +21,7 @@ export * from "./openai";
 export * from "./anthropic";
 export * from "./cohere";
 export * from "./mistral";
-export * from "./vertex";
+export * from "./google";
 
 export type ModelId =
   // openai
@@ -45,7 +45,7 @@ export type ModelId =
   | "open-mixtral-8x7b"
   | "open-mixtral-8x22b"
 
-  // vertexai;
+  // google;
   | "gemini-1.0-pro";
 
 export type ModelProvider =
@@ -53,7 +53,7 @@ export type ModelProvider =
   | "anthropic"
   | "cohere"
   | "mistral"
-  | "vertexai";
+  | "google";
 
 const modelsById: { [key in ModelId]: Model } = {
   // openai
@@ -77,7 +77,7 @@ const modelsById: { [key in ModelId]: Model } = {
   "open-mixtral-8x7b": openMixtral8x7B,
   "open-mixtral-8x22b": openMixtral8x22B,
 
-  // vertexai
+  // google
   "gemini-1.0-pro": gemini10pro,
 };
 

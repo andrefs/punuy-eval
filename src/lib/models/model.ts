@@ -4,6 +4,11 @@ import { MakeCohereRequest } from "./cohere";
 import { Usage } from "../experiments";
 import { MakeMistralRequest } from "./mistral";
 import { ModelProvider } from ".";
+import {
+  FunctionDeclaration,
+  FunctionDeclarationSchema,
+  FunctionDeclarationSchemaType,
+} from "@google/generative-ai";
 
 export interface ModelPricing {
   input: number;
@@ -28,6 +33,12 @@ type MakeRequest =
   | MakeCohereRequest
   | MakeMistralRequest;
 
+export interface ToolSchema {
+  type: "object";
+  properties: Record<string, ToolParam>;
+  required: string[];
+}
+
 interface ToolObjectParam extends ToolBaseParam {
   type: "object";
   properties: Record<string, ToolParam>;
@@ -39,19 +50,89 @@ interface ToolArrayParam extends ToolBaseParam {
   minItems?: number;
   maxItems?: number;
 }
+
+function toolParamToGoogleFDSchema(param: ToolParam | ToolItemParam) {
+  switch (param.type) {
+    case "object": {
+      const p = param as ToolObjectParam;
+      return toolObjectParamToGoogleFDSchema(p);
+    }
+    case "array": {
+      const p = param as ToolArrayParam;
+      return toolArrayParamToGoogleFDSchemaProperty(p);
+    }
+    default: {
+      return "description" in param
+        ? toolBaseParamToGoogleFDSchema(param)
+        : toolItemParamToGoogleFDSchema();
+    }
+  }
+}
+
+function toolObjectParamToGoogleFDSchema(param: ToolObjectParam): {
+  type: FunctionDeclarationSchemaType;
+  properties: Record<string, FunctionDeclarationSchema>;
+  required: string[];
+} {
+  const properties: Record<string, FunctionDeclarationSchema> = {};
+  for (const [key, value] of Object.entries(param.properties)) {
+    properties[key] = toolParamToGoogleFDSchema(value);
+  }
+  return {
+    type: FunctionDeclarationSchemaType.OBJECT,
+    properties,
+    required: param.required,
+  };
+}
+
+function toolArrayParamToGoogleFDSchemaProperty(param: ToolArrayParam): {
+  type: FunctionDeclarationSchemaType;
+  items: FunctionDeclarationSchema;
+  description: string;
+  properties: Record<string, FunctionDeclarationSchema>;
+} {
+  return {
+    type: FunctionDeclarationSchemaType.ARRAY,
+    items: toolParamToGoogleFDSchema(param.items),
+    description: param.description,
+    properties: {},
+  };
+}
+
 interface ToolItemParam {
   type: string;
 }
+
 interface ToolBaseParam extends ToolItemParam {
   description: string;
 }
+function toolItemParamToGoogleFDSchema() {
+  return {
+    type: FunctionDeclarationSchemaType.STRING,
+    properties: {},
+  };
+}
+
+function toolBaseParamToGoogleFDSchema(param: ToolBaseParam | ToolItemParam) {
+  return {
+    type: FunctionDeclarationSchemaType.STRING,
+    description: "description" in param ? param.description : "",
+    properties: {},
+  };
+}
+
 type ToolParam = ToolObjectParam | ToolArrayParam | ToolBaseParam;
 
-export interface ToolSchema {
-  type: "object";
-  properties: Record<string, ToolParam>;
-  required: string[];
+export function modelToolToGoogleFDSchema(
+  tool: ModelTool
+): FunctionDeclaration {
+  return {
+    name: tool.name,
+    description: tool.description,
+    parameters: toolParamToGoogleFDSchema(tool.schema),
+  };
 }
+
 export interface ModelTool {
   name: string;
   description: string;
