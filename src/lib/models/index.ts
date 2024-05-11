@@ -13,6 +13,7 @@ import {
   claude3sonnet,
   gpt4turbo,
   gpt4,
+  gemini10pro,
 } from ".";
 
 export * from "./model";
@@ -20,6 +21,7 @@ export * from "./openai";
 export * from "./anthropic";
 export * from "./cohere";
 export * from "./mistral";
+export * from "./vertex";
 
 export type ModelId =
   // openai
@@ -41,9 +43,17 @@ export type ModelId =
   | "mistral-small-latest"
   | "open-mistral-7b"
   | "open-mixtral-8x7b"
-  | "open-mixtral-8x22b";
+  | "open-mixtral-8x22b"
 
-export type ModelProvider = "openai" | "anthropic" | "cohere" | "mistral";
+  // vertexai;
+  | "gemini-1.0-pro";
+
+export type ModelProvider =
+  | "openai"
+  | "anthropic"
+  | "cohere"
+  | "mistral"
+  | "vertexai";
 
 const modelsById: { [key in ModelId]: Model } = {
   // openai
@@ -66,6 +76,9 @@ const modelsById: { [key in ModelId]: Model } = {
   "open-mistral-7b": openMistral7B,
   "open-mixtral-8x7b": openMixtral8x7B,
   "open-mixtral-8x22b": openMixtral8x22B,
+
+  // vertexai
+  "gemini-1.0-pro": gemini10pro,
 };
 
 export function getModelById(id: ModelId): Model {
