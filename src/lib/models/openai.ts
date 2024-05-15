@@ -120,6 +120,11 @@ const pricing = {
     output: 30 / 1_000_000,
     currency: "$" as const,
   },
+  gpt4o: {
+    input: 5 / 1_000_000,
+    output: 15 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
 export const gpt35turbo = buildModel(
@@ -133,3 +138,4 @@ export const gpt4turbo = buildModel(
   "gpt-4-turbo-2024-04-09",
   pricing.gpt4turbo
 );
+export const gpt4o = buildModel(openai, "gpt-4o-2024-05-13", pricing.gpt4o);

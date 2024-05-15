@@ -16,6 +16,7 @@ import {
   gemini10pro,
   gemini15pro,
 } from ".";
+import { gpt4o } from "./openai";
 
 export * from "./model";
 export * from "./openai";
@@ -29,6 +30,7 @@ export type ModelId =
   | "gpt-3.5-turbo-0125"
   | "gpt-4"
   | "gpt-4-turbo-2024-04-09"
+  | "gpt-4o-2024-05-13"
 
   // anthropic
   | "claude-3-opus-20240229"
@@ -62,6 +64,7 @@ const modelsById: { [key in ModelId]: Model } = {
   "gpt-3.5-turbo-0125": gpt35turbo,
   "gpt-4": gpt4,
   "gpt-4-turbo-2024-04-09": gpt4turbo,
+  "gpt-4o-2024-05-13": gpt4o,
 
   // anthropic
   "claude-3-opus-20240229": claude3opus,
