@@ -15,6 +15,7 @@ import {
   gpt4,
   gemini10pro,
   gemini15pro,
+  gemini15flash,
 } from ".";
 import { gpt4o } from "./openai";
 
@@ -50,7 +51,8 @@ export type ModelId =
 
   // google;
   | "gemini-1.0-pro"
-  | "gemini-1.5-pro-latest";
+  | "gemini-1.5-pro"
+  | "gemini-1.5-flash";
 
 export type ModelProvider =
   | "openai"
@@ -84,7 +86,8 @@ const modelsById: { [key in ModelId]: Model } = {
 
   // google
   "gemini-1.0-pro": gemini10pro,
-  "gemini-1.5-pro-latest": gemini15pro,
+  "gemini-1.5-pro": gemini15pro,
+  "gemini-1.5-flash": gemini15flash,
 };
 
 export function getModelById(id: ModelId): Model {

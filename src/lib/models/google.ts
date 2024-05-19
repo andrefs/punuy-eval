@@ -158,4 +158,5 @@ const buildModel = (
 };
 
 export const gemini10pro = buildModel(genAI, "gemini-1.0-pro");
-export const gemini15pro = buildModel(genAI, "gemini-1.5-pro-latest");
+export const gemini15pro = buildModel(genAI, "gemini-1.5-pro");
+export const gemini15flash = buildModel(genAI, "gemini-1.5-flash");
