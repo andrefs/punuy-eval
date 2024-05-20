@@ -48,6 +48,6 @@
     "patch-package": "8.0.0",
     "pino-pretty": "11.0.0",
     "prettier": "2",
-    "vitest": "1.5.3"
+    "vitest": "1.6.0"
   }
 }
