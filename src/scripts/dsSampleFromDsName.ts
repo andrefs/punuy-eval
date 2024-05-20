@@ -8,6 +8,10 @@ import {
   gpt4turbo,
   mistralLarge,
   openMixtral8x22B,
+  gemini10pro,
+  gemini15pro,
+  gemini15flash,
+  gpt4o,
 } from "../lib/models";
 import partitions from "../lib/dataset-partitions";
 import logger from "../lib/logger";
@@ -80,8 +84,12 @@ const evm: ExpVarMatrix = {
     gpt35turbo,
     gpt4,
     gpt4turbo,
+    gpt4o,
     claude3sonnet,
     claude3opus,
+    gemini10pro,
+    gemini15pro,
+    gemini15flash,
     mistralLarge,
     openMixtral8x22B,
   ],

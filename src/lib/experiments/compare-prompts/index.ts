@@ -6,7 +6,6 @@ import { Value } from "@sinclair/typebox/value";
 import {
   ExpVarMatrix,
   ExpVars,
-  ExpVarsFixedPrompt,
   ExperimentData,
   GenericExpTypes,
   TrialResult,
@@ -316,7 +315,7 @@ function logExpScores(expScores: ExpScore[]) {
 
 async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
   const expScores = expEvalScores(exps);
-  const { varValues, varNames } = calcVarValues(exps);
+  const { varNames } = calcVarValues(exps);
 
   logExpScores(expScores);
 

@@ -14,6 +14,10 @@ import {
   gpt35turbo,
   gpt4,
   claude3sonnet,
+  gpt4o,
+  gemini10pro,
+  gemini15pro,
+  gemini15flash,
 } from "src/lib/models";
 import path from "path";
 
@@ -29,8 +33,12 @@ const compareMC30 = async () => {
     gpt35turbo,
     gpt4,
     gpt4turbo,
+    gpt4o,
     claude3sonnet,
     claude3opus,
+    gemini10pro,
+    gemini15pro,
+    gemini15flash,
     mistralLarge,
     openMixtral8x22B,
   ];
