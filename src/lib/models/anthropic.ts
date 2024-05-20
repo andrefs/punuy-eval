@@ -46,7 +46,7 @@ const buildModel = (
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
-    const req = {
+    const req: Anthropic.Beta.Tools.Messages.MessageCreateParamsNonStreaming = {
       model: modelId,
       max_tokens: 1024,
       messages: [
@@ -55,6 +55,10 @@ const buildModel = (
           content: prompt,
         },
       ],
+      tool_choice: {
+        type: "tool",
+        name: toolParams.name,
+      },
       tools: [
         {
           name: toolParams.name,
