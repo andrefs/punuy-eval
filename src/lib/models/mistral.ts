@@ -1,6 +1,6 @@
 import MistralClient, {
   ChatCompletionResponse,
-  ToolChoice,
+  ChatRequest,
 } from "@mistralai/mistralai";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
@@ -40,7 +40,7 @@ const buildModel = (
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
-    const req = {
+    const req: ChatRequest = {
       model: modelId,
       messages: [
         { role: "system", content: "You are a helpful assistant." },
@@ -49,7 +49,7 @@ const buildModel = (
           content: prompt,
         },
       ],
-      toolChoice: "any" as ToolChoice,
+      toolChoice: "any",
       tools: [
         {
           type: "function",

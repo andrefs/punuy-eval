@@ -1,4 +1,4 @@
-import MistralClient, { ToolChoice } from "@mistralai/mistralai";
+import MistralClient from "@mistralai/mistralai";
 import "dotenv/config";
 const apiKey = process.env.MISTRAL_API_KEY;
 
@@ -16,7 +16,7 @@ const run = async () => {
           "Give me a list of 10 French cheeses so that I could choose the best one.",
       },
     ],
-    toolChoice: "any" as ToolChoice,
+    toolChoice: "any",
     tools: [
       {
         type: "function",
