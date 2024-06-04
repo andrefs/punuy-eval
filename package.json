@@ -36,7 +36,7 @@
     "fastest-levenshtein": "1.0.16",
     "openai": "4.47.1",
     "pino": "9.1.0",
-    "punuy-datasets": "git+https://github.com/andrefs/punuy-datasets.git",
+    "punuy-datasets": "github:andrefs/punuy-datasets",
     "tsx": "4.10.2",
     "unplugin-auto-import": "0.17.5"
   },
