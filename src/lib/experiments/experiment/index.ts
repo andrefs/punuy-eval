@@ -44,6 +44,7 @@ import {
 import { renderTable } from "console-table-printer";
 export * from "./types";
 
+/** Class representing an experiment. */
 export default class Experiment<T extends GenericExpTypes> {
   name: string;
   description: string;
@@ -117,6 +118,18 @@ export default class Experiment<T extends GenericExpTypes> {
    */
   sanityCheck: (folder: string) => Promise<void>;
 
+  /**
+   * Create an experiment.
+   * @param name - The name of the experiment.
+   * @param description - The description of the experiment.
+   * @param queryData - The query data for the experiment.
+   * @param runTrial - The function to run a single trial of the experiment.
+   * @param evaluateTrial - The function to evaluate a single trial of the experiment.
+   * @param expDataToExpScore - The function to convert experiment data to a numeric experiment score.
+   * @param prompts - The prompts for the experiment.
+   * @returns - A new experiment.
+   *
+   */
   constructor(
     name: string,
     description: string,
@@ -337,8 +350,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       const varCombs = genValueCombinations(variables);
       logger.info(
-        `🔬 Preparing to run experiment ${
-          this.name
+        `🔬 Preparing to run experiment ${this.name
         }, ${trials} times on each variable combination:\n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
@@ -346,8 +358,7 @@ export default class Experiment<T extends GenericExpTypes> {
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
-          `⚗️  Running experiment ${index}/${varCombs.length}: ${
-            this.name
+          `⚗️  Running experiment ${index}/${varCombs.length}: ${this.name
           } with variables ${JSON.stringify(getVarIds(vc))}.`
         );
         res.push(await this.perform(vc, trials, Date.now(), folder));
@@ -443,8 +454,8 @@ export default class Experiment<T extends GenericExpTypes> {
           `🆚 Comparing ${comp.variables
             .map(v => `[${v}]`)
             .join(" and ")} with fixed variables ${JSON.stringify(
-            comp.fixedValueConfig
-          )}\n${tablePP}\n${csv}`
+              comp.fixedValueConfig
+            )}\n${tablePP}\n${csv}`
         );
       }
     };
@@ -457,9 +468,9 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       logger.info(
         "📈 Usage estimate:\n" +
-          Object.values(usage)
-            .map(u => `\t${JSON.stringify(u)}`)
-            .join("\n")
+        Object.values(usage)
+          .map(u => `\t${JSON.stringify(u)}`)
+          .join("\n")
       );
     };
   }

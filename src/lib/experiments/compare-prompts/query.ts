@@ -25,6 +25,8 @@ const toolSchema: ToolSchema = {
             items: {
               type: "string",
             },
+            minItems: 2,
+            maxItems: 2,
           },
           score: {
             description: "The semantic measure score.",
