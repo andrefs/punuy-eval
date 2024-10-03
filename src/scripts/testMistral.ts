@@ -1,13 +1,13 @@
-import MistralClient from "@mistralai/mistralai";
+import { Mistral } from "@mistralai/mistralai";
 import "dotenv/config";
 const apiKey = process.env.MISTRAL_API_KEY;
 
 console.log("API Key:", apiKey);
 
 const run = async () => {
-  const client = new MistralClient(apiKey);
+  const client = new Mistral({ apiKey });
 
-  const chatResponse = await client.chat({
+  const chatResponse = await client.chat.complete({
     model: "mistral-large-latest",
     messages: [
       {

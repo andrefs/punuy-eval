@@ -1,16 +1,19 @@
-import MistralClient, {
-  ChatCompletionResponse,
-  ChatRequest,
-} from "@mistralai/mistralai";
+import { Mistral } from "@mistralai/mistralai";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
+import {
+  ChatCompletionRequest,
+  ChatCompletionResponse,
+} from "@mistralai/mistralai/models/components";
 
-const apiKey =
-  process.env.NODE_ENV === "test" ? "test" : process.env.MISTRAL_API_KEY;
+const configuration = {
+  apiKey:
+    process.env.NODE_ENV === "test" ? "test" : process.env.MISTRAL_API_KEY,
+};
 
 export interface MistralModelResponse extends ModelResponse {
   type: "mistral";
@@ -23,24 +26,27 @@ export type MakeMistralRequest = (
   params: ModelTool
 ) => Promise<MistralModelResponse>;
 
-if (!apiKey) {
+if (!configuration.apiKey) {
   logger.error(
     "Mistral API key not configured, please follow instructions in README.md"
   );
 } else {
   logger.info(
-    `Mistral API key loaded from environment variable: ${apiKey.slice(0, 5)}...`
+    `Mistral API key loaded from environment variable: ${configuration.apiKey.slice(
+      0,
+      5
+    )}...`
   );
 }
-const mistral = new MistralClient(apiKey);
+const mistral = new Mistral(configuration);
 
 const buildModel = (
-  mistral: MistralClient,
+  mistral: Mistral,
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
-    const req: ChatRequest = {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
+    const req: ChatCompletionRequest = {
       model: modelId,
       messages: [
         { role: "system", content: "You are a helpful assistant." },
@@ -63,26 +69,31 @@ const buildModel = (
     };
 
     try {
-      const chatResponse = await mistral.chat(req);
+      const chatResponse = await mistral.chat.complete(req);
 
       const res: MistralModelResponse = {
         type: "mistral" as const,
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-              inputTokens: chatResponse.usage?.prompt_tokens,
-              outputTokens: chatResponse.usage?.completion_tokens,
-              totalTokens: chatResponse.usage?.total_tokens,
-              modelId,
-            }
+            inputTokens: chatResponse.usage?.promptTokens,
+            outputTokens: chatResponse.usage?.completionTokens,
+            totalTokens: chatResponse.usage?.totalTokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
           try {
+            const args = chatResponse.choices?.[0]?.message.toolCalls?.filter(
+              tc => tc?.function?.name === toolParams.name
+            )?.[0]?.function?.arguments;
             dataText =
-              chatResponse.choices[0]?.message.tool_calls?.filter(
-                tc => tc?.function?.name === toolParams.name
-              )?.[0]?.function?.arguments || "";
+              typeof args === "string"
+                ? args
+                : typeof args === "object"
+                  ? JSON.stringify(args)
+                  : "";
           } catch (e) {
             logger.error(`Error getting data text from model ${modelId}: ${e}`);
             logger.error(`Response object: ${JSON.stringify(chatResponse)}`);
