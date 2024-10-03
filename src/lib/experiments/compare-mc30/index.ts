@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import pcorrtest from "@stdlib/stats-pcorrtest";
 import path from "path";
 import fs from "fs/promises";
@@ -221,8 +222,7 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${
-        attemptResult.type
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${attemptResult.type
       }`
     );
     failedAttempts.push(attemptResult);

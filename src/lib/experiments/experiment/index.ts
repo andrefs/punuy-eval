@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Model, ModelTool, ToolSchema } from "../../models";
 import {
   EvaluationResult,
@@ -154,11 +155,11 @@ export default class Experiment<T extends GenericExpTypes> {
     this.name = name;
     this.description = description;
     this.queryData = queryData;
-    this.validateSchema = function (this: Experiment<T>, value: unknown) {
+    this.validateSchema = function(this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.getResponse = async function (
+    this.getResponse = async function(
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
@@ -214,7 +215,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.tryResponse = async function (
+    this.tryResponse = async function(
       model: Model,
       prompt: string,
       params: ModelTool,
@@ -257,7 +258,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.runTrial = runTrial;
-    this.runTrials = async function (
+    this.runTrials = async function(
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -292,7 +293,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.evaluateTrial = evaluateTrial;
-    this.evaluate = async function (
+    this.evaluate = async function(
       this: Experiment<T>,
       exp: ExperimentData<T>
     ) {
@@ -306,7 +307,7 @@ export default class Experiment<T extends GenericExpTypes> {
         aggregated: await combineEvaluations(trialEvaluationResults),
       };
     };
-    this.perform = async function (
+    this.perform = async function(
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -337,7 +338,7 @@ export default class Experiment<T extends GenericExpTypes> {
       return expData;
     };
     this.sanityCheck = sanityCheck;
-    this.performMulti = async function (
+    this.performMulti = async function(
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
@@ -350,8 +351,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       const varCombs = genValueCombinations(variables);
       logger.info(
-        `🔬 Preparing to run experiment ${
-          this.name
+        `🔬 Preparing to run experiment ${this.name
         }, ${trials} times on each variable combination:\n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
@@ -359,8 +359,7 @@ export default class Experiment<T extends GenericExpTypes> {
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
-          `⚗️  Running experiment ${index}/${varCombs.length}: ${
-            this.name
+          `⚗️  Running experiment ${index}/${varCombs.length}: ${this.name
           } with variables ${JSON.stringify(getVarIds(vc))}.`
         );
         res.push(await this.perform(vc, trials, Date.now(), folder));
@@ -376,7 +375,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.expDataToExpScore = expDataToExpScore;
-    this.printExpResTable = function (
+    this.printExpResTable = function(
       this: Experiment<T>,
       exps: ExperimentData<T>[]
     ) {
@@ -456,12 +455,12 @@ export default class Experiment<T extends GenericExpTypes> {
           `🆚 Comparing ${comp.variables
             .map(v => `[${v}]`)
             .join(" and ")} with fixed variables ${JSON.stringify(
-            comp.fixedValueConfig
-          )}\n${tablePP}\n${csv}`
+              comp.fixedValueConfig
+            )}\n${tablePP}\n${csv}`
         );
       }
     };
-    this.printUsage = function (
+    this.printUsage = function(
       this: Experiment<T>,
       usage: Usages | undefined
     ) {
@@ -470,9 +469,9 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       logger.info(
         "📈 Usage estimate:\n" +
-          Object.values(usage)
-            .map(u => `\t${JSON.stringify(u)}`)
-            .join("\n")
+        Object.values(usage)
+          .map(u => `\t${JSON.stringify(u)}`)
+          .join("\n")
       );
     };
   }

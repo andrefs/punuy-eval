@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
 import { ExperimentData, GenericExpTypes, Prompt, comparePrompts } from "..";
 import { createMockDsPart, createMockModel } from "../prior-knowledge/mocks";
