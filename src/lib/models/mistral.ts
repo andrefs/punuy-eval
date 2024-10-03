@@ -105,7 +105,7 @@ const buildModel = (
 };
 
 // https://mistral.ai/technology/#pricing
-// updated at 2024-10-03
+// updated on 2024-10-03
 const pricing = {
   mistralLarge_2407: {
     input: 1.8 / 1_000_000,

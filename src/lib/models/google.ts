@@ -93,7 +93,7 @@ const buildModel = (
     safetySettings,
   });
 
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req: GenerateContentRequest = {
       contents: [
         {
@@ -125,11 +125,11 @@ const buildModel = (
         dataObj: result.response.candidates![0],
         usage: result.response.usageMetadata
           ? {
-              inputTokens: result.response.usageMetadata.promptTokenCount!,
-              outputTokens: result.response.usageMetadata.candidatesTokenCount!,
-              totalTokens: result.response.usageMetadata.totalTokenCount!,
-              modelId,
-            }
+            inputTokens: result.response.usageMetadata.promptTokenCount!,
+            outputTokens: result.response.usageMetadata.candidatesTokenCount!,
+            totalTokens: result.response.usageMetadata.totalTokenCount!,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -157,6 +157,39 @@ const buildModel = (
   return new Model(modelId, "google" as ModelProvider, makeRequest, pricing);
 };
 
-export const gemini10pro = buildModel(genAI, "gemini-1.0-pro");
-export const gemini15pro = buildModel(genAI, "gemini-1.5-pro");
-export const gemini15flash = buildModel(genAI, "gemini-1.5-flash");
+// https://ai.google.dev/pricing
+// updated on 2024-10-03
+const pricing = {
+  gemini15flash_002: {
+    input: 0.075 / 1_000_000,
+    output: 0.3 / 1_000_000,
+    currency: "$" as const,
+  },
+  gemini15pro_002: {
+    input: 1.25 / 1_000_000,
+    output: 5 / 1_000_000,
+    currency: "$" as const,
+  },
+  gemini10pro_001: {
+    input: 0.5 / 1_000_000,
+    output: 1.5 / 1_000_000,
+    currency: "$" as const,
+  },
+};
+
+// https://ai.google.dev/gemini-api/docs/models/gemini
+export const gemini10pro_001 = buildModel(
+  genAI,
+  "gemini-1.0-pro-001",
+  pricing.gemini10pro_001
+);
+export const gemini15pro_002 = buildModel(
+  genAI,
+  "gemini-1.5-pro-002",
+  pricing.gemini15pro_002
+);
+export const gemini15flash_002 = buildModel(
+  genAI,
+  "gemini-1.5-flash-002",
+  pricing.gemini15flash_002
+);

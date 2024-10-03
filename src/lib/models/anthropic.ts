@@ -112,7 +112,7 @@ const buildModel = (
 };
 
 // https://www.anthropic.com/pricing#anthropic-api
-// updated at 2024-10-03
+// updated on 2024-10-03
 const pricing = {
   claude3opus: {
     input: 15 / 1_000_000,

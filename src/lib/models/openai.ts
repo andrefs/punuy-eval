@@ -104,7 +104,7 @@ const buildModel = (
 };
 
 // https://openai.com/api/pricing/
-// updated at 2024-10-03
+// updated on 2024-10-03
 const pricing = {
   gpt35turbo_0125: {
     input: 0.5 / 1_000_000,

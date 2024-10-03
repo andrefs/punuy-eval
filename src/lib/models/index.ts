@@ -13,9 +13,9 @@ import {
   claude3sonnet_20240229,
   gpt4turbo_20240409,
   gpt4_0613,
-  gemini10pro,
-  gemini15pro,
-  gemini15flash,
+  gemini10pro_001,
+  gemini15pro_002,
+  gemini15flash_002,
 } from ".";
 import { commandRPlus_082024, commandR_082024 } from "./cohere";
 import { mistralMedium_2312, openMistralNemo_2407 } from "./mistral";
@@ -61,9 +61,9 @@ export type ModelId =
   | "open-mixtral-8x22b"
 
   // google;
-  | "gemini-1.0-pro"
-  | "gemini-1.5-pro"
-  | "gemini-1.5-flash";
+  | "gemini-1.0-pro-001"
+  | "gemini-1.5-pro-002"
+  | "gemini-1.5-flash-002";
 
 export type ModelProvider =
   | "openai"
@@ -105,9 +105,9 @@ const modelsById: { [key in ModelId]: Model } = {
   "open-mixtral-8x22b": openMixtral8x22B,
 
   // google
-  "gemini-1.0-pro": gemini10pro,
-  "gemini-1.5-pro": gemini15pro,
-  "gemini-1.5-flash": gemini15flash,
+  "gemini-1.0-pro-001": gemini10pro_001,
+  "gemini-1.5-pro-002": gemini15pro_002,
+  "gemini-1.5-flash-002": gemini15flash_002,
 };
 
 export function getModelById(id: ModelId): Model {

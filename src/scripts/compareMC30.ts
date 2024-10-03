@@ -15,9 +15,9 @@ import {
   gpt4_0613,
   claude3sonnet_20240229,
   gpt4omini_20240718,
-  gemini10pro,
-  gemini15pro,
-  gemini15flash,
+  gemini10pro_001,
+  gemini15pro_002,
+  gemini15flash_002,
 } from "src/lib/models";
 import path from "path";
 
@@ -36,9 +36,9 @@ const compareMC30 = async () => {
     gpt4omini_20240718,
     claude3sonnet_20240229,
     claude3opus,
-    gemini10pro,
-    gemini15pro,
-    gemini15flash,
+    gemini10pro_001,
+    gemini15pro_002,
+    gemini15flash_002,
     mistralLarge_2407,
     openMixtral8x22B,
   ];
