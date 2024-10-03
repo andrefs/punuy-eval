@@ -45,7 +45,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
     const req: ChatCompletionRequest = {
       model: modelId,
       messages: [
@@ -76,11 +76,11 @@ const buildModel = (
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-            inputTokens: chatResponse.usage?.promptTokens,
-            outputTokens: chatResponse.usage?.completionTokens,
-            totalTokens: chatResponse.usage?.totalTokens,
-            modelId,
-          }
+              inputTokens: chatResponse.usage?.promptTokens,
+              outputTokens: chatResponse.usage?.completionTokens,
+              totalTokens: chatResponse.usage?.totalTokens,
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;

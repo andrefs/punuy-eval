@@ -222,7 +222,8 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${attemptResult.type
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${
+        attemptResult.type
       }`
     );
     failedAttempts.push(attemptResult);

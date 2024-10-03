@@ -110,7 +110,7 @@ export class EvaluationResult<DataType, ExpectedType = DataType> {
 
 export class DataIncomplete<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   percentage: number;
 
@@ -122,7 +122,7 @@ export class DataIncomplete<
 
 export class DataPartiallyIncorrect<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   percentage: number;
 
@@ -134,7 +134,7 @@ export class DataPartiallyIncorrect<
 
 export class DataIncorrect<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("data-incorrect", false, got, expected);
@@ -143,7 +143,7 @@ export class DataIncorrect<
 
 export class DataInvalidOnAllTries<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("data-invalid-on-all-tries", false, got, expected);
@@ -152,7 +152,7 @@ export class DataInvalidOnAllTries<
 
 export class DataCorrect<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("data-correct", true, got, expected);
@@ -161,7 +161,7 @@ export class DataCorrect<
 
 export class NonEvaluatedData<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("non-evaluated-data", true, got, expected);
@@ -170,7 +170,7 @@ export class NonEvaluatedData<
 
 export class NonUsableData<
   DataType,
-  ExpectedType = DataType
+  ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("non-usable-data", false, got, expected);

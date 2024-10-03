@@ -102,7 +102,8 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${attemptResult.type
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${
+        attemptResult.type
       }`
     );
     failedAttempts.push(attemptResult);
@@ -229,7 +230,8 @@ async function performMulti(
     }
   }
   logger.info(
-    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${varCombs.length
+    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${
+      varCombs.length
     }):\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
@@ -368,8 +370,8 @@ async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
       `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
-          comp.fixedValueConfig
-        )}\n${tablePP}`
+        comp.fixedValueConfig
+      )}\n${tablePP}`
     );
   }
 

@@ -77,11 +77,11 @@ const buildModel = (
         dataObj: msg,
         usage: msg.usage
           ? {
-            inputTokens: msg.usage.input_tokens,
-            outputTokens: msg.usage.output_tokens,
-            totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
-            modelId,
-          }
+              inputTokens: msg.usage.input_tokens,
+              outputTokens: msg.usage.output_tokens,
+              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;
