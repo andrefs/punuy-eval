@@ -7,7 +7,7 @@ import { MakeGoogleRequest, ModelProvider } from ".";
 import {
   FunctionDeclaration,
   FunctionDeclarationSchema,
-  FunctionDeclarationSchemaType,
+  SchemaType,
 } from "@google/generative-ai";
 
 export interface ModelPricing {
@@ -71,7 +71,7 @@ function toolParamToGoogleFDSchema(param: ToolParam | ToolItemParam) {
 }
 
 function toolObjectParamToGoogleFDSchema(param: ToolObjectParam): {
-  type: FunctionDeclarationSchemaType;
+  type: SchemaType;
   properties: Record<string, FunctionDeclarationSchema>;
   required: string[];
 } {
@@ -80,20 +80,20 @@ function toolObjectParamToGoogleFDSchema(param: ToolObjectParam): {
     properties[key] = toolParamToGoogleFDSchema(value);
   }
   return {
-    type: FunctionDeclarationSchemaType.OBJECT,
+    type: SchemaType.OBJECT,
     properties,
     required: param.required,
   };
 }
 
 function toolArrayParamToGoogleFDSchemaProperty(param: ToolArrayParam): {
-  type: FunctionDeclarationSchemaType;
+  type: SchemaType;
   items: FunctionDeclarationSchema;
   description: string;
   properties: Record<string, FunctionDeclarationSchema>;
 } {
   return {
-    type: FunctionDeclarationSchemaType.ARRAY,
+    type: SchemaType.ARRAY,
     items: toolParamToGoogleFDSchema(param.items),
     description: param.description,
     properties: {},
@@ -109,14 +109,14 @@ interface ToolBaseParam extends ToolItemParam {
 }
 function toolItemParamToGoogleFDSchema() {
   return {
-    type: FunctionDeclarationSchemaType.STRING,
+    type: SchemaType.STRING,
     properties: {},
   };
 }
 
 function toolBaseParamToGoogleFDSchema(param: ToolBaseParam | ToolItemParam) {
   return {
-    type: FunctionDeclarationSchemaType.STRING,
+    type: SchemaType.STRING,
     description: "description" in param ? param.description : "",
     properties: {},
   };

@@ -48,32 +48,32 @@ describe("Conversion of ModelTool to Google FunctionDeclaration", () => {
                   "score": {
                     "description": "The semantic measure score.",
                     "properties": {},
-                    "type": "STRING",
+                    "type": "string",
                   },
                   "words": {
                     "description": "The pair of words.",
                     "items": {
                       "properties": {},
-                      "type": "STRING",
+                      "type": "string",
                     },
                     "properties": {},
-                    "type": "ARRAY",
+                    "type": "array",
                   },
                 },
                 "required": [
                   "words",
                   "score",
                 ],
-                "type": "OBJECT",
+                "type": "object",
               },
               "properties": {},
-              "type": "ARRAY",
+              "type": "array",
             },
           },
           "required": [
             "scores",
           ],
-          "type": "OBJECT",
+          "type": "object",
         },
       }
     `);
