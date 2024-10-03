@@ -38,7 +38,7 @@
     "pino": "9.1.0",
     "punuy-datasets": "github:andrefs/punuy-datasets",
     "tsx": "4.10.2",
-    "unplugin-auto-import": "0.17.5"
+    "unplugin-auto-import": "0.18.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "7.8.0",
