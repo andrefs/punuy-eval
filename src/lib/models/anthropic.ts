@@ -42,7 +42,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function(
+  const makeRequest = async function (
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
@@ -77,11 +77,11 @@ const buildModel = (
         dataObj: msg,
         usage: msg.usage
           ? {
-            inputTokens: msg.usage.input_tokens,
-            outputTokens: msg.usage.output_tokens,
-            totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
-            modelId,
-          }
+              inputTokens: msg.usage.input_tokens,
+              outputTokens: msg.usage.output_tokens,
+              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;

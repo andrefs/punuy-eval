@@ -47,9 +47,9 @@ const compareMC30 = async () => {
   if (res.usage) {
     logger.info(
       "📈 Usage estimate:\n" +
-      Object.values(res.usage)
-        .map(u => `\t${JSON.stringify(u)}`)
-        .join("\n")
+        Object.values(res.usage)
+          .map(u => `\t${JSON.stringify(u)}`)
+          .join("\n")
     );
   }
 
