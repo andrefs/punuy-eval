@@ -143,7 +143,7 @@ const buildModel = (
   return new Model(modelId, "vertexai" as ModelProvider, makeRequest, pricing);
 };
 
-// updated at 2024-04-18
+// updated on 2024-04-18
 const pricing = {
   gpt35turbo: {
     input: 0.5 / 1_000_000,

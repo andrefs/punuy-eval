@@ -40,7 +40,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ): Model => {
-  const makeRequest = async function (
+  const makeRequest = async function(
     prompt: string,
     toolParams: ModelTool
   ): Promise<CohereModelResponse> {
@@ -74,13 +74,13 @@ const buildModel = (
         dataObj: prediction,
         usage: prediction.meta?.billedUnits
           ? {
-              inputTokens: prediction.meta.billedUnits.inputTokens || 0,
-              outputTokens: prediction.meta.billedUnits.outputTokens || 0,
-              totalTokens:
-                (prediction.meta.billedUnits.inputTokens || 0) +
-                (prediction.meta.billedUnits.outputTokens || 0),
-              modelId,
-            }
+            inputTokens: prediction.meta.billedUnits.inputTokens || 0,
+            outputTokens: prediction.meta.billedUnits.outputTokens || 0,
+            totalTokens:
+              (prediction.meta.billedUnits.inputTokens || 0) +
+              (prediction.meta.billedUnits.outputTokens || 0),
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -109,23 +109,49 @@ const buildModel = (
   return new Model(modelId, "cohere" as ModelProvider, makeRequest, pricing);
 };
 
-// updated on 2024-04-18
+// https://cohere.com/pricing
+// updated on 2024-10-03
 const pricing = {
-  commandR: {
-    input: 0.5 / 1_000_000,
-    output: 1.5 / 1_000_000,
+  commandR_032024: {
+    input: 0.15 / 1_000_000,
+    output: 0.6 / 1_000_000,
     currency: "$" as const,
   },
-  commandRPlus: {
-    input: 3 / 1_000_000,
-    output: 15 / 1_000_000,
+  commandR_082024: {
+    input: 0.15 / 1_000_000,
+    output: 0.6 / 1_000_000,
+    currency: "$" as const,
+  },
+  commandRPlus_042024: {
+    input: 2.5 / 1_000_000,
+    output: 10 / 1_000_000,
+    currency: "$" as const,
+  },
+  commandRPlus_082024: {
+    input: 2.5 / 1_000_000,
+    output: 10 / 1_000_000,
     currency: "$" as const,
   },
 };
 
-export const commandRPlus = buildModel(
+// https://docs.cohere.com/v2/docs/models
+export const commandRPlus_042024 = buildModel(
   cohere,
-  "command-r-plus",
-  pricing.commandRPlus
+  "command-r-plus-04-2024",
+  pricing.commandRPlus_042024
 );
-export const commandR = buildModel(cohere, "command-r", pricing.commandR);
+export const commandRPlus_082024 = buildModel(
+  cohere,
+  "command-r-plus-08-2024",
+  pricing.commandRPlus_082024
+);
+export const commandR_032024 = buildModel(
+  cohere,
+  "command-r-03-2024",
+  pricing.commandR_032024
+);
+export const commandR_082024 = buildModel(
+  cohere,
+  "command-r-08-2024",
+  pricing.commandR_082024
+);

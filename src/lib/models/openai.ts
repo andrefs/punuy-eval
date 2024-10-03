@@ -41,7 +41,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req = {
       model: modelId,
       messages: [
@@ -70,11 +70,11 @@ const buildModel = (
         dataObj: completion,
         usage: completion.usage
           ? {
-              inputTokens: completion.usage?.prompt_tokens,
-              outputTokens: completion.usage?.completion_tokens,
-              totalTokens: completion.usage?.total_tokens,
-              modelId,
-            }
+            inputTokens: completion.usage?.prompt_tokens,
+            outputTokens: completion.usage?.completion_tokens,
+            totalTokens: completion.usage?.total_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -103,39 +103,85 @@ const buildModel = (
   return new Model(modelId, "openai" as ModelProvider, makeRequest, pricing);
 };
 
-// updated at 2024-04-18
+// https://openai.com/api/pricing/
+// updated on 2024-10-03
 const pricing = {
-  gpt35turbo: {
+  gpt35turbo_0125: {
     input: 0.5 / 1_000_000,
     output: 1.5 / 1_000_000,
     currency: "$" as const,
   },
-  gpt4: {
+  gpt4_0613: {
     input: 30 / 1_000_000,
     output: 60 / 1_000_000,
     currency: "$" as const,
   },
-  gpt4turbo: {
+  gpt4turbo_20240409: {
     input: 10 / 1_000_000,
     output: 30 / 1_000_000,
     currency: "$" as const,
   },
-  gpt4o: {
+  o1preview_20240912: {
+    input: 15 / 1_000_000,
+    output: 60 / 1_000_000,
+    currency: "$" as const,
+  },
+  o1mini_20240912: {
+    input: 3 / 1_000_000,
+    output: 12 / 1_000_000,
+    currency: "$" as const,
+  },
+  gpt4omini_20240718: {
+    input: 0.15 / 1_000_000,
+    output: 0.6 / 1_000_000,
+    currency: "$" as const,
+  },
+  gpt4o_20240513: {
     input: 5 / 1_000_000,
     output: 15 / 1_000_000,
     currency: "$" as const,
   },
+  gpt4o_20240806: {
+    input: 2.5 / 1_000_000,
+    output: 10 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
-export const gpt35turbo = buildModel(
+// https://platform.openai.com/docs/models
+export const gpt35turbo_0125 = buildModel(
   openai,
   "gpt-3.5-turbo-0125",
-  pricing.gpt35turbo
+  pricing.gpt35turbo_0125
 );
-export const gpt4 = buildModel(openai, "gpt-4", pricing.gpt4);
-export const gpt4turbo = buildModel(
+export const gpt4_0613 = buildModel(openai, "gpt-4-0613", pricing.gpt4_0613);
+export const gpt4turbo_20240409 = buildModel(
   openai,
   "gpt-4-turbo-2024-04-09",
-  pricing.gpt4turbo
+  pricing.gpt4turbo_20240409
 );
-export const gpt4o = buildModel(openai, "gpt-4o-2024-05-13", pricing.gpt4o);
+export const o1preview_20240912 = buildModel(
+  openai,
+  "o1-preview-2024-09-12",
+  pricing.o1preview_20240912
+);
+export const o1mini_20240912 = buildModel(
+  openai,
+  "o1-mini-2024-09-12",
+  pricing.o1mini_20240912
+);
+export const gpt4omini_20240718 = buildModel(
+  openai,
+  "gpt-4o-mini-2024-07-18",
+  pricing.gpt4omini_20240718
+);
+export const gpt4o_20240513 = buildModel(
+  openai,
+  "gpt-4o-2024-05-13",
+  pricing.gpt4o_20240513
+);
+export const gpt4o_20240806 = buildModel(
+  openai,
+  "gpt-4o-2024-08-06",
+  pricing.gpt4o_20240806
+);

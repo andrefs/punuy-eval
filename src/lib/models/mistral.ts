@@ -39,7 +39,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req: ChatRequest = {
       model: modelId,
       messages: [
@@ -70,11 +70,11 @@ const buildModel = (
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-              inputTokens: chatResponse.usage?.prompt_tokens,
-              outputTokens: chatResponse.usage?.completion_tokens,
-              totalTokens: chatResponse.usage?.total_tokens,
-              modelId,
-            }
+            inputTokens: chatResponse.usage?.prompt_tokens,
+            outputTokens: chatResponse.usage?.completion_tokens,
+            totalTokens: chatResponse.usage?.total_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -104,45 +104,66 @@ const buildModel = (
   return new Model(modelId, "mistral" as ModelProvider, makeRequest, pricing);
 };
 
-// updated at 2024-04-18
+// https://mistral.ai/technology/#pricing
+// updated on 2024-10-03
 const pricing = {
-  mistralLarge: {
-    input: 8 / 1_000_000,
-    output: 24 / 1_000_000,
-    currency: "$" as const,
+  mistralLarge_2407: {
+    input: 1.8 / 1_000_000,
+    output: 5.4 / 1_000_000,
+    currency: "€" as const,
   },
-  mistralSmall: {
-    input: 2 / 1_000_000,
-    output: 6 / 1_000_000,
-    currency: "$" as const,
+  mistralMedium_2312: {
+    input: 2.5 / 1_000_000,
+    output: 7.5 / 1_000_000,
+    currency: "€" as const,
+  },
+  mistralSmall_2409: {
+    input: 0.18 / 1_000_000,
+    output: 0.54 / 1_000_000,
+    currency: "€" as const,
+  },
+  openMistralNemo_2407: {
+    input: 0.13 / 1_000_000,
+    output: 0.13 / 1_000_000,
+    currency: "€" as const,
   },
   openMistral7B: {
-    input: 0.25 / 1_000_000,
-    output: 0.25 / 1_000_000,
-    currency: "$" as const,
+    input: 0.2 / 1_000_000,
+    output: 0.2 / 1_000_000,
+    currency: "€" as const,
   },
   openMixtral8x7B: {
-    input: 0.7 / 1_000_000,
-    output: 0.7 / 1_000_000,
-    currency: "$" as const,
+    input: 0.65 / 1_000_000,
+    output: 0.65 / 1_000_000,
+    currency: "€" as const,
   },
   openMixtral8x22B: {
-    input: 2 / 1_000_000,
-    output: 6 / 1_000_000,
-    currency: "$" as const,
+    input: 1.9 / 1_000_000,
+    output: 5.6 / 1_000_000,
+    currency: "€" as const,
   },
 };
 
-export const mistralLarge = buildModel(
+// https://docs.mistral.ai/getting-started/models/models_overview/
+export const mistralLarge_2407 = buildModel(
   mistral,
-  "mistral-large-latest",
-  pricing.mistralLarge
+  "mistral-large-2407",
+  pricing.mistralLarge_2407
 );
-
-export const mistralSmall = buildModel(
+export const mistralMedium_2312 = buildModel(
   mistral,
-  "mistral-small-latest",
-  pricing.mistralSmall
+  "mistral-medium-2312",
+  pricing.mistralMedium_2312
+);
+export const mistralSmall_2409 = buildModel(
+  mistral,
+  "mistral-small-2409",
+  pricing.mistralSmall_2409
+);
+export const openMistralNemo_2407 = buildModel(
+  mistral,
+  "open-mistral-nemo-2407",
+  pricing.openMistralNemo_2407
 );
 export const openMistral7B = buildModel(
   mistral,

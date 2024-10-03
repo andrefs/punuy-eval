@@ -1,15 +1,15 @@
 import { ExpVarMatrix, comparePrompts } from "../lib/experiments";
 import {
   claude3opus,
-  claude3sonnet,
-  gemini10pro,
-  gemini15flash,
-  gemini15pro,
-  gpt35turbo,
-  gpt4,
-  gpt4o,
-  gpt4turbo,
-  mistralLarge,
+  claude3sonnet_20240229,
+  gemini10pro_001,
+  gemini15flash_002,
+  gemini15pro_002,
+  gpt35turbo_0125,
+  gpt4_0613,
+  gpt4omini_20240718,
+  gpt4turbo_20240409,
+  mistralLarge_2407,
   openMixtral8x22B,
 } from "../lib/models";
 import logger from "../lib/logger";
@@ -35,9 +35,9 @@ const comparePromptsMain = async (vars: ExpVarMatrix) => {
   if (res.usage) {
     logger.info(
       "📈 Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
+      Object.values(res.usage)
+        .map(u => `\t${JSON.stringify(u)}`)
+        .join("\n")
     );
   }
 
@@ -61,16 +61,16 @@ const evm: ExpVarMatrix = {
     yp130,
   ],
   model: [
-    gpt35turbo,
-    gpt4,
-    gpt4turbo,
-    gpt4o,
-    claude3sonnet,
+    gpt35turbo_0125,
+    gpt4_0613,
+    gpt4turbo_20240409,
+    gpt4omini_20240718,
+    claude3sonnet_20240229,
     claude3opus,
-    gemini10pro,
-    gemini15pro,
-    gemini15flash,
-    mistralLarge,
+    gemini10pro_001,
+    gemini15pro_002,
+    gemini15flash_002,
+    mistralLarge_2407,
     openMixtral8x22B,
   ],
 };
