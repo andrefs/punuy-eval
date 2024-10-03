@@ -7,14 +7,14 @@ import { compareMc30 } from "../lib/experiments";
 import { loadDatasetScores } from "../lib/experiments/compare-mc30";
 import logger from "../lib/logger";
 import {
-  gpt4turbo,
+  gpt4turbo_20240409,
   claude3opus,
   openMixtral8x22B,
   mistralLarge,
-  gpt35turbo,
-  gpt4,
+  gpt35turbo_0125,
+  gpt4_0613,
   claude3sonnet,
-  gpt4o,
+  gpt4omini_20240718,
   gemini10pro,
   gemini15pro,
   gemini15flash,
@@ -30,10 +30,10 @@ const compareMC30 = async () => {
 
   const humanScores = await loadDatasetScores({ rg65, mc30, ws353, ps65 });
   const models = [
-    gpt35turbo,
-    gpt4,
-    gpt4turbo,
-    gpt4o,
+    gpt35turbo_0125,
+    gpt4_0613,
+    gpt4turbo_20240409,
+    gpt4omini_20240718,
     claude3sonnet,
     claude3opus,
     gemini10pro,
@@ -47,9 +47,9 @@ const compareMC30 = async () => {
   if (res.usage) {
     logger.info(
       "📈 Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
+      Object.values(res.usage)
+        .map(u => `\t${JSON.stringify(u)}`)
+        .join("\n")
     );
   }
 

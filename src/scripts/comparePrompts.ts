@@ -5,10 +5,10 @@ import {
   gemini10pro,
   gemini15flash,
   gemini15pro,
-  gpt35turbo,
-  gpt4,
-  gpt4o,
-  gpt4turbo,
+  gpt35turbo_0125,
+  gpt4_0613,
+  gpt4omini_20240718,
+  gpt4turbo_20240409,
   mistralLarge,
   openMixtral8x22B,
 } from "../lib/models";
@@ -35,9 +35,9 @@ const comparePromptsMain = async (vars: ExpVarMatrix) => {
   if (res.usage) {
     logger.info(
       "📈 Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
+      Object.values(res.usage)
+        .map(u => `\t${JSON.stringify(u)}`)
+        .join("\n")
     );
   }
 
@@ -61,10 +61,10 @@ const evm: ExpVarMatrix = {
     yp130,
   ],
   model: [
-    gpt35turbo,
-    gpt4,
-    gpt4turbo,
-    gpt4o,
+    gpt35turbo_0125,
+    gpt4_0613,
+    gpt4turbo_20240409,
+    gpt4omini_20240718,
     claude3sonnet,
     claude3opus,
     gemini10pro,

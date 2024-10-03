@@ -6,18 +6,18 @@ import {
   openMixtral8x7B,
   openMixtral8x22B,
   Model,
-  gpt35turbo,
+  gpt35turbo_0125,
   openMistral7B,
   mistralLarge,
   commandRPlus,
   claude3sonnet,
-  gpt4turbo,
-  gpt4,
+  gpt4turbo_20240409,
+  gpt4_0613,
   gemini10pro,
   gemini15pro,
   gemini15flash,
 } from ".";
-import { gpt4o } from "./openai";
+import { gpt4o_20240513, gpt4o_20240806, gpt4omini_20240718 } from "./openai";
 
 export * from "./model";
 export * from "./openai";
@@ -29,9 +29,13 @@ export * from "./google";
 export type ModelId =
   // openai
   | "gpt-3.5-turbo-0125"
-  | "gpt-4"
+  | "gpt-4-0613"
   | "gpt-4-turbo-2024-04-09"
+  | "o1-preview-2024-09-12"
+  | "o1-mini-2024-09-12"
+  | "gpt-4o-mini-2024-07-18"
   | "gpt-4o-2024-05-13"
+  | "gpt-4o-2024-08-06"
 
   // anthropic
   | "claude-3-opus-20240229"
@@ -63,10 +67,14 @@ export type ModelProvider =
 
 const modelsById: { [key in ModelId]: Model } = {
   // openai
-  "gpt-3.5-turbo-0125": gpt35turbo,
-  "gpt-4": gpt4,
-  "gpt-4-turbo-2024-04-09": gpt4turbo,
-  "gpt-4o-2024-05-13": gpt4o,
+  "gpt-3.5-turbo-0125": gpt35turbo_0125,
+  "gpt-4-0613": gpt4_0613,
+  "gpt-4-turbo-2024-04-09": gpt4turbo_20240409,
+  "o1-preview-2024-09-12": gpt4turbo_20240409,
+  "o1-mini-2024-09-12": gpt4turbo_20240409,
+  "gpt-4o-mini-2024-07-18": gpt4omini_20240718,
+  "gpt-4o-2024-05-13": gpt4o_20240513,
+  "gpt-4o-2024-08-06": gpt4o_20240806,
 
   // anthropic
   "claude-3-opus-20240229": claude3opus,

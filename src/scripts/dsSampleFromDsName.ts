@@ -3,15 +3,15 @@ import path from "path";
 import {
   claude3sonnet,
   claude3opus,
-  gpt35turbo,
-  gpt4,
-  gpt4turbo,
+  gpt35turbo_0125,
+  gpt4_0613,
+  gpt4turbo_20240409,
   mistralLarge,
   openMixtral8x22B,
   gemini10pro,
   gemini15pro,
   gemini15flash,
-  gpt4o,
+  gpt4omini_20240718,
 } from "../lib/models";
 import partitions from "../lib/dataset-partitions";
 import logger from "../lib/logger";
@@ -66,8 +66,7 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${
-        r.results.aggregated?.avg
+      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${r.results.aggregated?.avg
       }`
     );
     logger.debug(
@@ -81,10 +80,10 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
 const evm: ExpVarMatrix = {
   dpart: Object.values(dsParts),
   model: [
-    gpt35turbo,
-    gpt4,
-    gpt4turbo,
-    gpt4o,
+    gpt35turbo_0125,
+    gpt4_0613,
+    gpt4turbo_20240409,
+    gpt4omini_20240718,
     claude3sonnet,
     claude3opus,
     gemini10pro,
