@@ -2,10 +2,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
-import { ToolUseBlock } from "@anthropic-ai/sdk/resources/beta/tools/messages.mjs";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
+import { ToolUseBlock } from "@anthropic-ai/sdk/resources/messages.mjs";
 
 const configuration = {
   apiKey:
@@ -15,7 +15,7 @@ const configuration = {
 export interface AnthropicModelResponse extends ModelResponse {
   type: "anthropic";
   usage?: Usage;
-  dataObj: Anthropic.Beta.Tools.Messages.ToolsBetaMessage;
+  dataObj: Anthropic.Messages.Message;
 }
 
 export type MakeAnthropicRequest = (
@@ -46,7 +46,7 @@ const buildModel = (
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
-    const req: Anthropic.Beta.Tools.Messages.MessageCreateParamsNonStreaming = {
+    const req: Anthropic.Messages.MessageCreateParamsNonStreaming = {
       model: modelId,
       max_tokens: 1024,
       messages: [
@@ -70,18 +70,18 @@ const buildModel = (
       ],
     };
     try {
-      const msg = await anthropic.beta.tools.messages.create(req);
+      const msg = await anthropic.messages.create(req);
 
       const res: AnthropicModelResponse = {
         type: "anthropic" as const,
         dataObj: msg,
         usage: msg.usage
           ? {
-              inputTokens: msg.usage.input_tokens,
-              outputTokens: msg.usage.output_tokens,
-              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
-              modelId,
-            }
+            inputTokens: msg.usage.input_tokens,
+            outputTokens: msg.usage.output_tokens,
+            totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
