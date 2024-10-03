@@ -87,6 +87,7 @@ export const createMockModel = (result: string) =>
               index: 0,
               message: {
                 content: null,
+                refusal: null,
                 role: "assistant",
                 tool_calls: [
                   {
