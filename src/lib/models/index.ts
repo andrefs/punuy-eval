@@ -1,25 +1,33 @@
 import {
-  claude3opus,
-  claude3haiku,
-  commandR_032024,
-  mistralSmall_2409,
-  openMixtral8x7B,
-  openMixtral8x22B,
   Model,
-  gpt35turbo_0125,
-  openMistral7B,
-  mistralLarge_2407,
-  commandRPlus_042024,
+  claude3haiku,
+  claude3opus,
   claude3sonnet_20240229,
-  gpt4turbo_20240409,
-  gpt4_0613,
+  //
+  commandRPlus_042024,
+  commandRPlus_082024,
+  commandR_032024,
+  commandR_082024,
+  //
   gemini10pro_001,
-  gemini15pro_002,
   gemini15flash_002,
+  gemini15pro_002,
+  //
+  gpt35turbo_0125,
+  gpt4_0613,
+  gpt4o_20240513,
+  gpt4o_20240806,
+  gpt4omini_20240718,
+  gpt4turbo_20240409,
+  //
+  mistralLarge_2407,
+  mistralMedium_2312,
+  mistralSmall_2409,
+  openMistral7B,
+  openMistralNemo_2407,
+  openMixtral8x22B,
+  openMixtral8x7B,
 } from ".";
-import { commandRPlus_082024, commandR_082024 } from "./cohere";
-import { mistralMedium_2312, openMistralNemo_2407 } from "./mistral";
-import { gpt4o_20240513, gpt4o_20240806, gpt4omini_20240718 } from "./openai";
 
 export * from "./model";
 export * from "./openai";
