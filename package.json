@@ -10,7 +10,7 @@
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags && gh release create v$npm_package_version --title v$npm_package_version --generate-notes",
-    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
+    "lint": "eslint  .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "clean": "tsc -b tsconfig.json --clean",
     "test": "NODE_ENV=test vitest",
