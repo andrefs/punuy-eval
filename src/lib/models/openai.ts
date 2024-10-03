@@ -103,7 +103,8 @@ const buildModel = (
   return new Model(modelId, "openai" as ModelProvider, makeRequest, pricing);
 };
 
-// updated at 2024-04-18
+// https://openai.com/api/pricing/
+// updated at 2024-10-03
 const pricing = {
   gpt35turbo_0125: {
     input: 0.5 / 1_000_000,
@@ -147,6 +148,7 @@ const pricing = {
   },
 };
 
+// https://platform.openai.com/docs/models
 export const gpt35turbo_0125 = buildModel(
   openai,
   "gpt-3.5-turbo-0125",

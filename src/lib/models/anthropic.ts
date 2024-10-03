@@ -42,7 +42,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (
+  const makeRequest = async function(
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
@@ -77,11 +77,11 @@ const buildModel = (
         dataObj: msg,
         usage: msg.usage
           ? {
-              inputTokens: msg.usage.input_tokens,
-              outputTokens: msg.usage.output_tokens,
-              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
-              modelId,
-            }
+            inputTokens: msg.usage.input_tokens,
+            outputTokens: msg.usage.output_tokens,
+            totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -111,14 +111,20 @@ const buildModel = (
   return new Model(modelId, "anthropic" as ModelProvider, makeRequest, pricing);
 };
 
-// updated at 2024-04-18
+// https://www.anthropic.com/pricing#anthropic-api
+// updated at 2024-10-03
 const pricing = {
   claude3opus: {
     input: 15 / 1_000_000,
     output: 75 / 1_000_000,
     currency: "$" as const,
   },
-  claude3sonnet: {
+  claude3sonnet_20240229: {
+    input: 3 / 1_000_000,
+    output: 15 / 1_000_000,
+    currency: "$" as const,
+  },
+  claude35sonnet_20240620: {
     input: 3 / 1_000_000,
     output: 15 / 1_000_000,
     currency: "$" as const,
@@ -130,15 +136,21 @@ const pricing = {
   },
 };
 
+// https://docs.anthropic.com/en/docs/about-claude/models
 export const claude3opus = buildModel(
   anthropic,
   "claude-3-opus-20240229",
   pricing.claude3opus
 );
-export const claude3sonnet = buildModel(
+export const claude3sonnet_20240229 = buildModel(
   anthropic,
   "claude-3-sonnet-20240229",
-  pricing.claude3sonnet
+  pricing.claude3sonnet_20240229
+);
+export const claude35sonnet_20240620 = buildModel(
+  anthropic,
+  "claude-3-5-sonnet-20240620",
+  pricing.claude35sonnet_20240620
 );
 export const claude3haiku = buildModel(
   anthropic,

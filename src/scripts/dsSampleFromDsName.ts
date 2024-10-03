@@ -1,7 +1,7 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
 import path from "path";
 import {
-  claude3sonnet,
+  claude3sonnet_20240229,
   claude3opus,
   gpt35turbo_0125,
   gpt4_0613,
@@ -84,7 +84,7 @@ const evm: ExpVarMatrix = {
     gpt4_0613,
     gpt4turbo_20240409,
     gpt4omini_20240718,
-    claude3sonnet,
+    claude3sonnet_20240229,
     claude3opus,
     gemini10pro,
     gemini15pro,

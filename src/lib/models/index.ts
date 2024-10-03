@@ -10,7 +10,7 @@ import {
   openMistral7B,
   mistralLarge,
   commandRPlus,
-  claude3sonnet,
+  claude3sonnet_20240229,
   gpt4turbo_20240409,
   gpt4_0613,
   gemini10pro,
@@ -40,6 +40,7 @@ export type ModelId =
   // anthropic
   | "claude-3-opus-20240229"
   | "claude-3-sonnet-20240229"
+  | "claude-3-5-sonnet-20240620"
   | "claude-3-haiku-20240307"
 
   // cohere
@@ -78,7 +79,8 @@ const modelsById: { [key in ModelId]: Model } = {
 
   // anthropic
   "claude-3-opus-20240229": claude3opus,
-  "claude-3-sonnet-20240229": claude3sonnet,
+  "claude-3-sonnet-20240229": claude3sonnet_20240229,
+  "claude-3-5-sonnet-20240620": claude3sonnet_20240229,
   "claude-3-haiku-20240307": claude3haiku,
 
   // cohere

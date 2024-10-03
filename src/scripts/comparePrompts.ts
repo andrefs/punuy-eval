@@ -1,7 +1,7 @@
 import { ExpVarMatrix, comparePrompts } from "../lib/experiments";
 import {
   claude3opus,
-  claude3sonnet,
+  claude3sonnet_20240229,
   gemini10pro,
   gemini15flash,
   gemini15pro,
@@ -65,7 +65,7 @@ const evm: ExpVarMatrix = {
     gpt4_0613,
     gpt4turbo_20240409,
     gpt4omini_20240718,
-    claude3sonnet,
+    claude3sonnet_20240229,
     claude3opus,
     gemini10pro,
     gemini15pro,
