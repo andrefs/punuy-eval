@@ -6,7 +6,7 @@ import {
   gpt35turbo_0125,
   gpt4_0613,
   gpt4turbo_20240409,
-  mistralLarge,
+  mistralLarge_2407,
   openMixtral8x22B,
   gemini10pro,
   gemini15pro,
@@ -89,7 +89,7 @@ const evm: ExpVarMatrix = {
     gemini10pro,
     gemini15pro,
     gemini15flash,
-    mistralLarge,
+    mistralLarge_2407,
     openMixtral8x22B,
   ],
 };

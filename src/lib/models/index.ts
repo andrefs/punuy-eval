@@ -2,13 +2,13 @@ import {
   claude3opus,
   claude3haiku,
   commandR_032024,
-  mistralSmall,
+  mistralSmall_2409,
   openMixtral8x7B,
   openMixtral8x22B,
   Model,
   gpt35turbo_0125,
   openMistral7B,
-  mistralLarge,
+  mistralLarge_2407,
   commandRPlus_042024,
   claude3sonnet_20240229,
   gpt4turbo_20240409,
@@ -18,6 +18,7 @@ import {
   gemini15flash,
 } from ".";
 import { commandRPlus_082024, commandR_082024 } from "./cohere";
+import { mistralMedium_2312, openMistralNemo_2407 } from "./mistral";
 import { gpt4o_20240513, gpt4o_20240806, gpt4omini_20240718 } from "./openai";
 
 export * from "./model";
@@ -51,8 +52,10 @@ export type ModelId =
   | "command-r-03-2024"
 
   // mistral
-  | "mistral-large-latest"
-  | "mistral-small-latest"
+  | "mistral-large-2407"
+  | "mistral-medium-2312"
+  | "mistral-small-2409"
+  | "open-mistral-nemo-2407"
   | "open-mistral-7b"
   | "open-mixtral-8x7b"
   | "open-mixtral-8x22b"
@@ -93,8 +96,10 @@ const modelsById: { [key in ModelId]: Model } = {
   "command-r-08-2024": commandR_082024,
 
   // mistral
-  "mistral-large-latest": mistralLarge,
-  "mistral-small-latest": mistralSmall,
+  "mistral-large-2407": mistralLarge_2407,
+  "mistral-medium-2312": mistralMedium_2312,
+  "mistral-small-2409": mistralSmall_2409,
+  "open-mistral-nemo-2407": openMistralNemo_2407,
   "open-mistral-7b": openMistral7B,
   "open-mixtral-8x7b": openMixtral8x7B,
   "open-mixtral-8x22b": openMixtral8x22B,

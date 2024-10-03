@@ -10,7 +10,7 @@ import {
   gpt4turbo_20240409,
   claude3opus,
   openMixtral8x22B,
-  mistralLarge,
+  mistralLarge_2407,
   gpt35turbo_0125,
   gpt4_0613,
   claude3sonnet_20240229,
@@ -39,7 +39,7 @@ const compareMC30 = async () => {
     gemini10pro,
     gemini15pro,
     gemini15flash,
-    mistralLarge,
+    mistralLarge_2407,
     openMixtral8x22B,
   ];
   const res = await compareMc30.performMultiNoEval(models, trials, humanScores);
