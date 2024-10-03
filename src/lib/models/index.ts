@@ -1,7 +1,7 @@
 import {
   claude3opus,
   claude3haiku,
-  commandR,
+  commandR_032024,
   mistralSmall,
   openMixtral8x7B,
   openMixtral8x22B,
@@ -9,7 +9,7 @@ import {
   gpt35turbo_0125,
   openMistral7B,
   mistralLarge,
-  commandRPlus,
+  commandRPlus_042024,
   claude3sonnet_20240229,
   gpt4turbo_20240409,
   gpt4_0613,
@@ -17,6 +17,7 @@ import {
   gemini15pro,
   gemini15flash,
 } from ".";
+import { commandRPlus_082024, commandR_082024 } from "./cohere";
 import { gpt4o_20240513, gpt4o_20240806, gpt4omini_20240718 } from "./openai";
 
 export * from "./model";
@@ -44,8 +45,10 @@ export type ModelId =
   | "claude-3-haiku-20240307"
 
   // cohere
-  | "command-r-plus"
-  | "command-r"
+  | "command-r-plus-08-2024"
+  | "command-r-plus-04-2024"
+  | "command-r-08-2024"
+  | "command-r-03-2024"
 
   // mistral
   | "mistral-large-latest"
@@ -84,8 +87,10 @@ const modelsById: { [key in ModelId]: Model } = {
   "claude-3-haiku-20240307": claude3haiku,
 
   // cohere
-  "command-r-plus": commandRPlus,
-  "command-r": commandR,
+  "command-r-plus-04-2024": commandRPlus_042024,
+  "command-r-plus-08-2024": commandRPlus_082024,
+  "command-r-03-2024": commandR_032024,
+  "command-r-08-2024": commandR_082024,
 
   // mistral
   "mistral-large-latest": mistralLarge,
