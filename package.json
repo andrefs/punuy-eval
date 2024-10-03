@@ -29,7 +29,7 @@
     "@mistralai/mistralai": "0.4.0",
     "@sinclair/typebox": "0.33.13",
     "@stdlib/stats-pcorrtest": "0.2.2",
-    "cohere-ai": "7.10.2",
+    "cohere-ai": "7.14.0",
     "console-table-printer": "2.12.1",
     "dotenv": "16.4.5",
     "fast-shuffle": "6.1.0",
