@@ -6,11 +6,15 @@ import Experiment, {
   ExpVars,
   ExperimentData,
   GenericExpTypes,
+  PairScoreList,
   Usage,
   Usages,
 } from ".";
 import logger from "../../logger";
 import { ModelId, getModelById } from "src/lib/models";
+import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
+import { normalizeScale, pairsToHash } from "../aux";
+import { PartitionData, PartitionScale } from "punuy-datasets/src/lib/types";
 
 export function calcUsageCost(usage: Usages | undefined) {
   if (!usage) {
@@ -119,8 +123,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${
-      data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
@@ -227,4 +230,85 @@ export function getFixedValueGroup(
   };
   compGroups.push(newGroup);
   return newGroup;
+}
+
+/**
+ * Generate the variable combinations but match each prompt's language and measure type with matching datasets
+ * @param variables The variables to generate combinations for
+ * @returns The variable combinations
+ */
+export function splitVarCombsMTL(variables: ExpVarMatrix) {
+  const varCombs = [];
+  for (const l of variables.prompt?.map(p => ({ id: p.language })) ?? []) {
+    for (const mt of [
+      { id: "similarity" } as const,
+      { id: "relatedness" } as const,
+    ]) {
+      const filtPrompts =
+        variables.prompt?.filter(
+          p => p.language === l.id && p.type === mt.id
+        ) || [];
+      const filtDatasets = variables.dpart.filter(
+        d => d.language === l.id && d.measureType === mt.id
+      );
+      if (filtPrompts.length === 0 || filtDatasets.length === 0) {
+        logger.warn(
+          `No prompts or datasets for language ${l.id} and measure type ${mt.id}. Skipping.`
+        );
+        continue;
+      }
+      logger.info(
+        `Running experiments for language ${l.id} and measure type ${mt.id}`
+      );
+      const vm: ExpVarMatrix = {
+        ...variables,
+        prompt: filtPrompts,
+        dpart: filtDatasets,
+        language: [l],
+        measureType: [mt],
+      };
+      varCombs.push(...genValueCombinations(vm));
+    }
+  }
+  return varCombs;
+}
+
+/**
+ * Given a list of pairs and a dataset partition, get the scores for each pair
+ * @param pairs - The pairs to get the scores for
+ * @param dpart - The dataset partition to get the scores from
+ * @returns The scores for each pair as a PairScoreList
+ */
+
+export function getPairScoreListFromDPart(
+  pairs: [string, string][],
+  dpart: DsPartition
+) {
+  const res = [] as PairScoreList;
+  const h = pairsToHash(pairs);
+  for (const entry of dpart.data) {
+    const w1 = entry.term1.toLowerCase();
+    const w2 = entry.term2.toLowerCase();
+    if (w1 in h && w2 in h[w1]) {
+      // get value or calculate .values average
+      const value = valueFromEntry(entry, dpart.scale, { min: 1, max: 5 });
+      res.push({ words: [w1, w2], score: value });
+    }
+  }
+  return res;
+}
+
+export function valueFromEntry(
+  entry: PartitionData,
+  sourceScale: PartitionScale,
+  targetScale: { min: number; max: number }
+) {
+  let value;
+  if ("value" in entry && typeof entry.value === "number") {
+    value = normalizeScale(entry.value, sourceScale.value, targetScale);
+  } else {
+    const values = entry.values!.filter(x => typeof x === "number") as number[];
+    value = values!.reduce((a, b) => a! + b!, 0) / values.length;
+  }
+  return value;
 }

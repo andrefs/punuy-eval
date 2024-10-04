@@ -23,6 +23,7 @@ import {
   sanityCheck,
   saveExpVarCombData,
   saveExperimentsData,
+  splitVarCombsMTL,
 } from "./aux";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Value } from "@sinclair/typebox/value";
@@ -155,11 +156,11 @@ export default class Experiment<T extends GenericExpTypes> {
     this.name = name;
     this.description = description;
     this.queryData = queryData;
-    this.validateSchema = function (this: Experiment<T>, value: unknown) {
+    this.validateSchema = function(this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.getResponse = async function (
+    this.getResponse = async function(
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
@@ -215,7 +216,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.tryResponse = async function (
+    this.tryResponse = async function(
       model: Model,
       prompt: string,
       params: ModelTool,
@@ -258,7 +259,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.runTrial = runTrial;
-    this.runTrials = async function (
+    this.runTrials = async function(
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -293,7 +294,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.evaluateTrial = evaluateTrial;
-    this.evaluate = async function (
+    this.evaluate = async function(
       this: Experiment<T>,
       exp: ExperimentData<T>
     ) {
@@ -307,7 +308,7 @@ export default class Experiment<T extends GenericExpTypes> {
         aggregated: await combineEvaluations(trialEvaluationResults),
       };
     };
-    this.perform = async function (
+    this.perform = async function(
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -338,7 +339,7 @@ export default class Experiment<T extends GenericExpTypes> {
       return expData;
     };
     this.sanityCheck = sanityCheck;
-    this.performMulti = async function (
+    this.performMulti = async function(
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
@@ -346,41 +347,11 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       await this.sanityCheck(folder);
       const totalUsage: Usages = {};
+
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
       }
-      const varCombs = [];
-      for (const l of variables.prompt?.map(p => ({ id: p.language })) ?? []) {
-        for (const mt of [
-          { id: "similarity" } as const,
-          { id: "relatedness" } as const,
-        ]) {
-          const filtPrompts =
-            variables.prompt?.filter(
-              p => p.language === l.id && p.type === mt.id
-            ) || [];
-          const filtDatasets = variables.dpart.filter(
-            d => d.language === l.id && d.measureType === mt.id
-          );
-          if (filtPrompts.length === 0 || filtDatasets.length === 0) {
-            logger.warn(
-              `No prompts or datasets for language ${l} and measure type ${mt.id}. Skipping.`
-            );
-            continue;
-          }
-          logger.info(
-            `Running experiments for language [${l}] and measure type [${mt}]`
-          );
-          const vm: ExpVarMatrix = {
-            ...variables,
-            prompt: filtPrompts,
-            dpart: filtDatasets,
-            language: [l],
-            measureType: [mt],
-          };
-          varCombs.push(...genValueCombinations(vm));
-        }
-      }
+      const varCombs = splitVarCombsMTL(variables);
 
       logger.info(
         `🔬 Preparing to run experiment ${this.name
@@ -388,6 +359,7 @@ export default class Experiment<T extends GenericExpTypes> {
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
+
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
@@ -397,6 +369,7 @@ export default class Experiment<T extends GenericExpTypes> {
         res.push(await this.perform(vc, trials, Date.now(), folder));
         addUsage(totalUsage, res[res.length - 1].usage);
       }
+
       await saveExperimentsData(this.name, res, totalUsage, folder);
       if (this.expDataToExpScore) {
         this.printExpResTable(res);
@@ -407,7 +380,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.expDataToExpScore = expDataToExpScore;
-    this.printExpResTable = function (
+    this.printExpResTable = function(
       this: Experiment<T>,
       exps: ExperimentData<T>[]
     ) {
@@ -492,7 +465,7 @@ export default class Experiment<T extends GenericExpTypes> {
         );
       }
     };
-    this.printUsage = function (
+    this.printUsage = function(
       this: Experiment<T>,
       usage: Usages | undefined
     ) {

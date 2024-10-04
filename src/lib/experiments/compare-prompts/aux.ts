@@ -1,48 +1,10 @@
 import pcorrTest from "@stdlib/stats-pcorrtest";
-import { PartitionScale, PartitionData } from "punuy-datasets/src/lib/types";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import logger from "src/lib/logger";
 import { PairScoreList, ScoreDict, SinglePairScore } from "../experiment/types";
-
-export function rawResultsToAvg(parsed: PairScoreList[]) {
-  const values = {} as { [key: string]: { [key: string]: number[] } };
-  for (const r of parsed) {
-    if (!r) {
-      continue;
-    }
-    for (const { words, score } of r) {
-      if (words?.length !== 2 || isNaN(score)) {
-        continue;
-      }
-      const [w1, w2] = words.map(x => x.toLowerCase());
-      values[w1] = values[w1] || {};
-      values[w1][w2] = values[w1][w2] || [];
-      values[w1][w2].push(Number(score));
-    }
-  }
-
-  const res = {} as ScoreDict;
-  for (const w1 in values) {
-    res[w1] = {};
-    for (const w2 in values[w1]) {
-      res[w1][w2] =
-        values[w1][w2].reduce((a, b) => a + b, 0) / values[w1][w2].length;
-    }
-  }
-  return res;
-}
-
-export function normalizeScale(
-  value: number,
-  sourceScale: { min: number; max: number },
-  targetScale: { min: number; max: number }
-) {
-  return (
-    targetScale.min +
-    ((value - sourceScale.min) * (targetScale.max - targetScale.min)) /
-      (sourceScale.max - sourceScale.min)
-  );
-}
+import { pairsToHash } from "../aux";
+import { rawResultsToAvg } from "../prediction-correlation/aux";
+import { valueFromEntry } from "../experiment/aux";
 
 export function parseToRawResults(raw: string[]) {
   const failed = [];
@@ -60,36 +22,10 @@ export function parseToRawResults(raw: string[]) {
   return { parsed: objs, failed };
 }
 
-export function valueFromEntry(
-  entry: PartitionData,
-  sourceScale: PartitionScale,
-  targetScale: { min: number; max: number }
-) {
-  let value;
-  if ("value" in entry && typeof entry.value === "number") {
-    value = normalizeScale(entry.value, sourceScale.value, targetScale);
-  } else {
-    const values = entry.values!.filter(x => typeof x === "number") as number[];
-    value = values!.reduce((a, b) => a! + b!, 0) / values.length;
-  }
-  return value;
-}
-
-function pairsToHash(pairs: [string, string][]) {
-  const res = {} as {
-    [key: string]: { [key: string]: boolean };
-  };
-  for (const [w1, w2] of pairs) {
-    res[w1] = res[w1] || {};
-    res[w1][w2] = true;
-  }
-  return res;
-}
-
 export function evalScores(
   pairs: [string, string][],
   dpart: DsPartition,
-  raw: PairScoreList[]
+  raw: PairScoreList
 ): ReturnType<typeof pcorrTest> {
   const got = rawResultsToAvg(raw.filter(x => x !== null));
   const pairsHash = pairsToHash(pairs);

@@ -4,6 +4,7 @@ import Experiment, {
   ExpVarsFixedPrompt,
   ExperimentData,
   GenericExpTypes,
+  PairScoreList,
   Prompt,
   TrialResult,
 } from "../experiment";
@@ -16,7 +17,8 @@ import {
   DataPartiallyIncorrect,
   NonUsableData,
 } from "src/lib/evaluation";
-import pcorrTest from "@stdlib/stats-pcorrtest";
+import { trialEvalScores } from "./aux";
+import { getPairScoreListFromDPart } from "../experiment/aux";
 
 export const name = "prediction-correlation";
 const description =
@@ -25,7 +27,7 @@ const description =
 /**
  * ExpType for PredictionCorrelation experiment
  */
-interface PCExpTypes extends GenericExpTypes {
+export interface PCExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
@@ -67,65 +69,19 @@ async function evaluateTrial(
   prompt: Prompt,
   got: PCExpTypes["Data"]
 ) {
-  const res = {} as {
-    [w1: string]: {
-      [w2: string]: {
-        expected: number | null;
-        got: number | null;
-      };
-    };
-  };
+  const pairs = prompt.pairs!.map(
+    p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
+  );
+  const corr = trialEvalScores(pairs, dpart, got.scores as PairScoreList);
+  const nonUsableData = got.scores.filter(
+    ({ words, score }) => !words?.length || isNaN(score)
+  ).length;
 
-  const expected: PCExpTypes["Data"] = { scores: [] };
+  const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
 
-  for (const row of dpart.data) {
-    const w1 = row.term1.toLowerCase();
-    const w2 = row.term2.toLowerCase();
-
-    let score: number;
-    if ("value" in row && typeof row.value === "number") {
-      score = row.value;
-    } else {
-      const values = row.values!.filter(v => typeof v === "number") as number[];
-      score = values.reduce((a, b) => a + b, 0) / values.length;
-    }
-
-    expected.scores.push({ words: [w1, w2], score });
-  }
-
-  let i = 0;
-  let nonUsableData = 0;
-  for (const { words, score } of got.scores) {
-    if (!words?.length || isNaN(score)) {
-      nonUsableData++;
-    }
-    i++;
-    const w1 = words[0].toLowerCase();
-    const w2 = words[1].toLowerCase();
-
-    res[w1] = res[w1] || {};
-    res[w1][w2] = res[w1][w2] || { expected: null, got: null };
-    res[w1][w2].got = score;
-  }
-  if (nonUsableData === i) {
+  if (nonUsableData === got.scores.length) {
     return new NonUsableData(got, expected);
   }
-
-  const intersec = [];
-  for (const w1 in res) {
-    for (const w2 in res[w1]) {
-      if (res[w1][w2].got !== null && res[w1][w2].expected !== null) {
-        intersec.push(res[w1][w2]);
-      }
-    }
-  }
-  if (intersec.length < 10) {
-    return new NonUsableData(got, expected);
-  }
-  const gotScores = intersec.map(({ got }) => got);
-  const expectedScores = intersec.map(({ expected }) => expected);
-
-  const corr = pcorrTest(gotScores, expectedScores);
 
   if (corr.pcorr === null) {
     return new NonUsableData(got, expected);

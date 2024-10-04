@@ -22,6 +22,7 @@ import {
   getVarIds,
   saveExpVarCombData,
   addUsage,
+  splitVarCombsMTL,
 } from "../experiment/aux";
 import { Model, ModelTool } from "src/lib/models";
 import {
@@ -102,8 +103,7 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${
-        attemptResult.type
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${attemptResult.type
       }`
     );
     failedAttempts.push(attemptResult);
@@ -196,42 +196,11 @@ async function performMulti(
     variables.prompt = prompts;
   }
   const totalUsage: Usages = {};
-  const varCombs = [];
-  const res = [];
+  const varCombs = splitVarCombsMTL(variables);
 
-  for (const l of [{ id: "en" as const }, { id: "pt" as const }]) {
-    for (const mt of [
-      { id: "similarity" } as const,
-      { id: "relatedness" as const },
-    ]) {
-      const filtPrompts = variables.prompt.filter(
-        p => p.language === l.id && p.type === mt.id
-      );
-      const filtDatasets = variables.dpart.filter(
-        d => d.language === l.id && d.measureType === mt.id
-      );
-      if (filtPrompts.length === 0 || filtDatasets.length === 0) {
-        logger.warn(
-          `No prompts or datasets for language [${l.id}] and measure type [${mt.id}]. Skipping.`
-        );
-        continue;
-      }
-      logger.info(
-        `Running experiments for language [${l}] and measure type [${mt}]`
-      );
-      const vm: ExpVarMatrix = {
-        ...variables,
-        prompt: filtPrompts,
-        dpart: filtDatasets,
-        language: [l],
-        measureType: [mt],
-      };
-      varCombs.push(...genValueCombinations(vm));
-    }
-  }
+  const res = [];
   logger.info(
-    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${
-      varCombs.length
+    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${varCombs.length
     }):\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
@@ -283,9 +252,7 @@ function expEvalScores(exps: ExperimentData<CPExpTypes>[]): ExpScore[] {
         p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
       );
 
-      const rawResults: PairScoreList[] = exp.results.raw.map(r => {
-        return r.data.scores as PairScoreList;
-      });
+      const rawResults = trial.data.scores as PairScoreList;
       try {
         const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
         res.push({
@@ -370,8 +337,8 @@ async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
       `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
-        comp.fixedValueConfig
-      )}\n${tablePP}`
+          comp.fixedValueConfig
+        )}\n${tablePP}`
     );
   }
 

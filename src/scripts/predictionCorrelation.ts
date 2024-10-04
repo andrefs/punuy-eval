@@ -1,6 +1,11 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
 import path from "path";
-import { gpt4turbo_20240409, gpt4o_20240806 } from "../lib/models";
+import {
+  gpt4turbo_20240409,
+  gpt4o_20240806,
+  o1mini_20240912,
+  gpt4omini_20240718,
+} from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/prediction-correlation/prompts";
@@ -39,17 +44,18 @@ const evm: ExpVarMatrix = {
   dpart: [
     // en rel
     ws353Rel,
-    mturk287,
+    //mturk287,
     // en sim
-    ws353Sim,
-    yp130,
+    //ws353Sim,
+    //yp130,
   ],
   prompt: prompts,
   model: [
     //gpt35turbo,
     //gpt4,
-    gpt4turbo_20240409,
-    gpt4o_20240806,
+    gpt4omini_20240718,
+    //gpt4turbo_20240409,
+    //gpt4o_20240806,
     //claude3sonnet,
     //claude3opus,
     //gemini10pro,
