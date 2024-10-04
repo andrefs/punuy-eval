@@ -4,7 +4,6 @@ import Experiment, {
   ExpVarsFixedPrompt,
   ExperimentData,
   GenericExpTypes,
-  PairScoreList,
   Prompt,
   TrialResult,
 } from "../experiment";

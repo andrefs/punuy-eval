@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evalScores, rawResultsToAvg } from "./aux";
+import { evalScores } from "./aux";
 import { ExpVars, Prompt } from "..";
 import { Model } from "../../models";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
@@ -124,70 +124,6 @@ describe("compare-prompts aux", () => {
     });
   });
 
-  describe("rawResultsToAvg", () => {
-    it("should return average of results", () => {
-      const rawResults: PairScoreList[] = [
-        [
-          { words: ["w1", "w2"], score: 1 },
-          { words: ["w1", "w2"], score: 2 },
-          { words: ["w1", "w2"], score: 5 },
-        ],
-        [
-          { words: ["w3", "w4"], score: 4 },
-          { words: ["w3", "w4"], score: 3 },
-        ],
-      ];
-      const avg = rawResultsToAvg(rawResults);
-      expect(avg).toMatchInlineSnapshot(`
-        {
-          "w1": {
-            "w2": 2.6666666666666665,
-          },
-          "w3": {
-            "w4": 3.5,
-          },
-        }
-      `);
-    });
-
-    //it("should ignore results with empty word array", () => {
-    //  const rawResults: PairScoreList[] = [
-    //    [
-    //      { words: ["w1", "w2"], score: 1 },
-    //      { words: [], score: 2 },
-    //      { words: ["w1", "w2"], score: 5 },
-    //    ],
-    //  ];
-    //  const avg = rawResultsToAvg(rawResults);
-    //  expect(avg).toMatchInlineSnapshot(`
-    //    {
-    //      "w1": {
-    //        "w2": 3,
-    //      },
-    //    }
-    //  `);
-    //});
-
-    it("should ignore NaN scores", () => {
-      const rawResults: PairScoreList[] = [
-        [
-          { words: ["w1", "w2"], score: 1 },
-          { words: ["w1", "w2"], score: NaN },
-          { words: ["w1", "w2"], score: 5 },
-          { words: ["w1", "w4"], score: NaN },
-        ],
-      ];
-      const avg = rawResultsToAvg(rawResults);
-      expect(avg).toMatchInlineSnapshot(`
-        {
-          "w1": {
-            "w2": 3,
-          },
-        }
-      `);
-    });
-  });
-
   describe("evalScores", () => {
     it("should return results", () => {
       const pairs = [
@@ -197,17 +133,13 @@ describe("compare-prompts aux", () => {
         ["w7", "w8"],
         ["w9", "w10"],
       ] as [string, string][];
-      const rawResults: PairScoreList[] = [
-        [
-          { words: ["w1", "w2"], score: 1 },
-          { words: ["w3", "w4"], score: 2 },
-          { words: ["w7", "w8"], score: 5 },
-        ],
-        [
-          { words: ["w3", "w4"], score: 4 },
-          { words: ["w3", "w4"], score: 3 },
-          { words: ["w9", "w10"], score: 3 },
-        ],
+      const rawResults: PairScoreList = [
+        { words: ["w1", "w2"], score: 1 },
+        { words: ["w3", "w4"], score: 2 },
+        { words: ["w7", "w8"], score: 5 },
+        { words: ["w3", "w4"], score: 4 },
+        { words: ["w3", "w4"], score: 3 },
+        { words: ["w9", "w10"], score: 3 },
       ];
       const dpart = {
         id: "d1",

@@ -22,12 +22,12 @@ const prompts: PromptGenerator[] = [
   //  type: "similarity" as const,
   //  text: "Neste questionário ser-lhe-á pedido que avalie quantitativamente, numa escala, a intensidade da semelhança semântica entre pares de palavras afetivas. Por favor, antes de começar, leia atentamente a instrução e exemplos abaixo.\n\nA pergunta que lhe fazemos é: quão semelhantes são as duas palavras? Pares de palavras pouco similares deverão ser pontuados com valores mais baixos, e pares de palavras muito similares com valores mais altos.\n\nPor exemplo, as palavras 'esperto' e 'inteligente' partilham muitas semelhanças, tal como 'alegria' e 'felicidade'. 'Confiante' partilha muitas semelhanças consigo mesmo. 'Feliz' e 'louco' partilham algumas semelhanças. Já 'triste' e 'divertido' não são nada semelhantes.\nExemplos:\n* esperto, inteligente: 4\n* alegria, felicidade: 5\n* confiante, confiante: 5\n* feliz, louco: 3\n* triste, divertido: 1\n\nPor favor avalie a semelhança semântica de cada par de palavras:\n",
   //},
-  //{
-  //  id: "sim-afs-survey-en",
-  //  language: "en" as const,
-  //  type: "similarity" as const,
-  //  text: "In this survey you'll be asked to rate quantitatively, on a scale, the intensity of the semantic similarity between pairs of affective words. Please, before starting, read carefully the instructions and the examples provided.\n\nThe question we're asking is: how much similar are the two words? Vaguely similar words should be scored with lower values, and strongly similar words with higher values.\n\nFor example, the words 'smart' and 'intelligent' share a lot of similarities, just like 'happiness' and 'joy'. 'Confident' is highly similar to itself. 'Happy' and 'mad' share some similarities. 'Sad' and 'funny' are not similar at all.\nExamples:\n* smart, intelligent: 4, \n* happiness, joy: 5\n* confident, confident: 5\n* happy, mad: 3\n* sad, funny: 1\n\nPlease rate the semantic relatedness of each pair of words:\n",
-  //},
+  {
+    id: "sim-afs-survey-en",
+    language: "en" as const,
+    type: "similarity" as const,
+    text: "In this survey you'll be asked to rate quantitatively, on a scale, the intensity of the semantic similarity between pairs of affective words. Please, before starting, read carefully the instructions and the examples provided.\n\nThe question we're asking is: how much similar are the two words? Vaguely similar words should be scored with lower values, and strongly similar words with higher values.\n\nFor example, the words 'smart' and 'intelligent' share a lot of similarities, just like 'happiness' and 'joy'. 'Confident' is highly similar to itself. 'Happy' and 'mad' share some similarities. 'Sad' and 'funny' are not similar at all.\nExamples:\n* smart, intelligent: 4, \n* happiness, joy: 5\n* confident, confident: 5\n* happy, mad: 3\n* sad, funny: 1\n\nPlease rate the semantic relatedness of each pair of words:\n",
+  },
 ].map(p => ({
   ...p,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
