@@ -17,7 +17,8 @@ async function main(files: string[]) {
     console.warn(`Fixing ${file}`);
     await createFileBackupCopy(file);
     const expVCData = await readFile(file);
-    expVCData.results.raw = expVCData.results.raw.map(r => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expVCData.results.raw = expVCData.results.raw.map((r: any) => ({
       data: r,
       prompt: "",
     }));

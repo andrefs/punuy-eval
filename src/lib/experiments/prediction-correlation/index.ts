@@ -42,11 +42,12 @@ async function runTrial(
     description: "Evaluates the scores of the pairs returned",
     schema: toolSchema,
   };
-  const _vars = vars as ExpVarsFixedPrompt;
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
 
-  logger.debug(`Prompt (${_vars.prompt.id}): ${_vars.prompt.text}`);
+  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
-  const res = await this.getResponse(_vars, tool, maxRetries);
+  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 
