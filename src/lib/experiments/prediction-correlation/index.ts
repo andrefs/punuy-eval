@@ -72,7 +72,15 @@ async function evaluateTrial(
   const pairs = prompt.pairs!.map(
     p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
   );
-  const corr = trialEvalScores(pairs, dpart, got.scores as PairScoreList);
+  const lcGotScores = got.scores.map(s => ({
+    words: [s.words[0].toLowerCase(), s.words[1].toLowerCase()] as [
+      string,
+      string,
+    ],
+    score: s.score,
+  }));
+
+  const corr = trialEvalScores(pairs, dpart, lcGotScores);
   const nonUsableData = got.scores.filter(
     ({ words, score }) => !words?.length || isNaN(score)
   ).length;
