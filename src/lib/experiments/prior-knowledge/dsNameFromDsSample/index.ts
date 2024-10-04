@@ -30,6 +30,9 @@ const promptGen = {
   }),
 };
 
+/**
+ * ExpType for NameFromSample experiment
+ * */
 interface NFSExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: { name: string; year: string };

@@ -1,18 +1,6 @@
 import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
 import path from "path";
-import {
-  claude3sonnet,
-  claude3opus,
-  gpt35turbo,
-  gpt4,
-  gpt4turbo,
-  mistralLarge,
-  openMixtral8x22B,
-  gpt4o,
-  gemini10pro,
-  gemini15pro,
-  gemini15flash,
-} from "../lib/models";
+import { gpt4turbo, gpt4o } from "../lib/models";
 import dsParts from "../lib/dataset-partitions";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
@@ -36,8 +24,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(vars))} ${
-        r.results.aggregated?.avg
+      `${r.meta.name} ${JSON.stringify(getVarIds(vars))} ${r.results.aggregated?.avg
       }`
     );
     logger.debug(

@@ -40,6 +40,9 @@ const promptGen = {
   },
 };
 
+/**
+ * ExpType for ValuesExactMatches experiment
+ */
 interface VEMExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
@@ -105,7 +108,7 @@ async function evaluateTrial(
   let nonUsableData = 0;
   let exactMatches = 0;
   for (const { words, score } of got.scores) {
-    if (!words || isNaN(score)) {
+    if (!words?.length || isNaN(score)) {
       nonUsableData++;
     }
     i++;
