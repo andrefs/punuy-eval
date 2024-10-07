@@ -78,6 +78,5 @@ export default new Experiment<NFSExpTypes>(
   query,
   runTrial,
   evaluateTrial,
-  undefined,
-  [promptGen]
+  { prompts: [promptGen] }
 );

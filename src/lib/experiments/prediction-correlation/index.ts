@@ -106,5 +106,5 @@ export default new Experiment(
   query,
   runTrial,
   evaluateTrial,
-  expDataToExpScore
+  { expDataToExpScore } // TODO add customCombineEvals
 );

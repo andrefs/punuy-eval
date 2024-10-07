@@ -147,20 +147,29 @@ export default class Experiment<T extends GenericExpTypes> {
       prompt: Prompt,
       got: T["Data"]
     ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>,
-    expDataToExpScore?: (
-      this: Experiment<T>,
-      exp: ExperimentData<T>
-    ) => ExpScore,
-    prompts?: (Prompt | PromptGenerator)[]
+    {
+      expDataToExpScore,
+      prompts,
+      customCombineEvals,
+    }: {
+      expDataToExpScore?: (
+        this: Experiment<T>,
+        exp: ExperimentData<T>
+      ) => ExpScore;
+      prompts?: (Prompt | PromptGenerator)[];
+      customCombineEvals?: (
+        vs: EvaluationResult<T["Data"], T["Evaluation"]>[]
+      ) => Promise<AggregatedEvaluationResult>;
+    }
   ) {
     this.name = name;
     this.description = description;
     this.queryData = queryData;
-    this.validateSchema = function(this: Experiment<T>, value: unknown) {
+    this.validateSchema = function (this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.getResponse = async function(
+    this.getResponse = async function (
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
@@ -216,7 +225,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.tryResponse = async function(
+    this.tryResponse = async function (
       model: Model,
       prompt: string,
       params: ModelTool,
@@ -259,7 +268,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.runTrial = runTrial;
-    this.runTrials = async function(
+    this.runTrials = async function (
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -294,7 +303,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.evaluateTrial = evaluateTrial;
-    this.evaluate = async function(
+    this.evaluate = async function (
       this: Experiment<T>,
       exp: ExperimentData<T>
     ) {
@@ -305,10 +314,12 @@ export default class Experiment<T extends GenericExpTypes> {
       );
       return {
         evaluation: trialEvaluationResults,
-        aggregated: await combineEvaluations(trialEvaluationResults),
+        aggregated: customCombineEvals
+          ? await customCombineEvals(trialEvaluationResults)
+          : await combineEvaluations(trialEvaluationResults),
       };
     };
-    this.perform = async function(
+    this.perform = async function (
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -339,7 +350,7 @@ export default class Experiment<T extends GenericExpTypes> {
       return expData;
     };
     this.sanityCheck = sanityCheck;
-    this.performMulti = async function(
+    this.performMulti = async function (
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
@@ -380,7 +391,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.expDataToExpScore = expDataToExpScore;
-    this.printExpResTable = function(
+    this.printExpResTable = function (
       this: Experiment<T>,
       exps: ExperimentData<T>[]
     ) {
@@ -465,7 +476,7 @@ export default class Experiment<T extends GenericExpTypes> {
         );
       }
     };
-    this.printUsage = function(
+    this.printUsage = function (
       this: Experiment<T>,
       usage: Usages | undefined
     ) {

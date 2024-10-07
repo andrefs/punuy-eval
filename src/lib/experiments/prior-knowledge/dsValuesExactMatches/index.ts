@@ -199,6 +199,5 @@ export default new Experiment(
   query,
   runTrial,
   evaluateTrial,
-  expDataToExpScore,
-  [promptGen]
+  { expDataToExpScore, prompts: [promptGen] }
 );
