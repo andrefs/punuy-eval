@@ -74,13 +74,13 @@ const buildModel = (
         dataObj: prediction,
         usage: prediction.meta?.billedUnits
           ? {
-              inputTokens: prediction.meta.billedUnits.inputTokens || 0,
-              outputTokens: prediction.meta.billedUnits.outputTokens || 0,
-              totalTokens:
-                (prediction.meta.billedUnits.inputTokens || 0) +
-                (prediction.meta.billedUnits.outputTokens || 0),
-              modelId,
-            }
+            inputTokens: prediction.meta.billedUnits.inputTokens || 0,
+            outputTokens: prediction.meta.billedUnits.outputTokens || 0,
+            totalTokens:
+              (prediction.meta.billedUnits.inputTokens || 0) +
+              (prediction.meta.billedUnits.outputTokens || 0),
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -100,7 +100,7 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${req}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }

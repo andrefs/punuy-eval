@@ -77,11 +77,11 @@ const buildModel = (
         dataObj: msg,
         usage: msg.usage
           ? {
-              inputTokens: msg.usage.input_tokens,
-              outputTokens: msg.usage.output_tokens,
-              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
-              modelId,
-            }
+            inputTokens: msg.usage.input_tokens,
+            outputTokens: msg.usage.output_tokens,
+            totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -102,7 +102,7 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nRequest object: ${req}\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${req}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }

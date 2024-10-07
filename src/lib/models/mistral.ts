@@ -76,11 +76,11 @@ const buildModel = (
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-              inputTokens: chatResponse.usage?.promptTokens,
-              outputTokens: chatResponse.usage?.completionTokens,
-              totalTokens: chatResponse.usage?.totalTokens,
-              modelId,
-            }
+            inputTokens: chatResponse.usage?.promptTokens,
+            outputTokens: chatResponse.usage?.completionTokens,
+            totalTokens: chatResponse.usage?.totalTokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -106,7 +106,7 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${req}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
