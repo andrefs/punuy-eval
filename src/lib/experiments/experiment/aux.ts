@@ -239,7 +239,10 @@ export function getFixedValueGroup(
  */
 export function splitVarCombsMTL(variables: ExpVarMatrix) {
   const varCombs = [];
-  for (const l of variables.prompt?.map(p => ({ id: p.language })) ?? []) {
+  const languages = Array.from(
+    new Set(variables.prompt?.map(p => p.language) ?? [])
+  ).map(l => ({ id: l }));
+  for (const l of languages) {
     for (const mt of [
       { id: "similarity" } as const,
       { id: "relatedness" } as const,
