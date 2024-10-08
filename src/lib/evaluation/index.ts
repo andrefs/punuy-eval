@@ -113,7 +113,6 @@ export class DataOk<DataType, ExpectedType = DataType> extends EvaluationResult<
   ExpectedType
 > {
   percentage: number;
-  ok = true;
 
   constructor(
     type: EvaluationResultType,
@@ -121,8 +120,9 @@ export class DataOk<DataType, ExpectedType = DataType> extends EvaluationResult<
     got: DataType,
     expected: ExpectedType
   ) {
-    super("data-incomplete", true, got, expected);
+    super(type, true, got, expected);
     this.percentage = percentage;
+    this.ok = true;
   }
 }
 
@@ -130,13 +130,13 @@ export class DataNotOk<
   DataType,
   ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
-  ok = false;
   constructor(
     type: EvaluationResultType,
     got: DataType,
     expected: ExpectedType
   ) {
     super(type, false, got, expected);
+    this.ok = false;
   }
 }
 export class DataIncomplete<DataType, ExpectedType = DataType> extends DataOk<
@@ -144,7 +144,6 @@ export class DataIncomplete<DataType, ExpectedType = DataType> extends DataOk<
   ExpectedType
 > {
   percentage: number;
-
   constructor(percentage: number, got: DataType, expected: ExpectedType) {
     super("data-incomplete", percentage, got, expected);
     this.percentage = percentage;

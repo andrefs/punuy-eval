@@ -71,7 +71,7 @@ describe("dsNameFromDsSample", () => {
             "name": "Dataset Name",
             "year": "2021",
           },
-          "ok": true,
+          "ok": false,
           "type": "non-evaluated-data",
         }
       `);

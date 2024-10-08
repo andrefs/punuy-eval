@@ -121,6 +121,7 @@ async function evaluateTrial(
   if (i < baseLine) {
     return new DataIncomplete(i / baseLine, got, expected);
   }
+
   return new DataCorrect(got, expected);
 }
 

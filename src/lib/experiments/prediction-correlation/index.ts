@@ -62,7 +62,7 @@ function expDataToExpScore(
   };
 }
 
-async function evaluateTrial(
+export async function evaluateTrial(
   this: Experiment<PCExpTypes>,
   dpart: DsPartition,
   prompt: Prompt,
@@ -86,6 +86,12 @@ async function evaluateTrial(
 
   const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
 
+  // if returned pairs match less than half of the expected pairs, return non-usable data
+  if (expected.scores.length < pairs.length / 2) {
+    return new NonUsableData(got, expected);
+  }
+
+  // if all pairs are non-usable, return non-usable data
   if (nonUsableData === got.scores.length) {
     return new NonUsableData(got, expected);
   }

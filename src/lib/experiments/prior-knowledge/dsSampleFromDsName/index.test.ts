@@ -118,8 +118,6 @@ describe("dsSampleFromDsName", () => {
     //   expect(result.type).toEqual("no-data");
     // });
     //
-    //
-    // it("should return JsonSyntaxError if data is not valid JSON", async () => {
     //   const dpart: DsPartition = createMockDsPart();
 
     //   const result = await dsSampleFromDsName.evaluateTrial(
