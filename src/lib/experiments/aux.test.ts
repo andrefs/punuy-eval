@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeScale } from "./aux";
+import { normalizeScale, pairsToHash } from "./aux";
 
 describe("experiments aux", () => {
   describe("normalizeScale", () => {
@@ -25,6 +25,20 @@ describe("experiments aux", () => {
       const targetScale = { min: 1, max: 5 };
       const result = normalizeScale(value, sourceScale, targetScale);
       expect(result).toBe(4);
+    });
+  });
+
+  describe("pairsToHash", () => {
+    it("should convert pairs to hash", () => {
+      const pairs = [
+        ["a", "b"],
+        ["c", "d"],
+      ] as [string, string][];
+      const result = pairsToHash(pairs);
+      expect(result).toEqual({
+        a: { b: true },
+        c: { d: true },
+      });
     });
   });
 });

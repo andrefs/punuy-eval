@@ -10,6 +10,7 @@ import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import pcorrTest from "@stdlib/stats-pcorrtest";
 import { PCExpTypes } from ".";
 import { pairsToHash } from "../aux";
+import { InsufficientData } from "src/lib/evaluation";
 
 /**
  * Evaluate the scores of the experiments
@@ -73,6 +74,13 @@ export function trialEvalScores(
         expArr.push(Number(expected[w1][w2]));
       }
     }
+  }
+
+  if (gotArr.length < 10 || gotArr.length < pairs.length / 2) {
+    throw new InsufficientData(gotArr, expArr);
+  }
+  if (gotArr.length !== expArr.length) {
+    throw new Error("Got and expected arrays have different lengths");
   }
 
   const corr = pcorrTest(gotArr, expArr);

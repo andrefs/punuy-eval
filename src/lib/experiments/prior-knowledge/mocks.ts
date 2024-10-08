@@ -1,8 +1,13 @@
+import { PartitionData } from "punuy-datasets/src/lib/types";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Model, OpenAIModelResponse } from "../../models";
 import { vi } from "vitest";
 
-export const createMockDsPart = (): DsPartition => ({
+export const createMockDsPart = ({
+  data,
+}: {
+  data?: PartitionData[];
+} = {}): DsPartition => ({
   id: "test_testPartition",
   dataset: {
     id: "test",
@@ -35,7 +40,7 @@ export const createMockDsPart = (): DsPartition => ({
     },
   },
   measureType: "similarity" as const,
-  data: [
+  data: data ?? [
     {
       term1: "testWord1",
       term2: "testWord2",

@@ -14,6 +14,8 @@ import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import {
   DataCorrect,
   DataPartiallyIncorrect,
+  EvaluationResult,
+  InsufficientData,
   NonUsableData,
 } from "src/lib/evaluation";
 import { trialEvalScores } from "./aux";
@@ -71,6 +73,8 @@ export async function evaluateTrial(
   const pairs = prompt.pairs!.map(
     p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
   );
+  const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
+
   const lcGotScores = got.scores.map(s => ({
     words: [s.words[0].toLowerCase(), s.words[1].toLowerCase()] as [
       string,
@@ -79,31 +83,32 @@ export async function evaluateTrial(
     score: s.score,
   }));
 
-  const corr = trialEvalScores(pairs, dpart, lcGotScores);
+  // if all pairs are non-usable, return non-usable data
   const nonUsableData = got.scores.filter(
     ({ words, score }) => !words?.length || isNaN(score)
   ).length;
-
-  const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
-
-  // if returned pairs match less than half of the expected pairs, return non-usable data
-  if (expected.scores.length < pairs.length / 2) {
-    return new NonUsableData(got, expected);
-  }
-
-  // if all pairs are non-usable, return non-usable data
   if (nonUsableData === got.scores.length) {
     return new NonUsableData(got, expected);
   }
 
-  if (corr.pcorr === null) {
+  try {
+    const corr = trialEvalScores(pairs, dpart, lcGotScores);
+
+    if (corr.pcorr === null) {
+      return new NonUsableData(got, expected);
+    }
+    if (corr.pcorr === 1) {
+      // FIXME what if got has less pairs than expected?
+      return new DataCorrect(got, expected);
+    }
+
+    return new DataPartiallyIncorrect(corr.pcorr, got, expected);
+  } catch (e) {
+    if (e instanceof EvaluationResult) {
+      return e;
+    }
     return new NonUsableData(got, expected);
   }
-  if (corr.pcorr === 1) {
-    return new DataCorrect(got, expected);
-  }
-
-  return new DataPartiallyIncorrect(corr.pcorr, got, expected);
 }
 
 export default new Experiment(

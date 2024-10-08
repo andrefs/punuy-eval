@@ -288,7 +288,10 @@ export function getPairScoreListFromDPart(
   dpart: DsPartition
 ) {
   const res = [] as PairScoreList;
-  const h = pairsToHash(pairs);
+  const h = pairsToHash(
+    pairs.map(([w1, w2]) => [w1.toLowerCase(), w2.toLowerCase()])
+  );
+
   for (const entry of dpart.data) {
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();

@@ -1,10 +1,46 @@
 import { describe, expect, it } from "vitest";
 import { ExpVarMatrix, ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
-import { genValueCombinations, getVarIds, splitVarCombsMTL } from "./aux";
+import {
+  genValueCombinations,
+  getPairScoreListFromDPart,
+  getVarIds,
+  splitVarCombsMTL,
+} from "./aux";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
+import { createMockDsPart } from "../prior-knowledge/mocks";
 
-describe("experiment", () => {
+describe("experiment aux", () => {
+  describe("getPairScoreListFromDPart", () => {
+    it("should return a list of pair scores", () => {
+      const dpart = createMockDsPart();
+
+      const pairs = [
+        ["testWord1", "testWord2"],
+        ["testWord3", "testWord4"],
+      ] as [string, string][];
+      const result = getPairScoreListFromDPart(pairs, dpart);
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "score": 3,
+            "words": [
+              "testword1",
+              "testword2",
+            ],
+          },
+          {
+            "score": 1.8,
+            "words": [
+              "testword3",
+              "testword4",
+            ],
+          },
+        ]
+      `);
+    });
+  });
+
   describe("getVarIds", () => {
     it("should return the ids of an ExpVars", () => {
       const vars: ExpVars = {
