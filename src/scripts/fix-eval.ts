@@ -122,14 +122,14 @@ async function main(dirPath: string, expName?: string) {
     const expVCData = await readFile(file);
     const fixedExpVCData = await reEvalExperiment(expVCData, exp);
     if (
-      expVCData.results.aggregated?.avg !==
-        fixedExpVCData.results.aggregated?.avg &&
-      isNumber(expVCData.results.aggregated?.avg) &&
-      isNumber(fixedExpVCData.results.aggregated?.avg)
+      expVCData.results.aggregated?.allDataAvg !==
+      fixedExpVCData.results.aggregated?.allDataAvg &&
+      isNumber(expVCData.results.aggregated?.allDataAvg) &&
+      isNumber(fixedExpVCData.results.aggregated?.allDataAvg)
     ) {
       changed[file] = {
-        old: expVCData.results.aggregated?.avg,
-        fixed: fixedExpVCData.results.aggregated?.avg,
+        old: expVCData.results.aggregated?.allDataAvg,
+        fixed: fixedExpVCData.results.aggregated?.allDataAvg,
       };
     }
 

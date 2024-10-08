@@ -21,7 +21,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(vars))} ${r.results.aggregated?.avg
+      `${r.meta.name} ${JSON.stringify(getVarIds(vars))} ${r.results.aggregated?.allDataAvg
       }`
     );
     logger.debug(

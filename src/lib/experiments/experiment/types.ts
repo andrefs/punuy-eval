@@ -110,7 +110,14 @@ export interface TrialsResultData<DataType> {
 }
 
 export interface AggregatedEvaluationResult {
-  avg: number;
+  /*
+   * Average score over all results
+   */
+  allDataAvg: number;
+  /*
+   * Average score over ok results
+   */
+  okDataAvg: number;
   resultTypes: {
     [key in EvaluationResultType]: number;
   };

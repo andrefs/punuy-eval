@@ -58,7 +58,7 @@ function expDataToExpScore(
 ) {
   return {
     variables: data.variables,
-    score: data.results.aggregated!.avg,
+    score: data.results.aggregated!.okDataAvg,
   };
 }
 
