@@ -78,6 +78,9 @@ export function trialEvalScores(
 
   for (const expected of dpart.data) {
     const expValue = valueFromEntry(expected, dpart.scale, targetScale);
+    if (typeof expValue !== "number") {
+      continue;
+    }
     const [w1, w2] = [
       expected.term1.toLowerCase(),
       expected.term2.toLowerCase(),
@@ -102,7 +105,7 @@ export function trialEvalScores(
       gotVsExp[w1] = gotVsExp[w1] || {};
       gotVsExp[w1][w2] = gotVsExp[w1][w2] || {};
       gotVsExp[w1][w2] = {
-        got: got[w1][w2] || got[w2][w1],
+        got: got[w1]?.[w2] ?? got[w2][w1],
         exp: expValue,
       };
     }
