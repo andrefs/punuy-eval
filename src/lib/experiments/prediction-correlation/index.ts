@@ -92,8 +92,12 @@ export async function evaluateTrial(
 
   try {
     const { corr, gotVsExp } = trialEvalScores(pairs, dpart, lcGotScores);
-    logger.debug(
-      `Trial of exp (${this.name}) got correlation ${corr.pcorr}: ${gotVsExp}`
+    const intersecSize = Object.keys(gotVsExp).reduce(
+      (acc, w1) => acc + Object.keys(gotVsExp[w1]).length,
+      0
+    );
+    logger.trace(
+      `Pairs expected (${pairs.length}) and received (${lcGotScores.length}) values (intersection ${intersecSize}, correlation ${corr.pcorr}):\n${JSON.stringify(gotVsExp, null, 2)}`
     );
 
     if (corr.pcorr === null) {

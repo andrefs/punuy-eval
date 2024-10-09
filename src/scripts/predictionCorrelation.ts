@@ -43,7 +43,7 @@ const evm: ExpVarMatrix = {
     //yp130,
     //srw2034,
     pap900_rel,
-    //pap900_sim,
+    pap900_sim,
   ],
   prompt: prompts,
   model: [
