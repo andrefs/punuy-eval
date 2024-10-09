@@ -9,8 +9,8 @@ import { getVarIds, valueFromEntry } from "../experiment/aux";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import pcorrTest from "@stdlib/stats-pcorrtest";
 import { PCExpTypes } from ".";
-import { pairsToHash } from "../aux";
 import { InsufficientData } from "src/lib/evaluation";
+import { pairsToHash } from "../aux";
 
 /**
  * Evaluate the scores of the experiments
@@ -22,13 +22,20 @@ import { InsufficientData } from "src/lib/evaluation";
 export function expEvalScores(exps: ExperimentData<PCExpTypes>[]): ExpScore[] {
   const res = [];
   for (const [i, exp] of exps.entries()) {
-    for (const trial of exp.results.raw) {
+    for (const [iTrial, trial] of exp.results.raw.entries()) {
       const lcPairs = trial.prompt.pairs!.map(
         p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
       );
       const rawResults = trial.data.scores as PairScoreList;
       try {
-        const corr = trialEvalScores(lcPairs, exp.variables.dpart, rawResults);
+        const { corr, gotVsExp } = trialEvalScores(
+          lcPairs,
+          exp.variables.dpart,
+          rawResults
+        );
+        logger.debug(
+          `Trial ${iTrial} of exp ${i} (${exp.meta.name}) got correlation ${corr.pcorr}: ${gotVsExp}`
+        );
         res.push({
           variables: exp.variables,
           score: corr!.pcorr,
@@ -45,37 +52,70 @@ export function expEvalScores(exps: ExperimentData<PCExpTypes>[]): ExpScore[] {
   return res;
 }
 
+export interface TrialEvalScoresResult {
+  corr: ReturnType<typeof pcorrTest>;
+  gotVsExp: {
+    [key: string]: { [key: string]: { got?: number; exp?: number } };
+  };
+}
+
 export function trialEvalScores(
   pairs: [string, string][],
-  dpart: DsPartition,
+  dpart: Pick<DsPartition, "data" | "scale">,
   raw: PairScoreList
-): ReturnType<typeof pcorrTest> {
+): TrialEvalScoresResult {
   const got = rawResultsToAvg(raw.filter(x => x !== null));
-  const pairsHash = pairsToHash(pairs);
+  const pairHash = pairsToHash(
+    pairs.map(
+      ([w1, w2]) =>
+        [w1.toLowerCase(), w2.toLowerCase()].sort() as [string, string]
+    )
+  );
   const targetScale = { min: 1, max: 5 };
-  const expected = {} as ScoreDict;
+  const gotVsExp: {
+    [key: string]: { [key: string]: { got?: number; exp?: number } };
+  } = {};
 
-  for (const entry of dpart.data) {
-    const value = valueFromEntry(entry, dpart.scale, targetScale);
-    const w1 = entry.term1.toLowerCase();
-    const w2 = entry.term2.toLowerCase();
-    if (w1 in got && w2 in got[w1] && pairsHash[w1] && pairsHash[w1][w2]) {
-      expected[w1] = expected[w1] || {};
-      expected[w1][w2] = value;
+  for (const expected of dpart.data) {
+    const expValue = valueFromEntry(expected, dpart.scale, targetScale);
+    const [w1, w2] = [
+      expected.term1.toLowerCase(),
+      expected.term2.toLowerCase(),
+    ].sort();
+
+    // pair was not included in the LLM prompt
+    if (
+      (!(w1 in pairHash) || !(w2 in pairHash[w1])) &&
+      (!(w2 in pairHash) || !(w1 in pairHash[w2]))
+    ) {
+      continue;
+    }
+    // pair was not included in the LLM response
+    if (
+      (!(w1 in got) || !(w2 in got[w1])) &&
+      (!(w2 in got) || !(w1 in got[w2]))
+    ) {
+      continue;
+    }
+    // pair included in dataset partition, LLM prompt and LLM response
+    if ((w1 in got && w2 in got[w1]) || (w2 in got && w1 in got[w2])) {
+      gotVsExp[w1] = gotVsExp[w1] || {};
+      gotVsExp[w1][w2] = gotVsExp[w1][w2] || {};
+      gotVsExp[w1][w2] = {
+        got: got[w1][w2] || got[w2][w1],
+        exp: expValue,
+      };
     }
   }
 
   const gotArr = [] as number[];
   const expArr = [] as number[];
-  for (const w1 in expected) {
-    for (const w2 in expected[w1]) {
-      if (w1 in got && w2 in got[w1]) {
-        gotArr.push(Number(got[w1][w2]));
-        expArr.push(Number(expected[w1][w2]));
-      }
+  for (const w1 in gotVsExp) {
+    for (const w2 in gotVsExp[w1]) {
+      gotArr.push(gotVsExp[w1][w2].got!);
+      expArr.push(gotVsExp[w1][w2].exp!);
     }
   }
-
   if (gotArr.length < 10 || gotArr.length < pairs.length / 2) {
     throw new InsufficientData(gotArr, expArr);
   }
@@ -84,7 +124,10 @@ export function trialEvalScores(
   }
 
   const corr = pcorrTest(gotArr, expArr);
-  return corr;
+  return {
+    corr,
+    gotVsExp,
+  };
 }
 
 export function rawResultsToAvg(parsed: PairScoreList) {

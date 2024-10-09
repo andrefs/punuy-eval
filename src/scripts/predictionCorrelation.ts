@@ -18,14 +18,14 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
   dsSampleFromDsName.printUsage(res.usage);
 
-  for (const r of res.experiments) {
+  for (const exp of res.experiments) {
     logger.info(
-      { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(vars))} ${r.results.aggregated?.allDataAvg
+      { ...exp.results.aggregated?.resultTypes },
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.allDataAvg
       }`
     );
     logger.debug(
-      r.results.raw
+      exp.results.raw
         .map(r => r.data.scores.map(s => `[${s.words[0]}, ${s.words[1]}]`))
         .join("\n")
     );
@@ -43,7 +43,7 @@ const evm: ExpVarMatrix = {
     //yp130,
     //srw2034,
     pap900_rel,
-    pap900_sim,
+    //pap900_sim,
   ],
   prompt: prompts,
   model: [

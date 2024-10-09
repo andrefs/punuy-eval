@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI, { ClientOptions } from "openai";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
@@ -7,7 +7,7 @@ import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
 
-const configuration = {
+const configuration: ClientOptions = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
 };
 
@@ -41,7 +41,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req = {
       model: modelId,
       messages: [
@@ -90,6 +90,7 @@ const buildModel = (
           return dataText;
         },
       };
+
       return res;
     } catch (e) {
       const message = e instanceof Error ? e.message : "";

@@ -15,7 +15,6 @@ import {
   DataCorrect,
   DataPartiallyIncorrect,
   EvaluationResult,
-  InsufficientData,
   NonUsableData,
 } from "src/lib/evaluation";
 import { trialEvalScores } from "./aux";
@@ -92,7 +91,10 @@ export async function evaluateTrial(
   }
 
   try {
-    const corr = trialEvalScores(pairs, dpart, lcGotScores);
+    const { corr, gotVsExp } = trialEvalScores(pairs, dpart, lcGotScores);
+    logger.debug(
+      `Trial of exp (${this.name}) got correlation ${corr.pcorr}: ${gotVsExp}`
+    );
 
     if (corr.pcorr === null) {
       return new NonUsableData(got, expected);
