@@ -184,17 +184,7 @@ export default class Experiment<T extends GenericExpTypes> {
       maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
-      const prompts = vars.prompt.followUps.length
-        ? vars.prompt.followUps.map((p, i) => {
-          if (i === 0) {
-            return {
-              text: vars.prompt.intro + "\n" + p.text + "\n",
-              pair: p.pair,
-            };
-          }
-          return p;
-        })
-        : [{ text: vars.prompt.intro }];
+      const prompts = vars.prompt.turns;
 
       const failedAttempts: TurnResponseNotOk<T>[][] = [];
       while (failedAttempts.length < maxAttempts) {
@@ -210,7 +200,6 @@ export default class Experiment<T extends GenericExpTypes> {
           );
           addUsage(totalUsage, tRes.usage);
           if (tRes.ok) {
-            logger.info(`    ✅ attempt #${faCount + 1} succeeded.`);
             turnsRes.push(tRes);
             continue TURNS_LOOP; // continue next turn
           }
@@ -221,6 +210,7 @@ export default class Experiment<T extends GenericExpTypes> {
           failedAttempts[faCount].push(tRes);
           break TURNS_LOOP; // start new attempt
         }
+        logger.info(`    ✅ attempt #${faCount + 1} succeeded.`);
 
         // reached end of turns, conversation succeeded
         const res: TrialResult<T["Data"]> = {
@@ -255,9 +245,10 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       const totalUsage: Usages = {};
       const failedAttempts = [];
+      logger.info(`      👥 pair ${prompt.pair}`);
       while (failedAttempts.length < maxTurnAttempts) {
         const faCount = failedAttempts.length + 1;
-        logger.info(`      💪 attempt #${faCount} `);
+        logger.info(`      💪 pair attempt #${faCount} `);
         const { result: attemptResult, usage } = await this.tryResponse(
           model,
           prompt.text,
@@ -277,7 +268,7 @@ export default class Experiment<T extends GenericExpTypes> {
           return res;
         }
         logger.warn(
-          `     👎 attempt #${faCount} failed: ${attemptResult.type} `
+          `      👎 pair attempt #${faCount} failed: ${attemptResult.type} `
         );
         failedAttempts.push(attemptResult);
 

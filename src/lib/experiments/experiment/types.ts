@@ -62,8 +62,7 @@ export interface Prompt {
   type?: MeasureType;
   language: "pt" | "en";
   pairs?: [string, string][];
-  intro: string;
-  followUps: TurnPrompt[];
+  turns: TurnPrompt[];
 }
 
 export interface ExpMeta<T extends GenericExpTypes> {
