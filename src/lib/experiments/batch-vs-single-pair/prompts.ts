@@ -98,7 +98,7 @@ for (const pp of protoPrompts) {
 
       const prompt = {
         ...pp,
-        id: `${name}-${pp.id}`,
+        id: `${name}-${pp.id}-${jt}`,
         pairs: dp,
         jobType: jt,
         turns: buildTurns(

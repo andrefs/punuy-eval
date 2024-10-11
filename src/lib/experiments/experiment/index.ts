@@ -189,7 +189,7 @@ export default class Experiment<T extends GenericExpTypes> {
       const failedAttempts: TurnResponseNotOk<T>[][] = [];
       while (failedAttempts.length < maxAttempts) {
         const faCount = failedAttempts.length;
-        logger.info(`    💬 attempt #${faCount + 1}`);
+        logger.info(`    💬 conversation attempt #${faCount + 1}`);
         const turnsRes = [];
         TURNS_LOOP: for (const turnPrompt of prompts) {
           const tRes = await this.getTurnResponse(
@@ -204,13 +204,13 @@ export default class Experiment<T extends GenericExpTypes> {
             continue TURNS_LOOP; // continue next turn
           }
           logger.warn(
-            `    ❗ attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
+            `    ❗ conversation attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
           );
           failedAttempts[faCount] = failedAttempts[faCount] || [];
           failedAttempts[faCount].push(tRes);
           break TURNS_LOOP; // start new attempt
         }
-        logger.info(`    ✅ attempt #${faCount + 1} succeeded.`);
+        logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
 
         // reached end of turns, conversation succeeded
         const res: TrialResult<T["Data"]> = {
@@ -245,10 +245,13 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       const totalUsage: Usages = {};
       const failedAttempts = [];
-      logger.info(`      👥 pair ${prompt.pairs}`);
+      logger.info(
+        `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
+        prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
+      );
       while (failedAttempts.length < maxTurnAttempts) {
         const faCount = failedAttempts.length + 1;
-        logger.info(`      💪 pair attempt #${faCount} `);
+        logger.info(`        💪 pairs attempt #${faCount} `);
         const { result: attemptResult, usage } = await this.tryResponse(
           model,
           prompt.text,
@@ -257,7 +260,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`      ✔️  attempt #${faCount} succeeded.`);
+          logger.info(`        ✔️  pairs attempt #${faCount} succeeded.`);
           const res: TurnResponseOk<T["Data"]> = {
             turnPrompt: prompt,
             failedAttempts,
@@ -268,7 +271,7 @@ export default class Experiment<T extends GenericExpTypes> {
           return res;
         }
         logger.warn(
-          `      👎 pair attempt #${faCount} failed: ${attemptResult.type} `
+          `        👎 pairs attempt #${faCount} failed: ${attemptResult.type} `
         );
         failedAttempts.push(attemptResult);
 
@@ -557,7 +560,7 @@ export default class Experiment<T extends GenericExpTypes> {
         return;
       }
       logger.info(
-        "💸 Usage estimate:\n" +
+        "📈💸 Usage estimate:\n" +
         Object.values(usage)
           .map(u => `\t${JSON.stringify(u)} `)
           .join("\n")
