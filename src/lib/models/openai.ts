@@ -42,7 +42,6 @@ const buildModel = (
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function(prompt: string, toolParams: ModelTool) {
-    console.log("XXXXXXXXXXXx prompt", prompt);
     const req = {
       model: modelId,
       messages: [
@@ -88,7 +87,6 @@ const buildModel = (
             logger.error(`Response object: ${JSON.stringify(completion)}`);
             throw e;
           }
-          console.log("XXXXXXXXXXXx dataText", dataText);
           return dataText;
         },
       };

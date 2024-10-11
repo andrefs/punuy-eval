@@ -557,7 +557,7 @@ export default class Experiment<T extends GenericExpTypes> {
         return;
       }
       logger.info(
-        "📈 Usage estimate:\n" +
+        "💸 Usage estimate:\n" +
         Object.values(usage)
           .map(u => `\t${JSON.stringify(u)} `)
           .join("\n")

@@ -9,6 +9,7 @@ import Experiment, {
   PairScoreList,
   Usage,
   Usages,
+  jobTypes,
 } from ".";
 import logger from "../../logger";
 import { ModelId, getModelById } from "src/lib/models";
@@ -238,7 +239,6 @@ export function getFixedValueGroup(
  * @returns The variable combinations
  */
 export function splitVarCombsMTL(variables: ExpVarMatrix) {
-  console.log("XXXXXXXXXXXXX variables", variables);
   const varCombs = [];
   const languages = Array.from(
     new Set(variables.prompt?.map(p => p.language) ?? [])
@@ -248,30 +248,33 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
       { id: "similarity" } as const,
       { id: "relatedness" } as const,
     ]) {
-      const filtPrompts =
-        variables.prompt?.filter(
-          p => p.language === l.id && p.measureType === mt.id
-        ) || [];
-      const filtDatasets = variables.dpart.filter(
-        d => d.language === l.id && d.measureType === mt.id
-      );
-      if (filtPrompts.length === 0 || filtDatasets.length === 0) {
-        logger.warn(
-          `No prompts or datasets for language ${l.id} and measure type ${mt.id}. Skipping.`
+      for (const jt of jobTypes) {
+        const filtPrompts =
+          variables.prompt?.filter(
+            p => p.language === l.id && p.measureType === mt.id
+          ) || [];
+        const filtDatasets = variables.dpart.filter(
+          d => d.language === l.id && d.measureType === mt.id
         );
-        continue;
+        if (filtPrompts.length === 0 || filtDatasets.length === 0) {
+          logger.warn(
+            `No prompts or datasets for language ${l.id} and measure type ${mt.id}. Skipping.`
+          );
+          continue;
+        }
+        logger.info(
+          `Running experiments for language ${l.id} and measure type ${mt.id}`
+        );
+        const vm: ExpVarMatrix = {
+          ...variables,
+          prompt: filtPrompts,
+          jobType: [{ id: jt }],
+          dpart: filtDatasets,
+          language: [l],
+          measureType: [mt],
+        };
+        varCombs.push(...genValueCombinations(vm));
       }
-      logger.info(
-        `Running experiments for language ${l.id} and measure type ${mt.id}`
-      );
-      const vm: ExpVarMatrix = {
-        ...variables,
-        prompt: filtPrompts,
-        dpart: filtDatasets,
-        language: [l],
-        measureType: [mt],
-      };
-      varCombs.push(...genValueCombinations(vm));
     }
   }
   return varCombs;
