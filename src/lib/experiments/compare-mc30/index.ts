@@ -151,7 +151,7 @@ const description =
 const genPrompt = (pairs: [string, string][]): Prompt => ({
   id: "compare-mc30-prompt",
   language: "en",
-  type: "similarity",
+  measureType: "similarity",
   pairs,
   text:
     'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
@@ -222,8 +222,7 @@ async function getResponse(
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${
-        attemptResult.type
+      `     ❗attempt #${failedAttempts.length + 1} failed: ${attemptResult.type
       }`
     );
     failedAttempts.push(attemptResult);

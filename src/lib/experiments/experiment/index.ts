@@ -245,7 +245,7 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       const totalUsage: Usages = {};
       const failedAttempts = [];
-      logger.info(`      👥 pair ${prompt.pair}`);
+      logger.info(`      👥 pair ${prompt.pairs}`);
       while (failedAttempts.length < maxTurnAttempts) {
         const faCount = failedAttempts.length + 1;
         logger.info(`      💪 pair attempt #${faCount} `);

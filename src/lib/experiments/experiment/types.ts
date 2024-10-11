@@ -52,18 +52,43 @@ export interface ExpVars {
 
 export interface PromptGenerator {
   id: string;
-  type?: MeasureType;
+  measureType?: MeasureType;
   language: "pt" | "en";
   generate: (vars: Omit<ExpVars, "prompt">) => Prompt;
 }
 
-export interface Prompt {
+/*
+ * How to send pairs to the model
+ * singlePair: send one pair at a time
+ * batches: send pairs in batches
+ * full: send all pairs at once
+ */
+
+export const jobTypes = ["singlePair", "batches", "allPairs"] as const;
+export type PromptJobType = (typeof jobTypes)[number];
+
+export interface BasePrompt {
   id: string;
-  type?: MeasureType;
+  measureType?: MeasureType;
+  jobType: PromptJobType;
   language: "pt" | "en";
-  pairs?: [string, string][];
+  pairs?: [string, string][] | [string, string][][];
   turns: TurnPrompt[];
 }
+export interface SinglePairPrompt extends BasePrompt {
+  jobType: "singlePair";
+  pairs: [string, string][];
+}
+export interface BatchesPrompt extends BasePrompt {
+  jobType: "batches";
+  pairs: [string, string][][];
+}
+export interface AllPairsPrompt extends BasePrompt {
+  jobType: "allPairs";
+  pairs: [string, string][];
+}
+
+export type Prompt = SinglePairPrompt | BatchesPrompt | AllPairsPrompt;
 
 export interface ExpMeta<T extends GenericExpTypes> {
   trials: number;
@@ -105,7 +130,7 @@ export interface TrialResult<DataType> {
 
 export interface TurnPrompt {
   text: string;
-  pair?: [string, string];
+  pairs: [string, string][];
 }
 
 export interface BaseTurnResponse<DataType> {

@@ -17,28 +17,27 @@ import {
   EvaluationResult,
   NonUsableData,
 } from "src/lib/evaluation";
-import { trialEvalScores } from "./aux";
 import { getPairScoreListFromDPart } from "../experiment/aux";
+import { trialEvalScores } from "./aux";
 
-export const name = "prediction-correlation";
-const description =
-  "Assess LLMs to predict semantic measures by correlating predictions with human judgments.";
+export const name = "batch-vs-single-pair";
+const description = "Compare the sending pairs one at a time or in batch(es)";
 
 /**
  * ExpType for PredictionCorrelation experiment
  */
-export interface PCExpTypes extends GenericExpTypes {
+export interface BVSPExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<BVSPExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
-): Promise<TrialResult<PCExpTypes["Data"]>> {
+): Promise<TrialResult<BVSPExpTypes["Data"]>> {
   const tool = {
     name: "evaluate_pair_scores",
     description: "Evaluates the scores of the pairs returned",
@@ -59,8 +58,8 @@ async function runTrial(
 }
 
 function expDataToExpScore(
-  this: Experiment<PCExpTypes>,
-  data: ExperimentData<PCExpTypes>
+  this: Experiment<BVSPExpTypes>,
+  data: ExperimentData<BVSPExpTypes>
 ) {
   return {
     variables: data.variables,
@@ -69,30 +68,32 @@ function expDataToExpScore(
 }
 
 export async function evaluateTrial(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<BVSPExpTypes>,
   dpart: DsPartition,
-  got: { data: PCExpTypes["Data"]; prompt: TurnPrompt }[]
+  got: { data: BVSPExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const pairs = got
-    .flatMap(({ prompt }) => (prompt.pairs ? [prompt.pairs] : []))
+    .flatMap(({ prompt }) => prompt.pairs)
     .map(
       p => [p[0].toLowerCase(), p[1].toLowerCase()].sort() as [string, string]
     );
 
   const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
 
-  const lcGotScores = got.map(({ data }) => ({
-    words: [data.words[0].toLowerCase(), data.words[1].toLowerCase()] as [
-      string,
-      string,
-    ],
-    score: data.score,
-  }));
+  const lcGotScores = got.flatMap(({ data }) =>
+    data.scores.map(s => ({
+      words: [s.words[0].toLowerCase(), s.words[1].toLowerCase()] as [
+        string,
+        string,
+      ],
+      score: s.score,
+    }))
+  );
 
   // if all pairs are non-usable, return non-usable data
-  const nonUsableData = got.filter(
-    ({ data }) => !data.words?.length || isNaN(data.score)
-  ).length;
+  const nonUsableData = got
+    .flatMap(({ data }) => data.scores)
+    .filter(s => !s.words?.length || isNaN(s.score)).length;
   if (nonUsableData === got.length) {
     return new NonUsableData(got, expected);
   }

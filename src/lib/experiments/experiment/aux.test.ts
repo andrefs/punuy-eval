@@ -677,8 +677,8 @@ describe("experiment aux", () => {
           { id: "d1", language: "en", measureType: "similarity" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", type: "similarity" },
-          { id: "p2", language: "en", type: "relatedness" },
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "en", measureType: "relatedness" },
         ] as Prompt[],
       };
 
@@ -697,8 +697,8 @@ describe("experiment aux", () => {
           { id: "d1", language: "pt", measureType: "similarity" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", type: "similarity" },
-          { id: "p2", language: "pt", type: "similarity" },
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "pt", measureType: "similarity" },
         ] as Prompt[],
       };
 
@@ -717,8 +717,8 @@ describe("experiment aux", () => {
           { id: "d1", language: "pt", measureType: "relatedness" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", type: "similarity" },
-          { id: "p2", language: "pt", type: "similarity" },
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "pt", measureType: "similarity" },
         ] as Prompt[],
       };
 
@@ -734,10 +734,10 @@ describe("experiment aux", () => {
           { id: "d2", language: "pt", measureType: "relatedness" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", type: "similarity" },
-          { id: "p2", language: "en", type: "relatedness" },
-          { id: "p3", language: "pt", type: "similarity" },
-          { id: "p4", language: "pt", type: "relatedness" },
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "en", measureType: "relatedness" },
+          { id: "p3", language: "pt", measureType: "similarity" },
+          { id: "p4", language: "pt", measureType: "relatedness" },
         ] as Prompt[],
       };
 

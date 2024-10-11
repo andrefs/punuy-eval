@@ -32,7 +32,7 @@ const promptGen = {
     const measureTypes = vars.dpart.measureType;
     return {
       id: `${name}-prompt`,
-      type: vars.dpart.measureType,
+      measureType: vars.dpart.measureType,
       language: "en" as const,
       text:
         `${vars.dpart.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +

@@ -238,6 +238,7 @@ export function getFixedValueGroup(
  * @returns The variable combinations
  */
 export function splitVarCombsMTL(variables: ExpVarMatrix) {
+  console.log("XXXXXXXXXXXXX variables", variables);
   const varCombs = [];
   const languages = Array.from(
     new Set(variables.prompt?.map(p => p.language) ?? [])
@@ -249,7 +250,7 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
     ]) {
       const filtPrompts =
         variables.prompt?.filter(
-          p => p.language === l.id && p.type === mt.id
+          p => p.language === l.id && p.measureType === mt.id
         ) || [];
       const filtDatasets = variables.dpart.filter(
         d => d.language === l.id && d.measureType === mt.id
