@@ -1,6 +1,6 @@
-import { ExpVarMatrix, dsSampleFromDsName } from "../lib/experiments";
+import { ExpVarMatrix } from "../lib/experiments";
 import path from "path";
-import { gpt4omini_20240718 } from "../lib/models";
+import { gpt4omini_20240718, mistralLarge_2407 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/prediction-correlation/prompts";
@@ -16,7 +16,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await predictionCorrelation.performMulti(vars, trials, folder);
 
-  dsSampleFromDsName.printUsage(res.usage);
+  predictionCorrelation.printUsage(res.usage);
 
   for (const exp of res.experiments) {
     logger.info(
@@ -49,7 +49,7 @@ const evm: ExpVarMatrix = {
   model: [
     //gpt35turbo,
     //gpt4,
-    gpt4omini_20240718,
+    //gpt4omini_20240718,
     //gpt4turbo_20240409,
     //gpt4o_20240806,
     //claude3sonnet,
@@ -57,7 +57,7 @@ const evm: ExpVarMatrix = {
     //gemini10pro,
     //gemini15pro,
     //gemini15flash,
-    //mistralLarge,
+    mistralLarge_2407,
     //openMixtral8x22B,
   ],
 };
