@@ -4,7 +4,6 @@ import {
   AllPairsPrompt,
   BatchesPrompt,
   ExpVars,
-  jobTypes,
   Prompt,
   PromptGenerator,
   PromptJobType,
@@ -88,53 +87,33 @@ const protoPrompts = [
 
 const prompts: PromptGenerator[] = [];
 for (const pp of protoPrompts) {
-  for (const jt of jobTypes) {
-    prompts.push({
-      ...pp,
-      generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
-        const pairList = shuffle(vars.dpart.data)
-          .slice(0, numberOfPairs)
-          .map(({ term1, term2 }) => [term1, term2] as [string, string]);
-        const dp = distributePairs(pairList, jt, 5);
+  prompts.push({
+    ...pp,
+    generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+      const jt = vars.jobType?.id || "singlePair";
+      const pairList = shuffle(vars.dpart.data)
+        .slice(0, numberOfPairs)
+        .map(({ term1, term2 }) => [term1, term2] as [string, string]);
+      const dp = distributePairs(pairList, jt, 5);
 
-        return jt === "allPairs"
-          ? ({
-            ...pp,
-            id: `${name}-${pp.id}`,
-            pairs: dp,
-            jobType: jt,
-            turns: buildTurns(
-              `${pp.text}\n${reqs[pp.language][pp.measureType][jt]}`,
-              jt,
-              dp as [string, string][]
-            ),
-          } as AllPairsPrompt)
-          : jt === "batches"
-            ? ({
-              ...pp,
-              id: `${name}-${pp.id}`,
-              pairs: dp,
-              jobType: jt,
-              turns: buildTurns(
-                `${pp.text}\n${reqs[pp.language][pp.measureType][jt]}`,
-                jt,
-                dp as [string, string][][]
-              ),
-            } as BatchesPrompt)
-            : ({
-              ...pp,
-              id: `${name}-${pp.id}`,
-              pairs: dp as [string, string][],
-              jobType: jt,
-              turns: buildTurns(
-                `${pp.text}\n${reqs[pp.language][pp.measureType][jt]}`,
-                jt,
-                dp as [string, string][]
-              ),
-            } as SinglePairPrompt);
-      },
-    });
-  }
+      const prompt = {
+        ...pp,
+        id: `${name}-${pp.id}`,
+        pairs: dp,
+        jobType: jt,
+        turns: buildTurns(
+          `${pp.text}\n${reqs[pp.language][pp.measureType][jt]}`,
+          jt,
+          dp
+        ),
+      };
+      return jt === "allPairs"
+        ? (prompt as AllPairsPrompt)
+        : jt === "batches"
+          ? (prompt as BatchesPrompt)
+          : (prompt as SinglePairPrompt);
+    },
+  });
 }
 
 type BuildTurnsReturn = TurnPrompt[];

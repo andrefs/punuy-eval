@@ -34,6 +34,7 @@ export interface ExpVarMatrix {
   language?: ({ id: "pt" } | { id: "en" })[];
   measureType?: { id: MeasureType }[];
   prompt?: (Prompt | PromptGenerator)[];
+  jobType?: { id: PromptJobType }[];
 }
 
 export type ExpVarsFixedPrompt = Omit<ExpVars, "prompt"> & { prompt: Prompt };
@@ -48,6 +49,7 @@ export interface ExpVars {
     id: MeasureType;
   };
   prompt: Prompt | PromptGenerator;
+  jobType?: { id: PromptJobType };
 }
 
 export interface PromptGenerator {
