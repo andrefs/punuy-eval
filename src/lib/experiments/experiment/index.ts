@@ -17,7 +17,6 @@ import {
   addUsage,
   calcUsageCost,
   calcVarValues,
-  genValueCombinations,
   getFixedValueGroup,
   getVarIds,
   sanityCheck,
@@ -40,6 +39,10 @@ import {
   QueryData,
   TrialResult,
   TrialsResultData,
+  TurnPrompt,
+  TurnResponse,
+  TurnResponseNotOk,
+  TurnResponseOk,
   Usage,
   Usages,
 } from "./types";
@@ -52,12 +55,19 @@ export default class Experiment<T extends GenericExpTypes> {
   description: string;
   queryData: QueryData<T>;
   prompts?: (Prompt | PromptGenerator)[] = [];
-  getResponse: (
+  iterateConversation: (
     this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
     tool: ModelTool,
     maxAttempts: number
   ) => Promise<TrialResult<T["Data"]>>;
+  getTurnResponse: (
+    this: Experiment<T>,
+    model: Model,
+    prompt: TurnPrompt,
+    tool: ModelTool,
+    maxAttempts: number
+  ) => Promise<TurnResponse<T["Data"]>>;
   tryResponse: (
     this: Experiment<T>,
     model: Model,
@@ -86,8 +96,7 @@ export default class Experiment<T extends GenericExpTypes> {
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
-    prompt: Prompt,
-    got: T["Data"]
+    got: { data: T["Data"]; prompt: TurnPrompt }[]
   ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>;
   evaluate: (exp: ExperimentData<T>) => Promise<{
     evaluation: EvaluationResult<T["Data"], T["Evaluation"]>[];
@@ -144,8 +153,7 @@ export default class Experiment<T extends GenericExpTypes> {
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
-      prompt: Prompt,
-      got: T["Data"]
+      got: { data: T["Data"]; prompt: TurnPrompt }[]
     ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>,
     {
       expDataToExpScore,
@@ -165,33 +173,102 @@ export default class Experiment<T extends GenericExpTypes> {
     this.name = name;
     this.description = description;
     this.queryData = queryData;
-    this.validateSchema = function (this: Experiment<T>, value: unknown) {
+    this.validateSchema = function(this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.getResponse = async function (
+    this.iterateConversation = async function(
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
       maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
-      const failedAttempts = [];
+      const prompts = vars.prompt.followUps.length
+        ? vars.prompt.followUps.map((p, i) => {
+          if (i === 0) {
+            return {
+              text: vars.prompt.intro + "\n" + p.text + "\n",
+              pair: p.pair,
+            };
+          }
+          return p;
+        })
+        : [{ text: vars.prompt.intro }];
+
+      const failedAttempts: TurnResponseNotOk<T>[][] = [];
       while (failedAttempts.length < maxAttempts) {
+        const faCount = failedAttempts.length;
+        logger.info(`    💬 attempt #${faCount + 1}`);
+        const turnsRes = [];
+        TURNS_LOOP: for (const turnPrompt of prompts) {
+          const tRes = await this.getTurnResponse(
+            vars.model,
+            turnPrompt,
+            tool,
+            3 // max turn response attempts
+          );
+          addUsage(totalUsage, tRes.usage);
+          if (tRes.ok) {
+            logger.info(`    ✅ attempt #${faCount + 1} succeeded.`);
+            turnsRes.push(tRes);
+            continue TURNS_LOOP; // continue next turn
+          }
+          logger.warn(
+            `    ❗ attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
+          );
+          failedAttempts[faCount] = failedAttempts[faCount] || [];
+          failedAttempts[faCount].push(tRes);
+          break TURNS_LOOP; // start new attempt
+        }
+
+        // reached end of turns, conversation succeeded
+        const res: TrialResult<T["Data"]> = {
+          promptId: vars.prompt.id,
+          turnPrompts: turnsRes.map(t => t.turnPrompt),
+          result: turnsRes.map(t => t.result) as ValidData<T["Data"]>[],
+          totalTries: failedAttempts.length,
+          usage: totalUsage,
+          failedAttempts,
+          ok: true,
+        };
+        return res;
+      }
+      const res: TrialResult<T["Data"]> = {
+        promptId: vars.prompt.id,
+        turnPrompts: failedAttempts
+          .sort((a, b) => b.length - a.length)[0]
+          .map(t => t.turnPrompt),
+        totalTries: failedAttempts.length,
+        usage: totalUsage,
+        failedAttempts,
+        ok: false,
+      };
+      return res;
+    };
+    this.getTurnResponse = async function(
+      this: Experiment<T>,
+      model: Model,
+      prompt: TurnPrompt,
+      tool: ModelTool,
+      maxTurnAttempts: number = 3
+    ) {
+      const totalUsage: Usages = {};
+      const failedAttempts = [];
+      while (failedAttempts.length < maxTurnAttempts) {
         const faCount = failedAttempts.length + 1;
-        logger.info(`    💪 attempt #${faCount}`);
+        logger.info(`      💪 attempt #${faCount} `);
         const { result: attemptResult, usage } = await this.tryResponse(
-          vars.model,
-          vars.prompt.text,
+          model,
+          prompt.text,
           tool
         );
 
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`    ✅ attempt #${faCount} succeeded.`);
-          const res: TrialResult<T["Data"]> = {
-            prompt: vars.prompt,
-            totalTries: failedAttempts.length + 1,
+          logger.info(`      ✔️  attempt #${faCount} succeeded.`);
+          const res: TurnResponseOk<T["Data"]> = {
+            turnPrompt: prompt,
             failedAttempts,
             ok: true,
             usage: totalUsage,
@@ -199,11 +276,13 @@ export default class Experiment<T extends GenericExpTypes> {
           };
           return res;
         }
-        logger.warn(`    ❗ attempt #${faCount} failed: ${attemptResult.type}`);
+        logger.warn(
+          `     👎 attempt #${faCount} failed: ${attemptResult.type} `
+        );
         failedAttempts.push(attemptResult);
 
         // add exponential backoff if the number of failed attempts is less than the max
-        if (failedAttempts.length < maxAttempts) {
+        if (failedAttempts.length < maxTurnAttempts) {
           await new Promise(resolve => {
             logger.info(
               `      ⌛ waiting for ${Math.pow(
@@ -216,16 +295,15 @@ export default class Experiment<T extends GenericExpTypes> {
         }
       }
 
-      const res: TrialResult<T["Data"]> = {
-        prompt: vars.prompt,
-        totalTries: failedAttempts.length,
+      const res: TurnResponseNotOk<T["Data"]> = {
+        turnPrompt: prompt,
         usage: totalUsage,
         failedAttempts,
         ok: false,
       };
       return res;
     };
-    this.tryResponse = async function (
+    this.tryResponse = async function(
       model: Model,
       prompt: string,
       params: ModelTool,
@@ -268,48 +346,52 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.runTrial = runTrial;
-    this.runTrials = async function (
+    this.runTrials = async function(
       this: Experiment<T>,
       vars: ExpVars,
-      trials: number,
+      numTrials: number,
       maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
 
       logger.info(
-        `🧪 Running experiment ${this.name} ${trials} times on model ${vars.model.id}.`
+        `🧪 Running experiment ${this.name} ${numTrials} times on model ${vars.model.id}.`
       );
 
-      const results: T["Data"][] = [];
-      for (let i = 0; i < trials; i++) {
-        logger.info(`  ⚔️  trial #${i + 1} of ${trials}`);
-        const res = await this.runTrial(
+      const trials: T["Data"][] = [];
+      for (let i = 0; i < numTrials; i++) {
+        logger.info(`  ⚔️  trial #${i + 1} of ${numTrials} `);
+        const trialRes = await this.runTrial(
           vars,
           this.queryData.toolSchema,
           maxAttempts
         );
-        addUsage(totalUsage, res.usage);
-        if (res.ok) {
-          results.push({
-            data: res.result!.data,
-            prompt: res.prompt,
-          }); // TODO: handle failed attempts
+        addUsage(totalUsage, trialRes.usage);
+        const turns = [];
+        if (trialRes.ok) {
+          for (const [i, turnRes] of trialRes.result!.entries()) {
+            turns.push({
+              data: turnRes.data,
+              prompt: trialRes.turnPrompts[i],
+            });
+          }
+          trials.push({ turns });
         }
       }
       return {
         variables: vars,
         usage: totalUsage,
-        trials: results,
+        trials,
       };
     };
     this.evaluateTrial = evaluateTrial;
-    this.evaluate = async function (
+    this.evaluate = async function(
       this: Experiment<T>,
       exp: ExperimentData<T>
     ) {
       const trialEvaluationResults = await Promise.all(
         exp.results.raw.map(d =>
-          this.evaluateTrial(exp.variables.dpart, d.prompt, d.data)
+          this.evaluateTrial(exp.variables.dpart, d.turns)
         )
       );
       return {
@@ -319,7 +401,7 @@ export default class Experiment<T extends GenericExpTypes> {
           : await combineEvaluations(trialEvaluationResults),
       };
     };
-    this.perform = async function (
+    this.perform = async function(
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -350,7 +432,7 @@ export default class Experiment<T extends GenericExpTypes> {
       return expData;
     };
     this.sanityCheck = sanityCheck;
-    this.performMulti = async function (
+    this.performMulti = async function(
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
@@ -366,7 +448,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
       logger.info(
         `🔬 Preparing to run experiment ${this.name
-        }, ${trials} times on each variable combination:\n${varCombs
+        }, ${trials} times on each variable combination: \n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
@@ -391,7 +473,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.expDataToExpScore = expDataToExpScore;
-    this.printExpResTable = function (
+    this.printExpResTable = function(
       this: Experiment<T>,
       exps: ExperimentData<T>[]
     ) {
@@ -472,11 +554,11 @@ export default class Experiment<T extends GenericExpTypes> {
             .map(v => `[${v}]`)
             .join(" and ")} with fixed variables ${JSON.stringify(
               comp.fixedValueConfig
-            )}\n${tablePP}\n${csv}`
+            )} \n${tablePP} \n${csv} `
         );
       }
     };
-    this.printUsage = function (
+    this.printUsage = function(
       this: Experiment<T>,
       usage: Usages | undefined
     ) {
@@ -486,7 +568,7 @@ export default class Experiment<T extends GenericExpTypes> {
       logger.info(
         "📈 Usage estimate:\n" +
         Object.values(usage)
-          .map(u => `\t${JSON.stringify(u)}`)
+          .map(u => `\t${JSON.stringify(u)} `)
           .join("\n")
       );
     };

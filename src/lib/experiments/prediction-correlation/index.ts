@@ -4,8 +4,8 @@ import Experiment, {
   ExpVarsFixedPrompt,
   ExperimentData,
   GenericExpTypes,
-  Prompt,
   TrialResult,
+  TurnPrompt,
 } from "../experiment";
 import query from "./query";
 import { ToolSchema } from "src/lib/models";
@@ -47,9 +47,14 @@ async function runTrial(
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
 
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.iterateConversation(
+    { ...vars, prompt },
+    tool,
+    maxRetries
+  );
+  //const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 
@@ -66,27 +71,29 @@ function expDataToExpScore(
 export async function evaluateTrial(
   this: Experiment<PCExpTypes>,
   dpart: DsPartition,
-  prompt: Prompt,
-  got: PCExpTypes["Data"]
+  got: { data: PCExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
-  const pairs = prompt.pairs!.map(
-    p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
-  );
+  const pairs = got
+    .flatMap(({ prompt }) => (prompt.pair ? [prompt.pair] : []))
+    .map(
+      p => [p[0].toLowerCase(), p[1].toLowerCase()].sort() as [string, string]
+    );
+
   const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
 
-  const lcGotScores = got.scores.map(s => ({
-    words: [s.words[0].toLowerCase(), s.words[1].toLowerCase()] as [
+  const lcGotScores = got.map(({ data }) => ({
+    words: [data.words[0].toLowerCase(), data.words[1].toLowerCase()] as [
       string,
       string,
     ],
-    score: s.score,
+    score: data.score,
   }));
 
   // if all pairs are non-usable, return non-usable data
-  const nonUsableData = got.scores.filter(
-    ({ words, score }) => !words?.length || isNaN(score)
+  const nonUsableData = got.filter(
+    ({ data }) => !data.words?.length || isNaN(data.score)
   ).length;
-  if (nonUsableData === got.scores.length) {
+  if (nonUsableData === got.length) {
     return new NonUsableData(got, expected);
   }
 

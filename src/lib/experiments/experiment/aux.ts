@@ -289,16 +289,19 @@ export function getPairScoreListFromDPart(
 ) {
   const res = [] as PairScoreList;
   const h = pairsToHash(
-    pairs.map(([w1, w2]) => [w1.toLowerCase(), w2.toLowerCase()])
+    pairs.map(
+      ([w1, w2]) =>
+        [w1.toLowerCase(), w2.toLowerCase()].sort() as [string, string]
+    )
   );
 
   for (const entry of dpart.data) {
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();
-    if (w1 in h && w2 in h[w1]) {
+    if (h[w1]?.[w2] || h[w2]?.[w1]) {
       // get value or calculate .values average
       const value = valueFromEntry(entry, dpart.scale, { min: 1, max: 5 });
-      res.push({ words: [w1, w2], score: value });
+      res.push({ words: [w1, w2].sort() as [string, string], score: value });
     }
   }
   return res;

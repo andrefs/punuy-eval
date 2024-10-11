@@ -62,7 +62,8 @@ export interface Prompt {
   type?: MeasureType;
   language: "pt" | "en";
   pairs?: [string, string][];
-  text: string;
+  intro: string;
+  followUps: TurnPrompt[];
 }
 
 export interface ExpMeta<T extends GenericExpTypes> {
@@ -75,8 +76,10 @@ export interface ExpMeta<T extends GenericExpTypes> {
 export interface ExpResults<DataType, ExpectedType> {
   /** Raw results from the trials */
   raw: {
-    data: DataType;
-    prompt: Prompt;
+    turns: {
+      data: DataType;
+      prompt: TurnPrompt;
+    }[];
   }[];
   /** Evaluation results for each trial */
   evaluation?: EvaluationResult<DataType, ExpectedType>[];
@@ -92,20 +95,48 @@ export interface ExperimentData<T extends GenericExpTypes> {
 }
 
 export interface TrialResult<DataType> {
-  prompt: Prompt;
+  promptId: string;
+  turnPrompts: TurnPrompt[];
   totalTries: number;
-  failedAttempts: ValidationResult<DataType>[];
+  failedAttempts: TurnResponseNotOk<DataType>[][];
   ok: boolean;
   usage?: Usages;
-  result?: ValidData<DataType>;
+  result?: ValidData<DataType>[];
 }
+
+export interface TurnPrompt {
+  text: string;
+  pair?: [string, string];
+}
+
+export interface BaseTurnResponse<DataType> {
+  turnPrompt: TurnPrompt;
+  usage: Usages;
+  result?: ValidationResult<DataType>;
+  failedAttempts: ValidationResult<DataType>[];
+  ok: boolean;
+}
+export interface TurnResponseOk<DataType> extends BaseTurnResponse<DataType> {
+  ok: true;
+}
+
+export interface TurnResponseNotOk<DataType>
+  extends BaseTurnResponse<DataType> {
+  ok: false;
+}
+
+export type TurnResponse<DataType> =
+  | TurnResponseOk<DataType>
+  | TurnResponseNotOk<DataType>;
 
 export interface TrialsResultData<DataType> {
   variables: ExpVars;
   usage?: Usages;
   trials: {
-    data: DataType;
-    prompt: Prompt;
+    turns: {
+      data: DataType;
+      prompt: TurnPrompt;
+    }[];
   }[];
 }
 

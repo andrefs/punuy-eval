@@ -51,7 +51,7 @@ async function runTrial(
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
 
-  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 
