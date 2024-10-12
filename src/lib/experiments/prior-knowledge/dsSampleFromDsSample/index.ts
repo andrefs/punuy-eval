@@ -5,6 +5,7 @@ import Experiment, {
   GenericExpTypes,
   Prompt,
   TrialResult,
+  TurnPrompt,
 } from "../../experiment";
 import {
   DataCorrect,
@@ -37,11 +38,17 @@ const promptGen = {
     return {
       id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
+      jobType: "allPairs" as const,
       pairs,
-      text:
-        `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${vars.dpart.measureType} score as reported by humans. ` +
-        `I only have ${sampleSize} of the pairs included in the dataset. Please give me a list of ${askSize} other pairs of concepts belonging to the same dataset but not included on my list.\n` +
-        pairs.map(([term1, term2]) => `${term1} ${term2}`).join("\n"),
+      turns: [
+        {
+          pairs,
+          text:
+            `A published semantic measure gold standard dataset is composed of ${numberOfPairs} pairs of concepts and their semantic ${vars.dpart.measureType} score as reported by humans. ` +
+            `I only have ${sampleSize} of the pairs included in the dataset. Please give me a list of ${askSize} other pairs of concepts belonging to the same dataset but not included on my list.\n` +
+            pairs.map(([term1, term2]) => `${term1} ${term2}`).join("\n"),
+        },
+      ],
     };
   },
 };
@@ -65,22 +72,27 @@ async function runTrial(
 
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.iterateConversation(
+    { ...vars, prompt },
+    tool,
+    maxRetries
+  );
   return res;
 }
 
 async function evaluateTrial(
   this: Experiment<SFSExpTypes>,
   dpart: DsPartition,
-  prompt: Prompt,
-  got: SFSExpTypes["Data"]
+  got: { data: SFSExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
   const askedDict: { [word: string]: { [word: string]: boolean } } = {};
-  for (const [term1, term2] of prompt.pairs!) {
+  const expectedPairs = got.flatMap(({ prompt }) => prompt.pairs);
+
+  for (const [term1, term2] of expectedPairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
     askedDict[w1] = askedDict[w1] || {};
@@ -102,7 +114,9 @@ async function evaluateTrial(
   let correctPairs = 0;
   let validPairs = 0;
   let foundWrongPair = false;
-  for (const [term1, term2] of got.pairs) {
+
+  const gotPairs = got.flatMap(({ data }) => data.pairs);
+  for (const [term1, term2] of gotPairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
 
@@ -134,18 +148,26 @@ async function evaluateTrial(
   };
 
   if (validPairs === 0) {
-    return new NonUsableData(got, expected);
+    return new NonUsableData({ pairs: gotPairs }, expected);
   }
   if (correctPairs === 0) {
-    return new DataIncorrect(got, expected);
+    return new DataIncorrect({ pairs: gotPairs }, expected);
   }
   if (foundWrongPair) {
-    return new DataPartiallyIncorrect(correctPairs / baseLine, got, expected);
+    return new DataPartiallyIncorrect(
+      correctPairs / baseLine,
+      { pairs: gotPairs },
+      expected
+    );
   }
   if (correctPairs < baseLine) {
-    return new DataIncomplete(correctPairs / baseLine, got, expected);
+    return new DataIncomplete(
+      correctPairs / baseLine,
+      { pairs: gotPairs },
+      expected
+    );
   }
-  return new DataCorrect(got, expected);
+  return new DataCorrect({ pairs: gotPairs }, expected);
 }
 
 function expDataToExpScore(
@@ -158,7 +180,7 @@ function expDataToExpScore(
   };
 }
 
-export default new Experiment(
+export default new Experiment<SFSExpTypes>(
   name,
   description,
   query,

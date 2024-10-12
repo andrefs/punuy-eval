@@ -1,11 +1,9 @@
 import { ExpVarMatrix } from "../lib/experiments";
 import path from "path";
-import { gpt4omini_20240718, mistralLarge_2407 } from "../lib/models";
+import { gpt4omini_20240718 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/batch-vs-single-pair/prompts";
-import pap900_rel from "src/lib/dataset-partitions/pap900_rel";
-import pap900_sim from "src/lib/dataset-partitions/pap900_sim";
 import ws353Rel_rel from "src/lib/dataset-partitions/ws353Rel_rel";
 import ws353Sim_sim from "src/lib/dataset-partitions/ws353Sim_sim";
 import yp130_verbpairs from "src/lib/dataset-partitions/yp130_verbpairs";

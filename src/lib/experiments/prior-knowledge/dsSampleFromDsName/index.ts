@@ -5,6 +5,7 @@ import {
   GenericExpTypes,
   Prompt,
   TrialResult,
+  TurnPrompt,
 } from "../../experiment/types";
 import {
   DataCorrect,
@@ -34,11 +35,18 @@ const promptGen = {
       id: `${name}-prompt`,
       measureType: vars.dpart.measureType,
       language: "en" as const,
-      text:
-        `${vars.dpart.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
-        `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
-        `and can be used to evaluate semantic measures. ` +
-        `Please list ${numPairs} pairs of concepts sampled from this dataset.`,
+      jobType: "allPairs" as const,
+      pairs: [],
+      turns: [
+        {
+          text:
+            `${vars.dpart.dataset.metadata.name} is a gold standard dataset published in ${year}. ` +
+            `It is composed of pairs of concepts and their semantic ${measureTypes} score as reported by humans, ` +
+            `and can be used to evaluate semantic measures. ` +
+            `Please list ${numPairs} pairs of concepts sampled from this dataset.`,
+          pairs: [],
+        },
+      ],
     };
   },
 };
@@ -62,22 +70,25 @@ async function runTrial(
   };
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.iterateConversation(
+    { ...vars, prompt },
+    tool,
+    maxRetries
+  );
   return res;
 }
 
 async function evaluateTrial(
   this: Experiment<SFNExpTypes>,
   dpart: DsPartition,
-  prompt: Prompt,
-  got: SFNExpTypes["Data"]
+  got: { data: SFNExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const expectedDict: { [word: string]: { [word: string]: boolean } } = {};
   const gotDict: { [word: string]: { [word: string]: boolean } } = {};
 
-  const baseLine = Math.max(got.pairs.length, numPairs);
+  const baseLine = Math.max(got[0].data.pairs.length, numPairs);
   for (const { term1, term2 } of dpart.data) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
@@ -89,7 +100,7 @@ async function evaluateTrial(
   }
   let i = 0;
   let foundWrongPair = false;
-  for (const [term1, term2] of got.pairs) {
+  for (const [term1, term2] of got[0].data.pairs) {
     const w1 = term1.toLowerCase();
     const w2 = term2.toLowerCase();
 
@@ -112,17 +123,20 @@ async function evaluateTrial(
       Object.keys(expectedDict[w1]).map(w2 => [w1, w2] as [string, string])
     ),
   };
+  const gotPairs = {
+    pairs: got.flatMap(({ data }) => data.pairs),
+  };
   if (i === 0) {
-    return new DataIncorrect(got, expected);
+    return new DataIncorrect(gotPairs, expected);
   }
   if (foundWrongPair) {
-    return new DataPartiallyIncorrect(i / baseLine, got, expected);
+    return new DataPartiallyIncorrect(i / baseLine, gotPairs, expected);
   }
   if (i < baseLine) {
-    return new DataIncomplete(i / baseLine, got, expected);
+    return new DataIncomplete(i / baseLine, gotPairs, expected);
   }
 
-  return new DataCorrect(got, expected);
+  return new DataCorrect(gotPairs, expected);
 }
 
 function expDataToExpScore(
@@ -135,7 +149,7 @@ function expDataToExpScore(
   };
 }
 
-export default new Experiment(
+export default new Experiment<SFNExpTypes>(
   name,
   description,
   query,

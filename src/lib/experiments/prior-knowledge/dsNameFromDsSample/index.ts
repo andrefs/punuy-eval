@@ -4,6 +4,7 @@ import Experiment, {
   GenericExpTypes,
   Prompt,
   TrialResult,
+  TurnPrompt,
 } from "../../experiment";
 import { NonEvaluatedData } from "../../../evaluation";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
@@ -19,15 +20,25 @@ const description =
 const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
-  generate: (vars: Omit<ExpVars, "prompt">): Prompt => ({
-    id: `${name}-${vars.dpart.id}-prompt`,
-    language: "en" as const,
-    text:
-      `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
-      getRandom(vars.dpart.data, 10)
-        .map(({ term1, term2 }) => `${term1} ${term2}`)
-        .join("\n"),
-  }),
+  generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+    const pairs = getRandom(vars.dpart.data, 10).map(
+      p => [p.term1, p.term2] as [string, string]
+    );
+    return {
+      id: `${name}-${vars.dpart.id}-prompt`,
+      language: "en" as const,
+      jobType: "allPairs" as const,
+      pairs,
+      turns: [
+        {
+          text:
+            `Which semantic measures evaluation dataset do these pairs of concepts belong to?\n` +
+            pairs.map(p => `${p[0]} ${p[1]}`).join("\n"),
+          pairs,
+        },
+      ],
+    };
+  },
 };
 
 /**
@@ -53,23 +64,26 @@ async function runTrial(
 
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.iterateConversation(
+    { ...vars, prompt },
+    tool,
+    maxRetries
+  );
   return res;
 }
 
 async function evaluateTrial(
   this: Experiment<NFSExpTypes>,
   dpart: DsPartition,
-  prompt: Prompt,
-  got: NFSExpTypes["Data"]
+  got: { data: NFSExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const res: NFSExpTypes["Evaluation"] = {
     name: dpart.dataset.metadata.name,
     year: dpart.dataset.metadata.date.slice(0, 4),
   };
-  return new NonEvaluatedData(got, res);
+  return new NonEvaluatedData(got[0].data, res);
 }
 
 export default new Experiment<NFSExpTypes>(

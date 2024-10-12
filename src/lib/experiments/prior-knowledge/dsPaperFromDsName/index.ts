@@ -4,6 +4,7 @@ import Experiment, {
   GenericExpTypes,
   Prompt,
   TrialResult,
+  TurnPrompt,
 } from "../../experiment";
 import { DataCorrect, DataIncorrect } from "../../../evaluation";
 import { distance } from "fastest-levenshtein";
@@ -24,7 +25,14 @@ const promptGen = {
     return {
       id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
-      text: `${vars.dpart.dataset.metadata.name} is a semantic measure gold standard dataset, published in ${year}. Please return the title of the scientific article describing this dataset.`,
+      jobType: "allPairs",
+      pairs: [],
+      turns: [
+        {
+          text: `${vars.dpart.dataset.metadata.name} is a semantic measure gold standard dataset, published in ${year}. Please return the title of the scientific article describing this dataset.`,
+          pairs: [],
+        },
+      ],
     };
   },
 };
@@ -49,17 +57,20 @@ async function runTrial(
 
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.iterateConversation(
+    { ...vars, prompt },
+    tool,
+    maxRetries
+  );
   return res;
 }
 
 async function evaluateTrial(
   this: Experiment<PFNExpTypes>,
   dpart: DsPartition,
-  prompt: Prompt,
-  got: PFNExpTypes["Data"]
+  got: { data: PFNExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const expected = dpart.dataset.metadata.papers.map(p => ({
     title: p.title,
@@ -70,7 +81,7 @@ async function evaluateTrial(
 
   for (const [, exp] of expected.entries()) {
     const e = exp.title.toLowerCase().trim();
-    const g = got.title.toLowerCase().trim();
+    const g = got[0].data.title.toLowerCase().trim();
     const d = distance(e, g) / ((e.length + g.length) / 2);
     if (d < bestScore) {
       bestScore = d;
@@ -81,17 +92,17 @@ async function evaluateTrial(
   const threshold = 0.2;
   if (bestScore < threshold) {
     return new DataCorrect(
-      { title: got.title },
+      { title: got[0].data.title },
       { titles: expected.map(e => e.title) }
     );
   }
   return new DataIncorrect(
-    { title: got.title },
+    { title: got[0].data.title },
     { titles: expected.map(e => e.title) }
   );
 }
 
-export default new Experiment(
+export default new Experiment<PFNExpTypes>(
   name,
   description,
   query,

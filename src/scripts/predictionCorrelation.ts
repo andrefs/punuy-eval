@@ -1,12 +1,10 @@
 import { ExpVarMatrix } from "../lib/experiments";
 import path from "path";
-import { gpt4omini_20240718, mistralLarge_2407 } from "../lib/models";
+import { gpt4omini_20240718 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/prediction-correlation/prompts";
 import predictionCorrelation from "src/lib/experiments/prediction-correlation";
-import pap900_rel from "src/lib/dataset-partitions/pap900_rel";
-import pap900_sim from "src/lib/dataset-partitions/pap900_sim";
 import ws353Rel_rel from "src/lib/dataset-partitions/ws353Rel_rel";
 import ws353Sim_sim from "src/lib/dataset-partitions/ws353Sim_sim";
 import yp130_verbpairs from "src/lib/dataset-partitions/yp130_verbpairs";
@@ -31,7 +29,9 @@ const predCorr = async (vars: ExpVarMatrix) => {
     logger.debug(
       exp.results.raw
         .map(r =>
-          r.turns.map(({ data }) => `[${data.words[0]}, ${data.words[1]}]`)
+          r.turns.flatMap(({ data }) =>
+            data.scores.map(s => `[${s.words[0]}, ${s.words[1]}]`)
+          )
         )
         .join("\n")
     );

@@ -126,7 +126,7 @@ export async function evaluateTrial(
   }
 }
 
-export default new Experiment(
+export default new Experiment<PCExpTypes>(
   name,
   description,
   query,
