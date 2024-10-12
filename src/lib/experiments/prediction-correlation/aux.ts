@@ -23,10 +23,12 @@ export function expEvalScores(exps: ExperimentData<PCExpTypes>[]): ExpScore[] {
   const res = [];
   for (const [i, exp] of exps.entries()) {
     for (const [iTrial, trial] of exp.results.raw.entries()) {
-      const lcPairs = trial.prompt.pairs!.map(
-        p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
-      );
-      const rawResults = trial.data.scores as PairScoreList;
+      const lcPairs = trial.turns
+        .flatMap(t => t.prompt.pairs)
+        .map(p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]);
+      const rawResults = trial.turns
+        .flatMap(t => t.data)
+        .flatMap(t => t.scores) as PairScoreList;
       try {
         const { corr, gotVsExp } = trialEvalScores(
           lcPairs,

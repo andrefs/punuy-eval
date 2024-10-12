@@ -48,9 +48,10 @@ const prompts: PromptGenerator[] = [
       ...p,
       id: `${name}-${p.id}`,
       pairs,
+      jobType: "singlePair",
       turns: pairs.map(([term1, term2]) => ({
         text: `${p.text}\n${req}: ${term1}, ${term2}.`,
-        pair: [term1, term2],
+        pairs: [[term1, term2] as [string, string]],
       })),
     };
   },

@@ -74,25 +74,27 @@ export async function evaluateTrial(
   got: { data: PCExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const pairs = got
-    .flatMap(({ prompt }) => (prompt.pairs ? [prompt.pairs] : []))
+    .flatMap(({ prompt }) => prompt.pairs)
     .map(
       p => [p[0].toLowerCase(), p[1].toLowerCase()].sort() as [string, string]
     );
 
   const expected = { scores: getPairScoreListFromDPart(pairs, dpart) };
 
-  const lcGotScores = got.map(({ data }) => ({
-    words: [data.words[0].toLowerCase(), data.words[1].toLowerCase()] as [
-      string,
-      string,
-    ],
-    score: data.score,
-  }));
+  const lcGotScores = got.flatMap(({ data }) =>
+    data.scores.map(s => ({
+      words: [s.words[0].toLowerCase(), s.words[1].toLowerCase()] as [
+        string,
+        string,
+      ],
+      score: s.score,
+    }))
+  );
 
   // if all pairs are non-usable, return non-usable data
-  const nonUsableData = got.filter(
-    ({ data }) => !data.words?.length || isNaN(data.score)
-  ).length;
+  const nonUsableData = got
+    .flatMap(({ data }) => data.scores)
+    .filter(s => !s.words?.length || isNaN(s.score)).length;
   if (nonUsableData === got.length) {
     return new NonUsableData(got, expected);
   }
