@@ -243,12 +243,13 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
   const languages = Array.from(
     new Set(variables.prompt?.map(p => p.language) ?? [])
   ).map(l => ({ id: l }));
+  const jts = variables.jobType ? variables.jobType.map(x => x.id) : jobTypes;
   for (const l of languages) {
     for (const mt of [
       { id: "similarity" } as const,
       { id: "relatedness" } as const,
     ]) {
-      for (const jt of jobTypes) {
+      for (const jt of jts) {
         const filtPrompts =
           variables.prompt?.filter(
             p => p.language === l.id && p.measureType === mt.id

@@ -673,6 +673,7 @@ describe("experiment aux", () => {
     it("ignores prompt if there's no dataset partition with matching measure type", () => {
       const variables: ExpVarMatrix = {
         model: [{ id: "m1" }] as Model[],
+        jobType: [{ id: "allPairs" as const }],
         dpart: [
           { id: "d1", language: "en", measureType: "similarity" },
         ] as DsPartition[],
