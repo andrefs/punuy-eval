@@ -78,8 +78,8 @@ export const createMockModel = (result: string) =>
   new Model(
     "test",
     "openai",
-    vi.fn(() =>
-      Promise.resolve({
+    vi.fn(() => {
+      return Promise.resolve({
         type: "openai",
         dataObj: {
           id: "test",
@@ -110,6 +110,6 @@ export const createMockModel = (result: string) =>
           ],
         },
         getDataText: vi.fn(() => result),
-      } as OpenAIModelResponse)
-    )
+      } as OpenAIModelResponse);
+    })
   );

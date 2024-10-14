@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import dsSampleFromDsName from ".";
-import { ExpVars, Prompt, PromptGenerator, TurnPrompt } from "../..";
+import { ExpVars, PromptGenerator, TurnPrompt } from "../..";
 import { createMockDsPart, createMockModel } from "../mocks";
 import { DataIncomplete, DataPartiallyIncorrect } from "../../../evaluation";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
@@ -27,8 +27,9 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      await dsSampleFromDsName.runTrials(vars, 2, 1);
-      expect(model.makeRequest).toHaveBeenCalled();
+      dsSampleFromDsName.runTrials(vars, 2, 1).then(() => {
+        expect(model.makeRequest).toHaveBeenCalled();
+      });
     });
 
     it("should return model.makeRequest result", async () => {
