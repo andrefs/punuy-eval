@@ -22,38 +22,45 @@ export class ValidationResult<DataType> {
   }
 }
 
-export class JsonSyntaxError extends ValidationResult<string> {
+export class DataValidationNotOk<DataType> extends ValidationResult<DataType> {
+  constructor(type: ValidationResultType, data?: DataType) {
+    super(type, false, data);
+  }
+}
+
+export class JsonSyntaxError extends DataValidationNotOk<string> {
   constructor(data: string) {
-    super("json-syntax-error", false, data);
+    super("json-syntax-error", data);
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class JsonSchemaError extends ValidationResult<any> {
+export class JsonSchemaError extends DataValidationNotOk<any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(data?: any) {
-    super("json-schema-error", false, data);
+    super("json-schema-error", data);
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class NoData extends ValidationResult<any> {
+export class NoData extends DataValidationNotOk<any> {
   constructor() {
-    super("no-data", false);
+    super("no-data");
   }
 }
-export class InvalidData<DataType> extends ValidationResult<DataType> {
+export class InvalidData<DataType> extends DataValidationNotOk<DataType> {
   data: DataType;
 
   constructor(data: DataType) {
-    super("invalid-data", false);
+    super("invalid-data");
     this.data = data;
   }
 }
 
-export class ExceptionThrown extends ValidationResult<null> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class ExceptionThrown extends DataValidationNotOk<any> {
   constructor() {
-    super("exception-thrown", false);
+    super("exception-thrown");
   }
 }
 
@@ -109,10 +116,10 @@ export class EvaluationResult<DataType, ExpectedType = DataType> {
   }
 }
 
-export class DataOk<DataType, ExpectedType = DataType> extends EvaluationResult<
+export class DataEvalOk<
   DataType,
-  ExpectedType
-> {
+  ExpectedType = DataType,
+> extends EvaluationResult<DataType, ExpectedType> {
   percentage: number;
 
   constructor(
@@ -127,7 +134,7 @@ export class DataOk<DataType, ExpectedType = DataType> extends EvaluationResult<
   }
 }
 
-export class DataNotOk<
+export class DataEvalNotOk<
   DataType,
   ExpectedType = DataType,
 > extends EvaluationResult<DataType, ExpectedType> {
@@ -140,10 +147,10 @@ export class DataNotOk<
     this.ok = false;
   }
 }
-export class DataIncomplete<DataType, ExpectedType = DataType> extends DataOk<
+export class DataIncomplete<
   DataType,
-  ExpectedType
-> {
+  ExpectedType = DataType,
+> extends DataEvalOk<DataType, ExpectedType> {
   percentage: number;
   constructor(percentage: number, got: DataType, expected: ExpectedType) {
     super("data-incomplete", percentage, got, expected);
@@ -154,7 +161,7 @@ export class DataIncomplete<DataType, ExpectedType = DataType> extends DataOk<
 export class DataPartiallyIncorrect<
   DataType,
   ExpectedType = DataType,
-> extends DataOk<DataType, ExpectedType> {
+> extends DataEvalOk<DataType, ExpectedType> {
   percentage: number;
 
   constructor(percentage: number, got: DataType, expected: ExpectedType) {
@@ -163,7 +170,7 @@ export class DataPartiallyIncorrect<
   }
 }
 
-export class DataCorrect<DataType, ExpectedType = DataType> extends DataOk<
+export class DataCorrect<DataType, ExpectedType = DataType> extends DataEvalOk<
   DataType,
   ExpectedType
 > {
@@ -173,10 +180,10 @@ export class DataCorrect<DataType, ExpectedType = DataType> extends DataOk<
   }
 }
 
-export class DataIncorrect<DataType, ExpectedType = DataType> extends DataNotOk<
+export class DataIncorrect<
   DataType,
-  ExpectedType
-> {
+  ExpectedType = DataType,
+> extends DataEvalNotOk<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("data-incorrect", got, expected);
   }
@@ -185,7 +192,7 @@ export class DataIncorrect<DataType, ExpectedType = DataType> extends DataNotOk<
 export class DataInvalidOnAllTries<
   DataType,
   ExpectedType = DataType,
-> extends DataNotOk<DataType, ExpectedType> {
+> extends DataEvalNotOk<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("data-invalid-on-all-tries", got, expected);
   }
@@ -194,16 +201,16 @@ export class DataInvalidOnAllTries<
 export class NonEvaluatedData<
   DataType,
   ExpectedType = DataType,
-> extends DataNotOk<DataType, ExpectedType> {
+> extends DataEvalNotOk<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("non-evaluated-data", got, expected);
   }
 }
 
-export class NonUsableData<DataType, ExpectedType = DataType> extends DataNotOk<
+export class NonUsableData<
   DataType,
-  ExpectedType
-> {
+  ExpectedType = DataType,
+> extends DataEvalNotOk<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("non-usable-data", got, expected);
   }
@@ -212,7 +219,7 @@ export class NonUsableData<DataType, ExpectedType = DataType> extends DataNotOk<
 export class InsufficientData<
   DataType,
   ExpectedType = DataType,
-> extends DataNotOk<DataType, ExpectedType> {
+> extends DataEvalNotOk<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("insufficient-data", got, expected);
   }
@@ -229,7 +236,7 @@ export async function combineEvaluations<DataType, ExpectedType = DataType>(
   for (const v of vs) {
     resultTypes[v.type] = resultTypes[v.type] || 0;
     resultTypes[v.type]++;
-    if (v instanceof DataOk) {
+    if (v instanceof DataEvalOk) {
       sum += v.percentage;
       okSum += v.percentage;
       okCount++;

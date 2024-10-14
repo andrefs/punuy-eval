@@ -8,7 +8,7 @@ import {
 import { getVarIds, valueFromEntry } from "../experiment/aux";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import pcorrTest from "@stdlib/stats-pcorrtest";
-import { PCExpTypes } from ".";
+import { BVSPExpTypes } from ".";
 import { InsufficientData } from "src/lib/evaluation";
 import { pairsToHash } from "../aux";
 
@@ -19,7 +19,9 @@ import { pairsToHash } from "../aux";
  * @returns The evaluated scores
  * @throws {Error} If more than half of the trials failed to parse
  */
-export function expEvalScores(exps: ExperimentData<PCExpTypes>[]): ExpScore[] {
+export function expEvalScores(
+  exps: ExperimentData<BVSPExpTypes>[]
+): ExpScore[] {
   const res = [];
   for (const [i, exp] of exps.entries()) {
     for (const [iTrial, trial] of exp.results.raw.entries()) {

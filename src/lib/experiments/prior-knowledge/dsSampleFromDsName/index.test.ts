@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import dsSampleFromDsName from ".";
-import { ExpVars, Prompt, PromptGenerator } from "../..";
+import { ExpVars, PromptGenerator, TurnPrompt } from "../..";
 import { createMockDsPart, createMockModel } from "../mocks";
 import { DataIncomplete, DataPartiallyIncorrect } from "../../../evaluation";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
@@ -27,8 +27,9 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      await dsSampleFromDsName.runTrials(vars, 2, 1);
-      expect(model.makeRequest).toHaveBeenCalled();
+      dsSampleFromDsName.runTrials(vars, 2, 1).then(() => {
+        expect(model.makeRequest).toHaveBeenCalled();
+      });
     });
 
     it("should return model.makeRequest result", async () => {
@@ -46,38 +47,42 @@ describe("dsSampleFromDsName", () => {
       expect(tr.trials.length).toEqual(2);
       expect(tr.trials[0]).toMatchInlineSnapshot(`
         {
-          "data": {
-            "pairs": [
-              [
-                "testWord1",
-                "testWord2",
-              ],
-            ],
-          },
-          "prompt": {
-            "id": "ds-sample-from-ds-name-prompt",
-            "language": "en",
-            "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
-            "type": "similarity",
-          },
+          "turns": [
+            {
+              "data": {
+                "pairs": [
+                  [
+                    "testWord1",
+                    "testWord2",
+                  ],
+                ],
+              },
+              "prompt": {
+                "pairs": [],
+                "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
+              },
+            },
+          ],
         }
       `);
       expect(tr.trials[1]).toMatchInlineSnapshot(`
         {
-          "data": {
-            "pairs": [
-              [
-                "testWord1",
-                "testWord2",
-              ],
-            ],
-          },
-          "prompt": {
-            "id": "ds-sample-from-ds-name-prompt",
-            "language": "en",
-            "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
-            "type": "similarity",
-          },
+          "turns": [
+            {
+              "data": {
+                "pairs": [
+                  [
+                    "testWord1",
+                    "testWord2",
+                  ],
+                ],
+              },
+              "prompt": {
+                "pairs": [],
+                "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
+              },
+            },
+          ],
         }
       `);
     });
@@ -94,7 +99,7 @@ describe("dsSampleFromDsName", () => {
 
       const tr = await dsSampleFromDsName.runTrials(vars, 1, 1);
       expect(model.makeRequest).toHaveBeenCalled();
-      expect(tr.trials.length).toEqual(0);
+      expect(tr.trials.flatMap(t => t.turns).length).toEqual(0);
     });
   });
 
@@ -130,29 +135,31 @@ describe("dsSampleFromDsName", () => {
     it("should return DataIncorrect if data is incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(
-        dpart,
-        {} as Prompt,
+      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
         {
-          pairs: [["fail", "fail"]],
-        }
-      );
+          data: {
+            pairs: [["fail", "fail"]],
+          },
+          prompt: {} as TurnPrompt,
+        },
+      ]);
       expect(result.type).toEqual("data-incorrect");
     });
 
     it("should return DataPartiallyIncorrect if data is partially incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(
-        dpart,
-        {} as Prompt,
+      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
         {
-          pairs: [
-            ["testWord1", "failWord"],
-            ["testWord1", "testWord2"],
-          ],
-        }
-      );
+          data: {
+            pairs: [
+              ["testWord1", "failWord"],
+              ["testWord1", "testWord2"],
+            ],
+          },
+          prompt: {} as TurnPrompt,
+        },
+      ]);
       expect(result.type).toEqual("data-partially-incorrect");
       expect(
         (result as DataPartiallyIncorrect<{ pairs: [string, string] }>)
@@ -163,17 +170,18 @@ describe("dsSampleFromDsName", () => {
     it("should return DataIncomplete if data is incomplete", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(
-        dpart,
-        {} as Prompt,
+      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
         {
-          pairs: [
-            ["testWord1", "testWord2"],
-            ["testWord3", "testWord4"],
-            ["testWord5", "testWord6"],
-          ],
-        }
-      );
+          data: {
+            pairs: [
+              ["testWord1", "testWord2"],
+              ["testWord3", "testWord4"],
+              ["testWord5", "testWord6"],
+            ],
+          },
+          prompt: {} as TurnPrompt,
+        },
+      ]);
       expect(result.type).toEqual("data-incomplete");
       expect(
         (result as DataIncomplete<{ pairs: [string, string] }>).percentage
@@ -183,19 +191,20 @@ describe("dsSampleFromDsName", () => {
     it("should return DataCorrect if data is correct", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(
-        dpart,
-        {} as Prompt,
+      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
         {
-          pairs: [
-            ["testWord1", "testWord2"],
-            ["testWord4", "testWord3"],
-            ["testWord5", "testWord6"],
-            ["testWord7", "testWord8"],
-            ["testWord9", "testWord10"],
-          ],
-        }
-      );
+          data: {
+            pairs: [
+              ["testWord1", "testWord2"],
+              ["testWord4", "testWord3"],
+              ["testWord5", "testWord6"],
+              ["testWord7", "testWord8"],
+              ["testWord9", "testWord10"],
+            ],
+          },
+          prompt: {} as TurnPrompt,
+        },
+      ]);
       expect(result.type).toEqual("data-correct");
     });
   });

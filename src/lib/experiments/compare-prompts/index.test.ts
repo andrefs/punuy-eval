@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
-import { ExperimentData, GenericExpTypes, Prompt, comparePrompts } from "..";
+import {
+  ExperimentData,
+  GenericExpTypes,
+  Prompt,
+  TurnPrompt,
+  comparePrompts,
+} from "..";
 import { createMockDsPart, createMockModel } from "../prior-knowledge/mocks";
 import { Type, Static } from "@sinclair/typebox";
 import { ComparisonGroup } from "../experiment/aux";
@@ -30,6 +36,8 @@ describe("comparePrompts", () => {
             prompt: {
               id: "prompt-id-1",
               text: "prompt-text",
+              language: "en",
+              jobType: "allPairs",
               pairs: [
                 ["testWord1", "testWord2"],
                 ["testWord3", "testWord4"],
@@ -37,6 +45,7 @@ describe("comparePrompts", () => {
                 ["testWord7", "testWord8"],
                 ["testWord9", "testWord10"],
               ],
+              turns: [],
             } as Prompt,
           },
           meta: {
@@ -48,16 +57,20 @@ describe("comparePrompts", () => {
           results: {
             raw: [
               {
-                prompt: {} as Prompt,
-                data: {
-                  scores: [
-                    { words: ["testWord1", "testWord2"], score: 0.5 },
-                    { words: ["testWord3", "testWord4"], score: 0.9 },
-                    { words: ["testWord5", "testWord6"], score: 0.9 },
-                    { words: ["testWord7", "testWord8"], score: 0.9 },
-                    { words: ["testWord9", "testWord10"], score: 0.9 },
-                  ],
-                },
+                turns: [
+                  {
+                    prompt: {} as TurnPrompt,
+                    data: {
+                      scores: [
+                        { words: ["testWord1", "testWord2"], score: 0.5 },
+                        { words: ["testWord3", "testWord4"], score: 0.9 },
+                        { words: ["testWord5", "testWord6"], score: 0.9 },
+                        { words: ["testWord7", "testWord8"], score: 0.9 },
+                        { words: ["testWord9", "testWord10"], score: 0.9 },
+                      ],
+                    },
+                  },
+                ],
               },
             ],
           },
@@ -69,6 +82,8 @@ describe("comparePrompts", () => {
             prompt: {
               id: "prompt-id-2",
               text: "prompt-text",
+              language: "en",
+              jobType: "allPairs",
               pairs: [
                 ["testWord1", "testWord2"],
                 ["testWord3", "testWord4"],
@@ -76,6 +91,7 @@ describe("comparePrompts", () => {
                 ["testWord7", "testWord8"],
                 ["testWord9", "testWord10"],
               ],
+              turns: [],
             } as Prompt,
           },
           meta: {
@@ -87,16 +103,20 @@ describe("comparePrompts", () => {
           results: {
             raw: [
               {
-                prompt: {} as Prompt,
-                data: {
-                  scores: [
-                    { words: ["testWord1", "testWord2"], score: 0.5 },
-                    { words: ["testWord3", "testWord4"], score: 0.9 },
-                    { words: ["testWord5", "testWord6"], score: 0.9 },
-                    { words: ["testWord7", "testWord8"], score: 0.9 },
-                    { words: ["testWord9", "testWord10"], score: 0.9 },
-                  ],
-                },
+                turns: [
+                  {
+                    prompt: {} as TurnPrompt,
+                    data: {
+                      scores: [
+                        { words: ["testWord1", "testWord2"], score: 0.5 },
+                        { words: ["testWord3", "testWord4"], score: 0.9 },
+                        { words: ["testWord5", "testWord6"], score: 0.9 },
+                        { words: ["testWord7", "testWord8"], score: 0.9 },
+                        { words: ["testWord9", "testWord10"], score: 0.9 },
+                      ],
+                    },
+                  },
+                ],
               },
             ],
           },

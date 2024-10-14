@@ -3,22 +3,22 @@ import path from "path";
 import { gpt4omini_20240718 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
-import prompts from "src/lib/experiments/prediction-correlation/prompts";
-import predictionCorrelation from "src/lib/experiments/prediction-correlation";
+import prompts from "src/lib/experiments/batch-vs-single-pair/prompts";
 import ws353Rel_rel from "src/lib/dataset-partitions/ws353Rel_rel";
 import ws353Sim_sim from "src/lib/dataset-partitions/ws353Sim_sim";
 import yp130_verbpairs from "src/lib/dataset-partitions/yp130_verbpairs";
 import mt287_mturk from "src/lib/dataset-partitions/mt287_mturk";
+import batchVsSinglePair from "src/lib/experiments/batch-vs-single-pair";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
   process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
-const predCorr = async (vars: ExpVarMatrix) => {
+const bvsp = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await predictionCorrelation.performMulti(vars, trials, folder);
+  const res = await batchVsSinglePair.performMulti(vars, trials, folder);
 
-  predictionCorrelation.printUsage(res.usage);
+  batchVsSinglePair.printUsage(res.usage);
 
   for (const exp of res.experiments) {
     logger.info(
@@ -68,7 +68,7 @@ const evm: ExpVarMatrix = {
   ],
 };
 
-predCorr(evm).then(() => {
+bvsp(evm).then(() => {
   logger.info("Done");
   process.exit(0);
 });

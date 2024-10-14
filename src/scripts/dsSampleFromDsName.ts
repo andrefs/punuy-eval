@@ -63,15 +63,19 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
 
   dsSampleFromDsName.printUsage(res.usage);
 
-  for (const r of res.experiments) {
+  for (const exp of res.experiments) {
     logger.info(
-      { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${r.results.aggregated?.allDataAvg
+      { ...exp.results.aggregated?.resultTypes },
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.allDataAvg
       }`
     );
     logger.debug(
-      r.results.raw
-        .map(r => r.data.pairs.map(p => `[${p[0]}, ${p[1]}]`))
+      exp.results.raw
+        .map(r =>
+          r.turns.flatMap(({ data }) =>
+            data.pairs.map(p => `[${p[0]}, ${p[1]}]`)
+          )
+        )
         .join("\n")
     );
   }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMockDsPart, createMockModel } from "../mocks";
 import dsNameFromDsSample from ".";
-import { ExpVarsFixedPrompt, Prompt, PromptGenerator } from "../..";
+import { ExpVarsFixedPrompt, PromptGenerator } from "../..";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
 
 describe("dsNameFromDsSample", () => {
@@ -36,12 +36,19 @@ describe("dsNameFromDsSample", () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
-        {} as Prompt,
-        {
-          name: mockDsPartition.dataset.metadata.name,
-          year: "2021",
-          authors: ["First Author", "Second Person Name"],
-        }
+        [
+          {
+            data: {
+              name: mockDsPartition.dataset.metadata.name,
+              year: "2021",
+              authors: ["First Author", "Second Person Name"],
+            },
+            prompt: {
+              text: "",
+              pairs: [],
+            },
+          },
+        ]
       );
       expect(result.type).toEqual("non-evaluated-data");
     });
@@ -50,12 +57,19 @@ describe("dsNameFromDsSample", () => {
       const mockDsPartition = createMockDsPart();
       const result = await dsNameFromDsSample.evaluateTrial(
         createMockDsPart(),
-        {} as Prompt,
-        {
-          name: mockDsPartition.dataset.metadata.name,
-          year: "2021",
-          authors: ["First Author", "Second Person Name"],
-        }
+        [
+          {
+            data: {
+              name: mockDsPartition.dataset.metadata.name,
+              year: "2021",
+              authors: ["First Author", "Second Person Name"],
+            },
+            prompt: {
+              text: "",
+              pairs: [],
+            },
+          },
+        ]
       );
       expect(result).toMatchInlineSnapshot(`
         NonEvaluatedData {
@@ -89,10 +103,10 @@ describe("dsNameFromDsSample", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      expect(vars.prompt.text).toEqual(
+      expect(vars.prompt.turns[0].text).toEqual(
         expect.stringContaining(dpart.data[0].term1)
       );
-      expect(vars.prompt.text).toEqual(
+      expect(vars.prompt.turns[0].text).toEqual(
         expect.stringContaining(dpart.data[0].term2)
       );
     });

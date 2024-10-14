@@ -34,6 +34,7 @@ export interface ExpVarMatrix {
   language?: ({ id: "pt" } | { id: "en" })[];
   measureType?: { id: MeasureType }[];
   prompt?: (Prompt | PromptGenerator)[];
+  jobType?: { id: PromptJobType }[];
 }
 
 export type ExpVarsFixedPrompt = Omit<ExpVars, "prompt"> & { prompt: Prompt };
@@ -48,22 +49,48 @@ export interface ExpVars {
     id: MeasureType;
   };
   prompt: Prompt | PromptGenerator;
+  jobType?: { id: PromptJobType };
 }
 
 export interface PromptGenerator {
   id: string;
-  type?: MeasureType;
+  measureType?: MeasureType;
   language: "pt" | "en";
   generate: (vars: Omit<ExpVars, "prompt">) => Prompt;
 }
 
-export interface Prompt {
+/*
+ * How to send pairs to the model
+ * singlePair: send one pair at a time
+ * batches: send pairs in batches
+ * full: send all pairs at once
+ */
+
+export const jobTypes = ["singlePair", "batches", "allPairs"] as const;
+export type PromptJobType = (typeof jobTypes)[number];
+
+export interface BasePrompt {
   id: string;
-  type?: MeasureType;
+  measureType?: MeasureType;
+  jobType: PromptJobType;
   language: "pt" | "en";
-  pairs?: [string, string][];
-  text: string;
+  pairs?: [string, string][] | [string, string][][];
+  turns: TurnPrompt[];
 }
+export interface SinglePairPrompt extends BasePrompt {
+  jobType: "singlePair";
+  pairs: [string, string][];
+}
+export interface BatchesPrompt extends BasePrompt {
+  jobType: "batches";
+  pairs: [string, string][][];
+}
+export interface AllPairsPrompt extends BasePrompt {
+  jobType: "allPairs";
+  pairs: [string, string][];
+}
+
+export type Prompt = SinglePairPrompt | BatchesPrompt | AllPairsPrompt;
 
 export interface ExpMeta<T extends GenericExpTypes> {
   trials: number;
@@ -75,8 +102,10 @@ export interface ExpMeta<T extends GenericExpTypes> {
 export interface ExpResults<DataType, ExpectedType> {
   /** Raw results from the trials */
   raw: {
-    data: DataType;
-    prompt: Prompt;
+    turns: {
+      data: DataType;
+      prompt: TurnPrompt;
+    }[];
   }[];
   /** Evaluation results for each trial */
   evaluation?: EvaluationResult<DataType, ExpectedType>[];
@@ -92,20 +121,49 @@ export interface ExperimentData<T extends GenericExpTypes> {
 }
 
 export interface TrialResult<DataType> {
-  prompt: Prompt;
+  promptId: string;
+  turnPrompts: TurnPrompt[];
   totalTries: number;
-  failedAttempts: ValidationResult<DataType>[];
+  failedAttempts: TurnResponseNotOk<DataType>[][];
   ok: boolean;
   usage?: Usages;
-  result?: ValidData<DataType>;
+  result?: ValidData<DataType>[];
 }
+
+export interface TurnPrompt {
+  text: string;
+  pairs: [string, string][];
+}
+
+export interface BaseTurnResponse<DataType> {
+  turnPrompt: TurnPrompt;
+  usage: Usages;
+  result?: ValidationResult<DataType>;
+  failedAttempts: ValidationResult<DataType>[];
+  ok: boolean;
+}
+export interface TurnResponseOk<DataType> extends BaseTurnResponse<DataType> {
+  ok: true;
+  result: ValidData<DataType>;
+}
+
+export interface TurnResponseNotOk<DataType>
+  extends BaseTurnResponse<DataType> {
+  ok: false;
+}
+
+export type TurnResponse<DataType> =
+  | TurnResponseOk<DataType>
+  | TurnResponseNotOk<DataType>;
 
 export interface TrialsResultData<DataType> {
   variables: ExpVars;
   usage?: Usages;
   trials: {
-    data: DataType;
-    prompt: Prompt;
+    turns: {
+      data: DataType;
+      prompt: TurnPrompt;
+    }[];
   }[];
 }
 

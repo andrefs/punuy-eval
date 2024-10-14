@@ -5,6 +5,7 @@ import Experiment, {
   GenericExpTypes,
   Prompt,
   TrialResult,
+  TurnPrompt,
 } from "../../experiment";
 import {
   DataCorrect,
@@ -28,14 +29,22 @@ const promptGen = {
   id: `${name}-prompt`,
   language: "en" as const,
   generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+    const pairs = getRandom(vars.dpart.data, numberOfPairs).map(
+      ({ term1, term2 }) => [term1, term2] as [string, string]
+    );
     return {
       id: `${name}-${vars.dpart.id}-prompt`,
       language: "en" as const,
-      text:
-        'Please rate the semantic similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely dissimilar" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
-        getRandom(vars.dpart.data, numberOfPairs)
-          .map(({ term1, term2 }) => `${term1}, ${term2}`)
-          .join("\n"),
+      jobType: "allPairs" as const,
+      pairs,
+      turns: [
+        {
+          text:
+            'Please rate the semantic similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely dissimilar" and 4 means "very similar". Feel free to use decimal numbers (e.g. 2.37 or 1.89).\n' +
+            pairs.map(([term1, term2]) => `${term1}, ${term2}`).join("\n"),
+          pairs,
+        },
+      ],
     };
   },
 };
@@ -63,17 +72,20 @@ async function runTrial(
 
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await this.getResponse({ ...vars, prompt }, tool, maxRetries);
+  const res = await this.iterateConversation(
+    { ...vars, prompt },
+    tool,
+    maxRetries
+  );
   return res;
 }
 
 async function evaluateTrial(
   this: Experiment<VEMExpTypes>,
   dpart: DsPartition,
-  prompt: Prompt,
-  got: VEMExpTypes["Data"]
+  got: { data: VEMExpTypes["Data"]; prompt: TurnPrompt }[]
 ): Promise<EvaluationResult<VEMExpTypes["Data"]>> {
   const res = {} as {
     [w1: string]: {
@@ -107,7 +119,10 @@ async function evaluateTrial(
   let i = 0;
   let nonUsableData = 0;
   let exactMatches = 0;
-  for (const { words, score } of got.scores) {
+  const gotFlatScores = {
+    scores: got.flatMap(({ data }) => data.scores),
+  };
+  for (const { words, score } of gotFlatScores.scores) {
     if (!words?.length || isNaN(score)) {
       nonUsableData++;
     }
@@ -168,17 +183,17 @@ async function evaluateTrial(
     res[w1][w2].got = score;
   }
   if (nonUsableData === i) {
-    return new NonUsableData(got, expected);
+    return new NonUsableData(gotFlatScores, expected);
   }
   if (i === exactMatches) {
-    return new DataCorrect(got, expected);
+    return new DataCorrect(gotFlatScores, expected);
   }
   if (exactMatches === 0) {
-    return new DataIncorrect(got, expected);
+    return new DataIncorrect(gotFlatScores, expected);
   }
   return new DataPartiallyIncorrect(
-    exactMatches / got.scores.length,
-    got,
+    exactMatches / gotFlatScores.scores.length,
+    gotFlatScores,
     expected
   );
 }

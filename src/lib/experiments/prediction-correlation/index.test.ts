@@ -1,25 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { evaluateTrial, PCExpTypes } from "./index";
-import Experiment, { Prompt } from "../experiment";
+import Experiment, { TurnPrompt } from "../experiment";
 import { createMockDsPart } from "../prior-knowledge/mocks";
 
 describe("prediction-correlation", () => {
   describe("evaluateTrial", () => {
     it("should return NoUsableData if pairs are not usable", async () => {
       const dpart = createMockDsPart();
-      const prompt: Prompt = {
-        id: "prompt-id",
-        text: "prompt-text",
-        language: dpart.language,
-        pairs: [["a", "b"]],
-      };
-      const got = {
-        scores: [],
-      };
+      const got: { data: PCExpTypes["Data"]; prompt: TurnPrompt }[] = [];
       const result = await evaluateTrial.call(
         { name: "name", description: "description" } as Experiment<PCExpTypes>,
         dpart,
-        prompt,
         got
       );
       expect(result.type).toEqual("non-usable-data");
@@ -27,25 +18,26 @@ describe("prediction-correlation", () => {
 
     it("should return InsufficientData if less than half of the pairs are usable", async () => {
       const dpart = createMockDsPart();
-      const prompt: Prompt = {
-        id: "prompt-id",
-        text: "prompt-text",
-        language: dpart.language,
-        pairs: [
-          ["a", "b"],
-          ["c", "d"],
-        ],
-      };
-      const got = {
-        scores: [
-          { words: ["a", "b"], score: 1 },
-          { words: ["c", "d"], score: 1 },
-        ],
-      };
+      const got = [
+        {
+          data: {
+            scores: [
+              { words: ["a", "b"], score: 1 },
+              { words: ["c", "d"], score: 1 },
+            ],
+          },
+          prompt: {
+            text: "prompt-text",
+            pairs: [
+              ["a", "b"],
+              ["c", "d"],
+            ] as [string, string][],
+          },
+        },
+      ];
       const result = await evaluateTrial.call(
         { name: "name", description: "description" } as Experiment<PCExpTypes>,
         dpart,
-        prompt,
         got
       );
       expect(result.type).toEqual("insufficient-data");
@@ -63,22 +55,24 @@ describe("prediction-correlation", () => {
           values: [i / 10],
         })),
       });
-      const prompt: Prompt = {
-        id: "prompt-id",
-        text: "prompt-text",
-        language: dpart.language,
-        pairs,
-      };
-      const got = {
-        scores: dpart.data.slice(0, 20).map(({ term1, term2, value }) => ({
-          words: [term1, term2],
-          score: value!,
-        })),
-      };
+
+      const got = [
+        {
+          data: {
+            scores: dpart.data.slice(0, 20).map(({ term1, term2, value }) => ({
+              words: [term1, term2],
+              score: value!,
+            })),
+          },
+          prompt: {
+            text: "prompt-text",
+            pairs,
+          },
+        },
+      ];
       const result = await evaluateTrial.call(
         { name: "name", description: "description" } as Experiment<PCExpTypes>,
         dpart,
-        prompt,
         got
       );
       expect(result.type).toEqual("data-correct");
@@ -96,22 +90,24 @@ describe("prediction-correlation", () => {
           values: [i / 10],
         })),
       });
-      const prompt: Prompt = {
-        id: "prompt-id",
-        text: "prompt-text",
-        language: dpart.language,
-        pairs,
-      };
-      const got = {
-        scores: dpart.data.slice(0, 20).map(({ term1, term2, value }) => ({
-          words: [term1, term2],
-          score: value! * value!,
-        })),
-      };
+
+      const got = [
+        {
+          data: {
+            scores: dpart.data.slice(0, 20).map(({ term1, term2, value }) => ({
+              words: [term1, term2],
+              score: value! * value!,
+            })),
+          },
+          prompt: {
+            text: "prompt-text",
+            pairs,
+          },
+        },
+      ];
       const result = await evaluateTrial.call(
         { name: "name", description: "description" } as Experiment<PCExpTypes>,
         dpart,
-        prompt,
         got
       );
       expect(result.type).toEqual("data-partially-incorrect");

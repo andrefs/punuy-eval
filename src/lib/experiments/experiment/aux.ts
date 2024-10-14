@@ -9,6 +9,7 @@ import Experiment, {
   PairScoreList,
   Usage,
   Usages,
+  jobTypes,
 } from ".";
 import logger from "../../logger";
 import { ModelId, getModelById } from "src/lib/models";
@@ -242,35 +243,39 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
   const languages = Array.from(
     new Set(variables.prompt?.map(p => p.language) ?? [])
   ).map(l => ({ id: l }));
+  const jts = variables.jobType ? variables.jobType.map(x => x.id) : jobTypes;
   for (const l of languages) {
     for (const mt of [
       { id: "similarity" } as const,
       { id: "relatedness" } as const,
     ]) {
-      const filtPrompts =
-        variables.prompt?.filter(
-          p => p.language === l.id && p.type === mt.id
-        ) || [];
-      const filtDatasets = variables.dpart.filter(
-        d => d.language === l.id && d.measureType === mt.id
-      );
-      if (filtPrompts.length === 0 || filtDatasets.length === 0) {
-        logger.warn(
-          `No prompts or datasets for language ${l.id} and measure type ${mt.id}. Skipping.`
+      for (const jt of jts) {
+        const filtPrompts =
+          variables.prompt?.filter(
+            p => p.language === l.id && p.measureType === mt.id
+          ) || [];
+        const filtDatasets = variables.dpart.filter(
+          d => d.language === l.id && d.measureType === mt.id
         );
-        continue;
+        if (filtPrompts.length === 0 || filtDatasets.length === 0) {
+          logger.warn(
+            `No prompts or datasets for language ${l.id} and measure type ${mt.id}. Skipping.`
+          );
+          continue;
+        }
+        logger.info(
+          `Running experiments for language ${l.id} and measure type ${mt.id}`
+        );
+        const vm: ExpVarMatrix = {
+          ...variables,
+          prompt: filtPrompts,
+          jobType: [{ id: jt }],
+          dpart: filtDatasets,
+          language: [l],
+          measureType: [mt],
+        };
+        varCombs.push(...genValueCombinations(vm));
       }
-      logger.info(
-        `Running experiments for language ${l.id} and measure type ${mt.id}`
-      );
-      const vm: ExpVarMatrix = {
-        ...variables,
-        prompt: filtPrompts,
-        dpart: filtDatasets,
-        language: [l],
-        measureType: [mt],
-      };
-      varCombs.push(...genValueCombinations(vm));
     }
   }
   return varCombs;
@@ -289,16 +294,19 @@ export function getPairScoreListFromDPart(
 ) {
   const res = [] as PairScoreList;
   const h = pairsToHash(
-    pairs.map(([w1, w2]) => [w1.toLowerCase(), w2.toLowerCase()])
+    pairs.map(
+      ([w1, w2]) =>
+        [w1.toLowerCase(), w2.toLowerCase()].sort() as [string, string]
+    )
   );
 
   for (const entry of dpart.data) {
     const w1 = entry.term1.toLowerCase();
     const w2 = entry.term2.toLowerCase();
-    if (w1 in h && w2 in h[w1]) {
+    if (h[w1]?.[w2] || h[w2]?.[w1]) {
       // get value or calculate .values average
       const value = valueFromEntry(entry, dpart.scale, { min: 1, max: 5 });
-      res.push({ words: [w1, w2], score: value });
+      res.push({ words: [w1, w2].sort() as [string, string], score: value });
     }
   }
   return res;

@@ -132,6 +132,11 @@ describe("compare-prompts aux", () => {
         ["w5", "w6"],
         ["w7", "w8"],
         ["w9", "w10"],
+        ["w11", "w12"],
+        ["w13", "w14"],
+        ["w15", "w16"],
+        ["w17", "w18"],
+        ["w19", "w20"],
       ] as [string, string][];
       const rawResults: PairScoreList = [
         { words: ["w1", "w2"], score: 1 },
@@ -140,6 +145,11 @@ describe("compare-prompts aux", () => {
         { words: ["w3", "w4"], score: 4 },
         { words: ["w3", "w4"], score: 3 },
         { words: ["w9", "w10"], score: 3 },
+        { words: ["w11", "w12"], score: 3 },
+        { words: ["w13", "w14"], score: 3 },
+        { words: ["w15", "w16"], score: 3 },
+        { words: ["w17", "w18"], score: 3 },
+        { words: ["w19", "w20"], score: 3 },
       ];
       const dpart = {
         id: "d1",
@@ -151,6 +161,11 @@ describe("compare-prompts aux", () => {
           { term1: "w5", term2: "w6", value: 8 },
           { term1: "w7", term2: "w8", value: 8 },
           { term1: "w9", term2: "w10", value: 8 },
+          { term1: "w11", term2: "w12", values: [1, 2, 3] },
+          { term1: "w13", term2: "w14", values: [1, 2, 3] },
+          { term1: "w15", term2: "w16", values: [1, 2, 3] },
+          { term1: "w17", term2: "w18", values: [1, 2, 3] },
+          { term1: "w19", term2: "w20", values: [1, 2, 3] },
         ],
       } as DsPartition;
       const res = evalScores(pairs, dpart, rawResults);
@@ -159,16 +174,16 @@ describe("compare-prompts aux", () => {
           "alpha": 0.05,
           "alternative": "two-sided",
           "ci": [
-            -0.6716527363446572,
-            0.9959990160224518,
+            -0.27663612849435365,
+            0.8993883049793071,
           ],
           "method": "t-test for Pearson correlation coefficient",
           "nullValue": 0,
-          "pValue": 0.1835034190722753,
-          "pcorr": 0.8164965809277247,
+          "pValue": 0.17503735886453775,
+          "pcorr": 0.5316817773513496,
           "print": [Function],
           "rejected": false,
-          "statistic": 1.9999999999999905,
+          "statistic": 1.5377034888769747,
         }
       `);
     });

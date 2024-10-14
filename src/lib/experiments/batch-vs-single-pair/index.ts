@@ -17,28 +17,27 @@ import {
   EvaluationResult,
   NonUsableData,
 } from "src/lib/evaluation";
-import { trialEvalScores } from "./aux";
 import { getPairScoreListFromDPart } from "../experiment/aux";
+import { trialEvalScores } from "./aux";
 
-export const name = "prediction-correlation";
-const description =
-  "Assess LLMs to predict semantic measures by correlating predictions with human judgments.";
+export const name = "batch-vs-single-pair";
+const description = "Compare the sending pairs one at a time or in batch(es)";
 
 /**
  * ExpType for PredictionCorrelation experiment
  */
-export interface PCExpTypes extends GenericExpTypes {
+export interface BVSPExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
 }
 
 async function runTrial(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<BVSPExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   toolSchema: ToolSchema,
   maxRetries: number = 3
-): Promise<TrialResult<PCExpTypes["Data"]>> {
+): Promise<TrialResult<BVSPExpTypes["Data"]>> {
   const tool = {
     name: "evaluate_pair_scores",
     description: "Evaluates the scores of the pairs returned",
@@ -59,8 +58,8 @@ async function runTrial(
 }
 
 function expDataToExpScore(
-  this: Experiment<PCExpTypes>,
-  data: ExperimentData<PCExpTypes>
+  this: Experiment<BVSPExpTypes>,
+  data: ExperimentData<BVSPExpTypes>
 ) {
   return {
     variables: data.variables,
@@ -69,9 +68,9 @@ function expDataToExpScore(
 }
 
 export async function evaluateTrial(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<BVSPExpTypes>,
   dpart: DsPartition,
-  got: { data: PCExpTypes["Data"]; prompt: TurnPrompt }[]
+  got: { data: BVSPExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const pairs = got
     .flatMap(({ prompt }) => prompt.pairs)
@@ -126,7 +125,7 @@ export async function evaluateTrial(
   }
 }
 
-export default new Experiment<PCExpTypes>(
+export default new Experiment(
   name,
   description,
   query,

@@ -22,13 +22,16 @@ export function normalizeScale(
  * @param pairs The pairs of words.
  * @returns The hash.
  */
-export function pairsToHash(pairs: [string, string][]) {
+export function pairsToHash(pairs: [string, string][], noSort?: boolean) {
   const res = {} as {
     [key: string]: { [key: string]: boolean };
   };
   for (const [w1, w2] of pairs) {
-    res[w1] = res[w1] || {};
-    res[w1][w2] = true;
+    const [_w1, _w2] = noSort
+      ? [w1, w2]
+      : [w1.toLowerCase(), w2.toLowerCase()].sort();
+    res[_w1] = res[_w1] || {};
+    res[_w1][_w2] = true;
   }
   return res;
 }
