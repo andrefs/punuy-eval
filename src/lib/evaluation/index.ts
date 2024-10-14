@@ -57,7 +57,8 @@ export class InvalidData<DataType> extends DataValidationNotOk<DataType> {
   }
 }
 
-export class ExceptionThrown extends DataValidationNotOk<null> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class ExceptionThrown extends DataValidationNotOk<any> {
   constructor() {
     super("exception-thrown");
   }

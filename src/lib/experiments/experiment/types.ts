@@ -144,6 +144,7 @@ export interface BaseTurnResponse<DataType> {
 }
 export interface TurnResponseOk<DataType> extends BaseTurnResponse<DataType> {
   ok: true;
+  result: ValidData<DataType>;
 }
 
 export interface TurnResponseNotOk<DataType>

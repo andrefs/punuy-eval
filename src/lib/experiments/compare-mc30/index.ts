@@ -4,12 +4,13 @@ import path from "path";
 import fs from "fs/promises";
 import oldFs from "fs";
 
-import { Model, ModelTool } from "../../models";
+import { Model, ModelResponse, ModelTool } from "../../models";
 import {
   ExceptionThrown,
   JsonSchemaError,
   JsonSyntaxError,
   NoData,
+  ValidationResult,
   ValidData,
 } from "../../evaluation";
 import logger from "../../logger";
@@ -19,6 +20,11 @@ import {
   MultiDatasetScores,
   Prompt,
   TrialResult,
+  TurnPrompt,
+  TurnResponse,
+  TurnResponseNotOk,
+  TurnResponseOk,
+  Usage,
   Usages,
 } from "../experiment/types";
 import { renderTable } from "console-table-printer";
@@ -152,14 +158,27 @@ const genPrompt = (pairs: [string, string][]): Prompt => ({
   id: "compare-mc30-prompt",
   language: "en",
   measureType: "similarity",
+  jobType: "allPairs" as const,
   pairs,
-  text:
-    'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
-    pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n"),
+  turns: [
+    {
+      pairs,
+      text:
+        'Please rate the similarity of the following pairs of words on a scale of 0 to 4, where 0 means "completely unrelated" and 4 means "very similar". Fractional values are allowed.\n\n' +
+        pairs.map(([w1, w2]) => `${w1} ${w2}`).join("\n"),
+    },
+  ],
 });
 
-async function tryResponse(model: Model, prompt: string, params: ModelTool) {
-  let result;
+async function tryResponse(
+  model: Model,
+  prompt: string,
+  params: ModelTool
+): Promise<{
+  result: ValidationResult<QueryResponse>;
+  usage?: Usage;
+}> {
+  let result: ModelResponse;
   let usage;
   let data;
   try {
@@ -167,14 +186,16 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
     usage = result?.usage;
     data = result.getDataText();
   } catch (e) {
-    return {
+    const res = {
       result: new ExceptionThrown(),
       usage: undefined,
     };
+    return res;
   }
 
   if (!data.trim()) {
-    return { result: new NoData(), usage };
+    const res = { result: new NoData(), usage };
+    return res;
   }
   try {
     const got = JSON.parse(data) as QueryResponse;
@@ -193,44 +214,50 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   }
 }
 
-async function getResponse(
+async function getTurnResponse(
   model: Model,
-  prompt: Prompt,
+  prompt: TurnPrompt,
   tool: ModelTool,
-  maxRetries: number = 3
-) {
+  maxTurnAttempts: number = 3
+): Promise<TurnResponse<QueryResponse>> {
   const totalUsage: Usages = {};
   const failedAttempts = [];
-  while (failedAttempts.length < maxRetries) {
-    logger.info(`      attempt #${failedAttempts.length + 1}`);
-    const { result: attemptResult, usage } = await tryResponse(
-      model,
-      prompt.text,
-      tool
-    );
-    addUsage(totalUsage, usage);
-    if (attemptResult instanceof ValidData) {
-      logger.info(`      ✅ attempt #${failedAttempts.length + 1} succeeded.`);
-      const res: TrialResult<QueryResponse> = {
-        prompt,
-        totalTries: failedAttempts.length + 1,
+  while (failedAttempts.length < maxTurnAttempts) {
+    const faCount = failedAttempts.length;
+    logger.info(`        💪 attempt #${faCount + 1}`);
+    const tryResp = await tryResponse(model, prompt.text, tool);
+    addUsage(totalUsage, tryResp.usage);
+    if (tryResp.result instanceof ValidData) {
+      logger.info(`        ✔️  attempt #${faCount + 1} succeeded.`);
+      const res: TurnResponseOk<QueryResponse> = {
+        turnPrompt: prompt,
         failedAttempts,
         ok: true,
         usage: totalUsage,
-        result: attemptResult,
+        result: tryResp.result,
       };
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${attemptResult.type
-      }`
+      `         👎 attempt #${faCount + 1} failed: ${tryResp.result.type}`
     );
-    failedAttempts.push(attemptResult);
+    failedAttempts.push(tryResp.result);
+
+    if (failedAttempts.length < maxTurnAttempts) {
+      await new Promise(resolve => {
+        logger.info(
+          `      ⌛ waiting for ${Math.pow(
+            2,
+            faCount
+          )} seconds before retrying.`
+        );
+        setTimeout(resolve, Math.pow(2, faCount) * 1000);
+      });
+    }
   }
 
-  const res: TrialResult<QueryResponse> = {
-    prompt,
-    totalTries: failedAttempts.length,
+  const res: TurnResponseNotOk<QueryResponse> = {
+    turnPrompt: prompt,
     usage: totalUsage,
     failedAttempts,
     ok: false,
@@ -246,8 +273,8 @@ async function runTrialModel(model: Model, prompt: Prompt, maxRetries = 3) {
     schema: query.toolSchema,
   };
 
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
-  const res = await getResponse(model, prompt, tool, maxRetries);
+  logger.debug(`Prompt ${prompt.id}`);
+  const res = await getTurnResponse(model, prompt.turns[0], tool, maxRetries);
   return res;
 }
 
@@ -259,13 +286,13 @@ async function runTrials(trials: number, model: Model, prompt: Prompt) {
   );
   logger.debug(`Prompt: ${prompt}`);
 
-  const results = [];
+  const results: QueryResponse[] = [];
   for (let i = 0; i < trials; i++) {
     logger.info(`   ⚔️  trial #${i + 1} of ${trials}`);
     const res = await runTrialModel(model, prompt);
     addUsage(totalUsage, res.usage);
-    if (res.ok) {
-      results.push(res.result!.data); // TODO: handle failed attempts
+    if (res.ok && res.result?.data) {
+      results.push(res.result.data); // TODO: handle failed attempts
     }
   }
   return {

@@ -250,8 +250,8 @@ export default class Experiment<T extends GenericExpTypes> {
         prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
       );
       while (failedAttempts.length < maxTurnAttempts) {
-        const faCount = failedAttempts.length + 1;
-        logger.info(`        💪 pairs attempt #${faCount} `);
+        const faCount = failedAttempts.length;
+        logger.info(`        💪 pairs attempt #${faCount + 1} `);
         const { result: attemptResult, usage } = await this.tryResponse(
           model,
           prompt.text,
@@ -260,7 +260,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`        ✔️  pairs attempt #${faCount} succeeded.`);
+          logger.info(`        ✔️  pairs attempt #${faCount + 1} succeeded.`);
           const res: TurnResponseOk<T["Data"]> = {
             turnPrompt: prompt,
             failedAttempts,
@@ -271,7 +271,7 @@ export default class Experiment<T extends GenericExpTypes> {
           return res;
         }
         logger.warn(
-          `        👎 pairs attempt #${faCount} failed: ${attemptResult.type} `
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} `
         );
         failedAttempts.push(attemptResult);
 
@@ -281,10 +281,10 @@ export default class Experiment<T extends GenericExpTypes> {
             logger.info(
               `      ⌛ waiting for ${Math.pow(
                 2,
-                faCount - 1
+                faCount
               )} seconds before retrying.`
             );
-            setTimeout(resolve, Math.pow(2, faCount - 1) * 1000);
+            setTimeout(resolve, Math.pow(2, faCount) * 1000);
           });
         }
       }
