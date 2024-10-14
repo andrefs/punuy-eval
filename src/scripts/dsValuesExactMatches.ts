@@ -27,16 +27,18 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
 
   dsValuesExactMatches.printUsage(res.usage);
 
-  for (const r of res.experiments) {
+  for (const exp of res.experiments) {
     logger.info(
-      { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${r.results.aggregated?.allDataAvg
+      { ...exp.results.aggregated?.resultTypes },
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.allDataAvg
       }`
     );
     logger.debug(
-      r.results.raw
+      exp.results.raw
         .map(r =>
-          r.data.scores.map(s => `[${s.words[0]}, ${s.words[1]}], ${s.score}]`)
+          r.turns.flatMap(({ data }) =>
+            data.scores.map(s => `[${s.words[0]}, ${s.words[1]}], ${s.score}]`)
+          )
         )
         .join("\n")
     );
