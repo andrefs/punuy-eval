@@ -731,6 +731,7 @@ describe("experiment aux", () => {
     it("should split variable combinations by language and measure type", () => {
       const variables: ExpVarMatrix = {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
+        jobType: [{ id: "allPairs" as const }],
         dpart: [
           { id: "d1", language: "en", measureType: "similarity" },
           { id: "d2", language: "pt", measureType: "relatedness" },
@@ -742,8 +743,10 @@ describe("experiment aux", () => {
           { id: "p4", language: "pt", measureType: "relatedness" },
         ] as Prompt[],
       };
+      const res = splitVarCombsMTL(variables);
+      expect(res).toHaveLength(4);
 
-      expect(splitVarCombsMTL(variables)).toMatchInlineSnapshot(`
+      expect(res).toMatchInlineSnapshot(`
         [
           {
             "dpart": {
@@ -751,6 +754,9 @@ describe("experiment aux", () => {
               "language": "en",
               "measureType": "similarity",
             },
+            "jobType": {
+              "id": "allPairs",
+            },
             "language": {
               "id": "en",
             },
@@ -763,7 +769,7 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p1",
               "language": "en",
-              "type": "similarity",
+              "measureType": "similarity",
             },
           },
           {
@@ -772,6 +778,9 @@ describe("experiment aux", () => {
               "language": "en",
               "measureType": "similarity",
             },
+            "jobType": {
+              "id": "allPairs",
+            },
             "language": {
               "id": "en",
             },
@@ -784,7 +793,7 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p1",
               "language": "en",
-              "type": "similarity",
+              "measureType": "similarity",
             },
           },
           {
@@ -792,6 +801,9 @@ describe("experiment aux", () => {
               "id": "d2",
               "language": "pt",
               "measureType": "relatedness",
+            },
+            "jobType": {
+              "id": "allPairs",
             },
             "language": {
               "id": "pt",
@@ -805,7 +817,7 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p4",
               "language": "pt",
-              "type": "relatedness",
+              "measureType": "relatedness",
             },
           },
           {
@@ -813,6 +825,9 @@ describe("experiment aux", () => {
               "id": "d2",
               "language": "pt",
               "measureType": "relatedness",
+            },
+            "jobType": {
+              "id": "allPairs",
             },
             "language": {
               "id": "pt",
@@ -826,7 +841,7 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p4",
               "language": "pt",
-              "type": "relatedness",
+              "measureType": "relatedness",
             },
           },
         ]
