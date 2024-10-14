@@ -94,7 +94,7 @@ describe("dsSampleFromDsName", () => {
 
       const tr = await dsSampleFromDsName.runTrials(vars, 1, 1);
       expect(model.makeRequest).toHaveBeenCalled();
-      expect(tr.trials.length).toEqual(0);
+      expect(tr.trials.flatMap(t => t.turns).length).toEqual(0);
     });
   });
 
