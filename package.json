@@ -24,17 +24,17 @@
   "author": "André Santos",
   "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/sdk": "0.27.3",
+    "@anthropic-ai/sdk": "0.29.0",
     "@google/generative-ai": "0.21.0",
     "@mistralai/mistralai": "1.1.0",
-    "@sinclair/typebox": "0.33.13",
+    "@sinclair/typebox": "0.33.16",
     "@stdlib/stats-pcorrtest": "0.2.2",
     "cohere-ai": "7.14.0",
     "console-table-printer": "2.12.1",
     "dotenv": "16.4.5",
     "fast-shuffle": "6.1.0",
     "fastest-levenshtein": "1.0.16",
-    "openai": "4.67.1",
+    "openai": "4.67.3",
     "pino": "9.4.0",
     "punuy-datasets": "file:../punuy-datasets",
     "tsx": "4.19.1",
@@ -42,14 +42,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.1.0",
-    "@eslint/js": "9.11.1",
-    "@typescript-eslint/eslint-plugin": "8.8.0",
-    "@typescript-eslint/parser": "8.8.0",
-    "eslint": "9.11.1",
+    "@eslint/js": "9.12.0",
+    "@typescript-eslint/eslint-plugin": "8.9.0",
+    "@typescript-eslint/parser": "8.9.0",
+    "eslint": "9.12.0",
     "eslint-config-prettier": "9.1.0",
     "patch-package": "8.0.0",
     "pino-pretty": "11.2.2",
     "prettier": "3",
-    "vitest": "2.1.2"
+    "vitest": "2.1.3"
   }
 }
