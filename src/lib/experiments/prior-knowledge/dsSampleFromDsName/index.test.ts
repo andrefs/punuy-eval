@@ -46,38 +46,42 @@ describe("dsSampleFromDsName", () => {
       expect(tr.trials.length).toEqual(2);
       expect(tr.trials[0]).toMatchInlineSnapshot(`
         {
-          "data": {
-            "pairs": [
-              [
-                "testWord1",
-                "testWord2",
-              ],
-            ],
-          },
-          "prompt": {
-            "id": "ds-sample-from-ds-name-prompt",
-            "language": "en",
-            "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
-            "type": "similarity",
-          },
+          "turns": [
+            {
+              "data": {
+                "pairs": [
+                  [
+                    "testWord1",
+                    "testWord2",
+                  ],
+                ],
+              },
+              "prompt": {
+                "pairs": [],
+                "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
+              },
+            },
+          ],
         }
       `);
       expect(tr.trials[1]).toMatchInlineSnapshot(`
         {
-          "data": {
-            "pairs": [
-              [
-                "testWord1",
-                "testWord2",
-              ],
-            ],
-          },
-          "prompt": {
-            "id": "ds-sample-from-ds-name-prompt",
-            "language": "en",
-            "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
-            "type": "similarity",
-          },
+          "turns": [
+            {
+              "data": {
+                "pairs": [
+                  [
+                    "testWord1",
+                    "testWord2",
+                  ],
+                ],
+              },
+              "prompt": {
+                "pairs": [],
+                "text": "Dataset Name is a gold standard dataset published in 2021. It is composed of pairs of concepts and their semantic similarity score as reported by humans, and can be used to evaluate semantic measures. Please list 5 pairs of concepts sampled from this dataset.",
+              },
+            },
+          ],
         }
       `);
     });
