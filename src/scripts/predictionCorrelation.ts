@@ -12,6 +12,8 @@ import {
   gpt4o_20240806,
   gpt4omini_20240718,
   gpt4turbo_20240409,
+  ministral3b_2410,
+  ministral8b_2410,
   mistralLarge_2407,
   openMistralNemo_2407,
   openMixtral8x22B,
@@ -87,28 +89,32 @@ const evm: ExpVarMatrix = {
   ],
   prompt: prompts,
   model: [
-    // low cost
-    gpt4omini_20240718,
+    // super cheap
     gemini15flash_002,
+    gpt4omini_20240718,
     openMistralNemo_2407,
+    ministral8b_2410,
+    ministral3b_2410,
+
+    // low cost
     claude3haiku,
-    commandR_082024,
     gpt35turbo_0125,
     openMixtral8x22B,
+    //commandR_082024, // disabled because it doesn't generate JSON correctly
 
-    //// medium cost
+    // medium cost
     //gemini15pro_002,
 
-    //// expensive
+    // expensive
     //commandRPlus_082024,
     //mistralLarge_2407,
     //claude35sonnet_20240620,
     //gpt4o_20240806,
 
-    //// super expensive
+    // super expensive
     //gpt4turbo_20240409,
 
-    //// crazy
+    // crazy
     //claude3opus,
   ],
 };

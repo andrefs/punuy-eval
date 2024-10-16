@@ -1,10 +1,19 @@
-import { CohereClient, Cohere } from "cohere-ai";
-import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
+import { Cohere, CohereClientV2 } from "cohere-ai";
+import {
+  Model,
+  ModelTool,
+  ModelResponse,
+  ModelPricing,
+  ToolArrayParam,
+  ToolParam,
+  toolParamToGoogleFDSchema,
+} from "./model";
 import logger from "../logger";
 import "dotenv/config";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
+import { V2ChatRequest } from "cohere-ai/api";
 
 const configuration = {
   token: process.env.NODE_ENV === "test" ? "test" : process.env.COHERE_API_KEY,
@@ -13,7 +22,7 @@ const configuration = {
 export interface CohereModelResponse extends ModelResponse {
   type: "cohere";
   usage?: Usage;
-  dataObj: Cohere.NonStreamedChatResponse;
+  dataObj: Cohere.ChatResponse;
 }
 
 export type MakeCohereRequest = (
@@ -33,10 +42,10 @@ if (!configuration.token) {
     )}...`
   );
 }
-const cohere = new CohereClient(configuration);
+const cohere = new CohereClientV2(configuration);
 
 const buildModel = (
-  cohere: CohereClient,
+  cohere: CohereClientV2,
   modelId: ModelId,
   pricing?: ModelPricing
 ): Model => {
@@ -44,27 +53,20 @@ const buildModel = (
     prompt: string,
     toolParams: ModelTool
   ): Promise<CohereModelResponse> {
-    const req = {
+    const jsonSchema = toolParamToGoogleFDSchema(toolParams.schema);
+    const req: V2ChatRequest = {
       model: modelId,
-      message: prompt,
-      tools: [
+      messages: [
+        { role: "system" as const, content: "You are a helpful assistant." },
         {
-          name: toolParams.name,
-          description: toolParams.description,
-          parameterDefinitions: Object.fromEntries(
-            Object.entries(toolParams.schema.properties).map(
-              ([paramName, param]) => [
-                paramName,
-                {
-                  required: true,
-                  type: param.type,
-                  description: param.description,
-                },
-              ]
-            )
-          ),
+          role: "user",
+          content: prompt,
         },
       ],
+      responseFormat: {
+        type: "json_object",
+        jsonSchema,
+      },
     };
     try {
       const prediction = await cohere.chat(req);
@@ -72,21 +74,20 @@ const buildModel = (
       const resp: CohereModelResponse = {
         type: "cohere" as const,
         dataObj: prediction,
-        usage: prediction.meta?.billedUnits
+        usage: prediction.usage?.billedUnits
           ? {
-            inputTokens: prediction.meta.billedUnits.inputTokens || 0,
-            outputTokens: prediction.meta.billedUnits.outputTokens || 0,
+            inputTokens: prediction.usage.billedUnits.inputTokens || 0,
+            outputTokens: prediction.usage.billedUnits.outputTokens || 0,
             totalTokens:
-              (prediction.meta.billedUnits.inputTokens || 0) +
-              (prediction.meta.billedUnits.outputTokens || 0),
+              (prediction.usage.billedUnits.inputTokens || 0) +
+              (prediction.usage.billedUnits.outputTokens || 0),
             modelId,
           }
           : undefined,
         getDataText: () => {
           let dataText;
           try {
-            dataText =
-              JSON.stringify(prediction.toolCalls?.[0]?.parameters) || "";
+            dataText = prediction.message?.content?.[0].text || "";
           } catch (e) {
             logger.error(`Error getting data text from model ${modelId}: ${e}`);
             logger.error(`Response object: ${JSON.stringify(prediction)}`);

@@ -116,8 +116,18 @@ const buildModel = (
 };
 
 // https://mistral.ai/technology/#pricing
-// updated on 2024-10-03
+// updated on 2024-10-16
 const pricing = {
+  ministral8b_2410: {
+    input: 0.1 / 1_000_000,
+    output: 0.1 / 1_000_000,
+    currency: "€" as const,
+  },
+  ministral3b_2410: {
+    input: 0.04 / 1_000_000,
+    output: 0.04 / 1_000_000,
+    currency: "€" as const,
+  },
   mistralLarge_2407: {
     input: 1.8 / 1_000_000,
     output: 5.4 / 1_000_000,
@@ -156,6 +166,16 @@ const pricing = {
 };
 
 // https://docs.mistral.ai/getting-started/models/models_overview/
+export const ministral8b_2410 = buildModel(
+  mistral,
+  "ministral-8b-latest",
+  pricing.ministral8b_2410
+);
+export const ministral3b_2410 = buildModel(
+  mistral,
+  "ministral-3b-latest",
+  pricing.ministral3b_2410
+);
 export const mistralLarge_2407 = buildModel(
   mistral,
   "mistral-large-2407",

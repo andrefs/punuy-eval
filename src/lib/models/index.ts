@@ -28,6 +28,7 @@ import {
   openMixtral8x22B,
   openMixtral8x7B,
 } from ".";
+import { ministral3b_2410, ministral8b_2410 } from "./mistral";
 
 export * from "./model";
 export * from "./openai";
@@ -67,6 +68,8 @@ export type ModelId =
   | "open-mistral-7b"
   | "open-mixtral-8x7b"
   | "open-mixtral-8x22b"
+  | "ministral-8b-latest"
+  | "ministral-3b-latest"
 
   // google;
   | "gemini-1.0-pro-001"
@@ -111,6 +114,8 @@ const modelsById: { [key in ModelId]: Model } = {
   "open-mistral-7b": openMistral7B,
   "open-mixtral-8x7b": openMixtral8x7B,
   "open-mixtral-8x22b": openMixtral8x22B,
+  "ministral-3b-latest": ministral3b_2410,
+  "ministral-8b-latest": ministral8b_2410,
 
   // google
   "gemini-1.0-pro-001": gemini10pro_001,

@@ -45,22 +45,20 @@ interface ToolObjectParam extends ToolBaseParam {
   properties: Record<string, ToolParam>;
   required: string[];
 }
-interface ToolArrayParam extends ToolBaseParam {
+export interface ToolArrayParam extends ToolBaseParam {
   type: "array";
   items: ToolParam | ToolItemParam;
   minItems?: number;
   maxItems?: number;
 }
 
-function toolParamToGoogleFDSchema(param: ToolParam | ToolItemParam) {
+export function toolParamToGoogleFDSchema(param: ToolParam | ToolItemParam) {
   switch (param.type) {
     case "object": {
-      const p = param as ToolObjectParam;
-      return toolObjectParamToGoogleFDSchema(p);
+      return toolObjectParamToGoogleFDSchema(param as ToolObjectParam);
     }
     case "array": {
-      const p = param as ToolArrayParam;
-      return toolArrayParamToGoogleFDSchemaProperty(p);
+      return toolArrayParamToGoogleFDSchemaProperty(param as ToolArrayParam);
     }
     default: {
       return "description" in param
@@ -100,7 +98,7 @@ function toolArrayParamToGoogleFDSchemaProperty(param: ToolArrayParam): {
   };
 }
 
-interface ToolItemParam {
+export interface ToolItemParam {
   type: string;
 }
 
@@ -122,7 +120,7 @@ function toolBaseParamToGoogleFDSchema(param: ToolBaseParam | ToolItemParam) {
   };
 }
 
-type ToolParam = ToolObjectParam | ToolArrayParam | ToolBaseParam;
+export type ToolParam = ToolObjectParam | ToolArrayParam | ToolBaseParam;
 
 export function modelToolToGoogleFunctionDecl(
   tool: ModelTool
