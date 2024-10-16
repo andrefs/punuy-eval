@@ -28,6 +28,7 @@ import {
   openMixtral8x22B,
   openMixtral8x7B,
 } from ".";
+import { ministral3b_2410, ministral8b_2410 } from "./mistral";
 
 export * from "./model";
 export * from "./openai";
@@ -41,8 +42,8 @@ export type ModelId =
   | "gpt-3.5-turbo-0125"
   | "gpt-4-0613"
   | "gpt-4-turbo-2024-04-09"
-  | "o1-preview-2024-09-12"
-  | "o1-mini-2024-09-12"
+  //| "o1-preview-2024-09-12"
+  //| "o1-mini-2024-09-12"
   | "gpt-4o-mini-2024-07-18"
   | "gpt-4o-2024-05-13"
   | "gpt-4o-2024-08-06"
@@ -67,6 +68,8 @@ export type ModelId =
   | "open-mistral-7b"
   | "open-mixtral-8x7b"
   | "open-mixtral-8x22b"
+  | "ministral-8b-2410"
+  | "ministral-3b-2410"
 
   // google;
   | "gemini-1.0-pro-001"
@@ -85,8 +88,8 @@ const modelsById: { [key in ModelId]: Model } = {
   "gpt-3.5-turbo-0125": gpt35turbo_0125,
   "gpt-4-0613": gpt4_0613,
   "gpt-4-turbo-2024-04-09": gpt4turbo_20240409,
-  "o1-preview-2024-09-12": gpt4turbo_20240409,
-  "o1-mini-2024-09-12": gpt4turbo_20240409,
+  //"o1-preview-2024-09-12": gpt4turbo_20240409,
+  //"o1-mini-2024-09-12": gpt4turbo_20240409,
   "gpt-4o-mini-2024-07-18": gpt4omini_20240718,
   "gpt-4o-2024-05-13": gpt4o_20240513,
   "gpt-4o-2024-08-06": gpt4o_20240806,
@@ -111,6 +114,8 @@ const modelsById: { [key in ModelId]: Model } = {
   "open-mistral-7b": openMistral7B,
   "open-mixtral-8x7b": openMixtral8x7B,
   "open-mixtral-8x22b": openMixtral8x22B,
+  "ministral-3b-2410": ministral3b_2410,
+  "ministral-8b-2410": ministral8b_2410,
 
   // google
   "gemini-1.0-pro-001": gemini10pro_001,

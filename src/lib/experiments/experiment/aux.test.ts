@@ -1,10 +1,46 @@
 import { describe, expect, it } from "vitest";
-import { ExpVars, Prompt } from "../experiment";
+import { ExpVarMatrix, ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
-import { genValueCombinations, getVarIds } from "./aux";
+import {
+  genValueCombinations,
+  getPairScoreListFromDPart,
+  getVarIds,
+  splitVarCombsMTL,
+} from "./aux";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
+import { createMockDsPart } from "../prior-knowledge/mocks";
 
-describe("experiment", () => {
+describe("experiment aux", () => {
+  describe("getPairScoreListFromDPart", () => {
+    it("should return a list of pair scores", () => {
+      const dpart = createMockDsPart();
+
+      const pairs = [
+        ["testWord1", "testWord2"],
+        ["testWord3", "testWord4"],
+      ] as [string, string][];
+      const result = getPairScoreListFromDPart(pairs, dpart);
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "score": 3,
+            "words": [
+              "testword1",
+              "testword2",
+            ],
+          },
+          {
+            "score": 1.8,
+            "words": [
+              "testword3",
+              "testword4",
+            ],
+          },
+        ]
+      `);
+    });
+  });
+
   describe("getVarIds", () => {
     it("should return the ids of an ExpVars", () => {
       const vars: ExpVars = {
@@ -626,6 +662,186 @@ describe("experiment", () => {
             },
             "prompt": {
               "id": "p2",
+            },
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("splitVarCombsMTL", () => {
+    it("ignores prompt if there's no dataset partition with matching measure type", () => {
+      const variables: ExpVarMatrix = {
+        model: [{ id: "m1" }] as Model[],
+        jobType: [{ id: "allPairs" as const }],
+        dpart: [
+          { id: "d1", language: "en", measureType: "similarity" },
+        ] as DsPartition[],
+        prompt: [
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "en", measureType: "relatedness" },
+        ] as Prompt[],
+      };
+
+      const varCombs = splitVarCombsMTL(variables);
+      expect(varCombs).toHaveLength(1);
+      expect(varCombs[0].prompt.id).toBe("p1");
+      expect(varCombs[0].dpart.id).toBe("d1");
+      expect(varCombs[0].measureType?.id).toBe("similarity");
+      expect(varCombs[0].language?.id).toBe("en");
+    });
+
+    it("ignores prompt if there's no dataset partition with matching language", () => {
+      const variables: ExpVarMatrix = {
+        model: [{ id: "m1" }] as Model[],
+        jobType: [{ id: "allPairs" as const }],
+        dpart: [
+          { id: "d1", language: "pt", measureType: "similarity" },
+        ] as DsPartition[],
+        prompt: [
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "pt", measureType: "similarity" },
+        ] as Prompt[],
+      };
+
+      const varCombs = splitVarCombsMTL(variables);
+      expect(varCombs).toHaveLength(1);
+      expect(varCombs[0].prompt.id).toBe("p2");
+      expect(varCombs[0].dpart.id).toBe("d1");
+      expect(varCombs[0].measureType?.id).toBe("similarity");
+      expect(varCombs[0].language?.id).toBe("pt");
+    });
+
+    it("return empty array if there are no matching prompts and datasets", () => {
+      const variables: ExpVarMatrix = {
+        model: [{ id: "m1" }] as Model[],
+        dpart: [
+          { id: "d1", language: "pt", measureType: "relatedness" },
+        ] as DsPartition[],
+        prompt: [
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "pt", measureType: "similarity" },
+        ] as Prompt[],
+      };
+
+      const varCombs = splitVarCombsMTL(variables);
+      expect(varCombs).toHaveLength(0);
+    });
+
+    it("should split variable combinations by language and measure type", () => {
+      const variables: ExpVarMatrix = {
+        model: [{ id: "m1" }, { id: "m2" }] as Model[],
+        jobType: [{ id: "allPairs" as const }],
+        dpart: [
+          { id: "d1", language: "en", measureType: "similarity" },
+          { id: "d2", language: "pt", measureType: "relatedness" },
+        ] as DsPartition[],
+        prompt: [
+          { id: "p1", language: "en", measureType: "similarity" },
+          { id: "p2", language: "en", measureType: "relatedness" },
+          { id: "p3", language: "pt", measureType: "similarity" },
+          { id: "p4", language: "pt", measureType: "relatedness" },
+        ] as Prompt[],
+      };
+      const res = splitVarCombsMTL(variables);
+      expect(res).toHaveLength(4);
+
+      expect(res).toMatchInlineSnapshot(`
+        [
+          {
+            "dpart": {
+              "id": "d1",
+              "language": "en",
+              "measureType": "similarity",
+            },
+            "jobType": {
+              "id": "allPairs",
+            },
+            "language": {
+              "id": "en",
+            },
+            "measureType": {
+              "id": "similarity",
+            },
+            "model": {
+              "id": "m1",
+            },
+            "prompt": {
+              "id": "p1",
+              "language": "en",
+              "measureType": "similarity",
+            },
+          },
+          {
+            "dpart": {
+              "id": "d1",
+              "language": "en",
+              "measureType": "similarity",
+            },
+            "jobType": {
+              "id": "allPairs",
+            },
+            "language": {
+              "id": "en",
+            },
+            "measureType": {
+              "id": "similarity",
+            },
+            "model": {
+              "id": "m2",
+            },
+            "prompt": {
+              "id": "p1",
+              "language": "en",
+              "measureType": "similarity",
+            },
+          },
+          {
+            "dpart": {
+              "id": "d2",
+              "language": "pt",
+              "measureType": "relatedness",
+            },
+            "jobType": {
+              "id": "allPairs",
+            },
+            "language": {
+              "id": "pt",
+            },
+            "measureType": {
+              "id": "relatedness",
+            },
+            "model": {
+              "id": "m1",
+            },
+            "prompt": {
+              "id": "p4",
+              "language": "pt",
+              "measureType": "relatedness",
+            },
+          },
+          {
+            "dpart": {
+              "id": "d2",
+              "language": "pt",
+              "measureType": "relatedness",
+            },
+            "jobType": {
+              "id": "allPairs",
+            },
+            "language": {
+              "id": "pt",
+            },
+            "measureType": {
+              "id": "relatedness",
+            },
+            "model": {
+              "id": "m2",
+            },
+            "prompt": {
+              "id": "p4",
+              "language": "pt",
+              "measureType": "relatedness",
             },
           },
         ]

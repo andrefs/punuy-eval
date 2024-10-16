@@ -1,8 +1,13 @@
+import { PartitionData } from "punuy-datasets/src/lib/types";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Model, OpenAIModelResponse } from "../../models";
 import { vi } from "vitest";
 
-export const createMockDsPart = (): DsPartition => ({
+export const createMockDsPart = ({
+  data,
+}: {
+  data?: PartitionData[];
+} = {}): DsPartition => ({
   id: "test_testPartition",
   dataset: {
     id: "test",
@@ -35,7 +40,7 @@ export const createMockDsPart = (): DsPartition => ({
     },
   },
   measureType: "similarity" as const,
-  data: [
+  data: data ?? [
     {
       term1: "testWord1",
       term2: "testWord2",
@@ -73,8 +78,8 @@ export const createMockModel = (result: string) =>
   new Model(
     "test",
     "openai",
-    vi.fn(() =>
-      Promise.resolve({
+    vi.fn(() => {
+      return Promise.resolve({
         type: "openai",
         dataObj: {
           id: "test",
@@ -105,6 +110,6 @@ export const createMockModel = (result: string) =>
           ],
         },
         getDataText: vi.fn(() => result),
-      } as OpenAIModelResponse)
-    )
+      } as OpenAIModelResponse);
+    })
   );

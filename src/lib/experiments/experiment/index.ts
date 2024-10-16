@@ -17,12 +17,12 @@ import {
   addUsage,
   calcUsageCost,
   calcVarValues,
-  genValueCombinations,
   getFixedValueGroup,
   getVarIds,
   sanityCheck,
   saveExpVarCombData,
   saveExperimentsData,
+  splitVarCombsMTL,
 } from "./aux";
 import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { Value } from "@sinclair/typebox/value";
@@ -39,6 +39,10 @@ import {
   QueryData,
   TrialResult,
   TrialsResultData,
+  TurnPrompt,
+  TurnResponse,
+  TurnResponseNotOk,
+  TurnResponseOk,
   Usage,
   Usages,
 } from "./types";
@@ -51,12 +55,19 @@ export default class Experiment<T extends GenericExpTypes> {
   description: string;
   queryData: QueryData<T>;
   prompts?: (Prompt | PromptGenerator)[] = [];
-  getResponse: (
+  iterateConversation: (
     this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
     tool: ModelTool,
     maxAttempts: number
   ) => Promise<TrialResult<T["Data"]>>;
+  getTurnResponse: (
+    this: Experiment<T>,
+    model: Model,
+    prompt: TurnPrompt,
+    tool: ModelTool,
+    maxAttempts: number
+  ) => Promise<TurnResponse<T["Data"]>>;
   tryResponse: (
     this: Experiment<T>,
     model: Model,
@@ -85,8 +96,7 @@ export default class Experiment<T extends GenericExpTypes> {
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
-    prompt: Prompt,
-    got: T["Data"]
+    got: { data: T["Data"]; prompt: TurnPrompt }[]
   ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>;
   evaluate: (exp: ExperimentData<T>) => Promise<{
     evaluation: EvaluationResult<T["Data"], T["Evaluation"]>[];
@@ -110,7 +120,12 @@ export default class Experiment<T extends GenericExpTypes> {
   }>;
   expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
   printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
-  printUsage: (this: Experiment<T>, usage: Usages | undefined) => void;
+  printUsage: (
+    this: Experiment<T>,
+    usage: Usages | undefined,
+    final?: boolean
+  ) => void;
+  fixParsedJson?: (parsed: any) => T["Data"]; // eslint-disable-line @typescript-eslint/no-explicit-any
   /**
    * Make sure experiment can run with these parameters
    * @param folder - path to the folder where the data will be saved
@@ -143,45 +158,119 @@ export default class Experiment<T extends GenericExpTypes> {
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
-      prompt: Prompt,
-      got: T["Data"]
+      got: { data: T["Data"]; prompt: TurnPrompt }[]
     ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>,
-    expDataToExpScore?: (
-      this: Experiment<T>,
-      exp: ExperimentData<T>
-    ) => ExpScore,
-    prompts?: (Prompt | PromptGenerator)[]
+    {
+      expDataToExpScore,
+      prompts,
+      customCombineEvals,
+      fixParsedJson,
+    }: {
+      expDataToExpScore?: (
+        this: Experiment<T>,
+        exp: ExperimentData<T>
+      ) => ExpScore;
+      prompts?: (Prompt | PromptGenerator)[];
+      customCombineEvals?: (
+        vs: EvaluationResult<T["Data"], T["Evaluation"]>[]
+      ) => Promise<AggregatedEvaluationResult>;
+      fixParsedJson?: (parsed: any) => T["Data"]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
   ) {
     this.name = name;
     this.description = description;
     this.queryData = queryData;
+    this.fixParsedJson = fixParsedJson;
     this.validateSchema = function (this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.getResponse = async function (
+    this.iterateConversation = async function (
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
       maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
+      const prompts = vars.prompt.turns;
+
+      const failedAttempts: TurnResponseNotOk<T>[][] = [];
+      ATTEMPTS_LOOP: while (failedAttempts.length < maxAttempts) {
+        const faCount = failedAttempts.length;
+        logger.info(`    💬 conversation attempt #${faCount + 1}`);
+        const turnsRes = [];
+        TURNS_LOOP: for (const turnPrompt of prompts) {
+          const tRes = await this.getTurnResponse(
+            vars.model,
+            turnPrompt,
+            tool,
+            3 // max turn response attempts
+          );
+          addUsage(totalUsage, tRes.usage);
+          if (tRes.ok) {
+            turnsRes.push(tRes);
+            continue TURNS_LOOP; // continue next turn
+          }
+          logger.warn(
+            `    ❗ conversation attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
+          );
+          failedAttempts[faCount] = failedAttempts[faCount] || [];
+          failedAttempts[faCount].push(tRes);
+          continue ATTEMPTS_LOOP; // start new attempt
+        }
+        logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
+
+        // reached end of turns, conversation succeeded
+        const res: TrialResult<T["Data"]> = {
+          promptId: vars.prompt.id,
+          turnPrompts: turnsRes.map(t => t.turnPrompt),
+          result: turnsRes.map(t => t.result) as ValidData<T["Data"]>[],
+          totalTries: failedAttempts.length,
+          usage: totalUsage,
+          failedAttempts,
+          ok: true,
+        };
+        return res;
+      }
+      const res: TrialResult<T["Data"]> = {
+        promptId: vars.prompt.id,
+        turnPrompts: failedAttempts
+          .sort((a, b) => b.length - a.length)[0]
+          .map(t => t.turnPrompt),
+        totalTries: failedAttempts.length,
+        usage: totalUsage,
+        failedAttempts,
+        ok: false,
+      };
+      return res;
+    };
+    this.getTurnResponse = async function (
+      this: Experiment<T>,
+      model: Model,
+      prompt: TurnPrompt,
+      tool: ModelTool,
+      maxTurnAttempts: number = 3
+    ) {
+      const totalUsage: Usages = {};
       const failedAttempts = [];
-      while (failedAttempts.length < maxAttempts) {
-        const faCount = failedAttempts.length + 1;
-        logger.info(`    💪 attempt #${faCount}`);
+      logger.info(
+        `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
+        prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
+      );
+      while (failedAttempts.length < maxTurnAttempts) {
+        const faCount = failedAttempts.length;
+        logger.info(`        💪 pairs attempt #${faCount + 1} `);
         const { result: attemptResult, usage } = await this.tryResponse(
-          vars.model,
-          vars.prompt.text,
+          model,
+          prompt.text,
           tool
         );
 
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`    ✅ attempt #${faCount} succeeded.`);
-          const res: TrialResult<T["Data"]> = {
-            prompt: vars.prompt,
-            totalTries: failedAttempts.length + 1,
+          logger.info(`        ✔️  pairs attempt #${faCount + 1} succeeded.`);
+          const res: TurnResponseOk<T["Data"]> = {
+            turnPrompt: prompt,
             failedAttempts,
             ok: true,
             usage: totalUsage,
@@ -189,26 +278,27 @@ export default class Experiment<T extends GenericExpTypes> {
           };
           return res;
         }
-        logger.warn(`    ❗ attempt #${faCount} failed: ${attemptResult.type}`);
+        logger.warn(
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} `
+        );
         failedAttempts.push(attemptResult);
 
         // add exponential backoff if the number of failed attempts is less than the max
-        if (failedAttempts.length < maxAttempts) {
+        if (failedAttempts.length < maxTurnAttempts) {
           await new Promise(resolve => {
             logger.info(
               `      ⌛ waiting for ${Math.pow(
                 2,
-                faCount - 1
+                faCount
               )} seconds before retrying.`
             );
-            setTimeout(resolve, Math.pow(2, faCount - 1) * 1000);
+            setTimeout(resolve, Math.pow(2, faCount) * 1000);
           });
         }
       }
 
-      const res: TrialResult<T["Data"]> = {
-        prompt: vars.prompt,
-        totalTries: failedAttempts.length,
+      const res: TurnResponseNotOk<T["Data"]> = {
+        turnPrompt: prompt,
         usage: totalUsage,
         failedAttempts,
         ok: false,
@@ -239,7 +329,9 @@ export default class Experiment<T extends GenericExpTypes> {
         return { result: new NoData(), usage };
       }
       try {
-        const got = JSON.parse(data) as T["Data"];
+        const parsed = JSON.parse(data);
+        const got = this.fixParsedJson ? this.fixParsedJson(parsed) : parsed;
+
         if (!this.validateSchema(got)) {
           return {
             result: new JsonSchemaError(data),
@@ -261,35 +353,39 @@ export default class Experiment<T extends GenericExpTypes> {
     this.runTrials = async function (
       this: Experiment<T>,
       vars: ExpVars,
-      trials: number,
+      numTrials: number,
       maxAttempts: number = 3
     ) {
       const totalUsage: Usages = {};
 
       logger.info(
-        `🧪 Running experiment ${this.name} ${trials} times on model ${vars.model.id}.`
+        `🧪 Running experiment ${this.name} ${numTrials} times on model ${vars.model.id}.`
       );
 
-      const results: T["Data"][] = [];
-      for (let i = 0; i < trials; i++) {
-        logger.info(`  ⚔️  trial #${i + 1} of ${trials}`);
-        const res = await this.runTrial(
+      const trials: T["Data"][] = [];
+      for (let i = 0; i < numTrials; i++) {
+        logger.info(`  ⚔️  trial #${i + 1} of ${numTrials} `);
+        const trialRes = await this.runTrial(
           vars,
           this.queryData.toolSchema,
           maxAttempts
         );
-        addUsage(totalUsage, res.usage);
-        if (res.ok) {
-          results.push({
-            data: res.result!.data,
-            prompt: res.prompt,
-          }); // TODO: handle failed attempts
+        addUsage(totalUsage, trialRes.usage);
+        const turns = [];
+        if (trialRes.ok) {
+          for (const [i, turnRes] of trialRes.result!.entries()) {
+            turns.push({
+              data: turnRes.data,
+              prompt: trialRes.turnPrompts[i],
+            });
+          }
+          trials.push({ turns });
         }
       }
       return {
         variables: vars,
         usage: totalUsage,
-        trials: results,
+        trials,
       };
     };
     this.evaluateTrial = evaluateTrial;
@@ -299,12 +395,14 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       const trialEvaluationResults = await Promise.all(
         exp.results.raw.map(d =>
-          this.evaluateTrial(exp.variables.dpart, d.prompt, d.data)
+          this.evaluateTrial(exp.variables.dpart, d.turns)
         )
       );
       return {
         evaluation: trialEvaluationResults,
-        aggregated: await combineEvaluations(trialEvaluationResults),
+        aggregated: customCombineEvals
+          ? await customCombineEvals(trialEvaluationResults)
+          : await combineEvaluations(trialEvaluationResults),
       };
     };
     this.perform = async function (
@@ -346,27 +444,36 @@ export default class Experiment<T extends GenericExpTypes> {
     ) {
       await this.sanityCheck(folder);
       const totalUsage: Usages = {};
+
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
       }
-      const varCombs = genValueCombinations(variables);
+      const varCombs = splitVarCombsMTL(variables);
+
+      if (!varCombs.length) {
+        logger.error(
+          "🧐 No variable combinations to run experiments with, aborting."
+        );
+        throw "🧐 No variable combinations to run experiments with, aborting.";
+      }
+
       logger.info(
-        `🔬 Preparing to run experiment ${
-          this.name
-        }, ${trials} times on each variable combination:\n${varCombs
+        `🔬 Preparing to run experiment ${this.name
+        }, ${trials} times on each variable combination: \n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
+
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
-          `⚗️  Running experiment ${index}/${varCombs.length}: ${
-            this.name
+          `⚗️  Running experiment ${index}/${varCombs.length}: ${this.name
           } with variables ${JSON.stringify(getVarIds(vc))}.`
         );
         res.push(await this.perform(vc, trials, Date.now(), folder));
         addUsage(totalUsage, res[res.length - 1].usage);
       }
+
       await saveExperimentsData(this.name, res, totalUsage, folder);
       if (this.expDataToExpScore) {
         this.printExpResTable(res);
@@ -457,23 +564,26 @@ export default class Experiment<T extends GenericExpTypes> {
           `🆚 Comparing ${comp.variables
             .map(v => `[${v}]`)
             .join(" and ")} with fixed variables ${JSON.stringify(
-            comp.fixedValueConfig
-          )}\n${tablePP}\n${csv}`
+              comp.fixedValueConfig
+            )} \n${tablePP} \n${csv} `
         );
       }
     };
     this.printUsage = function (
       this: Experiment<T>,
-      usage: Usages | undefined
+      usage: Usages | undefined,
+      final?: boolean
     ) {
       if (!usage) {
         return;
       }
       logger.info(
-        "📈 Usage estimate:\n" +
-          Object.values(usage)
-            .map(u => `\t${JSON.stringify(u)}`)
-            .join("\n")
+        "📈💸 " +
+        (final ? "Final usage" : "Usage") +
+        " estimate:\n" +
+        Object.values(usage)
+          .map(u => `\t${JSON.stringify(u)} `)
+          .join("\n")
       );
     };
   }

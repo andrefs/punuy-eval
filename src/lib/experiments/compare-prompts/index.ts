@@ -18,10 +18,10 @@ import {
   ComparisonGroup,
   getFixedValueGroup,
   calcVarValues,
-  genValueCombinations,
   getVarIds,
   saveExpVarCombData,
   addUsage,
+  splitVarCombsMTL,
 } from "../experiment/aux";
 import { Model, ModelTool } from "src/lib/models";
 import {
@@ -31,7 +31,16 @@ import {
   NoData,
   ValidData,
 } from "src/lib/evaluation";
-import { ExpScore, PairScoreList, Prompt, Usages } from "../experiment/types";
+import {
+  ExpScore,
+  ExpVarsFixedPrompt,
+  PairScoreList,
+  TurnPrompt,
+  TurnResponse,
+  TurnResponseNotOk,
+  TurnResponseOk,
+  Usages,
+} from "../experiment/types";
 import query from "./query";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
@@ -73,44 +82,101 @@ async function tryResponse(model: Model, prompt: string, params: ModelTool) {
   }
 }
 
-async function getResponse(
+async function getTurnResponse(
   model: Model,
-  prompt: Prompt,
+  prompt: TurnPrompt,
   tool: ModelTool,
-  maxRetries = 3
-) {
+  maxTurnAttempts = 3
+): Promise<TurnResponse<CPExpTypes["Data"]>> {
   const totalUsage: Usages = {};
   const failedAttempts = [];
-  while (failedAttempts.length < maxRetries) {
-    logger.info(`    💪 attempt #${failedAttempts.length + 1}`);
-    const { result: attemptResult, usage } = await tryResponse(
-      model,
-      prompt.text,
-      tool
-    );
-    addUsage(totalUsage, usage);
-    if (attemptResult instanceof ValidData) {
-      logger.info(`     ✅ attempt #${failedAttempts.length + 1} succeeded.`);
-      const res: TrialResult<CPExpTypes["Data"]> = {
-        prompt,
-        totalTries: failedAttempts.length + 1,
+  while (failedAttempts.length < maxTurnAttempts) {
+    const faCount = failedAttempts.length;
+    logger.info(`        💪 attempt #${faCount + 1}`);
+    const tryResp = await tryResponse(model, prompt.text, tool);
+    addUsage(totalUsage, tryResp.usage);
+    if (tryResp.result instanceof ValidData) {
+      logger.info(`        ✔️  attempt #${faCount + 1} succeeded.`);
+      const res: TurnResponseOk<CPExpTypes["Data"]> = {
+        turnPrompt: prompt,
         failedAttempts,
         ok: true,
         usage: totalUsage,
-        result: attemptResult,
+        result: tryResp.result,
       };
       return res;
     }
     logger.warn(
-      `     ❗attempt #${failedAttempts.length + 1} failed: ${
-        attemptResult.type
-      }`
+      `         👎 attempt #${faCount + 1} failed: ${tryResp.result.type}`
     );
-    failedAttempts.push(attemptResult);
+    failedAttempts.push(tryResp.result);
+
+    if (failedAttempts.length < maxTurnAttempts) {
+      await new Promise(resolve => {
+        logger.info(
+          `      ⌛ waiting for ${Math.pow(
+            2,
+            faCount
+          )} seconds before retrying.`
+        );
+        setTimeout(resolve, Math.pow(2, faCount) * 1000);
+      });
+    }
+  }
+
+  const res: TurnResponseNotOk<CPExpTypes["Data"]> = {
+    turnPrompt: prompt,
+    usage: totalUsage,
+    failedAttempts,
+    ok: false,
+  };
+  return res;
+}
+
+async function iterateConversation(
+  vars: ExpVarsFixedPrompt,
+  tool: ModelTool,
+  maxAttempts: number = 3
+) {
+  const totalUsage: Usages = {};
+  const prompts = vars.prompt.turns;
+
+  const failedAttempts: TurnResponseNotOk<CPExpTypes["Data"]>[][] = [];
+  while (failedAttempts.length < maxAttempts) {
+    const faCount = failedAttempts.length;
+    logger.info(`    💬 conversation attempt #${faCount + 1}`);
+    const tRes = await getTurnResponse(
+      vars.model,
+      prompts[0],
+      tool,
+      3 // max turn response attempts
+    );
+    addUsage(totalUsage, tRes.usage);
+    if (tRes.ok) {
+      logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
+      const res: TrialResult<CPExpTypes["Data"]> = {
+        promptId: vars.prompt.id,
+        turnPrompts: [tRes.turnPrompt],
+        result: [tRes.result] as ValidData<CPExpTypes["Data"]>[],
+        totalTries: failedAttempts.length,
+        usage: totalUsage,
+        failedAttempts,
+        ok: true,
+      };
+      return res;
+    }
+    logger.warn(
+      `    ❗ conversation attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
+    );
+    failedAttempts[faCount] = failedAttempts[faCount] || [];
+    failedAttempts[faCount].push(tRes);
   }
 
   const res: TrialResult<CPExpTypes["Data"]> = {
-    prompt,
+    promptId: vars.prompt.id,
+    turnPrompts: failedAttempts
+      .sort((a, b) => b.length - a.length)[0]
+      .map(t => t.turnPrompt),
     totalTries: failedAttempts.length,
     usage: totalUsage,
     failedAttempts,
@@ -119,7 +185,10 @@ async function getResponse(
   return res;
 }
 
-async function runTrial(vars: ExpVars, maxRetries = 3) {
+async function runTrial(
+  vars: ExpVars,
+  maxRetries = 3
+): Promise<TrialResult<CPExpTypes["Data"]>> {
   const tool = {
     name: "evaluate_scores",
     description: "Evaluate the word similarity or relatedness scores",
@@ -127,37 +196,40 @@ async function runTrial(vars: ExpVars, maxRetries = 3) {
   };
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`Prompt (${prompt.id}): ${prompt.text}`);
+  logger.debug(`Prompt ${prompt.id}`);
 
-  const res = await getResponse(vars.model, prompt, tool, maxRetries);
+  const res = await iterateConversation({ ...vars, prompt }, tool, maxRetries);
+
   return res;
 }
 
 async function runTrials(
   vars: ExpVars,
-  trials: number
+  numTrials: number
 ): Promise<TrialsResultData<CPExpTypes["Data"]>> {
   const totalUsage: Usages = {};
   logger.info(
-    `Running experiment ${name} ${trials} times on model ${vars.model.id}.`
+    `Running experiment ${name} ${numTrials} times on model ${vars.model.id}.`
   );
 
-  const results = [];
-  for (let i = 0; i < trials; i++) {
-    logger.info(`   ⚔️  trial #${i + 1} of ${trials}`);
-    const res = await runTrial(vars);
-    addUsage(totalUsage, res.usage);
-    if (res.ok && res.result) {
-      results.push({
-        data: res.result.data,
-        prompt: res.prompt,
+  const trials = [];
+  for (let i = 0; i < numTrials; i++) {
+    logger.info(`   ⚔️  trial #${i + 1} of ${numTrials}`);
+    const trialRes = await runTrial(vars);
+    addUsage(totalUsage, trialRes.usage);
+    const turns = [];
+    if (trialRes.ok && trialRes.result?.[0].data) {
+      turns.push({
+        data: trialRes.result[0].data,
+        prompt: trialRes.turnPrompts[0],
       });
+      trials.push({ turns });
     }
   }
   return {
     variables: vars,
     usage: totalUsage,
-    trials: results,
+    trials,
   };
 }
 
@@ -196,42 +268,11 @@ async function performMulti(
     variables.prompt = prompts;
   }
   const totalUsage: Usages = {};
-  const varCombs = [];
-  const res = [];
+  const varCombs = splitVarCombsMTL(variables);
 
-  for (const l of [{ id: "en" as const }, { id: "pt" as const }]) {
-    for (const mt of [
-      { id: "similarity" } as const,
-      { id: "relatedness" as const },
-    ]) {
-      const filtPrompts = variables.prompt.filter(
-        p => p.language === l.id && p.type === mt.id
-      );
-      const filtDatasets = variables.dpart.filter(
-        d => d.language === l.id && d.measureType === mt.id
-      );
-      if (filtPrompts.length === 0 || filtDatasets.length === 0) {
-        logger.warn(
-          `No prompts or datasets for language [${l.id}] and measure type [${mt.id}]. Skipping.`
-        );
-        continue;
-      }
-      logger.info(
-        `Running experiments for language [${l}] and measure type [${mt}]`
-      );
-      const vm: ExpVarMatrix = {
-        ...variables,
-        prompt: filtPrompts,
-        dpart: filtDatasets,
-        language: [l],
-        measureType: [mt],
-      };
-      varCombs.push(...genValueCombinations(vm));
-    }
-  }
+  const res = [];
   logger.info(
-    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${
-      varCombs.length
+    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${varCombs.length
     }):\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
@@ -279,13 +320,17 @@ function expEvalScores(exps: ExperimentData<CPExpTypes>[]): ExpScore[] {
   const res = [];
   for (const [i, exp] of exps.entries()) {
     for (const trial of exp.results.raw) {
-      const lcPairs = trial.prompt.pairs!.map(
-        p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]
+      const lcPairs = trial.turns
+        .flatMap(({ prompt }) => prompt.pairs)
+        .map(p => [p[0].toLowerCase(), p[1].toLowerCase()] as [string, string]);
+
+      const rawResults: PairScoreList = trial.turns.flatMap(({ data }) =>
+        data.scores.map(s => ({
+          words: s.words as [string, string],
+          score: s.score,
+        }))
       );
 
-      const rawResults: PairScoreList[] = exp.results.raw.map(r => {
-        return r.data.scores as PairScoreList;
-      });
       try {
         const corr = evalScores(lcPairs, exp.variables.dpart, rawResults);
         res.push({
@@ -370,8 +415,8 @@ async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
       `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
-        comp.fixedValueConfig
-      )}\n${tablePP}`
+          comp.fixedValueConfig
+        )}\n${tablePP}`
     );
   }
 

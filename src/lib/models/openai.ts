@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI, { ClientOptions } from "openai";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
@@ -7,7 +7,7 @@ import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
 
-const configuration = {
+const configuration: ClientOptions = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
 };
 
@@ -70,11 +70,11 @@ const buildModel = (
         dataObj: completion,
         usage: completion.usage
           ? {
-              inputTokens: completion.usage?.prompt_tokens,
-              outputTokens: completion.usage?.completion_tokens,
-              totalTokens: completion.usage?.total_tokens,
-              modelId,
-            }
+            inputTokens: completion.usage?.prompt_tokens,
+            outputTokens: completion.usage?.completion_tokens,
+            totalTokens: completion.usage?.total_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -90,11 +90,12 @@ const buildModel = (
           return dataText;
         },
       };
+
       return res;
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${JSON.stringify(req, null, 2)}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
@@ -121,16 +122,16 @@ const pricing = {
     output: 30 / 1_000_000,
     currency: "$" as const,
   },
-  o1preview_20240912: {
-    input: 15 / 1_000_000,
-    output: 60 / 1_000_000,
-    currency: "$" as const,
-  },
-  o1mini_20240912: {
-    input: 3 / 1_000_000,
-    output: 12 / 1_000_000,
-    currency: "$" as const,
-  },
+  //o1preview_20240912: {
+  //  input: 15 / 1_000_000,
+  //  output: 60 / 1_000_000,
+  //  currency: "$" as const,
+  //},
+  //o1mini_20240912: {
+  //  input: 3 / 1_000_000,
+  //  output: 12 / 1_000_000,
+  //  currency: "$" as const,
+  //},
   gpt4omini_20240718: {
     input: 0.15 / 1_000_000,
     output: 0.6 / 1_000_000,
@@ -160,16 +161,16 @@ export const gpt4turbo_20240409 = buildModel(
   "gpt-4-turbo-2024-04-09",
   pricing.gpt4turbo_20240409
 );
-export const o1preview_20240912 = buildModel(
-  openai,
-  "o1-preview-2024-09-12",
-  pricing.o1preview_20240912
-);
-export const o1mini_20240912 = buildModel(
-  openai,
-  "o1-mini-2024-09-12",
-  pricing.o1mini_20240912
-);
+//export const o1preview_20240912 = buildModel(
+//  openai,
+//  "o1-preview-2024-09-12",
+//  pricing.o1preview_20240912
+//);
+//export const o1mini_20240912 = buildModel(
+//  openai,
+//  "o1-mini-2024-09-12",
+//  pricing.o1mini_20240912
+//);
 export const gpt4omini_20240718 = buildModel(
   openai,
   "gpt-4o-mini-2024-07-18",

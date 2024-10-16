@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evalScores, normalizeScale, rawResultsToAvg } from "./aux";
+import { evalScores } from "./aux";
 import { ExpVars, Prompt } from "..";
 import { Model } from "../../models";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
@@ -124,96 +124,6 @@ describe("compare-prompts aux", () => {
     });
   });
 
-  describe("normalizeScale", () => {
-    it("0/10 to 0/100", () => {
-      const value = 5;
-      const sourceScale = { min: 0, max: 10 };
-      const targetScale = { min: 0, max: 100 };
-      const result = normalizeScale(value, sourceScale, targetScale);
-      expect(result).toBe(50);
-    });
-
-    it("0/10 to 50/100", () => {
-      const value = 5;
-      const sourceScale = { min: 0, max: 10 };
-      const targetScale = { min: 50, max: 100 };
-      const result = normalizeScale(value, sourceScale, targetScale);
-      expect(result).toBe(75);
-    });
-
-    it("0/4 to 1/5", () => {
-      const value = 3;
-      const sourceScale = { min: 0, max: 4 };
-      const targetScale = { min: 1, max: 5 };
-      const result = normalizeScale(value, sourceScale, targetScale);
-      expect(result).toBe(4);
-    });
-  });
-
-  describe("rawResultsToAvg", () => {
-    it("should return average of results", () => {
-      const rawResults: PairScoreList[] = [
-        [
-          { words: ["w1", "w2"], score: 1 },
-          { words: ["w1", "w2"], score: 2 },
-          { words: ["w1", "w2"], score: 5 },
-        ],
-        [
-          { words: ["w3", "w4"], score: 4 },
-          { words: ["w3", "w4"], score: 3 },
-        ],
-      ];
-      const avg = rawResultsToAvg(rawResults);
-      expect(avg).toMatchInlineSnapshot(`
-        {
-          "w1": {
-            "w2": 2.6666666666666665,
-          },
-          "w3": {
-            "w4": 3.5,
-          },
-        }
-      `);
-    });
-
-    //it("should ignore results with empty word array", () => {
-    //  const rawResults: PairScoreList[] = [
-    //    [
-    //      { words: ["w1", "w2"], score: 1 },
-    //      { words: [], score: 2 },
-    //      { words: ["w1", "w2"], score: 5 },
-    //    ],
-    //  ];
-    //  const avg = rawResultsToAvg(rawResults);
-    //  expect(avg).toMatchInlineSnapshot(`
-    //    {
-    //      "w1": {
-    //        "w2": 3,
-    //      },
-    //    }
-    //  `);
-    //});
-
-    it("should ignore NaN scores", () => {
-      const rawResults: PairScoreList[] = [
-        [
-          { words: ["w1", "w2"], score: 1 },
-          { words: ["w1", "w2"], score: NaN },
-          { words: ["w1", "w2"], score: 5 },
-          { words: ["w1", "w4"], score: NaN },
-        ],
-      ];
-      const avg = rawResultsToAvg(rawResults);
-      expect(avg).toMatchInlineSnapshot(`
-        {
-          "w1": {
-            "w2": 3,
-          },
-        }
-      `);
-    });
-  });
-
   describe("evalScores", () => {
     it("should return results", () => {
       const pairs = [
@@ -222,18 +132,24 @@ describe("compare-prompts aux", () => {
         ["w5", "w6"],
         ["w7", "w8"],
         ["w9", "w10"],
+        ["w11", "w12"],
+        ["w13", "w14"],
+        ["w15", "w16"],
+        ["w17", "w18"],
+        ["w19", "w20"],
       ] as [string, string][];
-      const rawResults: PairScoreList[] = [
-        [
-          { words: ["w1", "w2"], score: 1 },
-          { words: ["w3", "w4"], score: 2 },
-          { words: ["w7", "w8"], score: 5 },
-        ],
-        [
-          { words: ["w3", "w4"], score: 4 },
-          { words: ["w3", "w4"], score: 3 },
-          { words: ["w9", "w10"], score: 3 },
-        ],
+      const rawResults: PairScoreList = [
+        { words: ["w1", "w2"], score: 1 },
+        { words: ["w3", "w4"], score: 2 },
+        { words: ["w7", "w8"], score: 5 },
+        { words: ["w3", "w4"], score: 4 },
+        { words: ["w3", "w4"], score: 3 },
+        { words: ["w9", "w10"], score: 3 },
+        { words: ["w11", "w12"], score: 3 },
+        { words: ["w13", "w14"], score: 3 },
+        { words: ["w15", "w16"], score: 3 },
+        { words: ["w17", "w18"], score: 3 },
+        { words: ["w19", "w20"], score: 3 },
       ];
       const dpart = {
         id: "d1",
@@ -245,6 +161,11 @@ describe("compare-prompts aux", () => {
           { term1: "w5", term2: "w6", value: 8 },
           { term1: "w7", term2: "w8", value: 8 },
           { term1: "w9", term2: "w10", value: 8 },
+          { term1: "w11", term2: "w12", values: [1, 2, 3] },
+          { term1: "w13", term2: "w14", values: [1, 2, 3] },
+          { term1: "w15", term2: "w16", values: [1, 2, 3] },
+          { term1: "w17", term2: "w18", values: [1, 2, 3] },
+          { term1: "w19", term2: "w20", values: [1, 2, 3] },
         ],
       } as DsPartition;
       const res = evalScores(pairs, dpart, rawResults);
@@ -253,16 +174,16 @@ describe("compare-prompts aux", () => {
           "alpha": 0.05,
           "alternative": "two-sided",
           "ci": [
-            -0.6716527363446572,
-            0.9959990160224518,
+            -0.27663612849435365,
+            0.8993883049793071,
           ],
           "method": "t-test for Pearson correlation coefficient",
           "nullValue": 0,
-          "pValue": 0.1835034190722753,
-          "pcorr": 0.8164965809277247,
+          "pValue": 0.17503735886453775,
+          "pcorr": 0.5316817773513496,
           "print": [Function],
           "rejected": false,
-          "statistic": 1.9999999999999905,
+          "statistic": 1.5377034888769747,
         }
       `);
     });
