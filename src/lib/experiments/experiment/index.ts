@@ -120,7 +120,11 @@ export default class Experiment<T extends GenericExpTypes> {
   }>;
   expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
   printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
-  printUsage: (this: Experiment<T>, usage: Usages | undefined) => void;
+  printUsage: (
+    this: Experiment<T>,
+    usage: Usages | undefined,
+    final?: boolean
+  ) => void;
   fixParsedJson?: (parsed: any) => T["Data"]; // eslint-disable-line @typescript-eslint/no-explicit-any
   /**
    * Make sure experiment can run with these parameters
@@ -567,13 +571,16 @@ export default class Experiment<T extends GenericExpTypes> {
     };
     this.printUsage = function (
       this: Experiment<T>,
-      usage: Usages | undefined
+      usage: Usages | undefined,
+      final?: boolean
     ) {
       if (!usage) {
         return;
       }
       logger.info(
-        "📈💸 Usage estimate:\n" +
+        "📈💸 " +
+        (final ? "Final usage" : "Usage") +
+        " estimate:\n" +
         Object.values(usage)
           .map(u => `\t${JSON.stringify(u)} `)
           .join("\n")

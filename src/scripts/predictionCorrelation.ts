@@ -1,9 +1,20 @@
 import { ExpVarMatrix } from "../lib/experiments";
 import path from "path";
 import {
+  claude35sonnet_20240620,
+  claude3haiku,
+  claude3opus,
+  commandR_082024,
+  commandRPlus_082024,
   gemini15flash_002,
   gemini15pro_002,
+  gpt35turbo_0125,
+  gpt4o_20240806,
   gpt4omini_20240718,
+  gpt4turbo_20240409,
+  mistralLarge_2407,
+  openMistralNemo_2407,
+  openMixtral8x22B,
 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
@@ -32,7 +43,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await predictionCorrelation.performMulti(vars, trials, folder);
 
-  predictionCorrelation.printUsage(res.usage);
+  predictionCorrelation.printUsage(res.usage, true);
 
   for (const exp of res.experiments) {
     logger.info(
@@ -76,18 +87,29 @@ const evm: ExpVarMatrix = {
   ],
   prompt: prompts,
   model: [
-    //gpt35turbo,
-    //gpt4,
-    //gpt4omini_20240718,
-    //gpt4turbo_20240409,
-    //gpt4o_20240806,
-    //claude3sonnet,
-    //claude3opus,
-    //gemini10pro,
-    //gemini15pro_002,
+    // low cost
+    gpt4omini_20240718,
     gemini15flash_002,
+    openMistralNemo_2407,
+    claude3haiku,
+    commandR_082024,
+    gpt35turbo_0125,
+    openMixtral8x22B,
+
+    //// medium cost
+    //gemini15pro_002,
+
+    //// expensive
+    //commandRPlus_082024,
     //mistralLarge_2407,
-    //openMixtral8x22B,
+    //claude35sonnet_20240620,
+    //gpt4o_20240806,
+
+    //// super expensive
+    //gpt4turbo_20240409,
+
+    //// crazy
+    //claude3opus,
   ],
 };
 
