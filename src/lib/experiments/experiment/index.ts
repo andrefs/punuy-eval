@@ -121,6 +121,7 @@ export default class Experiment<T extends GenericExpTypes> {
   expDataToExpScore?: (this: Experiment<T>, exp: ExperimentData<T>) => ExpScore;
   printExpResTable: (this: Experiment<T>, exps: ExperimentData<T>[]) => void;
   printUsage: (this: Experiment<T>, usage: Usages | undefined) => void;
+  fixParsedJson?: (parsed: any) => T["Data"]; // eslint-disable-line @typescript-eslint/no-explicit-any
   /**
    * Make sure experiment can run with these parameters
    * @param folder - path to the folder where the data will be saved
@@ -159,6 +160,7 @@ export default class Experiment<T extends GenericExpTypes> {
       expDataToExpScore,
       prompts,
       customCombineEvals,
+      fixParsedJson,
     }: {
       expDataToExpScore?: (
         this: Experiment<T>,
@@ -168,16 +170,18 @@ export default class Experiment<T extends GenericExpTypes> {
       customCombineEvals?: (
         vs: EvaluationResult<T["Data"], T["Evaluation"]>[]
       ) => Promise<AggregatedEvaluationResult>;
+      fixParsedJson?: (parsed: any) => T["Data"]; // eslint-disable-line @typescript-eslint/no-explicit-any
     }
   ) {
     this.name = name;
     this.description = description;
     this.queryData = queryData;
-    this.validateSchema = function(this: Experiment<T>, value: unknown) {
+    this.fixParsedJson = fixParsedJson;
+    this.validateSchema = function (this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.iterateConversation = async function(
+    this.iterateConversation = async function (
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
@@ -236,7 +240,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.getTurnResponse = async function(
+    this.getTurnResponse = async function (
       this: Experiment<T>,
       model: Model,
       prompt: TurnPrompt,
@@ -297,7 +301,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.tryResponse = async function(
+    this.tryResponse = async function (
       model: Model,
       prompt: string,
       params: ModelTool,
@@ -321,7 +325,9 @@ export default class Experiment<T extends GenericExpTypes> {
         return { result: new NoData(), usage };
       }
       try {
-        const got = JSON.parse(data) as T["Data"];
+        const parsed = JSON.parse(data);
+        const got = this.fixParsedJson ? this.fixParsedJson(parsed) : parsed;
+
         if (!this.validateSchema(got)) {
           return {
             result: new JsonSchemaError(data),
@@ -340,7 +346,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.runTrial = runTrial;
-    this.runTrials = async function(
+    this.runTrials = async function (
       this: Experiment<T>,
       vars: ExpVars,
       numTrials: number,
@@ -379,7 +385,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.evaluateTrial = evaluateTrial;
-    this.evaluate = async function(
+    this.evaluate = async function (
       this: Experiment<T>,
       exp: ExperimentData<T>
     ) {
@@ -395,7 +401,7 @@ export default class Experiment<T extends GenericExpTypes> {
           : await combineEvaluations(trialEvaluationResults),
       };
     };
-    this.perform = async function(
+    this.perform = async function (
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -426,7 +432,7 @@ export default class Experiment<T extends GenericExpTypes> {
       return expData;
     };
     this.sanityCheck = sanityCheck;
-    this.performMulti = async function(
+    this.performMulti = async function (
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
@@ -439,6 +445,13 @@ export default class Experiment<T extends GenericExpTypes> {
         variables.prompt = this.prompts;
       }
       const varCombs = splitVarCombsMTL(variables);
+
+      if (!varCombs.length) {
+        logger.error(
+          "🧐 No variable combinations to run experiments with, aborting."
+        );
+        throw "🧐 No variable combinations to run experiments with, aborting.";
+      }
 
       logger.info(
         `🔬 Preparing to run experiment ${this.name
@@ -467,7 +480,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.expDataToExpScore = expDataToExpScore;
-    this.printExpResTable = function(
+    this.printExpResTable = function (
       this: Experiment<T>,
       exps: ExperimentData<T>[]
     ) {
@@ -552,7 +565,7 @@ export default class Experiment<T extends GenericExpTypes> {
         );
       }
     };
-    this.printUsage = function(
+    this.printUsage = function (
       this: Experiment<T>,
       usage: Usages | undefined
     ) {
