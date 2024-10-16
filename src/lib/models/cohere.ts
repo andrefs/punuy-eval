@@ -4,8 +4,6 @@ import {
   ModelTool,
   ModelResponse,
   ModelPricing,
-  ToolArrayParam,
-  ToolParam,
   toolParamToGoogleFDSchema,
 } from "./model";
 import logger from "../logger";

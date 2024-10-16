@@ -168,12 +168,12 @@ const pricing = {
 // https://docs.mistral.ai/getting-started/models/models_overview/
 export const ministral8b_2410 = buildModel(
   mistral,
-  "ministral-8b-latest",
+  "ministral-8b-2410",
   pricing.ministral8b_2410
 );
 export const ministral3b_2410 = buildModel(
   mistral,
-  "ministral-3b-latest",
+  "ministral-3b-2410",
   pricing.ministral3b_2410
 );
 export const mistralLarge_2407 = buildModel(
