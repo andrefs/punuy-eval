@@ -8,9 +8,9 @@ import {
   PromptGenerator,
   PromptJobType,
   SinglePairPrompt,
-  TurnPrompt,
 } from "..";
 import { shuffle } from "fast-shuffle";
+import { buildTurns, distributePairs } from "../experiment/aux";
 
 const reqs: {
   [key in Language]: {
@@ -114,54 +114,6 @@ for (const pp of protoPrompts) {
           : (prompt as SinglePairPrompt);
     },
   });
-}
-
-type BuildTurnsReturn = TurnPrompt[];
-
-function buildTurns(
-  text: string,
-  jobType: PromptJobType,
-  pairs: [string, string][] | [string, string][][]
-): BuildTurnsReturn {
-  if (jobType === "allPairs") {
-    const ps = pairs as [string, string][];
-    return [
-      {
-        text: `${text}:\n${(ps as [string, string][]).map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
-        pairs: ps,
-      },
-    ];
-  }
-  if (jobType === "batches") {
-    const bs = pairs as [string, string][][];
-    return bs.map(batch => ({
-      text: `${text}:\n${batch.map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
-      pairs: batch,
-    }));
-  }
-  return pairs.map(([term1, term2]) => ({
-    text: `${text}:\n${term1}, ${term2}`,
-    pairs: [[term1, term2] as [string, string]],
-  }));
-}
-
-function distributePairs(
-  pairs: [string, string][],
-  jobType: PromptJobType,
-  batchSize?: number
-): [string, string][] | [string, string][][] {
-  const batches: [string, string][][] = [];
-  if (jobType === "singlePair") {
-    return pairs;
-  }
-  if (jobType === "allPairs") {
-    return pairs;
-  }
-  const bs = batchSize || 5;
-  for (let i = 0; i < pairs.length; i += bs) {
-    batches.push(pairs.slice(i, i + bs));
-  }
-  return batches;
 }
 
 export default prompts;

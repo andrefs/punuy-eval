@@ -7,6 +7,8 @@ import Experiment, {
   ExperimentData,
   GenericExpTypes,
   PairScoreList,
+  PromptJobType,
+  TurnPrompt,
   Usage,
   Usages,
   jobTypes,
@@ -259,7 +261,7 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
         );
         if (filtPrompts.length === 0 || filtDatasets.length === 0) {
           logger.warn(
-            `No prompts or datasets for language ${l.id} and measure type ${mt.id}. Skipping.`
+            `No prompts or datasets for language ${l.id}, measure type ${mt.id} and job type ${jt}. Skipping.`
           );
           continue;
         }
@@ -325,4 +327,52 @@ export function valueFromEntry(
     value = values!.reduce((a, b) => a! + b!, 0) / values.length;
   }
   return value;
+}
+
+export function distributePairs(
+  pairs: [string, string][],
+  jobType: PromptJobType,
+  batchSize?: number
+): [string, string][] | [string, string][][] {
+  const batches: [string, string][][] = [];
+  if (jobType === "singlePair") {
+    return pairs;
+  }
+  if (jobType === "allPairs") {
+    return pairs;
+  }
+  const bs = batchSize || 5;
+  for (let i = 0; i < pairs.length; i += bs) {
+    batches.push(pairs.slice(i, i + bs));
+  }
+  return batches;
+}
+
+type BuildTurnsReturn = TurnPrompt[];
+
+export function buildTurns(
+  text: string,
+  jobType: PromptJobType,
+  pairs: [string, string][] | [string, string][][]
+): BuildTurnsReturn {
+  if (jobType === "allPairs") {
+    const ps = pairs as [string, string][];
+    return [
+      {
+        text: `${text}:\n${(ps as [string, string][]).map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
+        pairs: ps,
+      },
+    ];
+  }
+  if (jobType === "batches") {
+    const bs = pairs as [string, string][][];
+    return bs.map(batch => ({
+      text: `${text}:\n${batch.map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
+      pairs: batch,
+    }));
+  }
+  return pairs.map(([term1, term2]) => ({
+    text: `${text}:\n${term1}, ${term2}`,
+    pairs: [[term1, term2] as [string, string]],
+  }));
 }

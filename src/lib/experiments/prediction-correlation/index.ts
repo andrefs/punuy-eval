@@ -126,11 +126,26 @@ export async function evaluateTrial(
   }
 }
 
+export function fixParsedJson(
+  this: Experiment<PCExpTypes>,
+  parsed: any // eslint-disable-line @typescript-eslint/no-explicit-any
+): PCExpTypes["Data"] {
+  if (parsed?.scores && Array.isArray(parsed.scores)) {
+    for (const s of parsed.scores) {
+      // score sometimes comes as string
+      if (typeof s.score === "string") {
+        s.score = Number(s.score);
+      }
+    }
+  }
+  return parsed;
+}
+
 export default new Experiment<PCExpTypes>(
   name,
   description,
   query,
   runTrial,
   evaluateTrial,
-  { expDataToExpScore } // TODO add customCombineEvals
+  { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
 );
