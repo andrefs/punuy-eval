@@ -47,12 +47,13 @@ if (!configuration.apiKey) {
   );
 }
 
-logger.warn(
-  `REMEMBER: Google AI currently cannot be used in Europe, you need to either use a VPN or use Vertex AI instead.`
-);
-logger.info(
-  "https://ai.google.dev/gemini-api/docs/available-regions#available_regions"
-);
+// NO VPN NEEDED ANYMORE I THINK
+//logger.warn(
+//  `REMEMBER: Google AI currently cannot be used in Europe, you need to either use a VPN or use Vertex AI instead.`
+//);
+//logger.info(
+//  "https://ai.google.dev/gemini-api/docs/available-regions#available_regions"
+//);
 
 const safetySettings = [
   {
@@ -64,10 +65,6 @@ const safetySettings = [
     threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
   {
-    category: HarmCategory.HARM_CATEGORY_UNSPECIFIED,
-    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-  },
-  {
     category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
     threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
@@ -76,7 +73,7 @@ const safetySettings = [
     threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
 ];
-const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
+const genAI = new GoogleGenerativeAI(configuration.apiKey!);
 
 const buildModel = (
   genAI: GoogleGenerativeAI,
@@ -134,8 +131,10 @@ const buildModel = (
         getDataText: () => {
           let dataText;
           try {
-            dataText =
-              result.response.candidates?.[0].content.parts?.[0].text || "";
+            const args =
+              result.response.candidates?.[0].content.parts?.[0].functionCall
+                ?.args;
+            dataText = JSON.stringify(args) || "";
           } catch (e) {
             logger.error(`Error getting data text from model ${modelId}: ${e}`);
             logger.error(`Response object: ${JSON.stringify(result)}`);
@@ -148,7 +147,7 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}\nRequest object: ${req}\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${JSON.stringify(req, null, 2)}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
