@@ -153,6 +153,7 @@ async function iterateConversation(
     );
     addUsage(totalUsage, tRes.usage);
     if (tRes.ok) {
+      logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
       const res: TrialResult<CPExpTypes["Data"]> = {
         promptId: vars.prompt.id,
         turnPrompts: [tRes.turnPrompt],
@@ -169,7 +170,6 @@ async function iterateConversation(
     );
     failedAttempts[faCount] = failedAttempts[faCount] || [];
     failedAttempts[faCount].push(tRes);
-    logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
   }
 
   const res: TrialResult<CPExpTypes["Data"]> = {

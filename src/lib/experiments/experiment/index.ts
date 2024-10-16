@@ -195,7 +195,7 @@ export default class Experiment<T extends GenericExpTypes> {
       const prompts = vars.prompt.turns;
 
       const failedAttempts: TurnResponseNotOk<T>[][] = [];
-      while (failedAttempts.length < maxAttempts) {
+      ATTEMPTS_LOOP: while (failedAttempts.length < maxAttempts) {
         const faCount = failedAttempts.length;
         logger.info(`    💬 conversation attempt #${faCount + 1}`);
         const turnsRes = [];
@@ -216,7 +216,7 @@ export default class Experiment<T extends GenericExpTypes> {
           );
           failedAttempts[faCount] = failedAttempts[faCount] || [];
           failedAttempts[faCount].push(tRes);
-          break TURNS_LOOP; // start new attempt
+          continue ATTEMPTS_LOOP; // start new attempt
         }
         logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
 
