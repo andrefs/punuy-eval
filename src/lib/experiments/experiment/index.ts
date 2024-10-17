@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Model, ModelTool, ToolSchema } from "../../models";
+import chalk from "chalk";
 import {
   EvaluationResult,
   InvalidData,
@@ -467,12 +468,16 @@ export default class Experiment<T extends GenericExpTypes> {
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
+      logger.info(
+        `📂 Saving experiment results to folder: ${folder} and 📜 log to ${folder}/experiment.log`
+      );
 
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
-          `⚗️  Running experiment ${index}/${varCombs.length}: ${this.name
-          } with variables ${JSON.stringify(getVarIds(vc))}.`
+          chalk.underline.bold(
+            `⚗️  Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
+          ) + ` with variables ${JSON.stringify(getVarIds(vc))}.`
         );
         res.push(await this.perform(vc, trials, Date.now(), folder));
         addUsage(totalUsage, res[res.length - 1].usage);
