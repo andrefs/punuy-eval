@@ -278,8 +278,12 @@ export default class Experiment<T extends GenericExpTypes> {
           };
           return res;
         }
+        const dataStr =
+          typeof attemptResult.data === "string"
+            ? attemptResult.data
+            : JSON.stringify(attemptResult.data);
         logger.warn(
-          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} `
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr.substring(0, 50)}...")`
         );
         failedAttempts.push(attemptResult);
 
@@ -459,7 +463,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
       logger.info(
         `🔬 Preparing to run experiment ${this.name
-        }, ${trials} times on each variable combination: \n${varCombs
+        }, ${trials} times on each variable combination (${trials}x${varCombs.length}): \n${varCombs
           .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
           .join(",\n")}.`
       );
