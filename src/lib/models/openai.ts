@@ -122,16 +122,6 @@ const pricing = {
     output: 30 / 1_000_000,
     currency: "$" as const,
   },
-  //o1preview_20240912: {
-  //  input: 15 / 1_000_000,
-  //  output: 60 / 1_000_000,
-  //  currency: "$" as const,
-  //},
-  //o1mini_20240912: {
-  //  input: 3 / 1_000_000,
-  //  output: 12 / 1_000_000,
-  //  currency: "$" as const,
-  //},
   gpt4omini_20240718: {
     input: 0.15 / 1_000_000,
     output: 0.6 / 1_000_000,
@@ -147,6 +137,18 @@ const pricing = {
     output: 10 / 1_000_000,
     currency: "$" as const,
   },
+
+  // these don't support json output (yet?)
+  //o1preview_20240912: {
+  //  input: 15 / 1_000_000,
+  //  output: 60 / 1_000_000,
+  //  currency: "$" as const,
+  //},
+  //o1mini_20240912: {
+  //  input: 3 / 1_000_000,
+  //  output: 12 / 1_000_000,
+  //  currency: "$" as const,
+  //},
 };
 
 // https://platform.openai.com/docs/models

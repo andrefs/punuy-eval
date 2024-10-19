@@ -196,6 +196,11 @@ export const openMistralNemo_2407 = buildModel(
   "open-mistral-nemo-2407",
   pricing.openMistralNemo_2407
 );
+
+/*******************
+ * Legacy
+ *******************/
+
 export const openMistral7B = buildModel(
   mistral,
   "open-mistral-7b",

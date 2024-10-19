@@ -113,12 +113,12 @@ const evm: ExpVarMatrix = {
     //ministral8b_2410,
     //ministral3b_2410,
     //mistralSmall_2409,
-    //openMistral7B,
+    //openMistral7B, // legacy
 
     // low cost
     claude3haiku,
     gpt35turbo_0125,
-    openMixtral8x7B,
+    openMixtral8x7B, // legacy
     ////commandR_082024, // disabled because it doesn't generate JSON correctly
 
     // medium cost

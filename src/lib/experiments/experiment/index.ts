@@ -284,7 +284,7 @@ export default class Experiment<T extends GenericExpTypes> {
             ? attemptResult.data
             : JSON.stringify(attemptResult.data);
         logger.warn(
-          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr.substring(0, 50)}...")`
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr?.substring(0, 50)}...")`
         );
         failedAttempts.push(attemptResult);
 
@@ -475,9 +475,11 @@ export default class Experiment<T extends GenericExpTypes> {
       const res = [] as ExperimentData<T>[];
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
-          chalk.underline.bold(
-            `⚗️  Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
-          ) + ` with variables ${JSON.stringify(getVarIds(vc))}.`
+          "⚗️  " +
+          chalk.inverse(
+            `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
+          ) +
+          ` with variables ${JSON.stringify(getVarIds(vc))}.`
         );
         res.push(await this.perform(vc, trials, Date.now(), folder));
         addUsage(totalUsage, res[res.length - 1].usage);
