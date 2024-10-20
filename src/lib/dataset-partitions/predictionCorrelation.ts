@@ -1,4 +1,4 @@
-import { ExpVarMatrix } from "../lib/experiments";
+import { ExpVarMatrix } from "../experiments";
 import path from "path";
 import {
   claude35sonnet_20240620,
@@ -20,8 +20,8 @@ import {
   openMistralNemo_2407,
   openMixtral8x22B,
   openMixtral8x7B,
-} from "../lib/models";
-import logger from "../lib/logger";
+} from "../models";
+import logger from "../logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 // prompts are the same as batch-vs-single-pair
 import prompts from "src/lib/experiments/batch-vs-single-pair/prompts";
@@ -45,7 +45,33 @@ import gtrd_main from "src/lib/dataset-partitions/gtrd_main";
 import semeval17_main from "src/lib/dataset-partitions/semeval17_main";
 import simverb3500_dev from "src/lib/dataset-partitions/simverb3500_dev";
 import tr9856_main from "src/lib/dataset-partitions/tr9856_main";
-import men3000_dev from "src/lib/dataset-partitions/men3000_dev";
+import men3000_full from "src/lib/dataset-partitions/men3000_full";
+import atlasify240_main from "src/lib/dataset-partitions/atlasify240_main";
+import baker143_main from "src/lib/dataset-partitions/baker143_main";
+import bg100k_all from "src/lib/dataset-partitions/bg100k_all";
+import geresid50_rel from "src/lib/dataset-partitions/geresid50_rel";
+import geresid50_sim from "src/lib/dataset-partitions/geresid50_sim";
+import gm30_main from "src/lib/dataset-partitions/gm30_main";
+import ma28_main from "src/lib/dataset-partitions/ma28_main";
+import mayoSRS_mean from "src/lib/dataset-partitions/mayoSRS_mean";
+import mc30_table1 from "src/lib/dataset-partitions/mc30_table1";
+import mesh2_main from "src/lib/dataset-partitions/mesh2_main";
+import minimayoSRS_coders from "src/lib/dataset-partitions/minimayoSRS_coders";
+import minimayoSRS_physicians from "src/lib/dataset-partitions/minimayoSRS_physicians";
+import mturk771_mturk from "src/lib/dataset-partitions/mturk771_mturk";
+import ps65_main from "src/lib/dataset-partitions/ps65_main";
+import rel122_main from "src/lib/dataset-partitions/rel122_main";
+import reword26_g26 from "src/lib/dataset-partitions/reword26_g26";
+import scws2003_main from "src/lib/dataset-partitions/scws2003_main";
+import sl7576_main from "src/lib/dataset-partitions/sl7576_main";
+import umnsrs_rel from "src/lib/dataset-partitions/umnsrs_rel";
+import umnsrsMod_rel from "src/lib/dataset-partitions/umnsrsMod_rel";
+import umnsrsMod_sim from "src/lib/dataset-partitions/umnsrsMod_sim";
+import umnsrs_sim from "src/lib/dataset-partitions/umnsrs_sim";
+import word19k_test from "./word19k_test";
+import ws353_combined from "./ws353_combined";
+import zie55_B0 from "./zie55_B0";
+import zie55_B1 from "./zie55_B1";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
@@ -80,45 +106,74 @@ const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
   dpart: [
     // en rel
-    ws353Rel_rel,
-    mt287_mturk,
-    rg65_table1,
-    word19k_train, // is this the right partition?
+    atlasify240_main,
+    geresid50_rel,
+    gm30_main,
     gtrd_main,
+    mayoSRS_mean,
+    men3000_full,
+    minimayoSRS_coders,
+    minimayoSRS_physicians,
+    mt287_mturk,
+    mturk771_mturk,
+    rel122_main,
+    reword26_g26,
+    scws2003_main,
     tr9856_main,
-    men3000_dev, // is this the right partition?
+    umnsrsMod_rel,
+    umnsrs_rel,
+    word19k_train,
+    word19k_test,
+    ws353Rel_rel,
+    zie55_B0,
+    zie55_B1,
+
     //// en sim
-    ws353Sim_sim,
-    yp130_verbpairs,
-    srw2034_rw,
-    simlex999_main,
-    wp300_wp,
+    baker143_main,
+    bg100k_all,
+    geresid50_sim,
+    ma28_main,
+    mc30_table1,
+    mesh2_main,
+    ps65_main,
+    rg65_table1,
     semeval17_main,
+    simlex999_main,
     simverb3500_dev,
+    sl7576_main,
+    srw2034_rw,
+    umnsrsMod_sim,
+    umnsrs_sim,
+    wp300_wp,
+    ws353Sim_sim,
+    ws353_combined,
+    yp130_verbpairs,
+
     //// pt rel
+    lxws353_main,
     pap900_rel,
     pt65_main,
-    lxws353_main,
+
     //// pt sim
-    pap900_sim,
     lxrw2034_main,
     lxsimlex999_main,
+    pap900_sim,
   ],
   prompt: prompts,
   model: [
     // super cheap
-    //gemini15flash_002,
-    //gpt4omini_20240718,
-    //openMistralNemo_2407,
-    //ministral8b_2410,
-    //ministral3b_2410,
-    //mistralSmall_2409,
-    //openMistral7B, // legacy
+    gemini15flash_002,
+    gpt4omini_20240718,
+    openMistralNemo_2407,
+    ministral8b_2410,
+    ministral3b_2410,
+    mistralSmall_2409,
+    openMistral7B, // legacy
 
     // low cost
-    claude3haiku,
-    gpt35turbo_0125,
-    openMixtral8x7B, // legacy
+    //claude3haiku,
+    //gpt35turbo_0125,
+    //openMixtral8x7B, // legacy
     ////commandR_082024, // disabled because it doesn't generate JSON correctly
 
     // medium cost
