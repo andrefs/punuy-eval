@@ -9,8 +9,8 @@ import {
   PromptJobType,
   SinglePairPrompt,
 } from "..";
-import { shuffle } from "fast-shuffle";
 import { buildTurns, distributePairs } from "../experiment/aux";
+import { getRandom } from "src/lib/utils";
 
 const reqs: {
   [key in Language]: {
@@ -91,9 +91,9 @@ for (const pp of protoPrompts) {
     ...pp,
     generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
       const jt = vars.jobType?.id || "singlePair";
-      const pairList = shuffle(vars.dpart.data)
-        .slice(0, numberOfPairs)
-        .map(({ term1, term2 }) => [term1, term2] as [string, string]);
+      const pairList = getRandom(vars.dpart.data, numberOfPairs).map(
+        ({ term1, term2 }) => [term1, term2] as [string, string]
+      );
       const dp = distributePairs(pairList, jt, 5);
 
       const prompt = {
