@@ -58,8 +58,8 @@ import {
   mistralSmall_2409,
   ModelPricing,
   openMistralNemo_2407,
-} from "../models";
-import * as datasets from ".";
+} from "../lib/models";
+import * as datasets from "../lib/dataset-partitions";
 const models = [
   // openai
   gpt4o_20240806,
