@@ -66,6 +66,7 @@ import {
   mistralMedium_2312,
   mistralSmall_2409,
   openMistralNemo_2407,
+  openMistral7B,
 
   //
   ModelPricing,
@@ -73,6 +74,10 @@ import {
   openMixtral8x22B,
   o1preview_20240912,
   Model,
+  commandR_032024,
+  commandR_082024,
+  commandRPlus_042024,
+  commandRPlus_082024,
 } from "../lib/models";
 import * as datasets from "../lib/dataset-partitions";
 
@@ -85,6 +90,9 @@ const models: { [cat: string]: { [modelId: string]: Model } } = {
     ministral8b_2410,
     gemini15flash_002,
     ministral3b_2410,
+    openMistral7B, // legacy
+    commandR_032024, // json response not working correctly
+    commandR_082024, // json response not working correctly
   },
   // input <= 0.5
   lowCost: {
@@ -106,6 +114,8 @@ const models: { [cat: string]: { [modelId: string]: Model } } = {
     claude35sonnet_20240620,
     gpt4o_20240806,
     mistralMedium_2312,
+    commandRPlus_042024,
+    commandRPlus_082024,
   },
   // input <= 10
   superExpensive: {

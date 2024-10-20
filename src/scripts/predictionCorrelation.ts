@@ -26,7 +26,6 @@ import {
   mistralMedium_2312,
   mistralSmall_2409,
   openMistralNemo_2407,
-  openMistral7B,
 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
@@ -64,40 +63,39 @@ const predCorr = async (vars: ExpVarMatrix) => {
 };
 
 const evm: ExpVarMatrix = {
-  //dpart: Object.values(dsParts),
   jobType: [{ id: "allPairs" }],
   dpart: Object.values(datasets),
   prompt: prompts,
   model: [
     // super cheap
-    gemini15flash_002,
+    mistralSmall_2409,
     gpt4omini_20240718,
     openMistralNemo_2407,
     ministral8b_2410,
+    gemini15flash_002,
     ministral3b_2410,
-    mistralSmall_2409,
-    openMistral7B, // legacy
 
     // low cost
-    //claude3haiku,
-    //gpt35turbo_0125,
-    //openMixtral8x7B, // legacy
-    ////commandR_082024, // disabled because it doesn't generate JSON correctly
+    gpt35turbo_0125,
+    gemini10pro_001,
+    claude3haiku,
 
     // medium cost
-    //gemini15pro_002,
+    mistralLarge_2407,
+    gemini15pro_002,
 
     // expensive
-    //commandRPlus_082024,
-    //mistralLarge_2407,
-    //claude35sonnet_20240620,
-    //gpt4o_20240806,
+    claude3sonnet_20240229,
+    claude35sonnet_20240620,
+    gpt4o_20240806,
+    mistralMedium_2312,
 
     // super expensive
-    //gpt4turbo_20240409,
+    gpt4turbo_20240409,
 
     // crazy
-    //claude3opus,
+    gpt4_0613,
+    claude3opus,
   ],
 };
 
