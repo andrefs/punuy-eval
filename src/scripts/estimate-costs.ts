@@ -1,4 +1,4 @@
-import { plot } from "nodeplotlib";
+import { Plot, plot } from "nodeplotlib";
 
 const expCostSamples = [
   {
@@ -39,54 +39,86 @@ const expCostSamples = [
 ];
 
 import {
+  // anthropic
   claude35sonnet_20240620,
   claude3haiku,
   claude3opus,
   claude3sonnet_20240229,
+
+  // google
   gemini10pro_001,
   gemini15flash_002,
   gemini15pro_002,
-  gpt35turbo_0125,
-  gpt4_0613,
-  gpt4o_20240806,
-  gpt4omini_20240718,
-  gpt4turbo_20240409,
-  ministral3b_2410,
-  ministral8b_2410,
-  mistralLarge_2407,
-  mistralMedium_2312,
-  mistralSmall_2409,
-  ModelPricing,
-  openMistralNemo_2407,
-} from "../lib/models";
-import * as datasets from "../lib/dataset-partitions";
-const models = [
-  // openai
-  gpt4o_20240806,
-  gpt4omini_20240718,
-  gpt4turbo_20240409,
-  gpt4_0613,
-  gpt35turbo_0125,
 
-  // anthropic
-  claude3opus,
-  claude3sonnet_20240229,
-  claude35sonnet_20240620,
-  claude3haiku,
+  // openai
+  gpt35turbo_0125,
+  gpt4_0613,
+  gpt4o_20240806,
+  gpt4omini_20240718,
+  gpt4turbo_20240409,
+  gpt4o_20240513,
+  o1mini_20240912,
 
   // mistral
   ministral3b_2410,
   ministral8b_2410,
-  mistralSmall_2409,
-  mistralMedium_2312,
   mistralLarge_2407,
+  mistralMedium_2312,
+  mistralSmall_2409,
   openMistralNemo_2407,
 
-  // google
-  gemini10pro_001,
-  gemini15pro_002,
-  gemini15flash_002,
-];
+  //
+  ModelPricing,
+  openMixtral8x7B,
+  openMixtral8x22B,
+  o1preview_20240912,
+  Model,
+} from "../lib/models";
+import * as datasets from "../lib/dataset-partitions";
+
+const models: { [cat: string]: { [modelId: string]: Model } } = {
+  // input <= 0.2
+  superCheap: {
+    mistralSmall_2409,
+    gpt4omini_20240718,
+    openMistralNemo_2407,
+    ministral8b_2410,
+    gemini15flash_002,
+    ministral3b_2410,
+  },
+  // input <= 0.5
+  lowCost: {
+    gpt35turbo_0125,
+    gemini10pro_001,
+    claude3haiku,
+  },
+  // input <= 2
+  medium: {
+    openMixtral8x22B,
+    mistralLarge_2407,
+    gemini15pro_002,
+    openMixtral8x7B,
+  },
+  // input <= 3
+  expensive: {
+    o1mini_20240912,
+    claude3sonnet_20240229,
+    claude35sonnet_20240620,
+    gpt4o_20240806,
+    mistralMedium_2312,
+  },
+  // input <= 10
+  superExpensive: {
+    gpt4turbo_20240409,
+    gpt4o_20240513,
+  },
+  // input > 10
+  crazyExpensive: {
+    gpt4_0613,
+    o1preview_20240912,
+    claude3opus,
+  },
+};
 
 interface Cost {
   modelId: string;
@@ -108,7 +140,8 @@ function calcCost() {
 
   const costs: Cost[] = [];
 
-  for (const model of models) {
+  const modelList = Object.values(models).flatMap(Object.values);
+  for (const model of modelList) {
     if (!model.pricing) {
       throw new Error(`Model ${model.id} has no pricing`);
     }
@@ -138,7 +171,7 @@ function calcCost() {
   );
 
   console.log(
-    `\nTOTAL COST (${Object.keys(datasets).length} datasets, ${trials} trials), ${models.length} models:`
+    `\nTOTAL COST (${Object.keys(datasets).length} datasets, ${trials} trials), ${modelList.length} models:`
   );
   for (const [currency, cost] of Object.entries(totalCost)) {
     console.log(
@@ -148,24 +181,26 @@ function calcCost() {
 }
 
 function plotPricing() {
+  const data: Plot[] = [];
+  for (const cat in models) {
+    data.push({
+      y: Object.values(models[cat]).map(m => m.pricing!.output),
+      x: Object.values(models[cat]).map(m => m.pricing!.input),
+      type: "scatter",
+      mode: "markers",
+      text: Object.values(models[cat]).map(m => m.id),
+      name: cat,
+    });
+  }
   plot(
-    [
-      {
-        x: models.map(m => m.pricing!.output),
-        y: models.map(m => m.pricing!.input),
-        type: "scatter",
-        mode: "markers",
-        text: models.map(m => m.id),
-        name: "Pricing",
-      },
-    ],
+    data,
     {
-      xaxis: {
+      yaxis: {
         type: "log",
         autorange: true,
         title: "output cost",
       },
-      yaxis: {
+      xaxis: {
         type: "log",
         autorange: true,
         title: "input cost",

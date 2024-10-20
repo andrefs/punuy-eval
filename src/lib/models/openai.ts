@@ -139,19 +139,20 @@ const pricing = {
   },
 
   // these don't support json output (yet?)
-  //o1preview_20240912: {
-  //  input: 15 / 1_000_000,
-  //  output: 60 / 1_000_000,
-  //  currency: "$" as const,
-  //},
-  //o1mini_20240912: {
-  //  input: 3 / 1_000_000,
-  //  output: 12 / 1_000_000,
-  //  currency: "$" as const,
-  //},
+  o1preview_20240912: {
+    input: 15 / 1_000_000,
+    output: 60 / 1_000_000,
+    currency: "$" as const,
+  },
+  o1mini_20240912: {
+    input: 3 / 1_000_000,
+    output: 12 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
 // https://platform.openai.com/docs/models
+// replaced by gp4-4o-mini
 export const gpt35turbo_0125 = buildModel(
   openai,
   "gpt-3.5-turbo-0125",
@@ -163,16 +164,16 @@ export const gpt4turbo_20240409 = buildModel(
   "gpt-4-turbo-2024-04-09",
   pricing.gpt4turbo_20240409
 );
-//export const o1preview_20240912 = buildModel(
-//  openai,
-//  "o1-preview-2024-09-12",
-//  pricing.o1preview_20240912
-//);
-//export const o1mini_20240912 = buildModel(
-//  openai,
-//  "o1-mini-2024-09-12",
-//  pricing.o1mini_20240912
-//);
+export const o1preview_20240912 = buildModel(
+  openai,
+  "o1-preview-2024-09-12",
+  pricing.o1preview_20240912
+);
+export const o1mini_20240912 = buildModel(
+  openai,
+  "o1-mini-2024-09-12",
+  pricing.o1mini_20240912
+);
 export const gpt4omini_20240718 = buildModel(
   openai,
   "gpt-4o-mini-2024-07-18",
