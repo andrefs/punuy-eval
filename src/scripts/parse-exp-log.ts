@@ -86,15 +86,13 @@ function getErrorsPerModel(exps: ExpLog[]) {
     }
     if (exp.conversationFails) {
       for (const fail of Object.keys(exp.conversationFails)) {
-        errors[exp.model].conversationFails[fail] =
-          errors[exp.model].conversationFails[fail] + 1 || 1;
+        errors[exp.model].conversationFails[fail] = exp.conversationFails[fail];
       }
     }
 
     if (exp.pairFails) {
       for (const fail of Object.keys(exp.pairFails)) {
-        errors[exp.model].pairFails[fail] =
-          errors[exp.model].pairFails[fail] + 1 || 1;
+        errors[exp.model].pairFails[fail] = exp.pairFails[fail];
       }
     }
   }
