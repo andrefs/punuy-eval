@@ -80,7 +80,8 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   expName: string,
   data: ExperimentData<T>[],
   usage: Usages,
-  folder: string
+  folder: string,
+  exitedEarly: boolean
 ) {
   let newData = [];
   const filename = path.join(folder, "experiment.json");
@@ -90,7 +91,7 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
     const oldData = JSON.parse(await fs.readFile(filename, "utf-8"));
     newData = oldData;
   }
-  newData.push({ experiment: data, usage });
+  newData.push({ experiment: data, usage, exitedEarly });
 
   const json = JSON.stringify(newData, null, 2);
 

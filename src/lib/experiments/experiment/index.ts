@@ -56,6 +56,19 @@ export default class Experiment<T extends GenericExpTypes> {
   description: string;
   queryData: QueryData<T>;
   prompts?: (Prompt | PromptGenerator)[] = [];
+  totalUsage: Usages;
+  exitedEarly: boolean;
+  wrapUp: (
+    this: Experiment<T>,
+    res: ExperimentData<T>[],
+    folder: string,
+    exitedEarly: boolean
+  ) => Promise<void>;
+  handleEarlyExit: (
+    this: Experiment<T>,
+    res: ExperimentData<T>[],
+    folder: string
+  ) => Promise<void>;
   iterateConversation: (
     this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
@@ -182,6 +195,8 @@ export default class Experiment<T extends GenericExpTypes> {
     this.description = description;
     this.queryData = queryData;
     this.fixParsedJson = fixParsedJson;
+    this.totalUsage = {};
+    this.exitedEarly = true;
     this.validateSchema = function (this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
@@ -448,7 +463,6 @@ export default class Experiment<T extends GenericExpTypes> {
       folder: string
     ) {
       await this.sanityCheck(folder);
-      const totalUsage: Usages = {};
 
       if (!variables?.prompt?.length) {
         variables.prompt = this.prompts;
@@ -482,17 +496,48 @@ export default class Experiment<T extends GenericExpTypes> {
           ` with variables ${JSON.stringify(getVarIds(vc))}.`
         );
         res.push(await this.perform(vc, trials, Date.now(), folder));
-        addUsage(totalUsage, res[res.length - 1].usage);
+        addUsage(this.totalUsage, res[res.length - 1].usage);
       }
 
-      await saveExperimentsData(this.name, res, totalUsage, folder);
+      await this.wrapUp(res, folder, false);
+      return {
+        experiments: res,
+        usage: this.totalUsage,
+      };
+    };
+    this.wrapUp = async function (
+      this: Experiment<T>,
+      res: ExperimentData<T>[],
+      folder: string,
+      exitedEarly: boolean
+    ) {
+      this.exitedEarly = exitedEarly;
+      await saveExperimentsData(
+        this.name,
+        res,
+        this.totalUsage,
+        folder,
+        this.exitedEarly
+      );
       if (this.expDataToExpScore) {
         this.printExpResTable(res);
       }
-      return {
-        experiments: res,
-        usage: totalUsage,
-      };
+    };
+    this.handleEarlyExit = async function (
+      this: Experiment<T>,
+      res: ExperimentData<T>[],
+      folder: string
+    ) {
+      let callCount = 0;
+      for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"] as const) {
+        if (callCount < 1) {
+          logger.error(
+            `🛑 Received ${signal} signal, saving results and exiting early.`
+          );
+          await this.wrapUp(res, folder, true);
+        }
+        callCount++;
+      }
     };
     this.expDataToExpScore = expDataToExpScore;
     this.printExpResTable = function (
