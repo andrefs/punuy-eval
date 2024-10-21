@@ -2,14 +2,14 @@ import logger from "src/lib/logger";
 import {
   ExperimentData,
   ExpScore,
+  GenericExpTypes,
   PairScoreList,
   ScoreDict,
 } from "../experiment";
 import { getVarIds, valueFromEntry } from "../experiment/aux";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import pcorrTest from "@stdlib/stats-pcorrtest";
-import { PCExpTypes } from ".";
-import { InsufficientData, MismatchedData } from "src/lib/evaluation";
+import { MismatchedData } from "src/lib/evaluation";
 import { pairsToHash } from "../aux";
 
 /**
@@ -19,7 +19,9 @@ import { pairsToHash } from "../aux";
  * @returns The evaluated scores
  * @throws {Error} If more than half of the trials failed to parse
  */
-export function expEvalScores(exps: ExperimentData<PCExpTypes>[]): ExpScore[] {
+export function expEvalScores<T extends GenericExpTypes>(
+  exps: ExperimentData<T>[]
+): ExpScore[] {
   const res = [];
   for (const [i, exp] of exps.entries()) {
     for (const [iTrial, trial] of exp.results.raw.entries()) {
@@ -114,12 +116,14 @@ export function trialEvalScores(
         // nope, throw Mismatch
         throw new MismatchedData(gotData, expData);
       } else {
-        expArr.push(expData[w1][w2]);
-        gotArr.push(gotData[w1][w2]);
+        const expVal = expData[w1]?.[w2] ?? expData[w2][w1];
+        expArr.push(expVal);
+        const gotVal = gotData[w1]?.[w2] ?? gotData[w2][w1];
+        gotArr.push(gotVal);
         gotVsExp[w1] = gotVsExp[w1] || {};
         gotVsExp[w1][w2] = {
-          got: gotData[w1][w2],
-          exp: expData[w1][w2],
+          got: gotVal,
+          exp: expVal,
         };
       }
     }

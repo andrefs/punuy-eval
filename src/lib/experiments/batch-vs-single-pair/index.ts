@@ -18,7 +18,7 @@ import {
   NonUsableData,
 } from "src/lib/evaluation";
 import { getPairScoreListFromDPart } from "../experiment/aux";
-import { trialEvalScores } from "./aux";
+import { trialEvalScores } from "../prediction-correlation/aux";
 import { fixParsedJson } from "../prediction-correlation";
 
 export const name = "batch-vs-single-pair";
