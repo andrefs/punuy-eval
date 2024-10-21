@@ -1,5 +1,6 @@
 import {
   DatasetProfile,
+  Language,
   MeasureType,
   Metadata,
   Partition,
@@ -17,7 +18,7 @@ export class DsPartition implements Partition {
   };
   partitionId: string;
   id: string;
-  language: "en" | "pt";
+  language: Language;
   measureType: MeasureType;
   scale: PartitionScale;
   data: PartitionData[];

@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI, { ClientOptions } from "openai";
 import { Model, ModelTool, ModelResponse, ModelPricing } from "./model";
 import logger from "../logger";
 import "dotenv/config";
@@ -7,7 +7,7 @@ import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
 
-const configuration = {
+const configuration: ClientOptions = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
 };
 
@@ -70,11 +70,11 @@ const buildModel = (
         dataObj: completion,
         usage: completion.usage
           ? {
-              inputTokens: completion.usage?.prompt_tokens,
-              outputTokens: completion.usage?.completion_tokens,
-              totalTokens: completion.usage?.total_tokens,
-              modelId,
-            }
+            inputTokens: completion.usage?.prompt_tokens,
+            outputTokens: completion.usage?.completion_tokens,
+            totalTokens: completion.usage?.total_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -90,11 +90,12 @@ const buildModel = (
           return dataText;
         },
       };
+
       return res;
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${JSON.stringify(req, null, 2)}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
@@ -121,16 +122,6 @@ const pricing = {
     output: 30 / 1_000_000,
     currency: "$" as const,
   },
-  o1preview_20240912: {
-    input: 15 / 1_000_000,
-    output: 60 / 1_000_000,
-    currency: "$" as const,
-  },
-  o1mini_20240912: {
-    input: 3 / 1_000_000,
-    output: 12 / 1_000_000,
-    currency: "$" as const,
-  },
   gpt4omini_20240718: {
     input: 0.15 / 1_000_000,
     output: 0.6 / 1_000_000,
@@ -146,9 +137,22 @@ const pricing = {
     output: 10 / 1_000_000,
     currency: "$" as const,
   },
+
+  // these don't support json output (yet?)
+  o1preview_20240912: {
+    input: 15 / 1_000_000,
+    output: 60 / 1_000_000,
+    currency: "$" as const,
+  },
+  o1mini_20240912: {
+    input: 3 / 1_000_000,
+    output: 12 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
 // https://platform.openai.com/docs/models
+// replaced by gp4-4o-mini
 export const gpt35turbo_0125 = buildModel(
   openai,
   "gpt-3.5-turbo-0125",

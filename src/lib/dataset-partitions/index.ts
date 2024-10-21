@@ -11,7 +11,7 @@ import lxws353_main from "./lxws353_main";
 import ma28_main from "./ma28_main";
 import mayoSRS_mean from "./mayoSRS_mean";
 import mc30_table1 from "./mc30_table1";
-import men3000_dev from "./men3000_dev";
+import men3000_full from "./men3000_full";
 import mesh2_main from "./mesh2_main";
 import minimayoSRS_coders from "./minimayoSRS_coders";
 import minimayoSRS_physicians from "./minimayoSRS_physicians";
@@ -41,6 +41,7 @@ import ws353Sim_sim from "./ws353Sim_sim";
 import yp130_verbpairs from "./yp130_verbpairs";
 import zie55_B0 from "./zie55_B0";
 import zie55_B1 from "./zie55_B1";
+import word19k_test from "./word19k_test";
 
 export default {
   atlasify240_main,
@@ -56,7 +57,7 @@ export default {
   ma28_main,
   mayoSRS_mean,
   mc30_table1,
-  men3000_dev,
+  men3000_full,
   mesh2_main,
   minimayoSRS_coders,
   minimayoSRS_physicians,
@@ -78,6 +79,7 @@ export default {
   umnsrsMod_sim,
   umnsrs_rel,
   umnsrs_sim,
+  word19k_test,
   word19k_train,
   wp300_wp,
   ws353_combined,

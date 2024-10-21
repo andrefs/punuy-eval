@@ -12,6 +12,9 @@ const transport = pino.transport({
     {
       level,
       target: "pino-pretty",
+      options: {
+        colorize: true,
+      },
     },
   ],
 });

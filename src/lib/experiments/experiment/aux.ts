@@ -6,11 +6,18 @@ import Experiment, {
   ExpVars,
   ExperimentData,
   GenericExpTypes,
+  PairScoreList,
+  PromptJobType,
+  TurnPrompt,
   Usage,
   Usages,
+  jobTypes,
 } from ".";
 import logger from "../../logger";
 import { ModelId, getModelById } from "src/lib/models";
+import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
+import { normalizeScale, pairsToHash } from "../aux";
+import { PartitionData, PartitionScale } from "punuy-datasets/src/lib/types";
 
 export function calcUsageCost(usage: Usages | undefined) {
   if (!usage) {
@@ -73,7 +80,8 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   expName: string,
   data: ExperimentData<T>[],
   usage: Usages,
-  folder: string
+  folder: string,
+  exitedEarly: boolean
 ) {
   let newData = [];
   const filename = path.join(folder, "experiment.json");
@@ -83,7 +91,7 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
     const oldData = JSON.parse(await fs.readFile(filename, "utf-8"));
     newData = oldData;
   }
-  newData.push({ experiment: data, usage });
+  newData.push({ experiment: data, usage, exitedEarly });
 
   const json = JSON.stringify(newData, null, 2);
 
@@ -119,8 +127,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${
-      data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
@@ -227,4 +234,146 @@ export function getFixedValueGroup(
   };
   compGroups.push(newGroup);
   return newGroup;
+}
+
+/**
+ * Generate the variable combinations but match each prompt's language and measure type with matching datasets
+ * @param variables The variables to generate combinations for
+ * @returns The variable combinations
+ */
+export function splitVarCombsMTL(variables: ExpVarMatrix) {
+  const varCombs = [];
+  const languages = Array.from(
+    new Set(variables.prompt?.map(p => p.language) ?? [])
+  ).map(l => ({ id: l }));
+  const jts = variables.jobType ? variables.jobType.map(x => x.id) : jobTypes;
+  for (const l of languages) {
+    for (const mt of [
+      { id: "similarity" } as const,
+      { id: "relatedness" } as const,
+    ]) {
+      for (const jt of jts) {
+        const filtPrompts =
+          variables.prompt?.filter(
+            p => p.language === l.id && p.measureType === mt.id
+          ) || [];
+        const filtDatasets = variables.dpart.filter(
+          d => d.language === l.id && d.measureType === mt.id
+        );
+        if (filtPrompts.length === 0 || filtDatasets.length === 0) {
+          logger.warn(
+            `No prompts or datasets for language ${l.id}, measure type ${mt.id} and job type ${jt}. Skipping.`
+          );
+          continue;
+        }
+        logger.info(
+          `Running experiments for language ${l.id} and measure type ${mt.id}`
+        );
+        const vm: ExpVarMatrix = {
+          ...variables,
+          prompt: filtPrompts,
+          jobType: [{ id: jt }],
+          dpart: filtDatasets,
+          language: [l],
+          measureType: [mt],
+        };
+        varCombs.push(...genValueCombinations(vm));
+      }
+    }
+  }
+  return varCombs;
+}
+
+/**
+ * Given a list of pairs and a dataset partition, get the scores for each pair
+ * @param pairs - The pairs to get the scores for
+ * @param dpart - The dataset partition to get the scores from
+ * @returns The scores for each pair as a PairScoreList
+ */
+
+export function getPairScoreListFromDPart(
+  pairs: [string, string][],
+  dpart: DsPartition
+) {
+  const res = [] as PairScoreList;
+  const h = pairsToHash(
+    pairs.map(
+      ([w1, w2]) =>
+        [w1.toLowerCase(), w2.toLowerCase()].sort() as [string, string]
+    )
+  );
+
+  for (const entry of dpart.data) {
+    const w1 = entry.term1.toLowerCase();
+    const w2 = entry.term2.toLowerCase();
+    if (h[w1]?.[w2] || h[w2]?.[w1]) {
+      // get value or calculate .values average
+      const value = valueFromEntry(entry, dpart.scale, { min: 1, max: 5 });
+      res.push({ words: [w1, w2].sort() as [string, string], score: value });
+    }
+  }
+  return res;
+}
+
+export function valueFromEntry(
+  entry: PartitionData,
+  sourceScale: PartitionScale,
+  targetScale: { min: number; max: number }
+) {
+  let value;
+  if ("value" in entry && typeof entry.value === "number") {
+    value = normalizeScale(entry.value, sourceScale.value, targetScale);
+  } else {
+    const values = entry.values!.filter(x => typeof x === "number") as number[];
+    value = values!.reduce((a, b) => a! + b!, 0) / values.length;
+  }
+  return value;
+}
+
+export function distributePairs(
+  pairs: [string, string][],
+  jobType: PromptJobType,
+  batchSize?: number
+): [string, string][] | [string, string][][] {
+  const batches: [string, string][][] = [];
+  if (jobType === "singlePair") {
+    return pairs;
+  }
+  if (jobType === "allPairs") {
+    return pairs;
+  }
+  const bs = batchSize || 5;
+  for (let i = 0; i < pairs.length; i += bs) {
+    batches.push(pairs.slice(i, i + bs));
+  }
+  return batches;
+}
+
+type BuildTurnsReturn = TurnPrompt[];
+
+export function buildTurns(
+  text: string,
+  jobType: PromptJobType,
+  pairs: [string, string][] | [string, string][][]
+): BuildTurnsReturn {
+  if (jobType === "allPairs") {
+    const ps = pairs as [string, string][];
+    return [
+      {
+        text: `${text}:\n${(ps as [string, string][]).map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
+        pairs: ps,
+      },
+    ];
+  }
+  if (jobType === "batches") {
+    const bs = pairs as [string, string][][];
+    return bs.map(batch => ({
+      text: `${text}:\n${batch.map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
+      pairs: batch,
+    }));
+  }
+  return pairs.map(([term1, term2]) => ({
+    text: `${text}:\n${term1}, ${term2}`,
+    pairs: [[term1, term2] as [string, string]],
+  }));
 }

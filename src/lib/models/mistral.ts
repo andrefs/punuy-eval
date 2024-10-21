@@ -76,11 +76,11 @@ const buildModel = (
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-              inputTokens: chatResponse.usage?.promptTokens,
-              outputTokens: chatResponse.usage?.completionTokens,
-              totalTokens: chatResponse.usage?.totalTokens,
-              modelId,
-            }
+            inputTokens: chatResponse.usage?.promptTokens,
+            outputTokens: chatResponse.usage?.completionTokens,
+            totalTokens: chatResponse.usage?.totalTokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -106,7 +106,7 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${JSON.stringify(req, null, 2)}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
@@ -116,8 +116,18 @@ const buildModel = (
 };
 
 // https://mistral.ai/technology/#pricing
-// updated on 2024-10-03
+// updated on 2024-10-16
 const pricing = {
+  ministral8b_2410: {
+    input: 0.1 / 1_000_000,
+    output: 0.1 / 1_000_000,
+    currency: "€" as const,
+  },
+  ministral3b_2410: {
+    input: 0.04 / 1_000_000,
+    output: 0.04 / 1_000_000,
+    currency: "€" as const,
+  },
   mistralLarge_2407: {
     input: 1.8 / 1_000_000,
     output: 5.4 / 1_000_000,
@@ -156,6 +166,16 @@ const pricing = {
 };
 
 // https://docs.mistral.ai/getting-started/models/models_overview/
+export const ministral8b_2410 = buildModel(
+  mistral,
+  "ministral-8b-2410",
+  pricing.ministral8b_2410
+);
+export const ministral3b_2410 = buildModel(
+  mistral,
+  "ministral-3b-2410",
+  pricing.ministral3b_2410
+);
 export const mistralLarge_2407 = buildModel(
   mistral,
   "mistral-large-2407",
@@ -176,6 +196,11 @@ export const openMistralNemo_2407 = buildModel(
   "open-mistral-nemo-2407",
   pricing.openMistralNemo_2407
 );
+
+/*******************
+ * Legacy
+ *******************/
+
 export const openMistral7B = buildModel(
   mistral,
   "open-mistral-7b",
