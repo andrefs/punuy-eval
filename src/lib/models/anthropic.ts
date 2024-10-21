@@ -32,7 +32,7 @@ if (!configuration.apiKey) {
     `Anthropic API key loaded from environment variable: ${configuration.apiKey.slice(
       0,
       5
-    )}...`
+    )}...${configuration.apiKey.slice(-5)}`
   );
 }
 const anthropic = new Anthropic(configuration);
@@ -42,7 +42,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (
+  const makeRequest = async function(
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {

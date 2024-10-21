@@ -43,7 +43,7 @@ if (!configuration.apiKey) {
     `Google API key loaded from environment variable: ${configuration.apiKey.slice(
       0,
       5
-    )}...`
+    )}...${configuration.apiKey.slice(-5)}`
   );
 }
 
@@ -90,7 +90,7 @@ const buildModel = (
     safetySettings,
   });
 
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req: GenerateContentRequest = {
       contents: [
         {

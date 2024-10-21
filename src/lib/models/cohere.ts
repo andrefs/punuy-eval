@@ -37,7 +37,7 @@ if (!configuration.token) {
     `Cohere API key loaded from environment variable: ${configuration.token.slice(
       0,
       5
-    )}...`
+    )}...${configuration.token.slice(-5)}`
   );
 }
 const cohere = new CohereClientV2(configuration);
@@ -47,7 +47,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ): Model => {
-  const makeRequest = async function (
+  const makeRequest = async function(
     prompt: string,
     toolParams: ModelTool
   ): Promise<CohereModelResponse> {

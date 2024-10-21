@@ -35,7 +35,7 @@ if (!configuration.apiKey) {
     `Mistral API key loaded from environment variable: ${configuration.apiKey.slice(
       0,
       5
-    )}...`
+    )}...${configuration.apiKey.slice(-5)}`
   );
 }
 const mistral = new Mistral(configuration);
@@ -45,7 +45,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req: ChatCompletionRequest = {
       model: modelId,
       messages: [

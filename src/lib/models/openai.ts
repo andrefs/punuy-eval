@@ -31,7 +31,7 @@ if (!configuration.apiKey) {
     `OpenAI API key loaded from environment variable: ${configuration.apiKey.slice(
       0,
       5
-    )}...`
+    )}...${configuration.apiKey.slice(-5)}`
   );
 }
 const openai = new OpenAI(configuration);
@@ -41,7 +41,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req = {
       model: modelId,
       messages: [
