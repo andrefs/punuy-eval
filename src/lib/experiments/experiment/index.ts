@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Model, ModelTool, ToolSchema } from "../../models";
-import chalk from "chalk";
+import pc from "picocolors";
 import {
   EvaluationResult,
   InvalidData,
@@ -493,7 +493,7 @@ export default class Experiment<T extends GenericExpTypes> {
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
           "⚗️  " +
-          chalk.inverse(
+          pc.inverse(
             `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
           ) +
           ` with variables ${JSON.stringify(getVarIds(vc))}.`
