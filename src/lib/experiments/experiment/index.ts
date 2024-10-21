@@ -192,11 +192,11 @@ export default class Experiment<T extends GenericExpTypes> {
     this.fixParsedJson = fixParsedJson;
     this.totalUsage = {};
     this.exitedEarly = true;
-    this.validateSchema = function (this: Experiment<T>, value: unknown) {
+    this.validateSchema = function(this: Experiment<T>, value: unknown) {
       return Value.Check(this.queryData.responseSchema, value);
     };
     this.prompts = prompts;
-    this.iterateConversation = async function (
+    this.iterateConversation = async function(
       this: Experiment<T>,
       vars: ExpVarsFixedPrompt,
       tool: ModelTool,
@@ -255,7 +255,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.getTurnResponse = async function (
+    this.getTurnResponse = async function(
       this: Experiment<T>,
       model: Model,
       prompt: TurnPrompt,
@@ -294,7 +294,7 @@ export default class Experiment<T extends GenericExpTypes> {
             ? attemptResult.data
             : JSON.stringify(attemptResult.data);
         logger.warn(
-          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr?.substring(0, 200)}...")`
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr?.substring(0, 10_000)}...")`
         );
         failedAttempts.push(attemptResult);
 
@@ -320,7 +320,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
       return res;
     };
-    this.tryResponse = async function (
+    this.tryResponse = async function(
       model: Model,
       prompt: string,
       params: ModelTool,
@@ -372,7 +372,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.runTrial = runTrial;
-    this.runTrials = async function (
+    this.runTrials = async function(
       this: Experiment<T>,
       vars: ExpVars,
       numTrials: number,
@@ -411,7 +411,7 @@ export default class Experiment<T extends GenericExpTypes> {
       };
     };
     this.evaluateTrial = evaluateTrial;
-    this.evaluate = async function (
+    this.evaluate = async function(
       this: Experiment<T>,
       exp: ExperimentData<T>
     ) {
@@ -427,7 +427,7 @@ export default class Experiment<T extends GenericExpTypes> {
           : await combineEvaluations(trialEvaluationResults),
       };
     };
-    this.perform = async function (
+    this.perform = async function(
       this: Experiment<T>,
       vars: ExpVars,
       trials: number,
@@ -458,7 +458,7 @@ export default class Experiment<T extends GenericExpTypes> {
       return expData;
     };
     this.sanityCheck = sanityCheck;
-    this.performMulti = async function (
+    this.performMulti = async function(
       this: Experiment<T>,
       variables: ExpVarMatrix,
       trials: number,
@@ -508,14 +508,14 @@ export default class Experiment<T extends GenericExpTypes> {
         usage: this.totalUsage,
       };
     };
-    this.handleEarlyExit = async function (
+    this.handleEarlyExit = async function(
       this: Experiment<T>,
       res: ExperimentData<T>[],
       folder: string
     ) {
       const self = this; // eslint-disable-line @typescript-eslint/no-this-alias
       let callCount = 0;
-      process.on("uncaughtException", async function (err) {
+      process.on("uncaughtException", async function(err) {
         logger.error(
           `🛑 Uncaught exception: ${err}, saving results and exiting early.`
         );
@@ -523,7 +523,7 @@ export default class Experiment<T extends GenericExpTypes> {
         process.exit(1);
       });
       for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"] as const) {
-        process.on(signal, async function () {
+        process.on(signal, async function() {
           if (callCount < 1) {
             logger.error(
               `🛑 Received ${signal} signal, saving results and exiting early.`
@@ -536,7 +536,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
     };
     this.expDataToExpScore = expDataToExpScore;
-    this.printExpResTable = function (
+    this.printExpResTable = function(
       this: Experiment<T>,
       exps: ExperimentData<T>[]
     ) {
@@ -621,7 +621,7 @@ export default class Experiment<T extends GenericExpTypes> {
         );
       }
     };
-    this.printUsage = function (
+    this.printUsage = function(
       this: Experiment<T>,
       usage: Usages | undefined,
       final?: boolean

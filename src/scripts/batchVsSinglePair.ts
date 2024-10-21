@@ -43,6 +43,7 @@ const bvsp = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   //dpart: Object.values(dsParts),
+  jobType: [{ id: "batches" }, { id: "singlePair" }, { id: "allPairs" }],
   dpart: [
     // en rel
     //ws353Rel_rel,
