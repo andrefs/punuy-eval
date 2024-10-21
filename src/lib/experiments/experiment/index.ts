@@ -505,13 +505,17 @@ export default class Experiment<T extends GenericExpTypes> {
       res: ExperimentData<T>[],
       folder: string
     ) {
-      console.log("XXXXXXXXXXXXXx 1");
       const self = this; // eslint-disable-line @typescript-eslint/no-this-alias
       let callCount = 0;
+      process.on("uncaughtException", async function (err) {
+        logger.error(
+          `🛑 Uncaught exception: ${err}, saving results and exiting early.`
+        );
+        await wrapUp(self, res, folder, true);
+        process.exit(1);
+      });
       for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"] as const) {
-        console.log("XXXXXXXXXXXXXx 2", process.pid);
         process.on(signal, async function () {
-          console.log("XXXXXXXXXXXXXx 3", signal);
           if (callCount < 1) {
             logger.error(
               `🛑 Received ${signal} signal, saving results and exiting early.`
