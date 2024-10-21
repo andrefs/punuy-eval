@@ -112,7 +112,10 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, "mistral" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "mistral" as ModelProvider, makeRequest, {
+    pricing,
+    reqDelayMs: 250,
+  });
 };
 
 // https://mistral.ai/technology/#pricing

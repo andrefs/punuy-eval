@@ -1,6 +1,11 @@
 import { ExpVarMatrix } from "../lib/experiments";
 import path from "path";
-import { gpt4omini_20240718 } from "../lib/models";
+import {
+  claude3haiku,
+  gemini15flash_002,
+  gpt4omini_20240718,
+  ministral8b_2410,
+} from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/batch-vs-single-pair/prompts";
@@ -40,11 +45,11 @@ const evm: ExpVarMatrix = {
   //dpart: Object.values(dsParts),
   dpart: [
     // en rel
-    ws353Rel_rel,
-    mt287_mturk,
+    //ws353Rel_rel,
+    //mt287_mturk,
     // en sim
     ws353Sim_sim,
-    yp130_verbpairs,
+    //yp130_verbpairs,
     //srw2034,
     //pap900_rel,
     //pap900_sim,
@@ -60,7 +65,9 @@ const evm: ExpVarMatrix = {
     //claude3opus,
     //gemini10pro,
     //gemini15pro,
-    //gemini15flash,
+    gemini15flash_002,
+    ministral8b_2410,
+    claude3haiku,
     //mistralLarge_2407,
     //openMixtral8x22B,
   ],

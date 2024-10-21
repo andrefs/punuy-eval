@@ -48,6 +48,7 @@ import {
   Usages,
 } from "./types";
 import { renderTable } from "console-table-printer";
+import { delay } from "src/lib/utils";
 export * from "./types";
 
 /** Class representing an experiment. */
@@ -328,6 +329,13 @@ export default class Experiment<T extends GenericExpTypes> {
       let result;
       let data;
       let usage;
+
+      if (model?.reqDelayMs) {
+        logger.trace(
+          `⏳ waiting for ${model.reqDelayMs} ms (model provider requirement) before making request.`
+        );
+        await delay(model.reqDelayMs!);
+      }
       try {
         result = await model.makeRequest(prompt, params);
         usage = result?.usage;

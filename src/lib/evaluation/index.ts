@@ -95,6 +95,7 @@ export type EvaluationResultType =
   | "data-invalid-on-all-tries"
   | "non-usable-data"
   | "data-correct"
+  | "mismatched-data"
   | "insufficient-data";
 
 export class EvaluationResult<DataType, ExpectedType = DataType> {
@@ -222,6 +223,15 @@ export class InsufficientData<
 > extends DataEvalNotOk<DataType, ExpectedType> {
   constructor(got: DataType, expected: ExpectedType) {
     super("insufficient-data", got, expected);
+  }
+}
+
+export class MismatchedData<
+  DataType,
+  ExpectedType = DataType,
+> extends DataEvalNotOk<DataType, ExpectedType> {
+  constructor(got: DataType, expected: ExpectedType) {
+    super("mismatched-data", got, expected);
   }
 }
 

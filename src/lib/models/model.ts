@@ -147,16 +147,25 @@ export class Model {
   provider: ModelProvider;
   makeRequest: MakeRequest;
   pricing?: ModelPricing;
+  reqDelayMs?: number;
 
   constructor(
     id: string,
     provider: ModelProvider,
     makeRequest: MakeRequest,
-    pricing?: ModelPricing
+    options: {
+      pricing?: ModelPricing;
+      reqDelayMs?: number;
+    } = {}
   ) {
     this.id = id;
     this.provider = provider;
     this.makeRequest = makeRequest;
-    this.pricing = pricing;
+    if (options.pricing) {
+      this.pricing = options.pricing;
+    }
+    if (options.reqDelayMs) {
+      this.reqDelayMs = options.reqDelayMs;
+    }
   }
 }

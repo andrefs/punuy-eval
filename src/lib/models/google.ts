@@ -153,7 +153,9 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, "google" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "google" as ModelProvider, makeRequest, {
+    pricing,
+  });
 };
 
 // https://ai.google.dev/pricing
@@ -174,6 +176,11 @@ const pricing = {
     output: 1.5 / 1_000_000,
     currency: "$" as const,
   },
+  gemini15flash_8b: {
+    input: 0.0375 / 1_000_000,
+    output: 0.15 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
 // https://ai.google.dev/gemini-api/docs/models/gemini
@@ -191,4 +198,10 @@ export const gemini15flash_002 = buildModel(
   genAI,
   "gemini-1.5-flash-002",
   pricing.gemini15flash_002
+);
+
+export const gemini15flash_8b = buildModel(
+  genAI,
+  "gemini-1.5-flash-8b",
+  pricing.gemini15flash_8b
 );

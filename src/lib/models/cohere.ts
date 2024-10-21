@@ -105,7 +105,9 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, "cohere" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "cohere" as ModelProvider, makeRequest, {
+    pricing,
+  });
 };
 
 // https://cohere.com/pricing

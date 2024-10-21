@@ -9,7 +9,7 @@ import { getVarIds, valueFromEntry } from "../experiment/aux";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import pcorrTest from "@stdlib/stats-pcorrtest";
 import { PCExpTypes } from ".";
-import { InsufficientData } from "src/lib/evaluation";
+import { InsufficientData, MismatchedData } from "src/lib/evaluation";
 import { pairsToHash } from "../aux";
 
 /**
@@ -66,26 +66,15 @@ export function trialEvalScores(
   dpart: Pick<DsPartition, "data" | "scale">,
   raw: PairScoreList
 ): TrialEvalScoresResult {
-  const got = rawResultsToAvg(raw.filter(x => x !== null));
-  const pairHash = pairsToHash(
-    pairs.map(
-      ([w1, w2]) =>
-        [w1.toLowerCase(), w2.toLowerCase()].sort() as [string, string]
-    )
-  );
+  const gotData = rawResultsToAvg(raw.filter(x => x !== null));
+  const pairHash = pairsToHash(pairs);
+  const expData: ScoreDict = {};
   const targetScale = { min: 1, max: 5 };
-  const gotVsExp: {
-    [key: string]: { [key: string]: { got?: number; exp?: number } };
-  } = {};
 
-  for (const expected of dpart.data) {
-    const expValue = valueFromEntry(expected, dpart.scale, targetScale);
-    if (typeof expValue !== "number") {
-      continue;
-    }
+  for (const pair of dpart.data) {
     const [w1, w2] = [
-      expected.term1.toLowerCase(),
-      expected.term2.toLowerCase(),
+      pair.term1.toLowerCase(),
+      pair.term2.toLowerCase(),
     ].sort();
 
     // pair was not included in the LLM prompt
@@ -95,37 +84,45 @@ export function trialEvalScores(
     ) {
       continue;
     }
-    // pair was not included in the LLM response
-    if (
-      (!(w1 in got) || !(w2 in got[w1])) &&
-      (!(w2 in got) || !(w1 in got[w2]))
-    ) {
+
+    const expValue = valueFromEntry(pair, dpart.scale, targetScale);
+    if (typeof expValue !== "number") {
+      // something went wrong with the scale conversion
       continue;
     }
-    // pair included in dataset partition, LLM prompt and LLM response
-    if ((w1 in got && w2 in got[w1]) || (w2 in got && w1 in got[w2])) {
-      gotVsExp[w1] = gotVsExp[w1] || {};
-      gotVsExp[w1][w2] = gotVsExp[w1][w2] || {};
-      gotVsExp[w1][w2] = {
-        got: got[w1]?.[w2] ?? got[w2][w1],
-        exp: expValue,
-      };
-    }
+    expData[w1] = expData[w1] || {};
+    expData[w1][w2] = expValue;
   }
 
-  const gotArr = [] as number[];
-  const expArr = [] as number[];
-  for (const w1 in gotVsExp) {
-    for (const w2 in gotVsExp[w1]) {
-      gotArr.push(gotVsExp[w1][w2].got!);
-      expArr.push(gotVsExp[w1][w2].exp!);
+  // got and exp have different lengths, throw Mismatch
+  if (raw.length !== pairs.length) {
+    throw new MismatchedData(gotData, expData);
+  }
+
+  // they have the same length, but do they have the same pairs?
+  const gotArr: number[] = [];
+  const expArr: number[] = [];
+  const gotVsExp: {
+    [key: string]: { [key: string]: { got?: number; exp?: number } };
+  } = {};
+  for (const w1 in expData) {
+    for (const w2 in expData[w1]) {
+      if (
+        (!(w1 in gotData) || !(w2 in gotData[w1])) &&
+        (!(w2 in gotData) || !(w1 in gotData[w2]))
+      ) {
+        // nope, throw Mismatch
+        throw new MismatchedData(gotData, expData);
+      } else {
+        expArr.push(expData[w1][w2]);
+        gotArr.push(gotData[w1][w2]);
+        gotVsExp[w1] = gotVsExp[w1] || {};
+        gotVsExp[w1][w2] = {
+          got: gotData[w1][w2],
+          exp: expData[w1][w2],
+        };
+      }
     }
-  }
-  if (gotArr.length < 10 || gotArr.length < pairs.length / 2) {
-    throw new InsufficientData(gotArr, expArr);
-  }
-  if (gotArr.length !== expArr.length) {
-    throw new Error("Got and expected arrays have different lengths");
   }
 
   const corr = pcorrTest(gotArr, expArr);

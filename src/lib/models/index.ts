@@ -12,6 +12,7 @@ import {
   gemini10pro_001,
   gemini15flash_002,
   gemini15pro_002,
+  gemini15flash_8b,
   //
   gpt35turbo_0125,
   gpt4_0613,
@@ -75,7 +76,8 @@ export type ModelId =
   // google;
   | "gemini-1.0-pro-001"
   | "gemini-1.5-pro-002"
-  | "gemini-1.5-flash-002";
+  | "gemini-1.5-flash-002"
+  | "gemini-1.5-flash-8b";
 
 export type ModelProvider =
   | "openai"
@@ -122,6 +124,7 @@ const modelsById: { [key in ModelId]: Model } = {
   "gemini-1.0-pro-001": gemini10pro_001,
   "gemini-1.5-pro-002": gemini15pro_002,
   "gemini-1.5-flash-002": gemini15flash_002,
+  "gemini-1.5-flash-8b": gemini15flash_8b,
 };
 
 export function getModelById(id: ModelId): Model {

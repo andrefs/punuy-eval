@@ -22,3 +22,12 @@ export function getRandom<T>(arr: T[], n: number): T[] {
 
   return result;
 }
+
+/*
+ * Returns a promise that resolves after a given number of milliseconds
+ * @param ms - The number of milliseconds to wait
+ * @returns A promise that resolves after ms milliseconds
+ */
+export function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

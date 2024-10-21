@@ -101,7 +101,9 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, "openai" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "openai" as ModelProvider, makeRequest, {
+    pricing,
+  });
 };
 
 // https://openai.com/api/pricing/

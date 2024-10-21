@@ -19,6 +19,7 @@ import {
 } from "src/lib/evaluation";
 import { getPairScoreListFromDPart } from "../experiment/aux";
 import { trialEvalScores } from "./aux";
+import { fixParsedJson } from "../prediction-correlation";
 
 export const name = "batch-vs-single-pair";
 const description = "Compare the sending pairs one at a time or in batch(es)";
@@ -131,5 +132,5 @@ export default new Experiment(
   query,
   runTrial,
   evaluateTrial,
-  { expDataToExpScore } // TODO add customCombineEvals
+  { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
 );

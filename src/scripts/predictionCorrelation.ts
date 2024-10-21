@@ -62,7 +62,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
-  dpart: Object.values(datasets),
+  dpart: [Object.values(datasets)[0]],
   prompt: prompts,
   model: [
     // super cheap
@@ -74,9 +74,9 @@ const evm: ExpVarMatrix = {
     //ministral3b_2410,
 
     //// low cost
-    gpt35turbo_0125,
+    //gpt35turbo_0125,
     gemini10pro_001,
-    claude3haiku,
+    //claude3haiku,
 
     //// medium cost
     //mistralLarge_2407,

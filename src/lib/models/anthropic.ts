@@ -108,7 +108,9 @@ const buildModel = (
     }
   };
 
-  return new Model(modelId, "anthropic" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "anthropic" as ModelProvider, makeRequest, {
+    pricing,
+  });
 };
 
 // https://www.anthropic.com/pricing#anthropic-api

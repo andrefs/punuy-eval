@@ -155,11 +155,11 @@ async function main() {
   console.log("Errors per model");
   console.log(errorsPerModel);
 
-  plotModelErrors(
-    errorsPerModel,
-    Object.keys(conversationFails),
-    Object.keys(pairFails)
-  );
+  //plotModelErrors(
+  //  errorsPerModel,
+  //  Object.keys(conversationFails),
+  //  Object.keys(pairFails)
+  //);
 }
 
 function countErrors(exps: ExpLog[]) {
