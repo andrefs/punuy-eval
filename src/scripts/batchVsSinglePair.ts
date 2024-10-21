@@ -18,8 +18,6 @@ const bvsp = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await batchVsSinglePair.performMulti(vars, trials, folder);
 
-  batchVsSinglePair.printUsage(res.usage);
-
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },

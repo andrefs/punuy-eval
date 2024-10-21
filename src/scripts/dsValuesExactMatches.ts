@@ -25,8 +25,6 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
   const res = await dsValuesExactMatches.performMulti(vars, trials, folder);
 
-  dsValuesExactMatches.printUsage(res.usage);
-
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },

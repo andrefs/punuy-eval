@@ -61,8 +61,6 @@ const sampleFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
   const res = await dsSampleFromDsName.performMulti(vars, trials, folder);
 
-  dsSampleFromDsName.printUsage(res.usage);
-
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },

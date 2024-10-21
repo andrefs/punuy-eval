@@ -18,8 +18,6 @@ const nameFromSample = async (vars: ExpVarMatrix) => {
 
   const res = await dsNameFromDsSample.performMulti(vars, trials, folder);
 
-  dsNameFromDsSample.printUsage(res.usage);
-
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },

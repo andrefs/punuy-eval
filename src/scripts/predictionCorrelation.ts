@@ -42,8 +42,6 @@ const predCorr = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await predictionCorrelation.performMulti(vars, trials, folder);
 
-  predictionCorrelation.printUsage(res.usage, true);
-
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
@@ -68,17 +66,17 @@ const evm: ExpVarMatrix = {
   prompt: prompts,
   model: [
     // super cheap
-    mistralSmall_2409,
-    gpt4omini_20240718,
-    openMistralNemo_2407,
-    ministral8b_2410,
-    gemini15flash_002,
-    ministral3b_2410,
+    //mistralSmall_2409,
+    //gpt4omini_20240718,
+    //openMistralNemo_2407,
+    //ministral8b_2410,
+    //gemini15flash_002,
+    //ministral3b_2410,
 
     //// low cost
-    //gpt35turbo_0125,
-    //gemini10pro_001,
-    //claude3haiku,
+    gpt35turbo_0125,
+    gemini10pro_001,
+    claude3haiku,
 
     //// medium cost
     //mistralLarge_2407,

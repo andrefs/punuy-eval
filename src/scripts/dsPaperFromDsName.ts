@@ -17,8 +17,6 @@ const paperFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
   const res = await dsPaperFromDsName.performMulti(vars, trials, folder);
 
-  dsPaperFromDsName.printUsage(res.usage);
-
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },

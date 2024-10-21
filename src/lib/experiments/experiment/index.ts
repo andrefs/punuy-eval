@@ -58,12 +58,6 @@ export default class Experiment<T extends GenericExpTypes> {
   prompts?: (Prompt | PromptGenerator)[] = [];
   totalUsage: Usages;
   exitedEarly: boolean;
-  wrapUp: (
-    this: Experiment<T>,
-    res: ExperimentData<T>[],
-    folder: string,
-    exitedEarly: boolean
-  ) => Promise<void>;
   handleEarlyExit: (
     this: Experiment<T>,
     res: ExperimentData<T>[],
@@ -299,7 +293,7 @@ export default class Experiment<T extends GenericExpTypes> {
             ? attemptResult.data
             : JSON.stringify(attemptResult.data);
         logger.warn(
-          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr?.substring(0, 50)}...")`
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr?.substring(0, 200)}...")`
         );
         failedAttempts.push(attemptResult);
 
@@ -451,7 +445,7 @@ export default class Experiment<T extends GenericExpTypes> {
       expData.results.evaluation = evaluation;
       expData.results.aggregated = aggregated;
 
-      this.printUsage(expData.usage);
+      this.printUsage(expData.usage, false);
       await saveExpVarCombData(expData, folder);
       return expData;
     };
@@ -487,6 +481,7 @@ export default class Experiment<T extends GenericExpTypes> {
       );
 
       const res = [] as ExperimentData<T>[];
+      this.handleEarlyExit(res, folder);
       for (const [index, vc] of varCombs.entries()) {
         logger.info(
           "⚗️  " +
@@ -499,44 +494,33 @@ export default class Experiment<T extends GenericExpTypes> {
         addUsage(this.totalUsage, res[res.length - 1].usage);
       }
 
-      await this.wrapUp(res, folder, false);
+      await wrapUp(this, res, folder, false);
       return {
         experiments: res,
         usage: this.totalUsage,
       };
-    };
-    this.wrapUp = async function (
-      this: Experiment<T>,
-      res: ExperimentData<T>[],
-      folder: string,
-      exitedEarly: boolean
-    ) {
-      this.exitedEarly = exitedEarly;
-      await saveExperimentsData(
-        this.name,
-        res,
-        this.totalUsage,
-        folder,
-        this.exitedEarly
-      );
-      if (this.expDataToExpScore) {
-        this.printExpResTable(res);
-      }
     };
     this.handleEarlyExit = async function (
       this: Experiment<T>,
       res: ExperimentData<T>[],
       folder: string
     ) {
+      console.log("XXXXXXXXXXXXXx 1");
+      const self = this; // eslint-disable-line @typescript-eslint/no-this-alias
       let callCount = 0;
       for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"] as const) {
-        if (callCount < 1) {
-          logger.error(
-            `🛑 Received ${signal} signal, saving results and exiting early.`
-          );
-          await this.wrapUp(res, folder, true);
-        }
-        callCount++;
+        console.log("XXXXXXXXXXXXXx 2", process.pid);
+        process.on(signal, async function () {
+          console.log("XXXXXXXXXXXXXx 3", signal);
+          if (callCount < 1) {
+            logger.error(
+              `🛑 Received ${signal} signal, saving results and exiting early.`
+            );
+            await wrapUp(self, res, folder, true);
+            process.exit(1);
+          }
+          callCount++;
+        });
       }
     };
     this.expDataToExpScore = expDataToExpScore;
@@ -643,4 +627,24 @@ export default class Experiment<T extends GenericExpTypes> {
       );
     };
   }
+}
+
+async function wrapUp<T extends GenericExpTypes>(
+  exp: Experiment<T>,
+  res: ExperimentData<T>[],
+  folder: string,
+  exitedEarly: boolean
+) {
+  exp.exitedEarly = exitedEarly;
+  await saveExperimentsData(
+    exp.name,
+    res,
+    exp.totalUsage,
+    folder,
+    exp.exitedEarly
+  );
+  if (exp.expDataToExpScore) {
+    exp.printExpResTable(res);
+  }
+  exp.printUsage(exp.totalUsage, true);
 }
