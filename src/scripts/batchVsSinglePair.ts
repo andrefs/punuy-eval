@@ -49,15 +49,15 @@ const evm: ExpVarMatrix = {
   jobType: [{ id: "batches" }, { id: "singlePair" }, { id: "allPairs" }],
   dpart: [
     // en rel
-    ws353Rel_rel,
-    mt287_mturk,
-    // en sim
-    ws353Sim_sim,
-    yp130_verbpairs,
-    srw2034_rw,
-    // pt
+    //ws353Rel_rel,
+    //mt287_mturk,
+    //// en sim
+    //ws353Sim_sim,
+    //yp130_verbpairs,
+    //srw2034_rw,
+    //// pt
     pap900_rel,
-    pap900_sim,
+    //pap900_sim,
   ],
   prompt: prompts,
   model: [
@@ -70,8 +70,8 @@ const evm: ExpVarMatrix = {
     //claude3opus,
     //gemini10pro,
     //gemini15pro,
-    gemini15flash_002,
-    ministral8b_2410,
+    //gemini15flash_002,
+    //ministral8b_2410,
     claude3haiku,
     //mistralLarge_2407,
     //openMixtral8x22B,
