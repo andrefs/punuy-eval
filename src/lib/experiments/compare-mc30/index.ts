@@ -272,8 +272,8 @@ async function runTrialModel(model: Model, prompt: Prompt, maxRetries = 3) {
     description: "Evaluate the word similarity scores.",
     schema: query.toolSchema,
   };
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
-  logger.debug(`  ❓ Prompt ${prompt.id}`);
   const res = await getTurnResponse(model, prompt.turns[0], tool, maxRetries);
   return res;
 }
@@ -284,7 +284,7 @@ async function runTrials(trials: number, model: Model, prompt: Prompt) {
   logger.info(
     `Running experiment ${name} ${trials} times on model ${model.id}.`
   );
-  logger.debug(`  ❓ Prompt ${prompt.id}`);
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const results: QueryResponse[] = [];
   for (let i = 0; i < trials; i++) {

@@ -72,7 +72,7 @@ async function runTrial(
 
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`  ❓ Prompt ${prompt.id}`);
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const res = await this.iterateConversation(
     { ...vars, prompt },
