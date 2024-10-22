@@ -55,7 +55,7 @@ async function parseExpLog(filePath: string) {
       exp.pairsOk += 1;
     }
 
-    if (line.match(/👎\s+pairs attempt #\d+ failed: ([-\w]+)/)) {
+    if (line.match(/👎/) && line.match(/pairs attempt #\d+ failed: ([-\w]+)/)) {
       exp.pairFails = exp.pairFails || {};
       exp.pairFails[RegExp.$1] = exp.pairFails[RegExp.$1] + 1 || 1;
     }
@@ -108,6 +108,8 @@ function getResultsPerModel(exps: ExpLog[]) {
     if (exp.conversationFails) {
       for (const fail of Object.keys(exp.conversationFails)) {
         results[exp.model].conversationFails[fail] =
+          results[exp.model].conversationFails[fail] || 0;
+        results[exp.model].conversationFails[fail] +=
           exp.conversationFails[fail];
       }
     }
@@ -116,7 +118,9 @@ function getResultsPerModel(exps: ExpLog[]) {
     }
     if (exp.pairFails) {
       for (const fail of Object.keys(exp.pairFails)) {
-        results[exp.model].pairFails[fail] = exp.pairFails[fail];
+        results[exp.model].pairFails[fail] =
+          results[exp.model].pairFails[fail] || 0;
+        results[exp.model].pairFails[fail] += exp.pairFails[fail];
       }
     }
   }
