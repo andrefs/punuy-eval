@@ -49,7 +49,15 @@ const buildModel = (
     const req: ChatCompletionRequest = {
       model: modelId,
       messages: [
-        { role: "system", content: "You are a helpful assistant." },
+        {
+          role: "system" as const,
+          content: "You are a helpful assistant that outputs only valid JSON.",
+        },
+        {
+          role: "system" as const,
+          content:
+            "Produce only valid JSON output and do not put any text outside of the JSON object.",
+        },
         {
           role: "user",
           content: prompt,

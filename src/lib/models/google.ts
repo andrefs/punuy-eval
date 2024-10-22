@@ -95,7 +95,14 @@ const buildModel = (
       contents: [
         {
           role: "model" as const,
-          parts: [{ text: "You are a helpful assistant." }],
+          parts: [
+            {
+              text: "You are a helpful assistant that outputs only valid JSON.",
+            },
+            {
+              text: "Produce only valid JSON output and do not put any text outside of the JSON object.",
+            },
+          ],
         },
         {
           role: "user" as const,

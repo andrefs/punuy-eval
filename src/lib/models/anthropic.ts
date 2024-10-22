@@ -49,6 +49,16 @@ const buildModel = (
     const req: Anthropic.Messages.MessageCreateParamsNonStreaming = {
       model: modelId,
       max_tokens: 1024,
+      system: [
+        {
+          type: "text",
+          text: "You are a helpful assistant that outputs only valid JSON.",
+        },
+        {
+          type: "text",
+          text: "Produce only valid JSON output and do not put any text outside of the JSON object.",
+        },
+      ],
       messages: [
         {
           role: "user" as const,
