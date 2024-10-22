@@ -46,24 +46,28 @@ const bvsp = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   //dpart: Object.values(dsParts),
-  jobType: [{ id: "batches" }, { id: "singlePair" }, { id: "allPairs" }],
+  jobType: [
+    //{ id: "singlePair" },
+    //{ id: "batches" },
+    { id: "allPairs" },
+  ],
   dpart: [
     // en rel
     //ws353Rel_rel,
     //mt287_mturk,
     //// en sim
-    //ws353Sim_sim,
+    ws353Sim_sim,
     //yp130_verbpairs,
     //srw2034_rw,
     //// pt
-    pap900_rel,
-    pap900_sim,
+    //pap900_rel,
+    //pap900_sim,
   ],
   prompt: prompts,
   model: [
     //gpt35turbo,
     //gpt4,
-    gpt4omini_20240718,
+    //gpt4omini_20240718,
     //gpt4turbo_20240409,
     //gpt4o_20240806,
     //claude3sonnet,
@@ -71,8 +75,8 @@ const evm: ExpVarMatrix = {
     //gemini10pro,
     //gemini15pro,
     //gemini15flash_002,
-    //ministral8b_2410,
-    claude3haiku,
+    ministral8b_2410,
+    //claude3haiku,
     //mistralLarge_2407,
     //openMixtral8x22B,
   ],

@@ -50,7 +50,7 @@ async function parseExpLog(filePath: string) {
       const trials = Number(RegExp.$1);
       exp.trials = trials;
     }
-    if (line.match(/✔/) && line.match(/pairs attempt #1 succeeded/)) {
+    if (line.match(/✔|/) && line.match(/pairs attempt #1 succeeded/)) {
       exp.pairsOk = exp.pairsOk ?? 0;
       exp.pairsOk += 1;
     }

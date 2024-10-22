@@ -279,7 +279,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
         addUsage(totalUsage, usage);
         if (attemptResult instanceof ValidData) {
-          logger.info(`        ✔️  pairs attempt #${faCount + 1} succeeded.`);
+          logger.info(`          pairs attempt #${faCount + 1} succeeded.`);
           const res: TurnResponseOk<T["Data"]> = {
             turnPrompt: prompt,
             failedAttempts,
@@ -294,7 +294,7 @@ export default class Experiment<T extends GenericExpTypes> {
             ? attemptResult.data
             : JSON.stringify(attemptResult.data);
         logger.warn(
-          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: ${dataStr?.substring(0, 10_000)}${dataStr.length > 10_000 ? "..." : ""})`
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: ${dataStr?.substring(0, 10_000)}${dataStr?.length > 10_000 ? "..." : ""})`
         );
         failedAttempts.push(attemptResult);
 
@@ -332,7 +332,7 @@ export default class Experiment<T extends GenericExpTypes> {
 
       if (model?.reqDelayMs) {
         logger.trace(
-          `⏳ waiting for ${model.reqDelayMs} ms (model provider requirement) before making request.`
+          `       ⏳ waiting for ${model.reqDelayMs} ms (provider rate limit) before making request.`
         );
         await delay(model.reqDelayMs!);
       }
@@ -471,7 +471,7 @@ export default class Experiment<T extends GenericExpTypes> {
       }
       const varCombs = splitVarCombsMTL(variables);
 
-      if (!varCombs.length) {
+      if (!varCombs?.length) {
         logger.error(
           "🧐 No variable combinations to run experiments with, aborting."
         );
