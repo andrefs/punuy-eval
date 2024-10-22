@@ -294,7 +294,7 @@ export default class Experiment<T extends GenericExpTypes> {
             ? attemptResult.data
             : JSON.stringify(attemptResult.data);
         logger.warn(
-          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: "${dataStr?.substring(0, 10_000)}...")`
+          `        👎 pairs attempt #${faCount + 1} failed: ${attemptResult.type} (data: ${dataStr?.substring(0, 10_000)}${dataStr.length > 10_000 ? "..." : ""})`
         );
         failedAttempts.push(attemptResult);
 

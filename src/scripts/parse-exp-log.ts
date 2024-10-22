@@ -21,7 +21,9 @@ interface ExpLog {
   jobType: string;
   trials: number;
   pairFails: Record<string, number>;
+  pairsOk: number;
   conversationFails: Record<string, number>;
+  conversationsOk: number;
 }
 
 // ⚗  Running experiment 0/100: prediction-correlation with variables {"jobType":"allPairs","dpart":"rg65#table1","prompt":"sim-afs-survey-en","model":"gemini-1.5-flash-002","language":"en","measureType":"similarity"}
@@ -48,6 +50,10 @@ async function parseExpLog(filePath: string) {
       const trials = Number(RegExp.$1);
       exp.trials = trials;
     }
+    if (line.match(/✔/) && line.match(/pairs attempt #1 succeeded/)) {
+      exp.pairsOk = exp.pairsOk ?? 0;
+      exp.pairsOk += 1;
+    }
 
     if (line.match(/👎\s+pairs attempt #\d+ failed: ([-\w]+)/)) {
       exp.pairFails = exp.pairFails || {};
@@ -61,6 +67,10 @@ async function parseExpLog(filePath: string) {
         exp.conversationFails[error] = exp.conversationFails[error] + 1 || 1;
       }
     }
+    if (line.match(/✅\s+conversation attempt #\d+ succeeded/)) {
+      exp.conversationsOk = exp.conversationsOk ?? 0;
+      exp.conversationsOk += 1;
+    }
   }
   if (exp.dpart && exp.model) {
     exps.push(exp);
@@ -68,11 +78,13 @@ async function parseExpLog(filePath: string) {
   return exps;
 }
 
-function getErrorsPerModel(exps: ExpLog[]) {
-  const errors: {
+function getResultsPerModel(exps: ExpLog[]) {
+  const results: {
     [model: string]: {
       conversationFails: { [error: string]: number };
       pairFails: { [error: string]: number };
+      converstationsOk: number;
+      pairsOk: number;
     };
   } = {};
 
@@ -81,22 +93,34 @@ function getErrorsPerModel(exps: ExpLog[]) {
       continue;
     }
 
-    if (!errors[exp.model]) {
-      errors[exp.model] = { conversationFails: {}, pairFails: {} };
+    if (!results[exp.model]) {
+      results[exp.model] = {
+        conversationFails: {},
+        pairFails: {},
+        converstationsOk: 0,
+        pairsOk: 0,
+      };
+    }
+
+    if (exp.conversationsOk) {
+      results[exp.model].converstationsOk += exp.conversationsOk;
     }
     if (exp.conversationFails) {
       for (const fail of Object.keys(exp.conversationFails)) {
-        errors[exp.model].conversationFails[fail] = exp.conversationFails[fail];
+        results[exp.model].conversationFails[fail] =
+          exp.conversationFails[fail];
       }
     }
-
+    if (exp.pairsOk) {
+      results[exp.model].pairsOk += exp.pairsOk;
+    }
     if (exp.pairFails) {
       for (const fail of Object.keys(exp.pairFails)) {
-        errors[exp.model].pairFails[fail] = exp.pairFails[fail];
+        results[exp.model].pairFails[fail] = exp.pairFails[fail];
       }
     }
   }
-  return errors;
+  return results;
 }
 
 function plotModelErrors(
@@ -151,9 +175,9 @@ async function main() {
   console.log("Pair errors");
   console.log(pairFails);
 
-  const errorsPerModel = getErrorsPerModel(exps as ExpLog[]);
+  const resultsPerModel = getResultsPerModel(exps as ExpLog[]);
   console.log("Errors per model");
-  console.log(errorsPerModel);
+  console.log(resultsPerModel);
 
   //plotModelErrors(
   //  errorsPerModel,

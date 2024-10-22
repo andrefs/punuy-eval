@@ -14,6 +14,9 @@ import ws353Sim_sim from "src/lib/dataset-partitions/ws353Sim_sim";
 import yp130_verbpairs from "src/lib/dataset-partitions/yp130_verbpairs";
 import mt287_mturk from "src/lib/dataset-partitions/mt287_mturk";
 import batchVsSinglePair from "src/lib/experiments/batch-vs-single-pair";
+import srw2034_rw from "src/lib/dataset-partitions/srw2034_rw";
+import pap900_rel from "src/lib/dataset-partitions/pap900_rel";
+import pap900_sim from "src/lib/dataset-partitions/pap900_sim";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
@@ -46,14 +49,15 @@ const evm: ExpVarMatrix = {
   jobType: [{ id: "batches" }, { id: "singlePair" }, { id: "allPairs" }],
   dpart: [
     // en rel
-    //ws353Rel_rel,
-    //mt287_mturk,
+    ws353Rel_rel,
+    mt287_mturk,
     // en sim
     ws353Sim_sim,
-    //yp130_verbpairs,
-    //srw2034,
-    //pap900_rel,
-    //pap900_sim,
+    yp130_verbpairs,
+    srw2034_rw,
+    // pt
+    pap900_rel,
+    pap900_sim,
   ],
   prompt: prompts,
   model: [
