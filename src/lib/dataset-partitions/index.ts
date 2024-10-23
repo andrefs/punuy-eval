@@ -42,6 +42,8 @@ import yp130_verbpairs from "./yp130_verbpairs";
 import zie55_B0 from "./zie55_B0";
 import zie55_B1 from "./zie55_B1";
 import word19k_test from "./word19k_test";
+import pap900_rel from "./pap900_rel";
+import pap900_sim from "./pap900_sim";
 
 export default {
   atlasify240_main,
@@ -63,6 +65,8 @@ export default {
   minimayoSRS_physicians,
   mt287_mturk,
   mturk771_mturk,
+  pap900_rel,
+  pap900_sim,
   ps65_main,
   pt65_main,
   rel122_main,

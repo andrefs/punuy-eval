@@ -171,11 +171,11 @@ export interface AggregatedEvaluationResult {
   /*
    * Average score over all results
    */
-  allDataAvg: number;
+  allDataAvg: number | null;
   /*
    * Average score over ok results
    */
-  okDataAvg: number;
+  okDataAvg: number | null;
   resultTypes: {
     [key in EvaluationResultType]: number;
   };
@@ -201,5 +201,5 @@ export interface Usage {
 
 export interface ExpScore {
   variables: ExpVars;
-  score: number;
+  score: number | null;
 }

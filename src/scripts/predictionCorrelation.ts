@@ -62,7 +62,8 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
-  dpart: Object.values(datasets),
+  //dpart: Object.values(datasets),
+  dpart: [datasets.pap900_sim, datasets.pap900_rel],
   prompt: prompts,
   model: [
     // super cheap

@@ -254,8 +254,8 @@ export async function combineEvaluations<DataType, ExpectedType = DataType>(
   }
 
   return {
-    allDataAvg: sum / vs.length,
-    okDataAvg: okSum / okCount,
+    allDataAvg: vs.length ? sum / vs.length : null,
+    okDataAvg: okCount ? okSum / okCount : null,
     resultTypes,
   };
 }
