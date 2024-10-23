@@ -16,7 +16,7 @@ describe("prediction-correlation", () => {
       expect(result.type).toEqual("non-usable-data");
     });
 
-    it("should return InsufficientData if less than half of the pairs are usable", async () => {
+    it("should return NonUsableData if there are not enough pairs", async () => {
       const dpart = createMockDsPart();
       const got = [
         {
@@ -40,7 +40,61 @@ describe("prediction-correlation", () => {
         dpart,
         got
       );
-      expect(result.type).toEqual("insufficient-data");
+      expect(result.type).toEqual("non-usable-data");
+    });
+    it("should return MismatchedData if not all word pairs match the prompt", async () => {
+      const dpart = createMockDsPart();
+      dpart.data = [
+        { term1: "a", term2: "b", value: 0.1 },
+        { term1: "c", term2: "d", value: 0.2 },
+        { term1: "e", term2: "f", value: 0.3 },
+        { term1: "g", term2: "h", value: 0.4 },
+        { term1: "i", term2: "j", value: 0.5 },
+        { term1: "k", term2: "l", value: 0.6 },
+        { term1: "m", term2: "n", value: 0.7 },
+        { term1: "o", term2: "p", value: 0.8 },
+        { term1: "q", term2: "r", value: 0.9 },
+        { term1: "s", term2: "t", value: 1 },
+      ];
+      const got = [
+        {
+          data: {
+            scores: [
+              { words: ["a", "b"], score: 0.5 },
+              { words: ["c", "d"], score: 0.3 },
+              { words: ["e", "f"], score: 0.4 },
+              { words: ["g", "h"], score: 0.1 },
+              { words: ["k", "l"], score: 0.2 },
+              { words: ["m", "n"], score: 0.1 },
+              { words: ["o", "p"], score: 0.9 },
+              { words: ["u", "v"], score: 0.9 },
+              { words: ["w", "x"], score: 0.1 },
+              { words: ["y", "z"], score: 0.1 },
+            ],
+          },
+          prompt: {
+            text: "prompt-text",
+            pairs: [
+              ["a", "b"],
+              ["c", "d"],
+              ["e", "f"],
+              ["g", "h"],
+              ["i", "j"],
+              ["k", "l"],
+              ["m", "n"],
+              ["o", "p"],
+              ["q", "r"],
+              ["s", "t"],
+            ] as [string, string][],
+          },
+        },
+      ];
+      const result = await evaluateTrial.call(
+        { name: "name", description: "description" } as Experiment<PCExpTypes>,
+        dpart,
+        got
+      );
+      expect(result.type).toEqual("mismatched-data");
     });
 
     it("should return DataCorrect if all pair scores are equal", async () => {
@@ -66,7 +120,7 @@ describe("prediction-correlation", () => {
           },
           prompt: {
             text: "prompt-text",
-            pairs,
+            pairs: pairs.slice(0, 20),
           },
         },
       ];
@@ -101,7 +155,7 @@ describe("prediction-correlation", () => {
           },
           prompt: {
             text: "prompt-text",
-            pairs,
+            pairs: pairs.slice(0, 20),
           },
         },
       ];
