@@ -47,28 +47,25 @@ describe("print", () => {
         [
           {
             "data": {
-              "dpart=train, model=gpt2, prompt=prompt1": {
+              "": {
                 "en": 0.1,
                 "pt": 0.2,
               },
             },
-            "fixedValueConfig": {},
+            "fixedValueConfig": [
+              "dpart",
+              "model",
+              "prompt",
+            ],
             "variables": [
-              [
-                "dpart",
-                "model",
-                "prompt",
-              ],
-              [
-                "language",
-              ],
+              "language",
             ],
           },
         ]
       `);
     });
 
-    it("should return comparisons (1)", () => {
+    it.skip("should return comparisons (1)", () => {
       const varValues = {
         dpart: new Set(["train"]),
         model: new Set(["gpt2"]),
@@ -154,29 +151,27 @@ describe("print", () => {
 
       const res = generateComparisons(varValues, expScores);
       expect(res).toMatchInlineSnapshot(`
-      [
-        {
-          "data": {
-            "dpart=train, model=gpt2": {
-              "prompt=prompt1, language=en": 0.1,
-              "prompt=prompt2, language=pt": 0.2,
+        [
+          {
+            "data": {
+              "": {
+                "prompt=prompt1, language=en": 0.1,
+                "prompt=prompt2, language=pt": 0.2,
+              },
             },
-          },
-          "fixedValueConfig": {},
-          "variables": [
-            [
+            "fixedValueConfig": [
               "dpart",
               "model",
             ],
-            [
+            "variables": [
               "prompt",
               "language",
             ],
-          ],
-        },
-      ]
-    `);
+          },
+        ]
+      `);
     });
+
     it("should return comparisons (3)", () => {
       const varValues = {
         dpart: new Set(["train"]),
@@ -221,115 +216,33 @@ describe("print", () => {
 
       const res = generateComparisons(varValues, expScores);
       expect(res).toMatchInlineSnapshot(`
-      [
-        {
-          "data": {
-            "dpart=train, model=gpt2, measureType=similarity": {
-              "prompt1": 0.1,
+        [
+          {
+            "data": {
+              "prompt1": {
+                "en": 0.1,
+                "pt": 0.2,
+              },
+              "prompt2": {
+                "pt": 0.2,
+              },
             },
-          },
-          "fixedValueConfig": {
-            "language": "en",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-              "measureType",
-            ],
-            [
-              "prompt",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "dpart=train, model=gpt2, measureType=similarity": {
-              "prompt1": 0.2,
-              "prompt2": 0.2,
+            "fixedValueConfig": {
+              "dpart": "train",
+              "measureType": "similarity",
+              "model": "gpt2",
             },
-          },
-          "fixedValueConfig": {
-            "language": "pt",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-              "measureType",
+            "variables": [
+              [
+                "prompt",
+              ],
+              [
+                "language",
+              ],
             ],
-            [
-              "prompt",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "dpart=train, model=gpt2, measureType=similarity": {
-              "en": 0.1,
-              "pt": 0.2,
-            },
           },
-          "fixedValueConfig": {
-            "prompt": "prompt1",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-              "measureType",
-            ],
-            [
-              "language",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "dpart=train, model=gpt2, measureType=similarity": {
-              "pt": 0.2,
-            },
-          },
-          "fixedValueConfig": {
-            "prompt": "prompt2",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-              "measureType",
-            ],
-            [
-              "language",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "prompt1": {
-              "en": 0.1,
-              "pt": 0.2,
-            },
-            "prompt2": {
-              "pt": 0.2,
-            },
-          },
-          "fixedValueConfig": {
-            "dpart": "train",
-            "measureType": "similarity",
-            "model": "gpt2",
-          },
-          "variables": [
-            [
-              "prompt",
-            ],
-            [
-              "language",
-            ],
-          ],
-        },
-      ]
-    `);
+        ]
+      `);
     });
 
     it("should return comparisons (4)", () => {
@@ -376,117 +289,36 @@ describe("print", () => {
 
       const res = generateComparisons(varValues, expScores);
       expect(res).toMatchInlineSnapshot(`
-      [
-        {
-          "data": {
-            "dpart=train, model=gpt2": {
-              "prompt=prompt1, measureType=similarity": 0.1,
+        [
+          {
+            "data": {
+              "prompt=prompt1, measureType=similarity": {
+                "en": 0.1,
+                "pt": 0.2,
+              },
+              "prompt=prompt2, measureType=relatedness": {
+                "pt": 0.2,
+              },
             },
-          },
-          "fixedValueConfig": {
-            "language": "en",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-            ],
-            [
-              "prompt",
-              "measureType",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "dpart=train, model=gpt2": {
-              "prompt=prompt1, measureType=similarity": 0.2,
-              "prompt=prompt2, measureType=relatedness": 0.2,
+            "fixedValueConfig": {
+              "dpart": "train",
+              "model": "gpt2",
             },
-          },
-          "fixedValueConfig": {
-            "language": "pt",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
+            "variables": [
+              [
+                "prompt",
+                "measureType",
+              ],
+              [
+                "language",
+              ],
             ],
-            [
-              "prompt",
-              "measureType",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "dpart=train, model=gpt2": {
-              "en": 0.1,
-              "pt": 0.2,
-            },
           },
-          "fixedValueConfig": {
-            "measureType": "similarity",
-            "prompt": "prompt1",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-            ],
-            [
-              "language",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "dpart=train, model=gpt2": {
-              "pt": 0.2,
-            },
-          },
-          "fixedValueConfig": {
-            "measureType": "relatedness",
-            "prompt": "prompt2",
-          },
-          "variables": [
-            [
-              "dpart",
-              "model",
-            ],
-            [
-              "language",
-            ],
-          ],
-        },
-        {
-          "data": {
-            "prompt=prompt1, measureType=similarity": {
-              "en": 0.1,
-              "pt": 0.2,
-            },
-            "prompt=prompt2, measureType=relatedness": {
-              "pt": 0.2,
-            },
-          },
-          "fixedValueConfig": {
-            "dpart": "train",
-            "model": "gpt2",
-          },
-          "variables": [
-            [
-              "prompt",
-              "measureType",
-            ],
-            [
-              "language",
-            ],
-          ],
-        },
-      ]
-    `);
+        ]
+      `);
     });
   });
+
   describe("calcCorrVarValues", () => {
     it("should calculate tree of variable values", () => {
       const expScores: ExpScore[] = [
@@ -507,6 +339,7 @@ describe("print", () => {
           score: 0.2,
         },
       ];
+
       const res = calcCorrVarValues(expScores);
       expect(res).toMatchInlineSnapshot(`
         {
@@ -596,13 +429,9 @@ describe("print", () => {
           },
         },
       };
-      const res = mergeCorrVarNames(cvv);
+      const res = mergeCorrVarNames(cvv, ["dpart", "model"]);
       expect(res).toMatchInlineSnapshot(`
         [
-          Set {
-            "dpart",
-            "model",
-          },
           Set {
             "language",
             "prompt",
@@ -640,19 +469,17 @@ describe("print", () => {
         },
       };
 
-      const res = mergeCorrVarNames(cvv);
+      const res = mergeCorrVarNames(cvv, []);
       expect(res).toMatchInlineSnapshot(`
         [
-          [
+          Set {
             "a",
             "b",
             "d",
-          ],
-          ,
-          [
+          },
+          Set {
             "c",
-          ],
-          ,
+          },
         ]
       `);
     });

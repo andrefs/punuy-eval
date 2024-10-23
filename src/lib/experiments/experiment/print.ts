@@ -108,6 +108,15 @@ export function mergeCorrVarNames(
   return res.filter(r => !!r.size);
 }
 
+function varsToStr(vars: Set<string>, variables: ExpVars) {
+  return vars.size === 1
+    ? variables[Array.from(vars)[0] as keyof ExpVars]!.id
+    : Array.from(vars)
+      .map(v => [v, variables[v as keyof ExpVars]!.id])
+      .map(([v, id]) => `${v}=${id}`)
+      .join(", ");
+}
+
 export function generateComparisons(
   varValues: { [vn: string]: Set<string> },
   expScores: ExpScore[]
@@ -119,6 +128,26 @@ export function generateComparisons(
   const corrVarValues = calcCorrVarValues(expScores);
   const varNames = mergeCorrVarNames(corrVarValues, constValueVars);
 
+  if (varNames.length === 1) {
+    const data = {} as Record<string, Record<string, number | null>>;
+    for (const expScore of expScores) {
+      const v2Val = varsToStr(varNames[0], expScore.variables);
+      const score =
+        typeof expScore.score === "number" && !isNaN(expScore.score)
+          ? Number(expScore.score.toFixed(3))
+          : null;
+      data[""] = data[""] || {};
+      data[""][v2Val] = score;
+    }
+
+    return [
+      {
+        data,
+        fixedValueConfig: constValueVars,
+        variables: Array.from(varNames[0]) as (keyof ExpVars)[],
+      },
+    ];
+  }
   for (const [i, v1s] of varNames.entries()) {
     for (const v2s of varNames.slice(i + 1)) {
       const compGroups = [] as ComparisonGroup[];
@@ -127,20 +156,8 @@ export function generateComparisons(
       );
 
       for (const expScore of expScores) {
-        const v1Val =
-          v1s.size === 1
-            ? expScore.variables[Array.from(v1s)[0] as keyof ExpVars]!.id
-            : Array.from(v1s)
-              .map(v => [v, expScore.variables[v as keyof ExpVars]!.id])
-              .map(([v, id]) => `${v}=${id}`)
-              .join(", ");
-        const v2Val =
-          v2s.size === 1
-            ? expScore.variables[Array.from(v2s)[0] as keyof ExpVars]!.id
-            : Array.from(v2s)
-              .map(v => [v, expScore.variables[v as keyof ExpVars]!.id])
-              .map(([v, id]) => `${v}=${id}`)
-              .join(", ");
+        const v1Val = varsToStr(v1s, expScore.variables);
+        const v2Val = varsToStr(v2s, expScore.variables);
         const score =
           typeof expScore.score === "number" && !isNaN(expScore.score)
             ? Number(expScore.score.toFixed(3))
