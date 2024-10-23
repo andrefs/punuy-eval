@@ -69,10 +69,10 @@ const evm: ExpVarMatrix = {
     // super cheap
     mistralSmall_2409,
     gpt4omini_20240718,
-    openMistralNemo_2407,
-    ministral8b_2410,
-    gemini15flash_002,
-    ministral3b_2410,
+    //openMistralNemo_2407,
+    //ministral8b_2410,
+    //gemini15flash_002,
+    //ministral3b_2410,
 
     //// low cost
     //gpt35turbo_0125,

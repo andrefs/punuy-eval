@@ -179,7 +179,7 @@ function genVCHelper(vars: ExpVarMatrix): Partial<ExpVars>[] {
 }
 
 export function calcVarValues<T extends GenericExpTypes>(
-  exps: ExperimentData<T>[]
+  exps: Pick<ExperimentData<T>, "variables">[]
 ) {
   const varValues: { [key: string]: Set<string> } = {};
   for (const r of exps) {
@@ -197,7 +197,7 @@ export function calcVarValues<T extends GenericExpTypes>(
 
 export interface ComparisonGroup {
   fixedValueConfig: FixedValueConfig;
-  variables: [keyof ExpVars, keyof ExpVars];
+  variables: [(keyof ExpVars)[], (keyof ExpVars)[]];
   data: {
     [v1: string]: {
       [v2: string]: number | null;
@@ -221,8 +221,8 @@ export function getFixedValueGroup(
   compGroups: ComparisonGroup[],
   variables: ExpVars,
   fixedNames: (keyof ExpVars)[],
-  v1: keyof ExpVars,
-  v2: keyof ExpVars
+  v1s: (keyof ExpVars)[],
+  v2s: (keyof ExpVars)[]
 ): ComparisonGroup {
   for (const g of compGroups) {
     if (fixedNames.every(f => variables[f]!.id === g.fixedValueConfig[f])) {
@@ -236,7 +236,7 @@ export function getFixedValueGroup(
   const newGroup = {
     fixedValueConfig: fvc,
     data: {},
-    variables: [v1, v2] as [keyof ExpVars, keyof ExpVars],
+    variables: [v1s, v2s] as [(keyof ExpVars)[], (keyof ExpVars)[]],
   };
   compGroups.push(newGroup);
   return newGroup;

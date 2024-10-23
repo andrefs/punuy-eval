@@ -107,7 +107,7 @@ async function getTurnResponse(
       return res;
     }
     logger.warn(
-      `         👎 attempt #${faCount + 1} failed: ${tryResp.result.type}`
+      `         ✖  attempt #${faCount + 1} failed: ${tryResp.result.type}`
     );
     failedAttempts.push(tryResp.result);
 

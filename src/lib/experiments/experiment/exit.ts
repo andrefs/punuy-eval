@@ -17,7 +17,6 @@ export async function wrapUp<T extends GenericExpTypes>(
     folder,
     exp.exitedEarly
   );
-  console.log("XXXXXXXXXXXXX", exp);
   if (exp.expDataToExpScore) {
     exp.printExpResTable(res);
   }

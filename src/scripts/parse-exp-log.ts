@@ -54,7 +54,10 @@ async function parseExpLog(filePath: string) {
       exp.pairResults["success"] += 1;
     }
 
-    if (line.match(/👎/) && line.match(/pairs attempt #\d+ failed: ([-\w]+)/)) {
+    if (
+      line.match(/👎|✖/) &&
+      line.match(/pairs attempt #\d+ failed: ([-\w]+)/)
+    ) {
       exp.pairResults = exp.pairResults || {};
       exp.pairResults[RegExp.$1] = exp.pairResults[RegExp.$1] + 1 || 1;
     }

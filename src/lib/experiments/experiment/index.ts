@@ -227,6 +227,8 @@ export default class Experiment<T extends GenericExpTypes> {
             });
           }
           trials.push({ turns });
+        } else {
+          logger.warn(`  🤦 trial #${i + 1}`);
         }
       }
       return {

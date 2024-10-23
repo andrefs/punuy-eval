@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { ExpVarMatrix, ExpVars, Prompt } from "../experiment";
+import { ExperimentData, ExpVarMatrix, ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
 import {
+  calcVarValues,
   genValueCombinations,
   getPairScoreListFromDPart,
   getVarIds,
@@ -11,6 +12,54 @@ import { DsPartition } from "../../dataset-partitions/DsPartition";
 import { createMockDsPart } from "../prior-knowledge/mocks";
 
 describe("experiment aux", () => {
+  describe("calcVarValues", () => {
+    it("should return the values of the variables", () => {
+      const exps = [
+        {
+          variables: {
+            dpart: { id: "d1" } as DsPartition,
+            model: { id: "m1" } as Model,
+          } as ExpVars,
+        },
+        {
+          variables: {
+            dpart: { id: "d1" } as DsPartition,
+            model: { id: "m2" } as Model,
+            language: { id: "en" },
+          } as ExpVars,
+        },
+        {
+          variables: {
+            language: { id: "pt" },
+          } as ExpVars,
+        },
+      ];
+
+      const res = calcVarValues(exps);
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "varNames": [
+            "dpart",
+            "language",
+            "model",
+          ],
+          "varValues": {
+            "dpart": Set {
+              "d1",
+            },
+            "language": Set {
+              "en",
+              "pt",
+            },
+            "model": Set {
+              "m1",
+              "m2",
+            },
+          },
+        }
+      `);
+    });
+  });
   describe("getPairScoreListFromDPart", () => {
     it("should return a list of pair scores", () => {
       const dpart = createMockDsPart();
