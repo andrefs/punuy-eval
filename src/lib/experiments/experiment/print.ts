@@ -102,42 +102,10 @@ export function generateComparisons(
 ) {
   const comparisons: ComparisonGroup[] = [];
   const corrVarValues = calcCorrVarValues(expScores);
-  const constValueVars = Object.keys(varValues).filter(
-    vn => varValues[vn].size === 1
-  );
-  //const varNames = Object.keys(varValues).filter(
-  //  vn => varValues[vn as keyof ExpVars].size > 1
-  //);
   const varNames = mergeCorrVarNames(corrVarValues);
 
-  //// one single variable group
-  //if (varNames.length === 1) {
-  //  const data = {} as Record<string, Record<string, number | null>>;
-  //  for (const expScore of expScores) {
-  //    const v2Val = expScore.variables[varNames[0] as keyof ExpVars]!.id;
-  //    const score =
-  //      typeof expScore.score === "number" && !isNaN(expScore.score)
-  //        ? Number(expScore.score.toFixed(3))
-  //        : null;
-  //    data[""] = data[""] || {};
-  //    data[""][v2Val] = score;
-  //  }
-
-  //  return [
-  //    {
-  //      data,
-  //      fixedValueConfig: constValueVars,
-  //      variables: varNames as (keyof ExpVars)[],
-  //    },
-  //  ];
-  //}
-
-  // multiple variables with multiple values
   for (const [i, v1s] of varNames.entries()) {
     for (const v2s of varNames.slice(i + 1)) {
-      //if (varValues[v1].size === 1 && varValues[v2].size === 1) {
-      //  continue;
-      //}
       const compGroups = [] as ComparisonGroup[];
       const fixedNames = Object.keys(varValues).filter(
         v => !v1s.has(v) && !v2s.has(v)
@@ -174,19 +142,33 @@ export function generateComparisons(
         group.data[v1Val] = group.data[v1Val] || {};
         group.data[v1Val][v2Val] = score;
       }
-
-      //if (compGroups.length > 1) {
-      //  // keep only groups with more than one value for each variable
-      //  compGroups = compGroups.filter(
-      //    g =>
-      //      Object.keys(g.data).length > 1 &&
-      //      Object.keys(g.data).every(k => Object.keys(g.data[k]).length > 1)
-      //  );
-      //}
       comparisons.push(...compGroups);
     }
   }
   return comparisons;
+}
+
+export function genTable(comp: ComparisonGroup) {
+  let csv = "";
+  const columnNames: { [key: string]: boolean } = {};
+  const rowNames: { [key: string]: boolean } = {};
+  const table = [];
+  for (const [v1, v2s] of Object.entries(comp.data)) {
+    rowNames[v1] = true;
+    for (const v2 of Object.keys(v2s)) {
+      columnNames[v2] = true;
+    }
+    table.push({ "(index)": v1, ...v2s });
+  }
+  csv += "," + Object.keys(columnNames).sort().join(",") + "\n";
+  for (const rN of Object.keys(rowNames).sort()) {
+    const line = [rN.toString()];
+    for (const cN of Object.keys(columnNames).sort()) {
+      line.push(comp.data[rN][cN]?.toString() || "");
+    }
+    csv += line.join(",") + "\n";
+  }
+  return { csv, table };
 }
 
 export function printExpResTable<T extends GenericExpTypes>(
@@ -206,25 +188,7 @@ export function printExpResTable<T extends GenericExpTypes>(
   const comparisons = generateComparisons(varValues, expScores);
 
   for (const comp of comparisons) {
-    let csv = "";
-    const columnNames: { [key: string]: boolean } = {};
-    const rowNames: { [key: string]: boolean } = {};
-    const table = [];
-    for (const [v1, v2s] of Object.entries(comp.data)) {
-      rowNames[v1] = true;
-      for (const v2 of Object.keys(v2s)) {
-        columnNames[v2] = true;
-      }
-      table.push({ "(index)": v1, ...v2s });
-    }
-    csv += "," + Object.keys(columnNames).sort().join(",") + "\n";
-    for (const rN of Object.keys(rowNames).sort()) {
-      const line = [rN.toString()];
-      for (const cN of Object.keys(columnNames).sort()) {
-        line.push(comp.data[rN][cN]?.toString() || "");
-      }
-      csv += line.join(",") + "\n";
-    }
+    const { csv, table } = genTable(comp);
     const tablePP = renderTable(table);
     logger.info(
       `🆚 Comparing ${comp.variables

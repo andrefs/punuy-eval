@@ -2,66 +2,71 @@ import {
   calcCorrVarValues,
   CorrVarValues,
   generateComparisons,
+  genTable,
   mergeCorrVarNames,
 } from "./print";
 import { describe, expect, it } from "vitest";
 import { ExpScore, Prompt } from "./types";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import { Model } from "src/lib/models";
+import { ComparisonGroup } from "./aux";
 
 describe("print", () => {
   describe("generateComparisons", () => {
-    //  it("should return a single comparison if there's only one variable", () => {
-    //    const varValues = {
-    //      dpart: new Set(["train"]),
-    //      model: new Set(["gpt2"]),
-    //      language: new Set(["en", "pt"]),
-    //      prompt: new Set(["prompt1"]),
-    //    };
+    it("should return a single comparison if there's only one variable", () => {
+      const varValues = {
+        dpart: new Set(["train"]),
+        model: new Set(["gpt2"]),
+        language: new Set(["en", "pt"]),
+        prompt: new Set(["prompt1"]),
+      };
 
-    //    const expScores: ExpScore[] = [
-    //      {
-    //        variables: {
-    //          dpart: { id: "train" } as DsPartition,
-    //          model: { id: "gpt2" } as Model,
-    //          prompt: { id: "prompt1" } as Prompt,
-    //          language: { id: "en" },
-    //        },
-    //        score: 0.1,
-    //      },
-    //      {
-    //        variables: {
-    //          dpart: { id: "train" } as DsPartition,
-    //          model: { id: "gpt2" } as Model,
-    //          prompt: { id: "prompt1" } as Prompt,
-    //          language: { id: "pt" },
-    //        },
-    //        score: 0.2,
-    //      },
-    //    ];
+      const expScores: ExpScore[] = [
+        {
+          variables: {
+            dpart: { id: "train" } as DsPartition,
+            model: { id: "gpt2" } as Model,
+            prompt: { id: "prompt1" } as Prompt,
+            language: { id: "en" },
+          },
+          score: 0.1,
+        },
+        {
+          variables: {
+            dpart: { id: "train" } as DsPartition,
+            model: { id: "gpt2" } as Model,
+            prompt: { id: "prompt1" } as Prompt,
+            language: { id: "pt" },
+          },
+          score: 0.2,
+        },
+      ];
 
-    //    const res = generateComparisons(varValues, expScores);
-    //    expect(res).toMatchInlineSnapshot(`
-    //      [
-    //        {
-    //          "data": {
-    //            "": {
-    //              "en": 0.1,
-    //              "pt": 0.2,
-    //            },
-    //          },
-    //          "fixedValueConfig": [
-    //            "dpart",
-    //            "model",
-    //            "prompt",
-    //          ],
-    //          "variables": [
-    //            "language",
-    //          ],
-    //        },
-    //      ]
-    //    `);
-    //  });
+      const res = generateComparisons(varValues, expScores);
+      expect(res).toMatchInlineSnapshot(`
+        [
+          {
+            "data": {
+              "dpart=train, model=gpt2, prompt=prompt1": {
+                "en": 0.1,
+                "pt": 0.2,
+              },
+            },
+            "fixedValueConfig": {},
+            "variables": [
+              [
+                "dpart",
+                "model",
+                "prompt",
+              ],
+              [
+                "language",
+              ],
+            ],
+          },
+        ]
+      `);
+    });
 
     it("should return comparisons (1)", () => {
       const varValues = {
@@ -648,6 +653,39 @@ describe("print", () => {
             "c",
           ],
           ,
+        ]
+      `);
+    });
+  });
+
+  describe("genTable", () => {
+    it("should generate a table", () => {
+      const comp: ComparisonGroup = {
+        data: {
+          "dpart=train, model=gpt2": {
+            "prompt=prompt1, language=en": 0.1,
+            "prompt=prompt2, language=pt": 0.2,
+          },
+        },
+        fixedValueConfig: {},
+        variables: [
+          ["dpart", "model"],
+          ["prompt", "language"],
+        ],
+      };
+      const { csv, table } = genTable(comp);
+      expect(csv).toMatchInlineSnapshot(`
+        ",prompt=prompt1, language=en,prompt=prompt2, language=pt
+        dpart=train, model=gpt2,0.1,0.2
+        "
+      `);
+      expect(table).toMatchInlineSnapshot(`
+        [
+          {
+            "(index)": "dpart=train, model=gpt2",
+            "prompt=prompt1, language=en": 0.1,
+            "prompt=prompt2, language=pt": 0.2,
+          },
         ]
       `);
     });
