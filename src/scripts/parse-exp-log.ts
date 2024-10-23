@@ -20,10 +20,8 @@ interface ExpLog {
   measureType: string;
   jobType: string;
   trials: number;
-  pairFails: Record<string, number>;
-  pairsOk: number;
-  conversationFails: Record<string, number>;
-  conversationsOk: number;
+  pairResults: Record<string, number>;
+  converResults: Record<string, number>;
 }
 
 // ⚗  Running experiment 0/100: prediction-correlation with variables {"jobType":"allPairs","dpart":"rg65#table1","prompt":"sim-afs-survey-en","model":"gemini-1.5-flash-002","language":"en","measureType":"similarity"}
@@ -51,25 +49,27 @@ async function parseExpLog(filePath: string) {
       exp.trials = trials;
     }
     if (line.match(/✔|/) && line.match(/pairs attempt #1 succeeded/)) {
-      exp.pairsOk = exp.pairsOk ?? 0;
-      exp.pairsOk += 1;
+      exp.pairResults = exp.pairResults || {};
+      exp.pairResults["success"] = exp.pairResults["success"] ?? 0;
+      exp.pairResults["success"] += 1;
     }
 
     if (line.match(/👎/) && line.match(/pairs attempt #\d+ failed: ([-\w]+)/)) {
-      exp.pairFails = exp.pairFails || {};
-      exp.pairFails[RegExp.$1] = exp.pairFails[RegExp.$1] + 1 || 1;
+      exp.pairResults = exp.pairResults || {};
+      exp.pairResults[RegExp.$1] = exp.pairResults[RegExp.$1] + 1 || 1;
     }
     // ❗ conversation attempt #2 failed: json-schema-error,json-schema-error,json-schema-error
     if (line.match(/❗\s+conversation attempt #\d+ failed: ([-\w,]+)/)) {
-      exp.conversationFails = exp.conversationFails || {};
+      exp.converResults = exp.converResults || {};
       const errors = RegExp.$1.split(",");
       for (const error of errors) {
-        exp.conversationFails[error] = exp.conversationFails[error] + 1 || 1;
+        exp.converResults[error] = exp.converResults[error] + 1 || 1;
       }
     }
     if (line.match(/✅\s+conversation attempt #\d+ succeeded/)) {
-      exp.conversationsOk = exp.conversationsOk ?? 0;
-      exp.conversationsOk += 1;
+      exp.converResults = exp.converResults || {};
+      exp.converResults["success"] = exp.converResults["success"] ?? 0;
+      exp.converResults["success"] += 1;
     }
   }
   if (exp.dpart && exp.model) {
@@ -102,30 +102,35 @@ function getResultsPerModel(exps: ExpLog[]) {
       };
     }
 
-    if (exp.conversationsOk) {
-      results[exp.model].converstationsOk += exp.conversationsOk;
-    }
-    if (exp.conversationFails) {
-      for (const fail of Object.keys(exp.conversationFails)) {
+    if (exp.converResults) {
+      for (const fail of Object.keys(exp.converResults)) {
         results[exp.model].conversationFails[fail] =
           results[exp.model].conversationFails[fail] || 0;
-        results[exp.model].conversationFails[fail] +=
-          exp.conversationFails[fail];
+        results[exp.model].conversationFails[fail] += exp.converResults[fail];
       }
     }
-    if (exp.pairsOk) {
-      results[exp.model].pairsOk += exp.pairsOk;
-    }
-    if (exp.pairFails) {
-      for (const fail of Object.keys(exp.pairFails)) {
+    if (exp.pairResults) {
+      for (const fail of Object.keys(exp.pairResults)) {
         results[exp.model].pairFails[fail] =
           results[exp.model].pairFails[fail] || 0;
-        results[exp.model].pairFails[fail] += exp.pairFails[fail];
+        results[exp.model].pairFails[fail] += exp.pairResults[fail];
       }
     }
   }
   return results;
 }
+
+const colors = [
+  "#1f77b4",
+  "#ff7f0e",
+  "#d62728",
+  "#9467bd",
+  "#8c564b",
+  "#e377c2",
+  "#7f7f7f",
+  "#bcbd22",
+  "#17becf",
+];
 
 function plotModelErrors(
   errorsPerModel: Record<
@@ -136,7 +141,8 @@ function plotModelErrors(
     }
   >,
   conversationFailTypes: string[],
-  pairFailTypes: string[] = []
+  pairFailTypes: string[] = [],
+  resToColor: Record<string, string>
 ) {
   const convData: Plot[] = [];
   for (const fail of conversationFailTypes) {
@@ -145,6 +151,9 @@ function plotModelErrors(
       y: Object.values(errorsPerModel).map(v => v.conversationFails[fail] || 0),
       type: "bar",
       name: fail,
+      marker: {
+        color: resToColor[fail],
+      },
     });
   }
   plot(convData, {
@@ -161,6 +170,9 @@ function plotModelErrors(
       y: Object.values(errorsPerModel).map(v => v.pairFails[fail] || 0),
       type: "bar",
       name: fail,
+      marker: {
+        color: resToColor[fail],
+      },
     });
   }
   plot(pairData, {
@@ -169,6 +181,19 @@ function plotModelErrors(
     yaxis: { title: "Count", type: "log" },
     xaxis: { title: "Model" },
   });
+}
+
+function assignColor(res: Set<string>, colors: string[]) {
+  const succ = "#2ca02c";
+  const hash: { [k: string]: string } = {};
+  for (const [i, r] of Array.from(res).sort().entries()) {
+    if (r === "success") {
+      hash[r] = succ;
+      continue;
+    }
+    hash[r] = colors[i % colors.length];
+  }
+  return hash;
 }
 
 async function main() {
@@ -183,10 +208,16 @@ async function main() {
   console.log("Errors per model");
   console.log(resultsPerModel);
 
+  const allRes = new Set([
+    ...Object.keys(conversationFails),
+    ...Object.keys(pairFails),
+  ]);
+
   plotModelErrors(
     resultsPerModel,
     Object.keys(conversationFails),
-    Object.keys(pairFails)
+    Object.keys(pairFails),
+    assignColor(allRes, colors)
   );
 }
 
@@ -194,9 +225,7 @@ function countErrors(exps: ExpLog[]) {
   // count errors
   const conversationFails = exps.reduce(
     (acc, exp) => {
-      for (const [error, count] of Object.entries(
-        exp.conversationFails || {}
-      )) {
+      for (const [error, count] of Object.entries(exp.converResults || {})) {
         acc[error] = acc[error] + count || count;
       }
       return acc;
@@ -206,7 +235,7 @@ function countErrors(exps: ExpLog[]) {
 
   const pairFails = exps.reduce(
     (acc, exp) => {
-      for (const [error, count] of Object.entries(exp.pairFails || {})) {
+      for (const [error, count] of Object.entries(exp.pairResults || {})) {
         acc[error] = acc[error] + count || count;
       }
       return acc;
