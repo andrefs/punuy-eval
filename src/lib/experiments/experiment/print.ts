@@ -120,7 +120,7 @@ function varsToStr(vars: Set<string>, variables: ExpVars) {
 export function generateComparisons(
   varValues: { [vn: string]: Set<string> },
   expScores: ExpScore[]
-) {
+): ComparisonGroup[] {
   const comparisons: ComparisonGroup[] = [];
   const constValueVars = Object.keys(varValues).filter(
     vn => varValues[vn].size === 1
@@ -143,8 +143,11 @@ export function generateComparisons(
     return [
       {
         data,
-        fixedValueConfig: constValueVars,
-        variables: Array.from(varNames[0]) as (keyof ExpVars)[],
+        fixedValueConfig: constValueVars.reduce(
+          (acc, v) => ({ ...acc, [v]: Array.from(varValues[v])[0] }),
+          {}
+        ),
+        variables: [Array.from(varNames[0]) as (keyof ExpVars)[]],
       },
     ];
   }

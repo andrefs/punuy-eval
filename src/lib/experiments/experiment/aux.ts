@@ -197,7 +197,7 @@ export function calcVarValues<T extends GenericExpTypes>(
 
 export interface ComparisonGroup {
   fixedValueConfig: FixedValueConfig;
-  variables: [(keyof ExpVars)[], (keyof ExpVars)[]];
+  variables: [(keyof ExpVars)[]] | [(keyof ExpVars)[], (keyof ExpVars)[]];
   data: {
     [v1: string]: {
       [v2: string]: number | null;

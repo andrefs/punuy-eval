@@ -52,13 +52,15 @@ describe("print", () => {
                 "pt": 0.2,
               },
             },
-            "fixedValueConfig": [
-              "dpart",
-              "model",
-              "prompt",
-            ],
+            "fixedValueConfig": {
+              "dpart": "train",
+              "model": "gpt2",
+              "prompt": "prompt1",
+            },
             "variables": [
-              "language",
+              [
+                "language",
+              ],
             ],
           },
         ]
@@ -159,13 +161,15 @@ describe("print", () => {
                 "prompt=prompt2, language=pt": 0.2,
               },
             },
-            "fixedValueConfig": [
-              "dpart",
-              "model",
-            ],
+            "fixedValueConfig": {
+              "dpart": "train",
+              "model": "gpt2",
+            },
             "variables": [
-              "prompt",
-              "language",
+              [
+                "prompt",
+                "language",
+              ],
             ],
           },
         ]
