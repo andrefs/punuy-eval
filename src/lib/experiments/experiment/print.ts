@@ -1,7 +1,13 @@
 import { renderTable } from "console-table-printer";
 import Experiment from ".";
 import { calcVarValues, ComparisonGroup, getFixedValueGroup } from "./aux";
-import { ExperimentData, GenericExpTypes, Usages } from "./types";
+import {
+  ExperimentData,
+  ExpScore,
+  ExpVars,
+  GenericExpTypes,
+  Usages,
+} from "./types";
 import logger from "src/lib/logger";
 
 export function printUsage<T extends GenericExpTypes>(
@@ -22,16 +28,10 @@ export function printUsage<T extends GenericExpTypes>(
   );
 }
 
-export function printExpResTable<T extends GenericExpTypes>(
-  this: Experiment<T>,
-  exps: ExperimentData<T>[]
+export function generateComparisons(
+  varNames: (keyof ExpVars)[],
+  expScores: ExpScore[]
 ) {
-  if (!this.expDataToExpScore) {
-    return;
-  }
-  const expScores = exps.map(e => this.expDataToExpScore!(e));
-  const { varNames } = calcVarValues(exps);
-
   const comparisons: ComparisonGroup[] = [];
   for (const [i, v1] of varNames.entries()) {
     for (const v2 of varNames.slice(i + 1)) {
@@ -74,6 +74,26 @@ export function printExpResTable<T extends GenericExpTypes>(
       comparisons.push(...compGroups);
     }
   }
+
+  return comparisons;
+}
+
+export function printExpResTable<T extends GenericExpTypes>(
+  this: Experiment<T>,
+  exps: ExperimentData<T>[]
+) {
+  if (!this.expDataToExpScore) {
+    logger.warn(
+      "No expDataToExpScore function defined, skipping printExpResTable"
+    );
+    return;
+  }
+  logger.info(`Printing experiment results tables`);
+  const expScores = exps.map(e => this.expDataToExpScore!(e));
+  const { varNames } = calcVarValues(exps);
+
+  const comparisons = generateComparisons(varNames, expScores);
+  console.log("XXXXXXXXXXX", { comparisons });
 
   for (const comp of comparisons) {
     let csv = "";

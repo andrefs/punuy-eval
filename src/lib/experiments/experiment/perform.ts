@@ -59,24 +59,9 @@ export async function performMulti<T extends GenericExpTypes>(
     variables.prompt = this.prompts;
   }
   const varCombs = splitVarCombsMTL(variables);
+  startUpLogs(this.name, varCombs, trials, folder);
 
-  if (!varCombs?.length) {
-    logger.error(
-      "🧐 No variable combinations to run experiments with, aborting."
-    );
-    throw "🧐 No variable combinations to run experiments with, aborting.";
-  }
-
-  logger.info(
-    `🔬 Preparing to run experiment ${this.name
-    }, ${trials} times on each variable combination (${trials}x${varCombs.length}): \n${varCombs
-      .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
-      .join(",\n")}.`
-  );
-  logger.info(
-    `📂 Saving experiment results to folder: ${folder} and 📜 log to ${folder}/experiment.log`
-  );
-
+  // main loop
   const res = [] as ExperimentData<T>[];
   this.handleEarlyExit(res, folder);
   for (const [index, vc] of varCombs.entries()) {
@@ -91,9 +76,33 @@ export async function performMulti<T extends GenericExpTypes>(
     addUsage(this.totalUsage, res[res.length - 1].usage);
   }
 
+  // final wrap-up
   await wrapUp(this, res, folder, false);
   return {
     experiments: res,
     usage: this.totalUsage,
   };
+}
+
+function startUpLogs(
+  name: string,
+  varCombs: ExpVars[],
+  trials: number,
+  folder: string
+) {
+  if (!varCombs?.length) {
+    logger.error(
+      "🧐 No variable combinations to run experiments with, aborting."
+    );
+    throw "🧐 No variable combinations to run experiments with, aborting.";
+  }
+  logger.info(
+    `🔬 Preparing to run experiment ${name
+    }, ${trials} times on each variable combination (${trials}x${varCombs.length}): \n${varCombs
+      .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
+      .join(",\n")}.`
+  );
+  logger.info(
+    `📂 Saving experiment results to folder: ${folder} and 📜 log to ${folder}/experiment.log`
+  );
 }

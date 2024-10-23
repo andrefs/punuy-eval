@@ -97,7 +97,7 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
 
   logger.info(`💾 Saving all data from experiment ${expName} to ${filename}.`);
   logger.info(
-    `🥇 It ran successfully with ${data.length} variable combinations.`
+    `🏆  It ran successfully with ${data.length} variable combinations.`
   );
 
   if (!oldFs.existsSync(folder)) {
@@ -210,6 +210,12 @@ export interface FixedValueConfig {
 
 /**
  * Get a comparison group with the given fixed values, or create a new one if it doesn't exist
+ * @param compGroups The comparison groups to search in
+ * @param variables The variables to compare
+ * @param fixedNames The names of the variables with fixed values
+ * @param v1 The first variable to compare
+ * @param v2 The second variable to compare
+ * @returns The comparison group with the fixed values
  */
 export function getFixedValueGroup(
   compGroups: ComparisonGroup[],
