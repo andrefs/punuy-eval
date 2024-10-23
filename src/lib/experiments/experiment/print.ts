@@ -9,7 +9,6 @@ import {
   Usages,
 } from "./types";
 import logger from "src/lib/logger";
-import util from "util";
 
 export function printUsage<T extends GenericExpTypes>(
   this: Experiment<T>,
@@ -63,10 +62,17 @@ export function calcCorrVarValues(expScores: ExpScore[]) {
   return cvv;
 }
 
-export function mergeCorrVarNames(cvv: CorrVarValues): Set<string>[] {
+export function mergeCorrVarNames(
+  cvv: CorrVarValues,
+  constValueVars: string[]
+): Set<string>[] {
   const res = Object.keys(cvv).map(v1N => new Set([v1N]));
   for (let i = 0; i < res.length; i++) {
     if (!res[i]) {
+      continue;
+    }
+    if (constValueVars.includes(Array.from(res[i])[0])) {
+      delete res[i];
       continue;
     }
     for (let j = i + 1; j < res.length; j++) {
@@ -74,9 +80,15 @@ export function mergeCorrVarNames(cvv: CorrVarValues): Set<string>[] {
         continue;
       }
       const v2N = Array.from(res[j])[0];
+
       if (res[i].has(v2N)) {
         continue;
       }
+      if (constValueVars.includes(v2N)) {
+        delete res[j];
+        continue;
+      }
+
       const v1Ns = Array.from(res[i]);
       for (const v1N of v1Ns) {
         for (const v1V of Object.keys(cvv[v1N])) {
@@ -101,8 +113,11 @@ export function generateComparisons(
   expScores: ExpScore[]
 ) {
   const comparisons: ComparisonGroup[] = [];
+  const constValueVars = Object.keys(varValues).filter(
+    vn => varValues[vn].size === 1
+  );
   const corrVarValues = calcCorrVarValues(expScores);
-  const varNames = mergeCorrVarNames(corrVarValues);
+  const varNames = mergeCorrVarNames(corrVarValues, constValueVars);
 
   for (const [i, v1s] of varNames.entries()) {
     for (const v2s of varNames.slice(i + 1)) {
