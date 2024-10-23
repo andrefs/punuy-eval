@@ -42,6 +42,7 @@ import {
   Usages,
 } from "../experiment/types";
 import query from "./query";
+import { generateComparisons } from "../experiment/print";
 export const name = "compare-prompts";
 const description = "Compare the results obtained with different prompts";
 
@@ -361,50 +362,14 @@ function logExpScores(expScores: ExpScore[]) {
 
 async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
   const expScores = expEvalScores(exps);
-  const { varNames } = calcVarValues(exps);
+  const { varValues } = calcVarValues(exps);
 
   logExpScores(expScores);
 
-  const comparisons: CPExpTypes["Evaluation"] = [];
-  for (const [i, v1] of varNames.entries()) {
-    for (const v2 of varNames.slice(i + 1)) {
-      //if (varValues[v1].size === 1 && varValues[v2].size === 1) {
-      //  // No need to compare if both variables have only one value
-      //  continue;
-      //}
-
-      let compGroups = [] as CPExpTypes["Evaluation"];
-      const fixedNames = varNames.filter(v => v !== v1 && v !== v2);
-
-      for (const expScore of expScores) {
-        const v1Val = expScore.variables[v1]!.id;
-        const v2Val = expScore.variables[v2]!.id;
-        const corr = Number(expScore.score.toFixed(3));
-
-        const group = getFixedValueGroup(
-          compGroups,
-          expScore.variables,
-          fixedNames,
-          v1,
-          v2
-        );
-
-        group.data[v1Val] = group.data[v1Val] || {};
-        group.data[v1Val][v2Val] = corr;
-      }
-
-      if (compGroups.length > 1) {
-        // keep only groups with more than one value for each variable
-        compGroups = compGroups.filter(
-          g =>
-            Object.keys(g.data).length > 1 &&
-            Object.keys(g.data).every(k => Object.keys(g.data[k]).length > 1)
-        );
-      }
-
-      comparisons.push(...compGroups);
-    }
-  }
+  const comparisons: CPExpTypes["Evaluation"] = generateComparisons(
+    varValues,
+    expScores
+  );
 
   for (const comp of comparisons) {
     const table = Object.entries(comp.data).map(([v1, v2s]) => {

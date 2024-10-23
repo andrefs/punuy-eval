@@ -24,8 +24,8 @@ describe("compare-prompts aux", () => {
         compGroups,
         vars,
         fixedNames,
-        "language",
-        "measureType"
+        ["language"],
+        ["measureType"]
       );
       expect(compGroups).toHaveLength(1);
       expect(group).toMatchInlineSnapshot(`
@@ -36,8 +36,12 @@ describe("compare-prompts aux", () => {
             "model": "m1",
           },
           "variables": [
-            "language",
-            "measureType",
+            [
+              "language",
+            ],
+            [
+              "measureType",
+            ],
           ],
         }
       `);
@@ -47,7 +51,7 @@ describe("compare-prompts aux", () => {
       const compGroups = [
         {
           fixedValueConfig: { model: "m1", dpart: "d1" },
-          variables: ["language", "measureType"],
+          variables: [["language", "measureType"]],
           data: {},
         },
       ] as ComparisonGroup[];
@@ -64,8 +68,8 @@ describe("compare-prompts aux", () => {
         compGroups,
         vars,
         fixedNames,
-        "language",
-        "measureType"
+        ["language"],
+        ["measureType"]
       );
       expect(compGroups).toHaveLength(1);
       expect(group).toMatchInlineSnapshot(`
@@ -76,8 +80,10 @@ describe("compare-prompts aux", () => {
             "model": "m1",
           },
           "variables": [
-            "language",
-            "measureType",
+            [
+              "language",
+              "measureType",
+            ],
           ],
         }
       `);
@@ -87,7 +93,7 @@ describe("compare-prompts aux", () => {
       const compGroups = [
         {
           fixedValueConfig: { model: "m1", dpart: "d1" },
-          variables: ["language", "measureType"],
+          variables: [["language"], ["measureType"]],
           data: {},
         },
       ] as ComparisonGroup[];
@@ -104,8 +110,8 @@ describe("compare-prompts aux", () => {
         compGroups,
         vars,
         fixedNames,
-        "language",
-        "measureType"
+        ["language"],
+        ["measureType"]
       );
       expect(compGroups).toHaveLength(2);
       expect(group).toMatchInlineSnapshot(`
@@ -116,8 +122,12 @@ describe("compare-prompts aux", () => {
             "model": "m2",
           },
           "variables": [
-            "language",
-            "measureType",
+            [
+              "language",
+            ],
+            [
+              "measureType",
+            ],
           ],
         }
       `);
