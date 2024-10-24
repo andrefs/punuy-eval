@@ -114,7 +114,7 @@ function varsToStr(vars: Set<string>, variables: ExpVars) {
     : Array.from(vars)
       .map(v => [v, variables[v as keyof ExpVars]!.id])
       .map(([v, id]) => `${v}=${id}`)
-      .join(", ");
+      .join(";");
 }
 
 export function generateComparisons(
