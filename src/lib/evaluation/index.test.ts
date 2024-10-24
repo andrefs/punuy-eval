@@ -21,7 +21,7 @@ describe("evaluation", () => {
       ];
 
       const result = await combineEvaluations(evaluations);
-      expect(result.avg).toMatchInlineSnapshot(`0.4375`);
+      expect(result.allDataAvg).toMatchInlineSnapshot(`0.4375`);
     });
 
     it("should return correctly aggregated evaluations", async () => {
@@ -37,7 +37,8 @@ describe("evaluation", () => {
       const result = await combineEvaluations(evaluations);
       expect(result).toMatchInlineSnapshot(`
         {
-          "avg": 0.4375,
+          "allDataAvg": 0.4375,
+          "okDataAvg": 0.5833333333333334,
           "resultTypes": {
             "data-correct": 1,
             "data-incomplete": 1,

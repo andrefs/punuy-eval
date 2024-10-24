@@ -32,7 +32,7 @@ if (!configuration.apiKey) {
     `Anthropic API key loaded from environment variable: ${configuration.apiKey.slice(
       0,
       5
-    )}...`
+    )}...${configuration.apiKey.slice(-5)}`
   );
 }
 const anthropic = new Anthropic(configuration);
@@ -42,13 +42,23 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function (
+  const makeRequest = async function(
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
     const req: Anthropic.Messages.MessageCreateParamsNonStreaming = {
       model: modelId,
       max_tokens: 1024,
+      system: [
+        {
+          type: "text",
+          text: "You are a helpful assistant that outputs only valid JSON.",
+        },
+        {
+          type: "text",
+          text: "Produce only valid JSON output and do not put any text outside of the JSON object.",
+        },
+      ],
       messages: [
         {
           role: "user" as const,
@@ -77,11 +87,11 @@ const buildModel = (
         dataObj: msg,
         usage: msg.usage
           ? {
-              inputTokens: msg.usage.input_tokens,
-              outputTokens: msg.usage.output_tokens,
-              totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
-              modelId,
-            }
+            inputTokens: msg.usage.input_tokens,
+            outputTokens: msg.usage.output_tokens,
+            totalTokens: msg.usage.input_tokens + msg.usage.output_tokens,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
@@ -102,13 +112,15 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nRequest object: ${req}\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${JSON.stringify(req, null, 2)}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
   };
 
-  return new Model(modelId, "anthropic" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "anthropic" as ModelProvider, makeRequest, {
+    pricing,
+  });
 };
 
 // https://www.anthropic.com/pricing#anthropic-api

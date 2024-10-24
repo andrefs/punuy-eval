@@ -43,16 +43,17 @@ if (!configuration.apiKey) {
     `Google API key loaded from environment variable: ${configuration.apiKey.slice(
       0,
       5
-    )}...`
+    )}...${configuration.apiKey.slice(-5)}`
   );
 }
 
-logger.warn(
-  `REMEMBER: Google AI currently cannot be used in Europe, you need to either use a VPN or use Vertex AI instead.`
-);
-logger.info(
-  "https://ai.google.dev/gemini-api/docs/available-regions#available_regions"
-);
+// NO VPN NEEDED ANYMORE I THINK
+//logger.warn(
+//  `REMEMBER: Google AI currently cannot be used in Europe, you need to either use a VPN or use Vertex AI instead.`
+//);
+//logger.info(
+//  "https://ai.google.dev/gemini-api/docs/available-regions#available_regions"
+//);
 
 const safetySettings = [
   {
@@ -64,10 +65,6 @@ const safetySettings = [
     threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
   {
-    category: HarmCategory.HARM_CATEGORY_UNSPECIFIED,
-    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
-  },
-  {
     category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
     threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
@@ -76,7 +73,7 @@ const safetySettings = [
     threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
 ];
-const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
+const genAI = new GoogleGenerativeAI(configuration.apiKey!);
 
 const buildModel = (
   genAI: GoogleGenerativeAI,
@@ -93,12 +90,19 @@ const buildModel = (
     safetySettings,
   });
 
-  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
     const req: GenerateContentRequest = {
       contents: [
         {
           role: "model" as const,
-          parts: [{ text: "You are a helpful assistant." }],
+          parts: [
+            {
+              text: "You are a helpful assistant that outputs only valid JSON.",
+            },
+            {
+              text: "Produce only valid JSON output and do not put any text outside of the JSON object.",
+            },
+          ],
         },
         {
           role: "user" as const,
@@ -125,17 +129,19 @@ const buildModel = (
         dataObj: result.response.candidates![0],
         usage: result.response.usageMetadata
           ? {
-              inputTokens: result.response.usageMetadata.promptTokenCount!,
-              outputTokens: result.response.usageMetadata.candidatesTokenCount!,
-              totalTokens: result.response.usageMetadata.totalTokenCount!,
-              modelId,
-            }
+            inputTokens: result.response.usageMetadata.promptTokenCount!,
+            outputTokens: result.response.usageMetadata.candidatesTokenCount!,
+            totalTokens: result.response.usageMetadata.totalTokenCount!,
+            modelId,
+          }
           : undefined,
         getDataText: () => {
           let dataText;
           try {
-            dataText =
-              result.response.candidates?.[0].content.parts?.[0].text || "";
+            const args =
+              result.response.candidates?.[0].content.parts?.[0].functionCall
+                ?.args;
+            dataText = JSON.stringify(args) || "";
           } catch (e) {
             logger.error(`Error getting data text from model ${modelId}: ${e}`);
             logger.error(`Response object: ${JSON.stringify(result)}`);
@@ -148,13 +154,15 @@ const buildModel = (
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       logger.error(
-        `Request to model ${modelId} failed: ${e}.\nPrompt: ${prompt}`
+        `Request to model ${modelId} failed: ${e}\nRequest object: ${JSON.stringify(req, null, 2)}\nPrompt: ${prompt}`
       );
       throw new RequestError(message);
     }
   };
 
-  return new Model(modelId, "google" as ModelProvider, makeRequest, pricing);
+  return new Model(modelId, "google" as ModelProvider, makeRequest, {
+    pricing,
+  });
 };
 
 // https://ai.google.dev/pricing
@@ -175,6 +183,11 @@ const pricing = {
     output: 1.5 / 1_000_000,
     currency: "$" as const,
   },
+  gemini15flash_8b: {
+    input: 0.0375 / 1_000_000,
+    output: 0.15 / 1_000_000,
+    currency: "$" as const,
+  },
 };
 
 // https://ai.google.dev/gemini-api/docs/models/gemini
@@ -192,4 +205,10 @@ export const gemini15flash_002 = buildModel(
   genAI,
   "gemini-1.5-flash-002",
   pricing.gemini15flash_002
+);
+
+export const gemini15flash_8b = buildModel(
+  genAI,
+  "gemini-1.5-flash-8b",
+  pricing.gemini15flash_8b
 );
