@@ -10,6 +10,7 @@ import {
   // google
   gemini10pro_001,
   gemini15flash_002,
+  gemini15flash_8b,
   gemini15pro_002,
 
   // openai
@@ -72,10 +73,11 @@ const evm: ExpVarMatrix = {
     //ministral8b_2410,
     //gemini15flash_002,
     //ministral3b_2410,
+    //gemini15flash_8b,
 
     //// low cost
-    gpt35turbo_0125,
-    gemini10pro_001,
+    //gpt35turbo_0125,
+    //gemini10pro_001,
     //claude3haiku,
 
     //// medium cost
@@ -85,8 +87,8 @@ const evm: ExpVarMatrix = {
     //// expensive
     //claude3sonnet_20240229,
     //claude35sonnet_20240620,
-    //gpt4o_20240806,
-    //mistralMedium_2312,
+    gpt4o_20240806,
+    mistralMedium_2312,
 
     //// super expensive
     //gpt4turbo_20240409,

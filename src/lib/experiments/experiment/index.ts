@@ -228,7 +228,7 @@ export default class Experiment<T extends GenericExpTypes> {
           }
           trials.push({ turns });
         } else {
-          logger.warn(`  🤦 trial #${i + 1}`);
+          logger.warn(`  🤦 trial #${i + 1} failed all conversations`);
         }
       }
       return {
