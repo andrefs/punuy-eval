@@ -21,7 +21,7 @@ const nameFromSample = async (vars: ExpVarMatrix) => {
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${r.results.aggregated?.allDataAvg
+      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${r.results.aggregated?.okDataAvg
       }`
     );
   }

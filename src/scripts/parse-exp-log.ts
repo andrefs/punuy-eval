@@ -86,8 +86,6 @@ function getResultsPerModel(exps: ExpLog[]) {
     [model: string]: {
       conversationFails: { [error: string]: number };
       pairFails: { [error: string]: number };
-      converstationsOk: number;
-      pairsOk: number;
     };
   } = {};
 
@@ -100,8 +98,6 @@ function getResultsPerModel(exps: ExpLog[]) {
       results[exp.model] = {
         conversationFails: {},
         pairFails: {},
-        converstationsOk: 0,
-        pairsOk: 0,
       };
     }
 

@@ -46,7 +46,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.allDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(
@@ -63,7 +63,8 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
-  dpart: Object.values(datasets),
+  //dpart: Object.values(datasets),
+  dpart: [datasets.gtrd_main],
   prompt: prompts,
   model: [
     // super cheap
@@ -74,25 +75,20 @@ const evm: ExpVarMatrix = {
     //gemini15flash_002,
     //ministral3b_2410,
     //gemini15flash_8b,
-
     //// low cost
     //gpt35turbo_0125,
     //gemini10pro_001,
     //claude3haiku,
-
     //// medium cost
     //mistralLarge_2407,
-    //gemini15pro_002,
-
+    gemini15pro_002,
     //// expensive
     //claude3sonnet_20240229,
     //claude35sonnet_20240620,
-    gpt4o_20240806,
-    mistralMedium_2312,
-
+    //gpt4o_20240806,
+    //mistralMedium_2312,
     //// super expensive
     //gpt4turbo_20240409,
-
     //// crazy
     //gpt4_0613,
     //claude3opus,
