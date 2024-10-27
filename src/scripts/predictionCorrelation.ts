@@ -34,8 +34,6 @@ import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/batch-vs-single-pair/prompts";
 import predictionCorrelation from "src/lib/experiments/prediction-correlation";
 import datasets from "../lib/dataset-partitions";
-import mesh2_main from "src/lib/dataset-partitions/mesh2_main";
-import sl7576_main from "src/lib/dataset-partitions/sl7576_main";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
@@ -78,7 +76,7 @@ const evm: ExpVarMatrix = {
     //gemini15flash_8b,
     //// low cost
     //gpt35turbo_0125,
-    claude3haiku,
+    //claude3haiku,
     //// medium cost
     //mistralLarge_2407,
     //gemini15pro_002,
@@ -86,7 +84,7 @@ const evm: ExpVarMatrix = {
     //claude3sonnet_20240229,
     //claude35sonnet_20240620,
     //gpt4o_20240806,
-    //mistralMedium_2312,
+    mistralMedium_2312,
     //// super expensive
     //gpt4turbo_20240409,
     //// crazy

@@ -63,7 +63,7 @@ export type ModelId =
 
   // mistral
   | "mistral-large-2407"
-  | "mistral-medium-2312"
+  //| "mistral-medium-2312"
   | "mistral-small-2409"
   | "open-mistral-nemo-2407"
   | "open-mistral-7b"
@@ -110,7 +110,7 @@ const modelsById: { [key in ModelId]: Model } = {
 
   // mistral
   "mistral-large-2407": mistralLarge_2407,
-  "mistral-medium-2312": mistralMedium_2312,
+  //"mistral-medium-2312": mistralMedium_2312,
   "mistral-small-2409": mistralSmall_2409,
   "open-mistral-nemo-2407": openMistralNemo_2407,
   "open-mistral-7b": openMistral7B,

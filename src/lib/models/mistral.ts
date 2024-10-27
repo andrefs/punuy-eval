@@ -45,7 +45,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
     const req: ChatCompletionRequest = {
       model: modelId,
       messages: [
@@ -144,11 +144,11 @@ const pricing = {
     output: 5.4 / 1_000_000,
     currency: "€" as const,
   },
-  mistralMedium_2312: {
-    input: 2.5 / 1_000_000,
-    output: 7.5 / 1_000_000,
-    currency: "€" as const,
-  },
+  //mistralMedium_2312: {
+  //  input: 2.5 / 1_000_000,
+  //  output: 7.5 / 1_000_000,
+  //  currency: "€" as const,
+  //},
   mistralSmall_2409: {
     input: 0.18 / 1_000_000,
     output: 0.54 / 1_000_000,
@@ -192,11 +192,12 @@ export const mistralLarge_2407 = buildModel(
   "mistral-large-2407",
   pricing.mistralLarge_2407
 );
-export const mistralMedium_2312 = buildModel(
-  mistral,
-  "mistral-medium-2312",
-  pricing.mistralMedium_2312
-);
+//// deprecated
+//export const mistralMedium_2312 = buildModel(
+//  mistral,
+//  "mistral-medium-2312",
+//  pricing.mistralMedium_2312
+//);
 export const mistralSmall_2409 = buildModel(
   mistral,
   "mistral-small-2409",
