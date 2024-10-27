@@ -90,7 +90,7 @@ const buildModel = (
     safetySettings,
   });
 
-  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
     const req: GenerateContentRequest = {
       contents: [
         {
@@ -178,11 +178,11 @@ const pricing = {
     output: 5 / 1_000_000,
     currency: "$" as const,
   },
-  gemini10pro_001: {
-    input: 0.5 / 1_000_000,
-    output: 1.5 / 1_000_000,
-    currency: "$" as const,
-  },
+  //gemini10pro_001: {
+  //  input: 0.5 / 1_000_000,
+  //  output: 1.5 / 1_000_000,
+  //  currency: "$" as const,
+  //},
   gemini15flash_8b: {
     input: 0.0375 / 1_000_000,
     output: 0.15 / 1_000_000,
@@ -191,11 +191,12 @@ const pricing = {
 };
 
 // https://ai.google.dev/gemini-api/docs/models/gemini
-export const gemini10pro_001 = buildModel(
-  genAI,
-  "gemini-1.0-pro-001",
-  pricing.gemini10pro_001
-);
+// does not support json mode
+//export const gemini10pro_001 = buildModel(
+//  genAI,
+//  "gemini-1.0-pro-001",
+//  pricing.gemini10pro_001
+//);
 export const gemini15pro_002 = buildModel(
   genAI,
   "gemini-1.5-pro-002",

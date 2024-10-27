@@ -166,6 +166,9 @@ export class DataPartiallyIncorrect<
   percentage: number;
 
   constructor(percentage: number, got: DataType, expected: ExpectedType) {
+    if (isNaN(percentage)) {
+      throw new Error("Percentage must be a number");
+    }
     super("data-partially-incorrect", percentage, got, expected);
     this.percentage = percentage;
   }

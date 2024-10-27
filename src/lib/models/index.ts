@@ -9,7 +9,6 @@ import {
   commandR_032024,
   commandR_082024,
   //
-  gemini10pro_001,
   gemini15flash_002,
   gemini15pro_002,
   gemini15flash_8b,
@@ -74,7 +73,7 @@ export type ModelId =
   | "ministral-3b-2410"
 
   // google;
-  | "gemini-1.0-pro-001"
+  //| "gemini-1.0-pro-001"
   | "gemini-1.5-pro-002"
   | "gemini-1.5-flash-002"
   | "gemini-1.5-flash-8b";
@@ -121,7 +120,7 @@ const modelsById: { [key in ModelId]: Model } = {
   "ministral-8b-2410": ministral8b_2410,
 
   // google
-  "gemini-1.0-pro-001": gemini10pro_001,
+  //"gemini-1.0-pro-001": gemini10pro_001,
   "gemini-1.5-pro-002": gemini15pro_002,
   "gemini-1.5-flash-002": gemini15flash_002,
   "gemini-1.5-flash-8b": gemini15flash_8b,
