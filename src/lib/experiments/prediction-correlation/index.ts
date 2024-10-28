@@ -134,6 +134,17 @@ export function fixParsedJson(
       // score sometimes comes as string
       if (typeof s.score === "string") {
         s.score = Number(s.score);
+
+        s.words = s.words.map((w: string) =>
+          w
+            .replace(/’/g, "'")
+            .replace(/‘/g, "'")
+            .replace(/”/g, '"')
+            .replace(/“/g, '"')
+            .replace(/–/g, "-")
+            .replace(/_+/g, " ")
+            .trim()
+        );
       }
     }
   }

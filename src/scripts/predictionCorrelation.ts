@@ -63,30 +63,45 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
-  dpart: Object.values(datasets),
+  //dpart: Object.values(datasets),
+  dpart: [
+    datasets.geresid50_sim,
+    datasets.gtrd_main,
+    datasets.tr9856_main,
+    datasets.word19k_test,
+    datasets.word19k_train,
+    datasets.zie55_B0,
+    datasets.zie55_B1,
+    datasets.lxrw2034_main,
+    datasets.lxsimlex999_main,
+    datasets.pap900_sim,
+    datasets.lxws353_main,
+    datasets.pt65_main,
+    datasets.pap900_rel,
+  ],
   prompt: prompts,
   model: [
     // super cheap
-    //mistralSmall_2409,
-    //gpt4omini_20240718,
-    //openMistralNemo_2407,
-    //ministral8b_2410,
     //gemini15flash_002,
-    //ministral3b_2410,
     //gemini15flash_8b,
+    //gpt4omini_20240718,
+    //ministral3b_2410,
+    //ministral8b_2410,
+    //mistralSmall_2409,
+    //openMistralNemo_2407,
     //// low cost
     //gpt35turbo_0125,
     //claude3haiku,
     //// medium cost
-    //mistralLarge_2407,
     //gemini15pro_002,
+    //mistralLarge_2407,
     //// expensive
     //claude3sonnet_20240229,
     //claude35sonnet_20240620,
     //gpt4o_20240806,
-    mistralMedium_2312,
+    //mistralMedium_2312,
     //// super expensive
-    //gpt4turbo_20240409,
+    gpt4turbo_20240409,
     //// crazy
     //gpt4_0613,
     //claude3opus,

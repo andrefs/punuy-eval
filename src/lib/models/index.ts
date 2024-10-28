@@ -21,7 +21,6 @@ import {
   gpt4turbo_20240409,
   //
   mistralLarge_2407,
-  mistralMedium_2312,
   mistralSmall_2409,
   openMistral7B,
   openMistralNemo_2407,
@@ -63,7 +62,6 @@ export type ModelId =
 
   // mistral
   | "mistral-large-2407"
-  //| "mistral-medium-2312"
   | "mistral-small-2409"
   | "open-mistral-nemo-2407"
   | "open-mistral-7b"
@@ -73,7 +71,6 @@ export type ModelId =
   | "ministral-3b-2410"
 
   // google;
-  //| "gemini-1.0-pro-001"
   | "gemini-1.5-pro-002"
   | "gemini-1.5-flash-002"
   | "gemini-1.5-flash-8b";
@@ -110,7 +107,6 @@ const modelsById: { [key in ModelId]: Model } = {
 
   // mistral
   "mistral-large-2407": mistralLarge_2407,
-  //"mistral-medium-2312": mistralMedium_2312,
   "mistral-small-2409": mistralSmall_2409,
   "open-mistral-nemo-2407": openMistralNemo_2407,
   "open-mistral-7b": openMistral7B,
@@ -120,7 +116,6 @@ const modelsById: { [key in ModelId]: Model } = {
   "ministral-8b-2410": ministral8b_2410,
 
   // google
-  //"gemini-1.0-pro-001": gemini10pro_001,
   "gemini-1.5-pro-002": gemini15pro_002,
   "gemini-1.5-flash-002": gemini15flash_002,
   "gemini-1.5-flash-8b": gemini15flash_8b,
