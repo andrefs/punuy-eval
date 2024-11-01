@@ -1,8 +1,10 @@
 import { ExpVarMatrix } from "../lib/experiments";
 import path from "path";
 import {
+  claude35sonnet_20240620,
   claude3haiku,
   gemini15flash_002,
+  gemini15pro_002,
   gpt4omini_20240718,
   ministral8b_2410,
 } from "../lib/models";
@@ -47,21 +49,21 @@ const bvsp = async (vars: ExpVarMatrix) => {
 const evm: ExpVarMatrix = {
   //dpart: Object.values(dsParts),
   jobType: [
-    //{ id: "singlePair" },
+    { id: "singlePair" },
     //{ id: "batches" },
-    { id: "allPairs" },
+    //{ id: "allPairs" }
   ],
   dpart: [
     // en rel
-    //ws353Rel_rel,
-    //mt287_mturk,
+    ws353Rel_rel,
+    mt287_mturk,
     //// en sim
     ws353Sim_sim,
-    //yp130_verbpairs,
-    //srw2034_rw,
+    yp130_verbpairs,
+    srw2034_rw,
     //// pt
-    //pap900_rel,
-    //pap900_sim,
+    pap900_rel,
+    pap900_sim,
   ],
   prompt: prompts,
   model: [
@@ -72,10 +74,10 @@ const evm: ExpVarMatrix = {
     //gpt4o_20240806,
     //claude3sonnet,
     //claude3opus,
-    //gemini10pro,
-    //gemini15pro,
-    //gemini15flash_002,
-    ministral8b_2410,
+    gemini15flash_002,
+    //claude35sonnet_20240620,
+    //gemini15pro_002,
+    //ministral8b_2410,
     //claude3haiku,
     //mistralLarge_2407,
     //openMixtral8x22B,

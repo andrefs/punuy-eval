@@ -42,7 +42,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function(
+  const makeRequest = async function (
     prompt: string,
     toolParams: ModelTool
   ): Promise<AnthropicModelResponse> {
@@ -141,6 +141,11 @@ const pricing = {
     output: 15 / 1_000_000,
     currency: "$" as const,
   },
+  claude35sonnet_20241022: {
+    input: 3 / 1_000_000,
+    output: 15 / 1_000_000,
+    currency: "$" as const,
+  },
   claude3haiku: {
     input: 0.25 / 1_000_000,
     output: 1.25 / 1_000_000,
@@ -163,6 +168,11 @@ export const claude35sonnet_20240620 = buildModel(
   anthropic,
   "claude-3-5-sonnet-20240620",
   pricing.claude35sonnet_20240620
+);
+export const claude35sonnet_20241022 = buildModel(
+  anthropic,
+  "claude-3-5-sonnet-20241022",
+  pricing.claude35sonnet_20241022
 );
 export const claude3haiku = buildModel(
   anthropic,

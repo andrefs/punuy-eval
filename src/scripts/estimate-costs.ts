@@ -46,7 +46,6 @@ import {
   claude3sonnet_20240229,
 
   // google
-  gemini10pro_001,
   gemini15flash_002,
   gemini15pro_002,
 
@@ -63,7 +62,6 @@ import {
   ministral3b_2410,
   ministral8b_2410,
   mistralLarge_2407,
-  mistralMedium_2312,
   mistralSmall_2409,
   openMistralNemo_2407,
   openMistral7B,
@@ -97,7 +95,6 @@ const models: { [cat: string]: { [modelId: string]: Model } } = {
   // input <= 0.5
   lowCost: {
     gpt35turbo_0125,
-    gemini10pro_001,
     claude3haiku,
   },
   // input <= 2
@@ -113,7 +110,6 @@ const models: { [cat: string]: { [modelId: string]: Model } } = {
     claude3sonnet_20240229,
     claude35sonnet_20240620,
     gpt4o_20240806,
-    mistralMedium_2312,
     commandRPlus_042024,
     commandRPlus_082024,
   },

@@ -27,6 +27,7 @@ import {
   openMixtral8x22B,
   openMixtral8x7B,
 } from ".";
+import { claude35sonnet_20241022 } from "./anthropic";
 import { ministral3b_2410, ministral8b_2410 } from "./mistral";
 import { o1mini_20240912, o1preview_20240912 } from "./openai";
 
@@ -53,6 +54,7 @@ export type ModelId =
   | "claude-3-sonnet-20240229"
   | "claude-3-5-sonnet-20240620"
   | "claude-3-haiku-20240307"
+  | "claude-3-5-sonnet-20241022"
 
   // cohere
   | "command-r-plus-08-2024"
@@ -98,6 +100,7 @@ const modelsById: { [key in ModelId]: Model } = {
   "claude-3-sonnet-20240229": claude3sonnet_20240229,
   "claude-3-5-sonnet-20240620": claude3sonnet_20240229,
   "claude-3-haiku-20240307": claude3haiku,
+  "claude-3-5-sonnet-20241022": claude35sonnet_20241022,
 
   // cohere
   "command-r-plus-04-2024": commandRPlus_042024,

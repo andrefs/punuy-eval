@@ -6,6 +6,7 @@ import {
   claude3haiku,
   claude3opus,
   claude3sonnet_20240229,
+  commandRPlus_082024,
 
   // google
   gemini10pro_001,
@@ -64,21 +65,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
   //dpart: Object.values(datasets),
-  dpart: [
-    datasets.geresid50_sim,
-    datasets.gtrd_main,
-    datasets.tr9856_main,
-    datasets.word19k_test,
-    datasets.word19k_train,
-    datasets.zie55_B0,
-    datasets.zie55_B1,
-    datasets.lxrw2034_main,
-    datasets.lxsimlex999_main,
-    datasets.pap900_sim,
-    datasets.lxws353_main,
-    datasets.pt65_main,
-    datasets.pap900_rel,
-  ],
+  dpart: [datasets.rg65_table1],
   prompt: prompts,
   model: [
     // super cheap
@@ -99,12 +86,12 @@ const evm: ExpVarMatrix = {
     //claude3sonnet_20240229,
     //claude35sonnet_20240620,
     //gpt4o_20240806,
-    //mistralMedium_2312,
     //// super expensive
-    gpt4turbo_20240409,
+    //gpt4turbo_20240409,
     //// crazy
     //gpt4_0613,
     //claude3opus,
+    commandRPlus_082024,
   ],
 };
 
