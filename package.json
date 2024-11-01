@@ -24,7 +24,7 @@
   "author": "André Santos",
   "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/sdk": "0.29.0",
+    "@anthropic-ai/sdk": "0.30.1",
     "@google/generative-ai": "0.21.0",
     "@mistralai/mistralai": "1.1.0",
     "@sinclair/typebox": "0.33.16",
