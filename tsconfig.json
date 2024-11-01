@@ -1,14 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "lib": [
-      "ES2017",
-      "DOM"
-    ],
-    "types": [
-      "vitest/globals",
-      "node"
-    ],
+    "lib": ["ES2017", "DOM"],
+    "types": ["vitest/globals", "node"],
     "module": "nodenext",
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -21,11 +15,6 @@
     "sourceMap": true,
     "noEmitOnError": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
