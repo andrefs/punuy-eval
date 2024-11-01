@@ -127,7 +127,8 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${
+      data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
