@@ -22,7 +22,7 @@ import { getPairScoreListFromDPart } from "../experiment/aux";
 
 export const name = "prediction-correlation";
 const description =
-  "Assess LLMs to predict semantic measures by correlating predictions with human judgments.";
+  "Assess LLMs to predict semantic relations by correlating predictions with human judgments.";
 
 /**
  * ExpType for PredictionCorrelation experiment

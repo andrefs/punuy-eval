@@ -16,7 +16,7 @@ describe("compare-prompts aux", () => {
         model: { id: "m1" } as Model,
         dpart: { id: "d1" } as DsPartition,
         language: { id: "pt" as const },
-        measureType: { id: "similarity" as const },
+        relationType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,
       };
 
@@ -25,7 +25,7 @@ describe("compare-prompts aux", () => {
         vars,
         fixedNames,
         ["language"],
-        ["measureType"]
+        ["relationType"]
       );
       expect(compGroups).toHaveLength(1);
       expect(group).toMatchInlineSnapshot(`
@@ -40,7 +40,7 @@ describe("compare-prompts aux", () => {
               "language",
             ],
             [
-              "measureType",
+              "relationType",
             ],
           ],
         }
@@ -51,7 +51,7 @@ describe("compare-prompts aux", () => {
       const compGroups = [
         {
           fixedValueConfig: { model: "m1", dpart: "d1" },
-          variables: [["language", "measureType"]],
+          variables: [["language", "relationType"]],
           data: {},
         },
       ] as ComparisonGroup[];
@@ -60,7 +60,7 @@ describe("compare-prompts aux", () => {
         model: { id: "m1" } as Model,
         dpart: { id: "d1" } as DsPartition,
         language: { id: "pt" as const },
-        measureType: { id: "similarity" as const },
+        relationType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,
       };
 
@@ -69,7 +69,7 @@ describe("compare-prompts aux", () => {
         vars,
         fixedNames,
         ["language"],
-        ["measureType"]
+        ["relationType"]
       );
       expect(compGroups).toHaveLength(1);
       expect(group).toMatchInlineSnapshot(`
@@ -82,7 +82,7 @@ describe("compare-prompts aux", () => {
           "variables": [
             [
               "language",
-              "measureType",
+              "relationType",
             ],
           ],
         }
@@ -93,7 +93,7 @@ describe("compare-prompts aux", () => {
       const compGroups = [
         {
           fixedValueConfig: { model: "m1", dpart: "d1" },
-          variables: [["language"], ["measureType"]],
+          variables: [["language"], ["relationType"]],
           data: {},
         },
       ] as ComparisonGroup[];
@@ -102,7 +102,7 @@ describe("compare-prompts aux", () => {
         model: { id: "m2" } as Model,
         dpart: { id: "d1" } as DsPartition,
         language: { id: "pt" as const },
-        measureType: { id: "similarity" as const },
+        relationType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,
       };
 
@@ -111,7 +111,7 @@ describe("compare-prompts aux", () => {
         vars,
         fixedNames,
         ["language"],
-        ["measureType"]
+        ["relationType"]
       );
       expect(compGroups).toHaveLength(2);
       expect(group).toMatchInlineSnapshot(`
@@ -126,7 +126,7 @@ describe("compare-prompts aux", () => {
               "language",
             ],
             [
-              "measureType",
+              "relationType",
             ],
           ],
         }

@@ -17,14 +17,14 @@ interface ExpLog {
   dpart: string;
   model: string;
   language: string;
-  measureType: string;
+  relationType: string;
   jobType: string;
   trials: number;
   pairResults: Record<string, number>;
   converResults: Record<string, number>;
 }
 
-// ⚗  Running experiment 0/100: prediction-correlation with variables {"jobType":"allPairs","dpart":"rg65#table1","prompt":"sim-afs-survey-en","model":"gemini-1.5-flash-002","language":"en","measureType":"similarity"}
+// ⚗  Running experiment 0/100: prediction-correlation with variables {"jobType":"allPairs","dpart":"rg65#table1","prompt":"sim-afs-survey-en","model":"gemini-1.5-flash-002","language":"en","relationType":"similarity"}
 async function parseExpLog(filePath: string) {
   const lines = readLines(filePath);
   let exp: Partial<ExpLog> = {};
@@ -39,7 +39,7 @@ async function parseExpLog(filePath: string) {
           dpart: data.dpart,
           model: data.model,
           language: data.language,
-          measureType: data.measureType,
+          relationType: data.relationType,
           jobType: data.jobType,
         };
       }

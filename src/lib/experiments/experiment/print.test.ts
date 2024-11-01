@@ -182,7 +182,7 @@ describe("print", () => {
         model: new Set(["gpt2"]),
         language: new Set(["en", "pt"]),
         prompt: new Set(["prompt1", "prompt2"]),
-        measureType: new Set(["similarity"]),
+        relationType: new Set(["similarity"]),
       };
 
       const expScores: ExpScore[] = [
@@ -192,7 +192,7 @@ describe("print", () => {
             model: { id: "gpt2" } as Model,
             prompt: { id: "prompt1" } as Prompt,
             language: { id: "en" },
-            measureType: { id: "similarity" },
+            relationType: { id: "similarity" },
           },
           score: 0.1,
         },
@@ -202,7 +202,7 @@ describe("print", () => {
             model: { id: "gpt2" } as Model,
             prompt: { id: "prompt1" } as Prompt,
             language: { id: "pt" },
-            measureType: { id: "similarity" },
+            relationType: { id: "similarity" },
           },
           score: 0.2,
         },
@@ -212,7 +212,7 @@ describe("print", () => {
             model: { id: "gpt2" } as Model,
             prompt: { id: "prompt2" } as Prompt,
             language: { id: "pt" },
-            measureType: { id: "similarity" },
+            relationType: { id: "similarity" },
           },
           score: 0.2,
         },
@@ -233,8 +233,8 @@ describe("print", () => {
             },
             "fixedValueConfig": {
               "dpart": "train",
-              "measureType": "similarity",
               "model": "gpt2",
+              "relationType": "similarity",
             },
             "variables": [
               [
@@ -255,7 +255,7 @@ describe("print", () => {
         model: new Set(["gpt2"]),
         language: new Set(["en", "pt"]),
         prompt: new Set(["prompt1", "prompt2"]),
-        measureType: new Set(["similarity", "relatedness"]),
+        relationType: new Set(["similarity", "relatedness"]),
       };
 
       const expScores: ExpScore[] = [
@@ -265,7 +265,7 @@ describe("print", () => {
             model: { id: "gpt2" } as Model,
             prompt: { id: "prompt1" } as Prompt,
             language: { id: "en" },
-            measureType: { id: "similarity" },
+            relationType: { id: "similarity" },
           },
           score: 0.1,
         },
@@ -275,7 +275,7 @@ describe("print", () => {
             model: { id: "gpt2" } as Model,
             prompt: { id: "prompt1" } as Prompt,
             language: { id: "pt" },
-            measureType: { id: "similarity" },
+            relationType: { id: "similarity" },
           },
           score: 0.2,
         },
@@ -285,7 +285,7 @@ describe("print", () => {
             model: { id: "gpt2" } as Model,
             prompt: { id: "prompt2" } as Prompt,
             language: { id: "pt" },
-            measureType: { id: "relatedness" },
+            relationType: { id: "relatedness" },
           },
           score: 0.2,
         },
@@ -296,11 +296,11 @@ describe("print", () => {
         [
           {
             "data": {
-              "prompt=prompt1;measureType=similarity": {
+              "prompt=prompt1;relationType=similarity": {
                 "en": 0.1,
                 "pt": 0.2,
               },
-              "prompt=prompt2;measureType=relatedness": {
+              "prompt=prompt2;relationType=relatedness": {
                 "pt": 0.2,
               },
             },
@@ -311,7 +311,7 @@ describe("print", () => {
             "variables": [
               [
                 "prompt",
-                "measureType",
+                "relationType",
               ],
               [
                 "language",

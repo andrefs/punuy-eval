@@ -30,7 +30,7 @@ const toolSchema: ToolSchema = {
           },
           score: {
             type: "number",
-            description: "The semantic measure score.",
+            description: "The semantic relation score.",
           },
         },
         required: ["words", "score"],

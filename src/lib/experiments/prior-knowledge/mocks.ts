@@ -39,7 +39,7 @@ export const createMockDsPart = ({
       pearson: null,
     },
   },
-  measureType: "similarity" as const,
+  relationType: "similarity" as const,
   data: data ?? [
     {
       term1: "testWord1",

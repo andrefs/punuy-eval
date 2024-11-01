@@ -29,7 +29,7 @@ const toolSchema: ToolSchema = {
             maxItems: 2,
           },
           score: {
-            description: "The semantic measure score.",
+            description: "The semantic relation score.",
             type: "number",
           },
         },

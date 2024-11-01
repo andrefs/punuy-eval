@@ -1,7 +1,7 @@
 import {
   DatasetProfile,
   Language,
-  MeasureType,
+  RelationType,
   Metadata,
   Partition,
   PartitionData,
@@ -9,7 +9,7 @@ import {
   PartitionScale,
 } from "punuy-datasets/src/lib/types";
 
-export type DsPartitionMetadata = Omit<Metadata, "languages" | "measureTypes">;
+export type DsPartitionMetadata = Omit<Metadata, "languages" | "relationTypes">;
 
 export class DsPartition implements Partition {
   dataset: {
@@ -19,7 +19,7 @@ export class DsPartition implements Partition {
   partitionId: string;
   id: string;
   language: Language;
-  measureType: MeasureType;
+  relationType: RelationType;
   scale: PartitionScale;
   data: PartitionData[];
   metrics: PartitionMetrics;
@@ -34,7 +34,7 @@ export class DsPartition implements Partition {
       ds.metadata,
       part.id,
       ds.metadata.languages[0], // TODO handle multiple languages
-      part.measureType,
+      part.relationType,
       part.scale,
       part.data,
       part.metrics
@@ -46,7 +46,7 @@ export class DsPartition implements Partition {
     dsMetadata: Metadata | DsPartitionMetadata,
     partitionId: string,
     language: "en" | "pt",
-    measureType: MeasureType,
+    relationType: RelationType,
     scale: PartitionScale,
     data: PartitionData[],
     metrics: PartitionMetrics
@@ -58,7 +58,7 @@ export class DsPartition implements Partition {
     };
     this.partitionId = partitionId;
     this.language = language;
-    this.measureType = measureType;
+    this.relationType = relationType;
     this.scale = scale;
     this.data = data;
     this.metrics = metrics;

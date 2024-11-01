@@ -157,7 +157,7 @@ const description =
 const genPrompt = (pairs: [string, string][]): Prompt => ({
   id: "compare-mc30-prompt",
   language: "en",
-  measureType: "similarity",
+  relationType: "similarity",
   jobType: "allPairs" as const,
   pairs,
   turns: [

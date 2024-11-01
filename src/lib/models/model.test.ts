@@ -23,7 +23,7 @@ describe("Conversion of ModelTool to Google FunctionDeclaration", () => {
                   },
                 },
                 score: {
-                  description: "The semantic measure score.",
+                  description: "The semantic relation score.",
                   type: "number",
                 },
               },
@@ -46,7 +46,7 @@ describe("Conversion of ModelTool to Google FunctionDeclaration", () => {
               "items": {
                 "properties": {
                   "score": {
-                    "description": "The semantic measure score.",
+                    "description": "The semantic relation score.",
                     "properties": {},
                     "type": "string",
                   },

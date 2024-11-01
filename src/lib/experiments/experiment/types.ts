@@ -1,4 +1,4 @@
-import { MeasureType } from "punuy-datasets/src/lib/types";
+import { RelationType } from "punuy-datasets/src/lib/types";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import {
   EvaluationResult,
@@ -32,7 +32,7 @@ export interface ExpVarMatrix {
   model: Model[];
   dpart: DsPartition[];
   language?: ({ id: "pt" } | { id: "en" })[];
-  measureType?: { id: MeasureType }[];
+  relationType?: { id: RelationType }[];
   prompt?: (Prompt | PromptGenerator)[];
   jobType?: { id: PromptJobType }[];
 }
@@ -45,8 +45,8 @@ export interface ExpVars {
   language?: {
     id: "pt" | "en";
   };
-  measureType?: {
-    id: MeasureType;
+  relationType?: {
+    id: RelationType;
   };
   prompt: Prompt | PromptGenerator;
   jobType?: { id: PromptJobType };
@@ -54,7 +54,7 @@ export interface ExpVars {
 
 export interface PromptGenerator {
   id: string;
-  measureType?: MeasureType;
+  relationType?: RelationType;
   language: "pt" | "en";
   generate: (vars: Omit<ExpVars, "prompt">) => Prompt;
 }
@@ -71,7 +71,7 @@ export type PromptJobType = (typeof jobTypes)[number];
 
 export interface BasePrompt {
   id: string;
-  measureType?: MeasureType;
+  relationType?: RelationType;
   jobType: PromptJobType;
   language: "pt" | "en";
   pairs?: [string, string][] | [string, string][][];

@@ -96,7 +96,7 @@ describe("experiment aux", () => {
         dpart: { id: "d1" } as DsPartition,
         model: { id: "m1" } as Model,
         language: { id: "pt" as const },
-        measureType: { id: "similarity" as const },
+        relationType: { id: "similarity" as const },
         prompt: { id: "p1" } as Prompt,
       };
 
@@ -105,9 +105,9 @@ describe("experiment aux", () => {
         {
           "dpart": "d1",
           "language": "pt",
-          "measureType": "similarity",
           "model": "m1",
           "prompt": "p1",
+          "relationType": "similarity",
         }
       `);
     });
@@ -117,7 +117,7 @@ describe("experiment aux", () => {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
         dpart: [{ id: "d1" }, { id: "d2" }] as DsPartition[],
         language: [{ id: "en" as const }, { id: "pt" as const }],
-        measureType: [
+        relationType: [
           { id: "similarity" as const },
           { id: "relatedness" as const },
         ],
@@ -135,10 +135,6 @@ describe("experiment aux", () => {
             "en",
             "pt",
           ],
-          "measureType": [
-            "similarity",
-            "relatedness",
-          ],
           "model": [
             "m1",
             "m2",
@@ -146,6 +142,10 @@ describe("experiment aux", () => {
           "prompt": [
             "p1",
             "p2",
+          ],
+          "relationType": [
+            "similarity",
+            "relatedness",
           ],
         }
       `);
@@ -158,7 +158,7 @@ describe("experiment aux", () => {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
         dpart: [{ id: "d1" }, { id: "d2" }] as DsPartition[],
         language: [{ id: "en" as const }, { id: "pt" as const }],
-        measureType: [
+        relationType: [
           { id: "similarity" as const },
           { id: "relatedness" as const },
         ],
@@ -176,14 +176,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -193,14 +193,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -210,14 +210,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -227,14 +227,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -244,14 +244,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -261,14 +261,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -278,14 +278,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -295,14 +295,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -312,14 +312,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -329,14 +329,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -346,14 +346,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -363,14 +363,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -379,9 +379,6 @@ describe("experiment aux", () => {
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "similarity",
             },
             "model": {
               "id": "m1",
@@ -389,6 +386,9 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p1",
             },
+            "relationType": {
+              "id": "similarity",
+            },
           },
           {
             "dpart": {
@@ -396,9 +396,6 @@ describe("experiment aux", () => {
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "similarity",
             },
             "model": {
               "id": "m1",
@@ -406,6 +403,9 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p2",
             },
+            "relationType": {
+              "id": "similarity",
+            },
           },
           {
             "dpart": {
@@ -413,9 +413,6 @@ describe("experiment aux", () => {
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "relatedness",
             },
             "model": {
               "id": "m1",
@@ -423,6 +420,9 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p1",
             },
+            "relationType": {
+              "id": "relatedness",
+            },
           },
           {
             "dpart": {
@@ -431,14 +431,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -448,14 +448,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -465,14 +465,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -482,14 +482,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -499,14 +499,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -516,14 +516,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -533,14 +533,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -550,14 +550,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -567,14 +567,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -584,14 +584,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -601,14 +601,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
@@ -618,14 +618,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -635,14 +635,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
@@ -651,9 +651,6 @@ describe("experiment aux", () => {
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "similarity",
             },
             "model": {
               "id": "m2",
@@ -661,6 +658,9 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p1",
             },
+            "relationType": {
+              "id": "similarity",
+            },
           },
           {
             "dpart": {
@@ -668,9 +668,6 @@ describe("experiment aux", () => {
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "similarity",
             },
             "model": {
               "id": "m2",
@@ -678,6 +675,9 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p2",
             },
+            "relationType": {
+              "id": "similarity",
+            },
           },
           {
             "dpart": {
@@ -685,9 +685,6 @@ describe("experiment aux", () => {
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "relatedness",
             },
             "model": {
               "id": "m2",
@@ -695,6 +692,9 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p1",
             },
+            "relationType": {
+              "id": "relatedness",
+            },
           },
           {
             "dpart": {
@@ -703,14 +703,14 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p2",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
         ]
@@ -719,16 +719,16 @@ describe("experiment aux", () => {
   });
 
   describe("splitVarCombsMTL", () => {
-    it("ignores prompt if there's no dataset partition with matching measure type", () => {
+    it("ignores prompt if there's no dataset partition with matching relation type", () => {
       const variables: ExpVarMatrix = {
         model: [{ id: "m1" }] as Model[],
         jobType: [{ id: "allPairs" as const }],
         dpart: [
-          { id: "d1", language: "en", measureType: "similarity" },
+          { id: "d1", language: "en", relationType: "similarity" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", measureType: "similarity" },
-          { id: "p2", language: "en", measureType: "relatedness" },
+          { id: "p1", language: "en", relationType: "similarity" },
+          { id: "p2", language: "en", relationType: "relatedness" },
         ] as Prompt[],
       };
 
@@ -736,7 +736,7 @@ describe("experiment aux", () => {
       expect(varCombs).toHaveLength(1);
       expect(varCombs[0].prompt.id).toBe("p1");
       expect(varCombs[0].dpart.id).toBe("d1");
-      expect(varCombs[0].measureType?.id).toBe("similarity");
+      expect(varCombs[0].relationType?.id).toBe("similarity");
       expect(varCombs[0].language?.id).toBe("en");
     });
 
@@ -745,11 +745,11 @@ describe("experiment aux", () => {
         model: [{ id: "m1" }] as Model[],
         jobType: [{ id: "allPairs" as const }],
         dpart: [
-          { id: "d1", language: "pt", measureType: "similarity" },
+          { id: "d1", language: "pt", relationType: "similarity" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", measureType: "similarity" },
-          { id: "p2", language: "pt", measureType: "similarity" },
+          { id: "p1", language: "en", relationType: "similarity" },
+          { id: "p2", language: "pt", relationType: "similarity" },
         ] as Prompt[],
       };
 
@@ -757,7 +757,7 @@ describe("experiment aux", () => {
       expect(varCombs).toHaveLength(1);
       expect(varCombs[0].prompt.id).toBe("p2");
       expect(varCombs[0].dpart.id).toBe("d1");
-      expect(varCombs[0].measureType?.id).toBe("similarity");
+      expect(varCombs[0].relationType?.id).toBe("similarity");
       expect(varCombs[0].language?.id).toBe("pt");
     });
 
@@ -765,11 +765,11 @@ describe("experiment aux", () => {
       const variables: ExpVarMatrix = {
         model: [{ id: "m1" }] as Model[],
         dpart: [
-          { id: "d1", language: "pt", measureType: "relatedness" },
+          { id: "d1", language: "pt", relationType: "relatedness" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", measureType: "similarity" },
-          { id: "p2", language: "pt", measureType: "similarity" },
+          { id: "p1", language: "en", relationType: "similarity" },
+          { id: "p2", language: "pt", relationType: "similarity" },
         ] as Prompt[],
       };
 
@@ -777,19 +777,19 @@ describe("experiment aux", () => {
       expect(varCombs).toHaveLength(0);
     });
 
-    it("should split variable combinations by language and measure type", () => {
+    it("should split variable combinations by language and relation type", () => {
       const variables: ExpVarMatrix = {
         model: [{ id: "m1" }, { id: "m2" }] as Model[],
         jobType: [{ id: "allPairs" as const }],
         dpart: [
-          { id: "d1", language: "en", measureType: "similarity" },
-          { id: "d2", language: "pt", measureType: "relatedness" },
+          { id: "d1", language: "en", relationType: "similarity" },
+          { id: "d2", language: "pt", relationType: "relatedness" },
         ] as DsPartition[],
         prompt: [
-          { id: "p1", language: "en", measureType: "similarity" },
-          { id: "p2", language: "en", measureType: "relatedness" },
-          { id: "p3", language: "pt", measureType: "similarity" },
-          { id: "p4", language: "pt", measureType: "relatedness" },
+          { id: "p1", language: "en", relationType: "similarity" },
+          { id: "p2", language: "en", relationType: "relatedness" },
+          { id: "p3", language: "pt", relationType: "similarity" },
+          { id: "p4", language: "pt", relationType: "relatedness" },
         ] as Prompt[],
       };
       const res = splitVarCombsMTL(variables);
@@ -801,7 +801,7 @@ describe("experiment aux", () => {
             "dpart": {
               "id": "d1",
               "language": "en",
-              "measureType": "similarity",
+              "relationType": "similarity",
             },
             "jobType": {
               "id": "allPairs",
@@ -809,23 +809,23 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m1",
             },
             "prompt": {
               "id": "p1",
               "language": "en",
-              "measureType": "similarity",
+              "relationType": "similarity",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
             "dpart": {
               "id": "d1",
               "language": "en",
-              "measureType": "similarity",
+              "relationType": "similarity",
             },
             "jobType": {
               "id": "allPairs",
@@ -833,32 +833,29 @@ describe("experiment aux", () => {
             "language": {
               "id": "en",
             },
-            "measureType": {
-              "id": "similarity",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p1",
               "language": "en",
-              "measureType": "similarity",
+              "relationType": "similarity",
+            },
+            "relationType": {
+              "id": "similarity",
             },
           },
           {
             "dpart": {
               "id": "d2",
               "language": "pt",
-              "measureType": "relatedness",
+              "relationType": "relatedness",
             },
             "jobType": {
               "id": "allPairs",
             },
             "language": {
               "id": "pt",
-            },
-            "measureType": {
-              "id": "relatedness",
             },
             "model": {
               "id": "m1",
@@ -866,14 +863,17 @@ describe("experiment aux", () => {
             "prompt": {
               "id": "p4",
               "language": "pt",
-              "measureType": "relatedness",
+              "relationType": "relatedness",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
           {
             "dpart": {
               "id": "d2",
               "language": "pt",
-              "measureType": "relatedness",
+              "relationType": "relatedness",
             },
             "jobType": {
               "id": "allPairs",
@@ -881,16 +881,16 @@ describe("experiment aux", () => {
             "language": {
               "id": "pt",
             },
-            "measureType": {
-              "id": "relatedness",
-            },
             "model": {
               "id": "m2",
             },
             "prompt": {
               "id": "p4",
               "language": "pt",
-              "measureType": "relatedness",
+              "relationType": "relatedness",
+            },
+            "relationType": {
+              "id": "relatedness",
             },
           },
         ]

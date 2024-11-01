@@ -37,7 +37,7 @@
     "openai": "4.69.0",
     "picocolors": "1.1.1",
     "pino": "9.5.0",
-    "punuy-datasets": "github:andrefs/punuy-datasets#v7.0.0",
+    "punuy-datasets": "github:andrefs/punuy-datasets#v7.1.0",
     "tsx": "4.19.2",
     "unplugin-auto-import": "0.18.3"
   },

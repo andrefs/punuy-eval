@@ -127,8 +127,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${
-      data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
@@ -244,7 +243,7 @@ export function getFixedValueGroup(
 }
 
 /**
- * Generate the variable combinations but match each prompt's language and measure type with matching datasets
+ * Generate the variable combinations but match each prompt's language and relation type with matching datasets
  * @param variables The variables to generate combinations for
  * @returns The variable combinations
  */
@@ -255,26 +254,26 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
   ).map(l => ({ id: l }));
   const jts = variables.jobType ? variables.jobType.map(x => x.id) : jobTypes;
   for (const l of languages) {
-    for (const mt of [
+    for (const rt of [
       { id: "similarity" } as const,
       { id: "relatedness" } as const,
     ]) {
       for (const jt of jts) {
         const filtPrompts =
           variables.prompt?.filter(
-            p => p.language === l.id && p.measureType === mt.id
+            p => p.language === l.id && p.relationType === rt.id
           ) || [];
         const filtDatasets = variables.dpart.filter(
-          d => d.language === l.id && d.measureType === mt.id
+          d => d.language === l.id && d.relationType === rt.id
         );
         if (filtPrompts.length === 0 || filtDatasets.length === 0) {
           logger.warn(
-            `No prompts or datasets for language ${l.id}, measure type ${mt.id} and job type ${jt}. Skipping.`
+            `No prompts or datasets for language ${l.id}, relation type ${rt.id} and job type ${jt}. Skipping.`
           );
           continue;
         }
         logger.info(
-          `Running experiments for language ${l.id} and measure type ${mt.id}`
+          `Running experiments for language ${l.id} and relation type ${rt.id}`
         );
         const vm: ExpVarMatrix = {
           ...variables,
@@ -282,7 +281,7 @@ export function splitVarCombsMTL(variables: ExpVarMatrix) {
           jobType: [{ id: jt }],
           dpart: filtDatasets,
           language: [l],
-          measureType: [mt],
+          relationType: [rt],
         };
         varCombs.push(...genValueCombinations(vm));
       }
