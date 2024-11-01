@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ExperimentData, ExpVarMatrix, ExpVars, Prompt } from "../experiment";
+import { ExpVarMatrix, ExpVars, Prompt } from "../experiment";
 import { Model } from "../../models";
 import {
   calcVarValues,
