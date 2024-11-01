@@ -157,8 +157,8 @@ describe("print", () => {
           {
             "data": {
               "": {
-                "prompt=prompt1, language=en": 0.1,
-                "prompt=prompt2, language=pt": 0.2,
+                "prompt=prompt1;language=en": 0.1,
+                "prompt=prompt2;language=pt": 0.2,
               },
             },
             "fixedValueConfig": {
@@ -296,11 +296,11 @@ describe("print", () => {
         [
           {
             "data": {
-              "prompt=prompt1, measureType=similarity": {
+              "prompt=prompt1;measureType=similarity": {
                 "en": 0.1,
                 "pt": 0.2,
               },
-              "prompt=prompt2, measureType=relatedness": {
+              "prompt=prompt2;measureType=relatedness": {
                 "pt": 0.2,
               },
             },
