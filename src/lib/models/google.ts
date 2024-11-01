@@ -129,11 +129,11 @@ const buildModel = (
         dataObj: result.response.candidates![0],
         usage: result.response.usageMetadata
           ? {
-            inputTokens: result.response.usageMetadata.promptTokenCount!,
-            outputTokens: result.response.usageMetadata.candidatesTokenCount!,
-            totalTokens: result.response.usageMetadata.totalTokenCount!,
-            modelId,
-          }
+              inputTokens: result.response.usageMetadata.promptTokenCount!,
+              outputTokens: result.response.usageMetadata.candidatesTokenCount!,
+              totalTokens: result.response.usageMetadata.totalTokenCount!,
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;

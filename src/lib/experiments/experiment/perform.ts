@@ -67,10 +67,10 @@ export async function performMulti<T extends GenericExpTypes>(
   for (const [index, vc] of varCombs.entries()) {
     logger.info(
       "⚗️  " +
-      pc.inverse(
-        `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
-      ) +
-      ` with variables ${JSON.stringify(getVarIds(vc))}.`
+        pc.inverse(
+          `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
+        ) +
+        ` with variables ${JSON.stringify(getVarIds(vc))}.`
     );
     res.push(await this.perform(vc, trials, Date.now(), folder));
     addUsage(this.totalUsage, res[res.length - 1].usage);
@@ -97,7 +97,8 @@ function startUpLogs(
     throw "🧐 No variable combinations to run experiments with, aborting.";
   }
   logger.info(
-    `🔬 Preparing to run experiment ${name
+    `🔬 Preparing to run experiment ${
+      name
     }, ${trials} times on each variable combination (${trials}x${varCombs.length}): \n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`

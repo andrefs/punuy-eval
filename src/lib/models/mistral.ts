@@ -84,11 +84,11 @@ const buildModel = (
         dataObj: chatResponse,
         usage: chatResponse.usage
           ? {
-            inputTokens: chatResponse.usage?.promptTokens,
-            outputTokens: chatResponse.usage?.completionTokens,
-            totalTokens: chatResponse.usage?.totalTokens,
-            modelId,
-          }
+              inputTokens: chatResponse.usage?.promptTokens,
+              outputTokens: chatResponse.usage?.completionTokens,
+              totalTokens: chatResponse.usage?.totalTokens,
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;

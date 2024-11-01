@@ -27,7 +27,8 @@ const valuesExactMatch = async (vars: ExpVarMatrix) => {
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
+        exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(

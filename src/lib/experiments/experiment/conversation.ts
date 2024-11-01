@@ -91,7 +91,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
   const failedAttempts = [];
   logger.info(
     `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
-    prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
+      prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
   );
   while (failedAttempts.length < maxTurnAttempts) {
     const faCount = failedAttempts.length;

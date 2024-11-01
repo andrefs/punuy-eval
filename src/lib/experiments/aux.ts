@@ -13,7 +13,7 @@ export function normalizeScale(
   return (
     targetScale.min +
     ((value - sourceScale.min) * (targetScale.max - targetScale.min)) /
-    (sourceScale.max - sourceScale.min)
+      (sourceScale.max - sourceScale.min)
   );
 }
 

@@ -123,7 +123,7 @@ async function main(dirPath: string, expName?: string) {
     const fixedExpVCData = await reEvalExperiment(expVCData, exp);
     if (
       expVCData.results.aggregated?.allDataAvg !==
-      fixedExpVCData.results.aggregated?.allDataAvg &&
+        fixedExpVCData.results.aggregated?.allDataAvg &&
       isNumber(expVCData.results.aggregated?.allDataAvg) &&
       isNumber(fixedExpVCData.results.aggregated?.allDataAvg)
     ) {

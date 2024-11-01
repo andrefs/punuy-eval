@@ -41,7 +41,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ) => {
-  const makeRequest = async function(prompt: string, toolParams: ModelTool) {
+  const makeRequest = async function (prompt: string, toolParams: ModelTool) {
     const req = {
       model: modelId,
       messages: [
@@ -78,11 +78,11 @@ const buildModel = (
         dataObj: completion,
         usage: completion.usage
           ? {
-            inputTokens: completion.usage?.prompt_tokens,
-            outputTokens: completion.usage?.completion_tokens,
-            totalTokens: completion.usage?.total_tokens,
-            modelId,
-          }
+              inputTokens: completion.usage?.prompt_tokens,
+              outputTokens: completion.usage?.completion_tokens,
+              totalTokens: completion.usage?.total_tokens,
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;

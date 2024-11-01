@@ -47,7 +47,7 @@ const buildModel = (
   modelId: ModelId,
   pricing?: ModelPricing
 ): Model => {
-  const makeRequest = async function(
+  const makeRequest = async function (
     prompt: string,
     toolParams: ModelTool
   ): Promise<CohereModelResponse> {
@@ -74,13 +74,13 @@ const buildModel = (
         dataObj: prediction,
         usage: prediction.usage?.billedUnits
           ? {
-            inputTokens: prediction.usage.billedUnits.inputTokens || 0,
-            outputTokens: prediction.usage.billedUnits.outputTokens || 0,
-            totalTokens:
-              (prediction.usage.billedUnits.inputTokens || 0) +
-              (prediction.usage.billedUnits.outputTokens || 0),
-            modelId,
-          }
+              inputTokens: prediction.usage.billedUnits.inputTokens || 0,
+              outputTokens: prediction.usage.billedUnits.outputTokens || 0,
+              totalTokens:
+                (prediction.usage.billedUnits.inputTokens || 0) +
+                (prediction.usage.billedUnits.outputTokens || 0),
+              modelId,
+            }
           : undefined,
         getDataText: () => {
           let dataText;

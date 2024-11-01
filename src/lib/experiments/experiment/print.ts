@@ -20,11 +20,11 @@ export function printUsage<T extends GenericExpTypes>(
   }
   logger.info(
     "📈💸 " +
-    (final ? "Final usage" : "Usage") +
-    " estimate:\n" +
-    Object.values(usage)
-      .map(u => `\t${JSON.stringify(u)} `)
-      .join("\n")
+      (final ? "Final usage" : "Usage") +
+      " estimate:\n" +
+      Object.values(usage)
+        .map(u => `\t${JSON.stringify(u)} `)
+        .join("\n")
   );
 }
 
@@ -112,9 +112,9 @@ function varsToStr(vars: Set<string>, variables: ExpVars) {
   return vars.size === 1
     ? variables[Array.from(vars)[0] as keyof ExpVars]!.id
     : Array.from(vars)
-      .map(v => [v, variables[v as keyof ExpVars]!.id])
-      .map(([v, id]) => `${v}=${id}`)
-      .join(";");
+        .map(v => [v, variables[v as keyof ExpVars]!.id])
+        .map(([v, id]) => `${v}=${id}`)
+        .join(";");
 }
 
 export function generateComparisons(
@@ -229,8 +229,8 @@ export function printExpResTable<T extends GenericExpTypes>(
       `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
-          comp.fixedValueConfig
-        )} \n${tablePP} \n${csv} `
+        comp.fixedValueConfig
+      )} \n${tablePP} \n${csv} `
     );
   }
 }
