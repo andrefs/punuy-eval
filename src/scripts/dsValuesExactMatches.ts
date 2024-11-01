@@ -2,7 +2,6 @@ import logger from "../lib/logger";
 import {
   claude3opus,
   claude3sonnet_20240229,
-  gemini10pro_001,
   gemini15flash_002,
   gemini15pro_002,
   gpt35turbo_0125,
@@ -52,7 +51,6 @@ const evm: ExpVarMatrix = {
     gpt4omini_20240718,
     claude3sonnet_20240229,
     claude3opus,
-    gemini10pro_001,
     gemini15pro_002,
     gemini15flash_002,
     mistralLarge_2407,

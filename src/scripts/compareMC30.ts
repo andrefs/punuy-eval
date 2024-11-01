@@ -15,7 +15,6 @@ import {
   gpt4_0613,
   claude3sonnet_20240229,
   gpt4omini_20240718,
-  gemini10pro_001,
   gemini15pro_002,
   gemini15flash_002,
 } from "src/lib/models";
@@ -36,7 +35,6 @@ const compareMC30 = async () => {
     gpt4omini_20240718,
     claude3sonnet_20240229,
     claude3opus,
-    gemini10pro_001,
     gemini15pro_002,
     gemini15flash_002,
     mistralLarge_2407,
@@ -47,9 +45,9 @@ const compareMC30 = async () => {
   if (res.usage) {
     logger.info(
       "📈 Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
+      Object.values(res.usage)
+        .map(u => `\t${JSON.stringify(u)}`)
+        .join("\n")
     );
   }
 

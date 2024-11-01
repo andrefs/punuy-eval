@@ -2,7 +2,6 @@ import { ExpVarMatrix, comparePrompts } from "../lib/experiments";
 import {
   claude3opus,
   claude3sonnet_20240229,
-  gemini10pro_001,
   gemini15flash_002,
   gemini15pro_002,
   gpt35turbo_0125,
@@ -35,9 +34,9 @@ const comparePromptsMain = async (vars: ExpVarMatrix) => {
   if (res.usage) {
     logger.info(
       "📈 Usage estimate:\n" +
-        Object.values(res.usage)
-          .map(u => `\t${JSON.stringify(u)}`)
-          .join("\n")
+      Object.values(res.usage)
+        .map(u => `\t${JSON.stringify(u)}`)
+        .join("\n")
     );
   }
 
@@ -67,7 +66,6 @@ const evm: ExpVarMatrix = {
     gpt4omini_20240718,
     claude3sonnet_20240229,
     claude3opus,
-    gemini10pro_001,
     gemini15pro_002,
     gemini15flash_002,
     mistralLarge_2407,

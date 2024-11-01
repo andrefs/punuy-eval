@@ -9,7 +9,6 @@ import {
   commandRPlus_082024,
 
   // google
-  gemini10pro_001,
   gemini15flash_002,
   gemini15flash_8b,
   gemini15pro_002,
