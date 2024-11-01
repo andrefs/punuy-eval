@@ -24,7 +24,6 @@ import {
   ministral3b_2410,
   ministral8b_2410,
   mistralLarge_2407,
-  mistralMedium_2312,
   mistralSmall_2409,
   openMistralNemo_2407,
 } from "../lib/models";
