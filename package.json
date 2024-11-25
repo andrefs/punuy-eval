@@ -27,7 +27,7 @@
     "@anthropic-ai/sdk": "0.31.0",
     "@google/generative-ai": "0.21.0",
     "@mistralai/mistralai": "1.1.0",
-    "@sinclair/typebox": "0.33.17",
+    "@sinclair/typebox": "0.34.8",
     "@stdlib/stats-pcorrtest": "0.2.2",
     "cohere-ai": "7.14.0",
     "console-table-printer": "2.12.1",
