@@ -48,11 +48,11 @@ const reqs: {
     },
     relatedness: {
       singlePair:
-        "Please rate from 0 to 4 the semantic relatedness of the following pair of words,with 0 indicating words not related at all and 4 indicating very related words",
+        "Please rate from 0 to 4 the semantic relatedness of the following pair of words, with 0 indicating words not related at all and 4 indicating very related words",
       batches:
-        "Please rate from 0 to 4 the semantic relatedness of the following pairs of words,with 0 indicating words not related at all and 4 indicating very related words",
+        "Please rate from 0 to 4 the semantic relatedness of the following pairs of words, with 0 indicating words not related at all and 4 indicating very related words",
       allPairs:
-        "Please rate from 0 to 4 the semantic relatedness of the following pairs of words,with 0 indicating words not related at all and 4 indicating very related words",
+        "Please rate from 0 to 4 the semantic relatedness of the following pairs of words, with 0 indicating words not related at all and 4 indicating very related words",
     },
   },
 };
