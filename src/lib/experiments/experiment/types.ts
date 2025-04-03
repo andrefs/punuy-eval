@@ -172,10 +172,22 @@ export interface AggregatedEvaluationResult {
    * Average score over all results
    */
   allDataAvg: number | null;
+
+  /**
+   * Standard deviation over all results
+   */
+  allDataStdev?: number | null;
+
   /*
    * Average score over ok results
    */
   okDataAvg: number | null;
+
+  /**
+   * Standard deviation over ok results
+   */
+  okDataStdev?: number | null;
+
   resultTypes: {
     [key in EvaluationResultType]: number;
   };

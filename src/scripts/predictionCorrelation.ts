@@ -33,6 +33,7 @@ import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/batch-vs-single-pair/prompts";
 import predictionCorrelation from "src/lib/experiments/prediction-correlation";
 import datasets from "../lib/dataset-partitions";
+import geresid50_rel from "src/lib/dataset-partitions/geresid50_rel";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
@@ -45,8 +46,7 @@ const predCorr = async (vars: ExpVarMatrix) => {
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
-        exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(
@@ -63,28 +63,28 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
-  dpart: [datasets.rg65_table1],
+  dpart: [datasets.geresid50_rel],
   prompt: prompts,
   model: [
     // super cheap
-    gemini15flash_002,
+    //gemini15flash_002,
     gemini15flash_8b,
-    gpt4omini_20240718,
-    ministral3b_2410,
-    ministral8b_2410,
-    mistralSmall_2409,
-    openMistralNemo_2407,
-    //// low cost
-    gpt35turbo_0125,
-    claude3haiku,
-    //// medium cost
-    gemini15pro_002,
-    mistralLarge_2407,
-    //// expensive
-    claude3sonnet_20240229,
-    claude35sonnet_20240620,
-    gpt4o_20240806,
-    gpt4turbo_20240409,
+    //gpt4omini_20240718,
+    //ministral3b_2410,
+    ////ministral8b_2410,
+    //mistralSmall_2409,
+    //openMistralNemo_2407,
+    ////// low cost
+    //gpt35turbo_0125,
+    //claude3haiku,
+    ////// medium cost
+    //gemini15pro_002,
+    //mistralLarge_2407,
+    ////// expensive
+    //claude3sonnet_20240229,
+    //claude35sonnet_20240620,
+    //gpt4o_20240806,
+    //gpt4turbo_20240409,
   ],
 };
 

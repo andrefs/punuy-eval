@@ -256,9 +256,34 @@ export async function combineEvaluations<DataType, ExpectedType = DataType>(
     }
   }
 
+  const allDataAvg = vs.length ? sum / vs.length : null;
+  const okDataAvg = okCount ? okSum / okCount : null;
+  const allDataStdev = allDataAvg
+    ? Math.sqrt(
+      vs.reduce((acc, v) => {
+        if (v instanceof DataEvalOk) {
+          return acc + Math.pow(v.percentage - allDataAvg, 2);
+        }
+        return acc;
+      }, 0) / vs.length
+    )
+    : null;
+  const okDataStdev = okDataAvg
+    ? Math.sqrt(
+      vs.reduce((acc, v) => {
+        if (v instanceof DataEvalOk) {
+          return acc + Math.pow(v.percentage - okDataAvg, 2);
+        }
+        return acc;
+      }, 0) / okCount
+    )
+    : null;
+
   return {
-    allDataAvg: vs.length ? sum / vs.length : null,
-    okDataAvg: okCount ? okSum / okCount : null,
+    allDataAvg,
+    allDataStdev,
+    okDataAvg,
+    okDataStdev,
     resultTypes,
   };
 }
