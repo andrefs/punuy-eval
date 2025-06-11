@@ -38,7 +38,9 @@ describe("evaluation", () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "allDataAvg": 0.4375,
+          "allDataStdev": 0.2981060004427955,
           "okDataAvg": 0.5833333333333334,
+          "okDataStdev": 0.31180478223116176,
           "resultTypes": {
             "data-correct": 1,
             "data-incomplete": 1,
