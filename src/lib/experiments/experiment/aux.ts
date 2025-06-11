@@ -127,8 +127,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${
-      data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
@@ -358,6 +357,12 @@ export function distributePairs(
 
 type BuildTurnsReturn = TurnPrompt[];
 
+function pairToString(pair: [string, string]) {
+  return pair[0].includes(",") || pair[1].includes(",")
+    ? `"${pair[0]}", "${pair[1]}"`
+    : `${pair[0]}, ${pair[1]}`;
+}
+
 export function buildTurns(
   text: string,
   jobType: PromptJobType,
@@ -367,7 +372,7 @@ export function buildTurns(
     const ps = pairs as [string, string][];
     return [
       {
-        text: `${text}:\n${(ps as [string, string][]).map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
+        text: `${text}:\n${(ps as [string, string][]).map(p => pairToString(p)).join("\n")}`,
         pairs: ps,
       },
     ];
@@ -375,12 +380,12 @@ export function buildTurns(
   if (jobType === "batches") {
     const bs = pairs as [string, string][][];
     return bs.map(batch => ({
-      text: `${text}:\n${batch.map(([term1, term2]) => `${term1}, ${term2}`).join("\n")}`,
+      text: `${text}:\n${batch.map(p => pairToString(p)).join("\n")}`,
       pairs: batch,
     }));
   }
-  return pairs.map(([term1, term2]) => ({
-    text: `${text}:\n${term1}, ${term2}`,
-    pairs: [[term1, term2] as [string, string]],
+  return pairs.map(p => ({
+    text: `${text}:\n${pairToString(p as [string, string])}`,
+    pairs: [[p[0], p[1]] as [string, string]],
   }));
 }
