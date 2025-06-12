@@ -63,24 +63,24 @@ const predCorr = async (vars: ExpVarMatrix) => {
 
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
-  dpart: [datasets.geresid50_rel],
+  dpart: [datasets.geresid50_rel, datasets.geresid50_sim],
   prompt: prompts,
   model: [
     // super cheap
-    //gemini15flash_002,
+    gemini15flash_002,
     gemini15flash_8b,
-    //gpt4omini_20240718,
-    //ministral3b_2410,
-    ////ministral8b_2410,
-    //mistralSmall_2409,
-    //openMistralNemo_2407,
-    ////// low cost
-    //gpt35turbo_0125,
-    //claude3haiku,
-    ////// medium cost
+    gpt4omini_20240718,
+    ministral3b_2410,
+    ministral8b_2410,
+    mistralSmall_2409,
+    openMistralNemo_2407,
+    // low cost
+    gpt35turbo_0125,
+    claude3haiku,
+    // medium cost
     //gemini15pro_002,
-    //mistralLarge_2407,
-    ////// expensive
+    mistralLarge_2407,
+    // expensive
     //claude3sonnet_20240229,
     //claude35sonnet_20240620,
     //gpt4o_20240806,
