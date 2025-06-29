@@ -97,13 +97,15 @@ export default class Experiment<T extends GenericExpTypes> {
     vars: ExpVars,
     trials: number,
     traceId: number,
-    folder: string
+    folder: string,
+    maxAttempts?: number
   ) => Promise<ExperimentData<T>>;
   performMulti: (
     this: Experiment<T>,
     variables: ExpVarMatrix,
     trials: number,
-    folder: string
+    folder: string,
+    maxAttempts?: number
   ) => Promise<{
     experiments: ExperimentData<T>[];
     usage?: Usages;

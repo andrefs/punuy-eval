@@ -8,7 +8,7 @@ import {
   PromptJobType,
 } from "..";
 import { buildTurns, distributePairs } from "../experiment/aux";
-import { createShuffle } from "fast-shuffle";
+import { shuffle, createShuffle } from "fast-shuffle";
 
 const reqs: {
   [key in Language]: {
@@ -56,21 +56,12 @@ const protoPrompts = [
     text: "In this survey you'll be asked to rate quantitatively, on a scale, the intensity of the semantic similarity between pairs of affective words. Please, before starting, read carefully the instructions and the examples provided.\n\nThe question we're asking is: how much similar are the two words? Vaguely similar words should be scored with lower values, and strongly similar words with higher values.\n\nFor example, the words 'smart' and 'intelligent' share a lot of similarities, just like 'happiness' and 'joy'. 'Confident' is highly similar to itself. 'Happy' and 'mad' share some similarities. 'Sad' and 'funny' are not similar at all.\nExamples:\n* smart, intelligent: 4, \n* happiness, joy: 5\n* confident, confident: 5\n* happy, mad: 3\n* sad, funny: 1\n",
   },
 ];
-
-interface GenerateOpts {
-  shuffleSeed?: number;
-}
-
 const prompts: PromptGenerator[] = [];
 for (const pp of protoPrompts) {
   prompts.push({
     ...pp,
-    generate: (
-      vars: Omit<ExpVars, "prompt">,
-      opts: GenerateOpts = {}
-    ): Prompt => {
+    generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
       const jt: PromptJobType = "batches";
-      const shuffle = createShuffle(opts.shuffleSeed ?? Math.random());
       const pairList = shuffle(vars.dpart.data).map(
         ({ term1, term2 }) => [term1, term2] as [string, string]
       );

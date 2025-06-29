@@ -40,4 +40,24 @@ describe("prompts", () => {
     expect(pairs[0]).toHaveLength(30);
     expect(pairs[2]).toHaveLength(5); // last pair has only 5 items
   });
+
+  it("should generate prompts with different pair order each time", () => {
+    const pg = prompts.filter(
+      p => p.language === "en" && p.relationType === "similarity"
+    )[0];
+
+    const vars: Omit<ExpVars, "prompt"> = {
+      language: { id: "en" },
+      relationType: { id: "similarity" },
+      model: { id: "test" } as Model,
+      dpart: rg65_table1,
+    };
+    const prompt1 = pg.generate(vars);
+    const prompt2 = pg.generate(vars);
+    const pairs1 = prompt1.pairs as [string, string][][];
+    const pairs2 = prompt2.pairs as [string, string][][];
+    console.log(pairs1);
+    console.log(pairs2);
+    expect(pairs1).not.toEqual(pairs2); // should be different due to randomization
+  });
 });

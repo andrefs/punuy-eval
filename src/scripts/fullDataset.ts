@@ -25,8 +25,7 @@ const fullDs = async (vars: ExpVarMatrix) => {
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
-        exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(
@@ -44,18 +43,18 @@ const fullDs = async (vars: ExpVarMatrix) => {
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
   dpart: [
-    datasets.rg65_table1,
-    datasets.simlex999_main,
+    //datasets.rg65_table1,
+    //datasets.simlex999_main,
     datasets.men3000_full,
-    datasets.ws353_combined,
+    //datasets.ws353_combined,
   ],
   prompt: prompts,
   model: [
-    gemini15pro_002,
-    claude3sonnet_20240229,
-    claude35sonnet_20240620,
+    //gemini15pro_002,
+    //claude3sonnet_20240229,
+    //claude35sonnet_20240620,
     gpt4o_20240806,
-    gpt4turbo_20240409,
+    //gpt4turbo_20240409,
   ],
 };
 
