@@ -2,6 +2,7 @@ import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  GenToolSchema,
   GenericExpTypes,
   Prompt,
   TrialResult,
@@ -61,18 +62,24 @@ export interface SFSExpTypes extends GenericExpTypes {
 async function runTrial(
   this: Experiment<SFSExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
-  toolSchema: ToolSchema,
+  genToolSchema: GenToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<SFSExpTypes["Data"]>> {
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const toolSchema: ToolSchema = genToolSchema(
+    Array.isArray(prompt.pairs[0])
+      ? prompt.pairs[0].length
+      : prompt.pairs.length
+  );
+
   const tool = {
     name: "evaluate_sample",
     description: "evaluates the pairs sampled from the dataset.",
     schema: toolSchema,
   };
-
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const res = await this.iterateConversation(
     { ...vars, prompt },

@@ -8,9 +8,11 @@ import {
 } from "src/lib/evaluation";
 import { Model, ModelId, ToolSchema } from "src/lib/models";
 
+export type GenToolSchema = (opts?: any) => ToolSchema; // eslint-disable-line @typescript-eslint/no-explicit-any
+
 export interface QueryData<T extends GenericExpTypes> {
   responseSchema: T["DataSchema"];
-  toolSchema: ToolSchema;
+  genToolSchema: GenToolSchema;
 }
 export interface SinglePairScore {
   words: [string, string];

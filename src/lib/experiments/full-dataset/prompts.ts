@@ -8,7 +8,7 @@ import {
   PromptJobType,
 } from "..";
 import { buildTurns, distributePairs } from "../experiment/aux";
-import { shuffle, createShuffle } from "fast-shuffle";
+import { shuffle } from "fast-shuffle";
 
 const reqs: {
   [key in Language]: {

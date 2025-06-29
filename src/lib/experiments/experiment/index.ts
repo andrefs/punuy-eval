@@ -9,6 +9,7 @@ import {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  GenToolSchema,
   GenericExpTypes,
   Prompt,
   PromptGenerator,
@@ -75,7 +76,7 @@ export default class Experiment<T extends GenericExpTypes> {
   runTrial: (
     this: Experiment<T>,
     vars: ExpVars | ExpVarsFixedPrompt,
-    toolSchema: ToolSchema,
+    genToolSchema: GenToolSchema,
     maxAttempts?: number
   ) => Promise<TrialResult<T["Data"]>>;
   runTrials: (
@@ -148,7 +149,7 @@ export default class Experiment<T extends GenericExpTypes> {
     runTrial: (
       this: Experiment<T>,
       vars: ExpVars | ExpVarsFixedPrompt,
-      toolSchema: ToolSchema,
+      genToolSchema: GenToolSchema,
       maxAttempts?: number
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
@@ -216,7 +217,7 @@ export default class Experiment<T extends GenericExpTypes> {
         logger.info(`  ⚔️  trial #${i + 1} of ${numTrials} `);
         const trialRes = await this.runTrial(
           vars,
-          this.queryData.toolSchema,
+          this.queryData.genToolSchema,
           maxAttempts
         );
         addUsage(totalUsage, trialRes.usage);

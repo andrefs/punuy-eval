@@ -34,6 +34,7 @@ import {
 import {
   ExpScore,
   ExpVarsFixedPrompt,
+  GenToolSchema,
   PairScoreList,
   TurnPrompt,
   TurnResponse,
@@ -190,14 +191,21 @@ async function runTrial(
   vars: ExpVars,
   maxRetries = 3
 ): Promise<TrialResult<CPExpTypes["Data"]>> {
-  const tool = {
-    name: "evaluate_scores",
-    description: "Evaluate the word similarity or relatedness scores",
-    schema: query.toolSchema,
-  };
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const toolSchema = query.genToolSchema(
+    Array.isArray(prompt.pairs[0])
+      ? prompt.pairs[0].length
+      : prompt.pairs.length
+  );
+
+  const tool = {
+    name: "evaluate_scores",
+    description: "Evaluate the word similarity or relatedness scores",
+    schema: toolSchema,
+  };
 
   const res = await iterateConversation({ ...vars, prompt }, tool, maxRetries);
 
@@ -273,8 +281,7 @@ async function performMulti(
 
   const res = [];
   logger.info(
-    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${trials}x${
-      varCombs.length
+    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${trials}x${varCombs.length
     }):\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
@@ -381,8 +388,8 @@ async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
       `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
-        comp.fixedValueConfig
-      )}\n${tablePP}`
+          comp.fixedValueConfig
+        )}\n${tablePP}`
     );
   }
 

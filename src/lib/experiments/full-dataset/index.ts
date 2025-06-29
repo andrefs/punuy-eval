@@ -3,12 +3,12 @@ import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  GenToolSchema,
   GenericExpTypes,
   TrialResult,
   TurnPrompt,
 } from "../experiment";
 import query from "../prediction-correlation/query";
-import { ToolSchema } from "src/lib/models";
 import logger from "src/lib/logger";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import {
@@ -38,17 +38,24 @@ export interface FDExpTypes extends GenericExpTypes {
 async function runTrial(
   this: Experiment<FDExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
-  toolSchema: ToolSchema,
+  genToolSchema: GenToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<FDExpTypes["Data"]>> {
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const toolSchema = genToolSchema(
+    Array.isArray(prompt.pairs[0])
+      ? prompt.pairs[0].length
+      : prompt.pairs.length
+  );
+
   const tool = {
     name: "evaluate_pair_scores",
     description: "Evaluates the scores of the pairs returned",
     schema: toolSchema,
   };
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const res = await this.iterateConversation(
     { ...vars, prompt },

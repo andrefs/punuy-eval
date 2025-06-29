@@ -2,6 +2,7 @@ import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
   GenericExpTypes,
+  GenToolSchema,
   Prompt,
   TrialResult,
   TurnPrompt,
@@ -53,18 +54,18 @@ interface NFSExpTypes extends GenericExpTypes {
 async function runTrial(
   this: Experiment<NFSExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
-  toolSchema: ToolSchema,
+  genToolSchema: GenToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<NFSExpTypes["Data"]>> {
-  const tool: ModelTool = {
-    name: "validate_dataset_name",
-    description: "Validates the dataset name.",
-    schema: toolSchema,
-  };
-
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const tool: ModelTool = {
+    name: "validate_dataset_name",
+    description: "Validates the dataset name.",
+    schema: genToolSchema(),
+  };
 
   const res = await this.iterateConversation(
     { ...vars, prompt },

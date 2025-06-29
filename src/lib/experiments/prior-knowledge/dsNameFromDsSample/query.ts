@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { ToolSchema } from "src/lib/models";
+import { GenToolSchema } from "../../experiment";
 
 const responseSchema = Type.Object({
   name: Type.String(),
@@ -7,7 +7,7 @@ const responseSchema = Type.Object({
   authors: Type.Array(Type.String()),
 });
 
-const toolSchema: ToolSchema = {
+const genToolSchema: GenToolSchema = () => ({
   type: "object" as const,
   properties: {
     name: {
@@ -27,9 +27,9 @@ const toolSchema: ToolSchema = {
     },
   },
   required: ["name", "year", "authors"],
-};
+});
 
 export default {
-  toolSchema,
+  genToolSchema,
   responseSchema,
 };

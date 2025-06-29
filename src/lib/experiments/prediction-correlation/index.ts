@@ -3,6 +3,7 @@ import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  GenToolSchema,
   GenericExpTypes,
   TrialResult,
   TurnPrompt,
@@ -36,18 +37,24 @@ export interface PCExpTypes extends GenericExpTypes {
 async function runTrial(
   this: Experiment<PCExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
-  toolSchema: ToolSchema,
+  genToolSchema: GenToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<PCExpTypes["Data"]>> {
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const toolSchema: ToolSchema = genToolSchema(
+    Array.isArray(prompt.pairs[0])
+      ? prompt.pairs[0].length
+      : prompt.pairs.length
+  );
+
   const tool = {
     name: "evaluate_pair_scores",
     description: "Evaluates the scores of the pairs returned",
     schema: toolSchema,
   };
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`  ❔ Prompt: ${prompt.id}`);
-
   const res = await this.iterateConversation(
     { ...vars, prompt },
     tool,

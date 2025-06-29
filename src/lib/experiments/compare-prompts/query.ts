@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { ToolSchema } from "src/lib/models";
+import { GenToolSchema } from "../experiment";
 
 const responseSchema = Type.Object({
   scores: Type.Array(
@@ -10,7 +10,7 @@ const responseSchema = Type.Object({
   ),
 });
 
-const toolSchema: ToolSchema = {
+const genToolSchema: GenToolSchema = ({ numPairs }: { numPairs: number }) => ({
   type: "object" as const,
   properties: {
     scores: {
@@ -35,12 +35,14 @@ const toolSchema: ToolSchema = {
         },
         required: ["words", "score"],
       },
+      minItems: numPairs,
+      maxItems: numPairs,
     },
   },
   required: ["scores"],
-};
+});
 
 export default {
   responseSchema,
-  toolSchema,
+  genToolSchema,
 };

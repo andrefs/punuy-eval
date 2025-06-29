@@ -2,6 +2,7 @@ import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
   ExperimentData,
+  GenToolSchema,
   GenericExpTypes,
   Prompt,
   TrialResult,
@@ -61,18 +62,24 @@ interface VEMExpTypes extends GenericExpTypes {
 async function runTrial(
   this: Experiment<VEMExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
-  toolSchema: ToolSchema,
+  genToolSchema: GenToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<VEMExpTypes["Data"]>> {
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const toolSchema: ToolSchema = genToolSchema(
+    Array.isArray(prompt.pairs[0])
+      ? prompt.pairs[0].length
+      : prompt.pairs.length
+  );
+
   const tool = {
     name: "validate_sample",
     description: "Validates the pairs sampled from the dataset.",
     schema: toolSchema,
   };
-
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const res = await this.iterateConversation(
     { ...vars, prompt },

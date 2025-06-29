@@ -2,6 +2,7 @@ import Experiment, {
   ExpVars,
   ExpVarsFixedPrompt,
   GenericExpTypes,
+  GenToolSchema,
   Prompt,
   TrialResult,
   TurnPrompt,
@@ -45,19 +46,25 @@ interface PFNExpTypes extends GenericExpTypes {
 async function runTrial(
   this: Experiment<PFNExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
-  toolSchema: ToolSchema,
+  genToolSchema: GenToolSchema,
   maxRetries: number = 3
 ): Promise<TrialResult<PFNExpTypes["Data"]>> {
+  const prompt =
+    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  const toolSchema: ToolSchema = genToolSchema(
+    Array.isArray(prompt.pairs[0])
+      ? prompt.pairs[0].length
+      : prompt.pairs.length
+  );
+
   const tool: ModelTool = {
     name: "return_paper_name",
     description:
       "returns the title of the scientific article describing the dataset",
     schema: toolSchema,
   };
-
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
-  logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const res = await this.iterateConversation(
     { ...vars, prompt },

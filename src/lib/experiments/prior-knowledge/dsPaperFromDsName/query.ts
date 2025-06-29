@@ -1,10 +1,11 @@
 import { Type } from "@sinclair/typebox";
+import { GenToolSchema } from "../../experiment";
 
 const responseSchema = Type.Object({
   title: Type.String(),
 });
 
-const toolSchema = {
+const genToolSchema: GenToolSchema = () => ({
   type: "object" as const,
   properties: {
     title: {
@@ -13,9 +14,9 @@ const toolSchema = {
     },
   },
   required: ["title"],
-};
+});
 
 export default {
-  toolSchema,
+  genToolSchema,
   responseSchema,
 };
