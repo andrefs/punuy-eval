@@ -3,9 +3,11 @@ import path from "path";
 import {
   claude35sonnet_20240620,
   claude3sonnet_20240229,
+  gemini15flash_002,
   gemini15pro_002,
   gpt4o_20240806,
   gpt4turbo_20240409,
+  ministral3b_2410,
 } from "../lib/models";
 import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
@@ -20,7 +22,7 @@ const folder =
 
 const fullDs = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await fullDataset.performMulti(vars, trials, folder);
+  const res = await fullDataset.performMulti(vars, trials, folder, 5);
 
   for (const exp of res.experiments) {
     logger.info(
@@ -43,18 +45,20 @@ const fullDs = async (vars: ExpVarMatrix) => {
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
   dpart: [
-    //datasets.rg65_table1,
-    //datasets.simlex999_main,
-    datasets.men3000_full,
-    //datasets.ws353_combined,
+    datasets.gtrd_main,
+    //datasets.baker143_main,
+    //datasets.pap900_rel,
+    //datasets.pap900_sim,
+    //datasets.tr9856_main,
   ],
   prompt: prompts,
   model: [
-    //gemini15pro_002,
+    //gemini15flash_002,
     //claude3sonnet_20240229,
-    //claude35sonnet_20240620,
-    gpt4o_20240806,
+    claude35sonnet_20240620,
+    //gpt4o_20240806,
     //gpt4turbo_20240409,
+    //ministral3b_2410,
   ],
 };
 

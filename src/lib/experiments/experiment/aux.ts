@@ -127,7 +127,8 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${
+      data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
@@ -358,7 +359,10 @@ export function distributePairs(
 type BuildTurnsReturn = TurnPrompt[];
 
 function pairToString(pair: [string, string]) {
-  return pair[0].includes(",") || pair[1].includes(",")
+  return pair[0].includes(",") ||
+    pair[1].includes(",") ||
+    pair[0].includes(" ") ||
+    pair[1].includes(" ")
     ? `"${pair[0]}", "${pair[1]}"`
     : `${pair[0]}, ${pair[1]}`;
 }

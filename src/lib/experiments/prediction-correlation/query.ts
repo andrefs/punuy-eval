@@ -16,13 +16,14 @@ const genToolSchema: GenToolSchema = function (numPairs: number) {
     properties: {
       scores: {
         type: "array",
-        description: "The list of word pairs with their scores.",
+        description:
+          "The list of word or multi-word expression pairs with their scores.",
         items: {
           type: "object",
           properties: {
             words: {
               type: "array",
-              description: "The pair of words.",
+              description: "The pair of words or multi-word expressions.",
               items: {
                 type: "string",
               },

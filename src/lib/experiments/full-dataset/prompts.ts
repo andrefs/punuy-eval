@@ -17,15 +17,15 @@ const reqs: {
 } = {
   pt: {
     similarity:
-      "Por favor avalie de 0 a 4 a semelhança semântica dos seguintes pares de palavras, sendo 0 palavras nada semelhantes e 4 palavras muito semelhantes",
+      "Cada pair será apresentado numa linha separada, com as palavras ou expressões multi-palavra estarão separadas por vírgula.\nNa sua resposta, for favor inclua as palavras ou expressões exactamente como foram pedidas, e garanta que inclui uma pontuação para cada par.\nPor favor avalie de 0 a 4 a semelhança semântica dos seguintes pares de palavras ou expressões multi-palavra, sendo 0 palavras nada semelhantes e 4 palavras muito semelhantes",
     relatedness:
-      "Por favor avalie de 0 a 4 o relacionamento semântico dos seguintes pares de palavras, sendo 0 palavras nada relacionadas e 4 palavras muito relacionadas",
+      "Cada pair será apresentado numa linha separada, com as palavras ou expressões multi-palavra estarão separadas por vírgula.\nNa sua resposta, for favor inclua as palavras ou expressões exactamente como foram pedidas, e garanta que inclui uma pontuação para cada par.\nPor favor avalie de 0 a 4 o relacionamento semântico dos seguintes pares de palavras ou expressões multi-palavra, sendo 0 palavras nada relacionadas e 4 palavras muito relacionadas",
   },
   en: {
     similarity:
-      "Please rate from 0 to 4 the semantic similarity of the following pairs of words, with 0 indicating words not similar at all and 4 indicating very similar words",
+      "Each pair is presented in a separate line, with the words or multi-word expressions separated by a comma.\nIn your answer, please include the words or expressions exactly as given, and make sure you include a score for each pair.\nPlease rate from 0 to 4 the semantic similarity of the following pairs of words or multi-word expressions, with 0 indicating words not similar at all and 4 indicating very similar words",
     relatedness:
-      "Please rate from 0 to 4 the semantic relatedness of the following pairs of words, with 0 indicating words not related at all and 4 indicating very related words",
+      "Each pair is presented in a separate line, with the words or multi-word expressions separated by a comma.\nIn your answer, please include the words or expressions exactly as given, and make sure you include score for each pair.\nPlease rate from 0 to 4 the semantic relatedness of the following pairs of words or multi-word expressions, with 0 indicating words not related at all and 4 indicating very related words",
   },
 };
 
