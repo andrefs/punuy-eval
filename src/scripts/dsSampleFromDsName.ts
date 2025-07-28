@@ -58,13 +58,14 @@ const folder =
 
 const sampleFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
-  const res = await dsSampleFromDsName.performMulti(vars, trials, folder);
+  const res = await dsSampleFromDsName.performMulti(vars, trials, folder, {
+    maxAttempts: 3,
+  });
 
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
-        exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(

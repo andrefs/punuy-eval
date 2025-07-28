@@ -127,7 +127,7 @@ describe("dsNameFromDsSample", () => {
         model,
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
-      await dsNameFromDsSample.runTrials(vars, 2, 1);
+      await dsNameFromDsSample.runTrials(vars, 2, { maxAttempts: 1 });
       expect(model.makeRequest).toHaveBeenCalledTimes(2);
     });
   });

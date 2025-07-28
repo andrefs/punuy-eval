@@ -14,6 +14,7 @@ import {
   Prompt,
   PromptGenerator,
   QueryData,
+  TrialOpts,
   TrialResult,
   TrialsResultData,
   TurnPrompt,
@@ -50,7 +51,7 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVarsFixedPrompt,
     tool: ModelTool,
-    maxAttempts: number
+    opts?: TrialOpts
   ) => Promise<TrialResult<T["Data"]>>;
   getTurnResponse: (
     this: Experiment<T>,
@@ -77,13 +78,13 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVars | ExpVarsFixedPrompt,
     genToolSchema: GenToolSchema,
-    maxAttempts?: number
+    opts?: TrialOpts
   ) => Promise<TrialResult<T["Data"]>>;
   runTrials: (
     this: Experiment<T>,
     vars: ExpVars,
     trials: number,
-    maxAttempts?: number
+    opts?: TrialOpts
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
@@ -99,14 +100,14 @@ export default class Experiment<T extends GenericExpTypes> {
     trials: number,
     traceId: number,
     folder: string,
-    maxAttempts?: number
+    opts: TrialOpts
   ) => Promise<ExperimentData<T>>;
   performMulti: (
     this: Experiment<T>,
     variables: ExpVarMatrix,
     trials: number,
     folder: string,
-    maxAttempts?: number
+    opts: TrialOpts
   ) => Promise<{
     experiments: ExperimentData<T>[];
     usage?: Usages;
@@ -150,7 +151,7 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars | ExpVarsFixedPrompt,
       genToolSchema: GenToolSchema,
-      maxAttempts?: number
+      opts?: TrialOpts
     ) => Promise<TrialResult<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
@@ -204,7 +205,7 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars,
       numTrials: number,
-      maxAttempts: number = 3
+      opts: TrialOpts = { maxAttempts: 3 }
     ) {
       const totalUsage: Usages = {};
 
@@ -218,7 +219,7 @@ export default class Experiment<T extends GenericExpTypes> {
         const trialRes = await this.runTrial(
           vars,
           this.queryData.genToolSchema,
-          maxAttempts
+          opts
         );
         addUsage(totalUsage, trialRes.usage);
         const turns = [];

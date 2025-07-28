@@ -41,7 +41,9 @@ const folder =
 
 const predCorr = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await predictionCorrelation.performMulti(vars, trials, folder);
+  const res = await predictionCorrelation.performMulti(vars, trials, folder, {
+    maxAttempts: 2,
+  });
 
   for (const exp of res.experiments) {
     logger.info(

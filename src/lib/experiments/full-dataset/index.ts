@@ -5,6 +5,7 @@ import Experiment, {
   ExperimentData,
   GenToolSchema,
   GenericExpTypes,
+  TrialOpts,
   TrialResult,
   TurnPrompt,
 } from "../experiment";
@@ -39,7 +40,7 @@ async function runTrial(
   this: Experiment<FDExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  maxRetries: number = 3
+  opts: TrialOpts = { maxAttempts: 3 }
 ): Promise<TrialResult<FDExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -62,7 +63,7 @@ async function runTrial(
   const res = await this.iterateConversation(
     { ...vars, prompt },
     tool,
-    maxRetries
+    opts
   );
   //const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
@@ -169,4 +170,4 @@ export default new Experiment<FDExpTypes>(
   runTrial,
   evaluateTrial,
   { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
-);
+)

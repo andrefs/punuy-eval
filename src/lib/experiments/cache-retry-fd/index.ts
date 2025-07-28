@@ -9,8 +9,7 @@ import Experiment, {
   TrialResult,
   TurnPrompt,
 } from "../experiment";
-import query from "./query";
-import { ToolSchema } from "src/lib/models";
+import query from "../prediction-correlation/query";
 import logger from "src/lib/logger";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import {
@@ -19,55 +18,57 @@ import {
   EvaluationResult,
   NonUsableData,
 } from "src/lib/evaluation";
-import { trialEvalScores } from "./aux";
+import { trialEvalScores } from "../prediction-correlation/aux";
 import { getPairScoreListFromDPart } from "../experiment/aux";
 
-export const name = "prediction-correlation";
+export const name = "cache-retry-fd";
 const description =
-  "Assess LLMs to predict semantic relations by correlating predictions with human judgments.";
+  "Evaluate LLMs prediction correlation using full datasets, caching and retrying failed pairs.";
 
 /**
- * ExpType for PredictionCorrelation experiment
+ * ExpType for CacheRetryFD experiment
  */
-export interface PCExpTypes extends GenericExpTypes {
+export interface CRExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
 }
 
+/**
+ *
+ */
 async function runTrial(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<CRExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
   opts: TrialOpts = { maxAttempts: 3 }
-): Promise<TrialResult<PCExpTypes["Data"]>> {
+): Promise<TrialResult<CRExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
-  const toolSchema: ToolSchema = genToolSchema(
+  const toolSchema = genToolSchema(
     Array.isArray(prompt.pairs[0])
       ? prompt.pairs[0].length
       : prompt.pairs.length
   );
+
+  console.log(`  ❔ Tool schema: ${JSON.stringify(toolSchema, null, 2)}`);
 
   const tool = {
     name: "evaluate_pair_scores",
     description: "Evaluates the scores of the pairs returned",
     schema: toolSchema,
   };
-  const res = await this.iterateConversation(
-    { ...vars, prompt },
-    tool,
-    opts
-  );
+
+  const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
   //const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
 
 function expDataToExpScore(
-  this: Experiment<PCExpTypes>,
-  data: ExperimentData<PCExpTypes>
+  this: Experiment<CRExpTypes>,
+  data: ExperimentData<CRExpTypes>
 ) {
   return {
     variables: data.variables,
@@ -76,9 +77,9 @@ function expDataToExpScore(
 }
 
 export async function evaluateTrial(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<CRExpTypes>,
   dpart: DsPartition,
-  got: { data: PCExpTypes["Data"]; prompt: TurnPrompt }[]
+  got: { data: CRExpTypes["Data"]; prompt: TurnPrompt }[]
 ) {
   const pairs = got
     .flatMap(({ prompt }) => prompt.pairs)
@@ -134,9 +135,9 @@ export async function evaluateTrial(
 }
 
 export function fixParsedJson(
-  this: Experiment<PCExpTypes>,
+  this: Experiment<CRExpTypes>,
   parsed: any // eslint-disable-line @typescript-eslint/no-explicit-any
-): PCExpTypes["Data"] {
+): CRExpTypes["Data"] {
   if (parsed?.scores && Array.isArray(parsed.scores)) {
     for (const s of parsed.scores) {
       // score sometimes comes as string
@@ -159,7 +160,7 @@ export function fixParsedJson(
   return parsed;
 }
 
-export default new Experiment<PCExpTypes>(
+export default new Experiment<CRExpTypes>(
   name,
   description,
   query,

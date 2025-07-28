@@ -11,6 +11,7 @@ import {
   ExpVarMatrix,
   ExpVars,
   GenericExpTypes,
+  TrialOpts,
 } from "./types";
 import logger from "../../logger";
 import pc from "picocolors";
@@ -22,9 +23,11 @@ export async function perform<T extends GenericExpTypes>(
   trials: number,
   traceId: number,
   folder: string,
-  maxAttempts: number = 3
+  opts: TrialOpts = {
+    maxAttempts: 3,
+  }
 ): Promise<ExperimentData<T>> {
-  const trialsRes = await this.runTrials(vars, trials, maxAttempts);
+  const trialsRes = await this.runTrials(vars, trials, opts);
   calcUsageCost(trialsRes.usage);
   const expData: ExperimentData<T> = {
     meta: {
@@ -53,7 +56,9 @@ export async function performMulti<T extends GenericExpTypes>(
   variables: ExpVarMatrix,
   trials: number,
   folder: string,
-  maxAttempts: number = 3
+  opts: TrialOpts = {
+    maxAttempts: 3,
+  }
 ) {
   await this.sanityCheck(folder);
 
@@ -74,7 +79,7 @@ export async function performMulti<T extends GenericExpTypes>(
       ) +
       ` with variables ${JSON.stringify(getVarIds(vc))}.`
     );
-    res.push(await this.perform(vc, trials, Date.now(), folder, maxAttempts));
+    res.push(await this.perform(vc, trials, Date.now(), folder, opts));
     addUsage(this.totalUsage, res[res.length - 1].usage);
   }
 

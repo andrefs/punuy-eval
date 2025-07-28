@@ -2,6 +2,7 @@ import { Model, ModelTool } from "src/lib/models";
 import Experiment, {
   ExpVarsFixedPrompt,
   GenericExpTypes,
+  TrialOpts,
   TrialResult,
   TurnPrompt,
   TurnResponseNotOk,
@@ -24,13 +25,13 @@ export async function iterateConversation<T extends GenericExpTypes>(
   this: Experiment<T>,
   vars: ExpVarsFixedPrompt,
   tool: ModelTool,
-  maxAttempts: number = 3
+  opts: TrialOpts = { maxAttempts: 3 }
 ) {
   const totalUsage: Usages = {};
   const prompts = vars.prompt.turns;
 
   const failedAttempts: TurnResponseNotOk<T>[][] = [];
-  ATTEMPTS_LOOP: while (failedAttempts.length < maxAttempts) {
+  ATTEMPTS_LOOP: while (failedAttempts.length < opts.maxAttempts) {
     const faCount = failedAttempts.length;
     logger.info(`    💬 conversation attempt #${faCount + 1}`);
     const turnsRes = [];

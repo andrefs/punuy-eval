@@ -13,17 +13,17 @@ import logger from "../lib/logger";
 import { getVarIds } from "src/lib/experiments/experiment/aux";
 // prompts are the same as batch-vs-single-pair
 import prompts from "src/lib/experiments/full-dataset/prompts";
-import fullDataset from "src/lib/experiments/full-dataset";
+import cacheRetry from "src/lib/experiments/cache-retry-fd";
 import datasets from "../lib/dataset-partitions";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const folder =
   process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
 
-const fullDs = async (vars: ExpVarMatrix) => {
+const cacheRetryFD = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await fullDataset.performMulti(vars, trials, folder, {
-    maxAttempts: 5,
+  const res = await cacheRetry.performMulti(vars, trials, folder, {
+    maxAttempts: 2,
   });
 
   for (const exp of res.experiments) {
@@ -64,7 +64,7 @@ const evm: ExpVarMatrix = {
   ],
 };
 
-fullDs(evm).then(() => {
+cacheRetryFD(evm).then(() => {
   logger.info("Done");
   process.exit(0);
 });

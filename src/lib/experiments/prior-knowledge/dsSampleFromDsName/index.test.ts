@@ -27,7 +27,7 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      dsSampleFromDsName.runTrials(vars, 2, 1).then(() => {
+      dsSampleFromDsName.runTrials(vars, 2, { maxAttempts: 1 }).then(() => {
         expect(model.makeRequest).toHaveBeenCalled();
       });
     });
@@ -43,7 +43,9 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      const tr = await dsSampleFromDsName.runTrials(vars, 2, 1);
+      const tr = await dsSampleFromDsName.runTrials(vars, 2, {
+        maxAttempts: 1,
+      });
       expect(tr.trials.length).toEqual(2);
       expect(tr.trials[0]).toMatchInlineSnapshot(`
         {
@@ -97,7 +99,9 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      const tr = await dsSampleFromDsName.runTrials(vars, 1, 1);
+      const tr = await dsSampleFromDsName.runTrials(vars, 1, {
+        maxAttempts: 1,
+      });
       expect(model.makeRequest).toHaveBeenCalled();
       expect(tr.trials.flatMap(t => t.turns).length).toEqual(0);
     });

@@ -5,6 +5,7 @@ import {
   GenToolSchema,
   GenericExpTypes,
   Prompt,
+  TrialOpts,
   TrialResult,
   TurnPrompt,
 } from "../../experiment/types";
@@ -62,7 +63,7 @@ async function runTrial(
   this: Experiment<SFNExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  maxRetries: number = 3
+  opts: TrialOpts = { maxAttempts: 3 }
 ): Promise<TrialResult<SFNExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -79,11 +80,7 @@ async function runTrial(
     description: "evaluates the pairs sampled from the dataset.",
     schema: toolSchema,
   };
-  const res = await this.iterateConversation(
-    { ...vars, prompt },
-    tool,
-    maxRetries
-  );
+  const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
   return res;
 }
 

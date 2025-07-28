@@ -217,3 +217,8 @@ export interface ExpScore {
   variables: ExpVars;
   score: number | null;
 }
+
+export interface TrialOpts {
+  maxAttempts: number;
+  cacheFile?: string;
+}
