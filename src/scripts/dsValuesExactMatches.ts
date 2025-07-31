@@ -22,14 +22,16 @@ const folder =
 
 const valuesExactMatch = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
-  const res = await dsValuesExactMatches.performMulti(vars, trials, folder, {
-    maxAttempts: 3,
+  const res = await dsValuesExactMatches(folder).performMulti(vars, trials, {
+    maxConvAttempts: 3,
+    maxTurnRetries: 3,
   });
 
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
+        exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(

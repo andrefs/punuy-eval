@@ -120,7 +120,7 @@ async function main(dirPath: string, expName?: string) {
     console.warn(`Re-evaluating ${file}`);
     await createFileBackupCopy(file);
     const expVCData = await readFile(file);
-    const fixedExpVCData = await reEvalExperiment(expVCData, exp);
+    const fixedExpVCData = await reEvalExperiment(expVCData, exp(dirPath));
     if (
       expVCData.results.aggregated?.allDataAvg !==
         fixedExpVCData.results.aggregated?.allDataAvg &&

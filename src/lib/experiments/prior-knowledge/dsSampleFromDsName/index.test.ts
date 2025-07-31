@@ -16,10 +16,12 @@ describe("dsSampleFromDsName", () => {
   //  });
   //});
 
+  const exp = dsSampleFromDsName("dummy-folder");
+
   describe("runTrials", () => {
     it("should call model.makeRequest", async () => {
       const dpart: DsPartition = createMockDsPart();
-      const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
+      const promptGen = exp!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
       const vars: ExpVars = {
         dpart: dpart,
@@ -27,14 +29,16 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      dsSampleFromDsName.runTrials(vars, 2, { maxAttempts: 1 }).then(() => {
-        expect(model.makeRequest).toHaveBeenCalled();
-      });
+      exp
+        .runTrials(vars, 2, { maxConvAttempts: 1, maxTurnRetries: 1 })
+        .then(() => {
+          expect(model.makeRequest).toHaveBeenCalled();
+        });
     });
 
     it("should return model.makeRequest result", async () => {
       const dpart: DsPartition = createMockDsPart();
-      const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
+      const promptGen = exp!.prompts![0] as PromptGenerator;
       const result = '{"pairs": [["testWord1", "testWord2"]]}';
       const model = createMockModel(result);
       const vars: ExpVars = {
@@ -43,8 +47,9 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      const tr = await dsSampleFromDsName.runTrials(vars, 2, {
-        maxAttempts: 1,
+      const tr = await exp.runTrials(vars, 2, {
+        maxConvAttempts: 1,
+        maxTurnRetries: 1,
       });
       expect(tr.trials.length).toEqual(2);
       expect(tr.trials[0]).toMatchInlineSnapshot(`
@@ -91,7 +96,7 @@ describe("dsSampleFromDsName", () => {
 
     it("should return no results if model.makeRequest returns no data", async () => {
       const dpart: DsPartition = createMockDsPart();
-      const promptGen = dsSampleFromDsName!.prompts![0] as PromptGenerator;
+      const promptGen = exp!.prompts![0] as PromptGenerator;
       const model = createMockModel("");
       const vars: ExpVars = {
         dpart: dpart,
@@ -99,8 +104,9 @@ describe("dsSampleFromDsName", () => {
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
 
-      const tr = await dsSampleFromDsName.runTrials(vars, 1, {
-        maxAttempts: 1,
+      const tr = await exp.runTrials(vars, 1, {
+        maxConvAttempts: 1,
+        maxTurnRetries: 1,
       });
       expect(model.makeRequest).toHaveBeenCalled();
       expect(tr.trials.flatMap(t => t.turns).length).toEqual(0);
@@ -139,7 +145,7 @@ describe("dsSampleFromDsName", () => {
     it("should return DataIncorrect if data is incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
+      const result = await exp.evaluateTrial(dpart, [
         {
           data: {
             pairs: [["fail", "fail"]],
@@ -153,7 +159,7 @@ describe("dsSampleFromDsName", () => {
     it("should return DataPartiallyIncorrect if data is partially incorrect", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
+      const result = await exp.evaluateTrial(dpart, [
         {
           data: {
             pairs: [
@@ -174,7 +180,7 @@ describe("dsSampleFromDsName", () => {
     it("should return DataIncomplete if data is incomplete", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
+      const result = await exp.evaluateTrial(dpart, [
         {
           data: {
             pairs: [
@@ -195,7 +201,7 @@ describe("dsSampleFromDsName", () => {
     it("should return DataCorrect if data is correct", async () => {
       const dpart: DsPartition = createMockDsPart();
 
-      const result = await dsSampleFromDsName.evaluateTrial(dpart, [
+      const result = await exp.evaluateTrial(dpart, [
         {
           data: {
             pairs: [

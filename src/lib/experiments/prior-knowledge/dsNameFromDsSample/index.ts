@@ -56,7 +56,7 @@ async function runTrial(
   this: Experiment<NFSExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ): Promise<TrialResult<NFSExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -84,11 +84,13 @@ async function evaluateTrial(
   return new NonEvaluatedData(got[0].data, res);
 }
 
-export default new Experiment<NFSExpTypes>(
-  name,
-  description,
-  query,
-  runTrial,
-  evaluateTrial,
-  { prompts: [promptGen] }
-);
+export default (folder: string) =>
+  new Experiment<NFSExpTypes>(
+    name,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    { prompts: [promptGen] }
+  );

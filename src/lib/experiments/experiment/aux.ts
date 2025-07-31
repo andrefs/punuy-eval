@@ -108,8 +108,7 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
 }
 
 export async function saveExpVarCombData<T extends GenericExpTypes>(
-  data: ExperimentData<T>,
-  folder: string
+  data: ExperimentData<T>
 ) {
   const traceId = data.meta.traceId;
   const dpartId = data.variables.dpart.id;
@@ -117,7 +116,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
   const expName = data.meta.name;
   const modelId = data.variables.model.id;
   const filename = path.join(
-    folder,
+    data.meta.folder,
     `expVC_${traceId}_${expName}_${promptId}_${dpartId}_${modelId}.json`
   );
   const json = JSON.stringify(data, null, 2);
@@ -132,8 +131,8 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 
-  if (!oldFs.existsSync(folder)) {
-    await fs.mkdir(folder, { recursive: true });
+  if (!oldFs.existsSync(data.meta.folder)) {
+    await fs.mkdir(data.meta.folder, { recursive: true });
   }
 
   await fs.writeFile(filename, json);

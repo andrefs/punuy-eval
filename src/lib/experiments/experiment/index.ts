@@ -37,6 +37,7 @@ export * from "./types";
 /** Class representing an experiment. */
 export default class Experiment<T extends GenericExpTypes> {
   name: string;
+  folder: string;
   description: string;
   queryData: QueryData<T>;
   prompts?: (Prompt | PromptGenerator)[] = [];
@@ -99,14 +100,12 @@ export default class Experiment<T extends GenericExpTypes> {
     vars: ExpVars,
     trials: number,
     traceId: number,
-    folder: string,
     opts: TrialOpts
   ) => Promise<ExperimentData<T>>;
   performMulti: (
     this: Experiment<T>,
     variables: ExpVarMatrix,
     trials: number,
-    folder: string,
     opts: TrialOpts
   ) => Promise<{
     experiments: ExperimentData<T>[];
@@ -145,6 +144,7 @@ export default class Experiment<T extends GenericExpTypes> {
    */
   constructor(
     name: string,
+    folder: string,
     description: string,
     queryData: QueryData<T>,
     runTrial: (
@@ -176,6 +176,7 @@ export default class Experiment<T extends GenericExpTypes> {
   ) {
     // parameters
     this.name = name;
+    this.folder = folder;
     this.description = description;
     this.queryData = queryData;
     this.runTrial = runTrial;
@@ -205,7 +206,7 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars,
       numTrials: number,
-      opts: TrialOpts = { maxAttempts: 3 }
+      opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
     ) {
       const totalUsage: Usages = {};
 

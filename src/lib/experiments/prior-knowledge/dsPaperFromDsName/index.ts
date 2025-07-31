@@ -48,7 +48,7 @@ async function runTrial(
   this: Experiment<PFNExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ): Promise<TrialResult<PFNExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -106,11 +106,13 @@ async function evaluateTrial(
   );
 }
 
-export default new Experiment<PFNExpTypes>(
-  name,
-  description,
-  query,
-  runTrial,
-  evaluateTrial,
-  { prompts: [promptGen] }
-);
+export default (folder: string) =>
+  new Experiment<PFNExpTypes>(
+    name,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    { prompts: [promptGen] }
+  );

@@ -252,6 +252,7 @@ async function perform(
 
   const expData: ExperimentData<CPExpTypes> = {
     meta: {
+      folder,
       trials,
       name,
       traceId,
@@ -264,7 +265,7 @@ async function perform(
     },
   };
 
-  await saveExpVarCombData(expData, folder);
+  await saveExpVarCombData(expData);
   return expData;
 }
 
@@ -281,7 +282,8 @@ async function performMulti(
 
   const res = [];
   logger.info(
-    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${trials}x${varCombs.length
+    `Preparing to run experiment ${name}, ${trials} times on each variable combination (${trials}x${
+      varCombs.length
     }):\n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
@@ -388,8 +390,8 @@ async function evaluate(exps: ExperimentData<CPExpTypes>[]) {
       `🆚 Comparing ${comp.variables
         .map(v => `[${v}]`)
         .join(" and ")} with fixed variables ${JSON.stringify(
-          comp.fixedValueConfig
-        )}\n${tablePP}`
+        comp.fixedValueConfig
+      )}\n${tablePP}`
     );
   }
 

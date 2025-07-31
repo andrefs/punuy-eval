@@ -39,7 +39,7 @@ async function runTrial(
   this: Experiment<BVSPExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ): Promise<TrialResult<BVSPExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -130,11 +130,13 @@ export async function evaluateTrial(
   }
 }
 
-export default new Experiment(
-  name,
-  description,
-  query,
-  runTrial,
-  evaluateTrial,
-  { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
-);
+export default (folder: string) =>
+  new Experiment(
+    name,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
+  );

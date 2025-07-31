@@ -51,6 +51,7 @@ describe("comparePrompts", () => {
           meta: {
             trials: 1,
             traceId: 1,
+            folder: "dummy-folder",
             name: "experiment-name",
             queryData: comparePrompts.query,
           },
@@ -96,6 +97,7 @@ describe("comparePrompts", () => {
           },
           meta: {
             trials: 1,
+            folder: "dummy-folder",
             traceId: 2,
             name: "experiment-name",
             queryData: comparePrompts.query,

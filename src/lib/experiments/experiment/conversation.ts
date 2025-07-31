@@ -20,18 +20,19 @@ import {
   ValidData,
 } from "src/lib/evaluation";
 import { delay } from "src/lib/utils";
+import { saveFailedPairsCache } from "./failed-pairs-cache";
 
 export async function iterateConversation<T extends GenericExpTypes>(
   this: Experiment<T>,
   vars: ExpVarsFixedPrompt,
   tool: ModelTool,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ) {
   const totalUsage: Usages = {};
   const prompts = vars.prompt.turns;
 
   const failedAttempts: TurnResponseNotOk<T>[][] = [];
-  ATTEMPTS_LOOP: while (failedAttempts.length < opts.maxAttempts) {
+  ATTEMPTS_LOOP: while (failedAttempts.length < opts.maxConvAttempts) {
     const faCount = failedAttempts.length;
     logger.info(`    💬 conversation attempt #${faCount + 1}`);
     const turnsRes = [];
@@ -40,7 +41,7 @@ export async function iterateConversation<T extends GenericExpTypes>(
         vars.model,
         turnPrompt,
         tool,
-        9 // max turn response attempts
+        opts.maxTurnRetries // max turn response attempts
       );
       addUsage(totalUsage, tRes.usage);
       if (tRes.ok) {
@@ -68,6 +69,15 @@ export async function iterateConversation<T extends GenericExpTypes>(
     };
     return res;
   }
+
+  // reached max attempts, conversation failed
+  const failedPairs = (
+    Array.isArray(vars.prompt.pairs[0])
+      ? vars.prompt.pairs[0]
+      : vars.prompt.pairs
+  ) as [string, string][];
+  await saveFailedPairsCache(failedPairs, "exp_1753955299146_test");
+
   const res: TrialResult<T["Data"]> = {
     promptId: vars.prompt.id,
     turnPrompts: failedAttempts
@@ -86,7 +96,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
   model: Model,
   prompt: TurnPrompt,
   tool: ModelTool,
-  maxTurnAttempts: number = 3
+  maxTurnRetries: number = 3
 ) {
   const totalUsage: Usages = {};
   const failedAttempts = [];
@@ -94,7 +104,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
     `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
     prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
   );
-  while (failedAttempts.length < maxTurnAttempts) {
+  while (failedAttempts.length < maxTurnRetries) {
     const faCount = failedAttempts.length;
     logger.info(`        💪 pairs attempt #${faCount + 1} `);
     const { result: attemptResult, usage } = await this.tryResponse(
@@ -125,7 +135,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
     failedAttempts.push(attemptResult);
 
     // add exponential backoff if the number of failed attempts is less than the max
-    if (failedAttempts.length < maxTurnAttempts) {
+    if (failedAttempts.length < maxTurnRetries) {
       await new Promise(resolve => {
         logger.info(
           `      ⌛ waiting for ${Math.pow(

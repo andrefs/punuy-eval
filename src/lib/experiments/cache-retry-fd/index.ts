@@ -20,6 +20,7 @@ import {
 } from "src/lib/evaluation";
 import { trialEvalScores } from "../prediction-correlation/aux";
 import { getPairScoreListFromDPart } from "../experiment/aux";
+import { loadFailedPairsCache } from "../experiment/failed-pairs-cache";
 
 export const name = "cache-retry-fd";
 const description =
@@ -34,6 +35,28 @@ export interface CRExpTypes extends GenericExpTypes {
   DataSchema: typeof query.responseSchema;
 }
 
+async function tryLoadFailedPairsCache(
+  this: Experiment<CRExpTypes>,
+  cacheFile: string
+): Promise<[string, string][]> {
+  const {
+    date,
+    traceId,
+    pairs: failedPairs,
+  } = await loadFailedPairsCache(cacheFile);
+
+  if (!failedPairs.length) {
+    logger.info(
+      `  ❗ No failed pairs found in cache file ${cacheFile} (date: ${date}, traceId: ${traceId})`
+    );
+  } else {
+    logger.info(
+      `  🫣 Found ${failedPairs.length} failed pairs in cache file ${cacheFile} (date: ${date}, traceId: ${traceId})`
+    );
+  }
+  return failedPairs;
+}
+
 /**
  *
  */
@@ -41,11 +64,19 @@ async function runTrial(
   this: Experiment<CRExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ): Promise<TrialResult<CRExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
+
+  if (opts.cacheFile) {
+    const failedPairs = await tryLoadFailedPairsCache.call(
+      this,
+      opts.cacheFile
+    );
+    prompt.pairs = failedPairs;
+  }
 
   const toolSchema = genToolSchema(
     Array.isArray(prompt.pairs[0])
@@ -160,11 +191,13 @@ export function fixParsedJson(
   return parsed;
 }
 
-export default new Experiment<CRExpTypes>(
-  name,
-  description,
-  query,
-  runTrial,
-  evaluateTrial,
-  { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
-);
+export default (folder: string) =>
+  new Experiment<CRExpTypes>(
+    name,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
+  );

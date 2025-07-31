@@ -40,7 +40,7 @@ async function runTrial(
   this: Experiment<FDExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ): Promise<TrialResult<FDExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -60,11 +60,7 @@ async function runTrial(
     schema: toolSchema,
   };
 
-  const res = await this.iterateConversation(
-    { ...vars, prompt },
-    tool,
-    opts
-  );
+  const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
   //const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }
@@ -163,11 +159,13 @@ export function fixParsedJson(
   return parsed;
 }
 
-export default new Experiment<FDExpTypes>(
-  name,
-  description,
-  query,
-  runTrial,
-  evaluateTrial,
-  { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
-)
+export default (folder: string) =>
+  new Experiment<FDExpTypes>(
+    name,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    { expDataToExpScore, fixParsedJson } // TODO add customCombineEvals
+  );

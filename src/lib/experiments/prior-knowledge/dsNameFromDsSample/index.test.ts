@@ -5,6 +5,7 @@ import { ExpVarsFixedPrompt, PromptGenerator } from "../..";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
 
 describe("dsNameFromDsSample", () => {
+  const exp = dsNameFromDsSample("dummy-folder");
   describe("evaluateTrial", () => {
     // TODO migrate to getResponse tests
     //
@@ -34,43 +35,37 @@ describe("dsNameFromDsSample", () => {
 
     it("should return NonEvaluatedData if data is valid", async () => {
       const mockDsPartition = createMockDsPart();
-      const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDsPart(),
-        [
-          {
-            data: {
-              name: mockDsPartition.dataset.metadata.name,
-              year: "2021",
-              authors: ["First Author", "Second Person Name"],
-            },
-            prompt: {
-              text: "",
-              pairs: [],
-            },
+      const result = await exp.evaluateTrial(createMockDsPart(), [
+        {
+          data: {
+            name: mockDsPartition.dataset.metadata.name,
+            year: "2021",
+            authors: ["First Author", "Second Person Name"],
           },
-        ]
-      );
+          prompt: {
+            text: "",
+            pairs: [],
+          },
+        },
+      ]);
       expect(result.type).toEqual("non-evaluated-data");
     });
 
     it("should return original and obtained data", async () => {
       const mockDsPartition = createMockDsPart();
-      const result = await dsNameFromDsSample.evaluateTrial(
-        createMockDsPart(),
-        [
-          {
-            data: {
-              name: mockDsPartition.dataset.metadata.name,
-              year: "2021",
-              authors: ["First Author", "Second Person Name"],
-            },
-            prompt: {
-              text: "",
-              pairs: [],
-            },
+      const result = await exp.evaluateTrial(createMockDsPart(), [
+        {
+          data: {
+            name: mockDsPartition.dataset.metadata.name,
+            year: "2021",
+            authors: ["First Author", "Second Person Name"],
           },
-        ]
-      );
+          prompt: {
+            text: "",
+            pairs: [],
+          },
+        },
+      ]);
       expect(result).toMatchInlineSnapshot(`
         NonEvaluatedData {
           "expected": {
@@ -95,7 +90,7 @@ describe("dsNameFromDsSample", () => {
   describe("prompt generator", () => {
     it("should generate a prompt", () => {
       const dpart: DsPartition = createMockDsPart();
-      const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
+      const promptGen = exp!.prompts![0] as PromptGenerator;
       const model = createMockModel("this is the result");
       const vars: ExpVarsFixedPrompt = {
         dpart: dpart,
@@ -115,7 +110,7 @@ describe("dsNameFromDsSample", () => {
   describe("runTrial", () => {
     it("should return a result", async () => {
       const dpart: DsPartition = createMockDsPart();
-      const promptGen = dsNameFromDsSample!.prompts![0] as PromptGenerator;
+      const promptGen = exp!.prompts![0] as PromptGenerator;
       const result = JSON.stringify({
         name: "Dataset Name",
         year: "2021",
@@ -127,7 +122,10 @@ describe("dsNameFromDsSample", () => {
         model,
         prompt: promptGen.generate({ dpart: dpart, model }),
       };
-      await dsNameFromDsSample.runTrials(vars, 2, { maxAttempts: 1 });
+      await exp.runTrials(vars, 2, {
+        maxConvAttempts: 1,
+        maxTurnRetries: 1,
+      });
       expect(model.makeRequest).toHaveBeenCalledTimes(2);
     });
   });

@@ -96,6 +96,7 @@ export type Prompt = SinglePairPrompt | BatchesPrompt | AllPairsPrompt;
 
 export interface ExpMeta<T extends GenericExpTypes> {
   trials: number;
+  folder: string;
   name: string;
   traceId: number;
   queryData: QueryData<T>;
@@ -219,6 +220,7 @@ export interface ExpScore {
 }
 
 export interface TrialOpts {
-  maxAttempts: number;
+  maxConvAttempts: number;
+  maxTurnRetries: number;
   cacheFile?: string;
 }

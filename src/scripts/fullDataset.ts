@@ -22,14 +22,16 @@ const folder =
 
 const fullDs = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await fullDataset.performMulti(vars, trials, folder, {
-    maxAttempts: 5,
+  const res = await fullDataset(folder).performMulti(vars, trials, {
+    maxConvAttempts: 5,
+    maxTurnRetries: 5,
   });
 
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
+        exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(

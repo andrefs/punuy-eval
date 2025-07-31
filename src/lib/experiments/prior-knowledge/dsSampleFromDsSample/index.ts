@@ -64,7 +64,7 @@ async function runTrial(
   this: Experiment<SFSExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxAttempts: 3 }
+  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
 ): Promise<TrialResult<SFSExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
@@ -184,11 +184,13 @@ function expDataToExpScore(
   };
 }
 
-export default new Experiment<SFSExpTypes>(
-  name,
-  description,
-  query,
-  runTrial,
-  evaluateTrial,
-  { expDataToExpScore, prompts: [promptGen] }
-);
+export default (folder: string) =>
+  new Experiment<SFSExpTypes>(
+    name,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    { expDataToExpScore, prompts: [promptGen] }
+  );

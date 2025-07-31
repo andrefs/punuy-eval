@@ -22,14 +22,16 @@ const folder =
 
 const cacheRetryFD = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await cacheRetry.performMulti(vars, trials, folder, {
-    maxAttempts: 2,
+  const res = await cacheRetry(folder).performMulti(vars, trials, {
+    maxConvAttempts: 1,
+    maxTurnRetries: 1,
   });
 
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
+        exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(
@@ -47,19 +49,20 @@ const cacheRetryFD = async (vars: ExpVarMatrix) => {
 const evm: ExpVarMatrix = {
   jobType: [{ id: "allPairs" }],
   dpart: [
-    datasets.gtrd_main,
+    //datasets.gtrd_main,
     //datasets.baker143_main,
     //datasets.pap900_rel,
     //datasets.pap900_sim,
     //datasets.tr9856_main,
+    datasets.simlex999_main,
   ],
   prompt: prompts,
   model: [
     //gemini15flash_002,
     //claude3sonnet_20240229,
-    claude35sonnet_20240620,
+    //claude35sonnet_20240620,
     //gpt4o_20240806,
-    //gpt4turbo_20240409,
+    gpt4turbo_20240409,
     //ministral3b_2410,
   ],
 };
