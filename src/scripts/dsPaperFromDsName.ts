@@ -10,21 +10,25 @@ import { getVarIds } from "src/lib/experiments/experiment/aux";
 import path from "path";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const traceId = process.argv[3] || Date.now().toString();
 const folder =
-  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
+  process.argv[4] || path.join(".", "results", `exp_${Date.now()}`);
 
 const paperFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
-  const res = await dsPaperFromDsName(folder).performMulti(vars, trials, {
-    maxConvAttempts: 3,
-    maxTurnRetries: 3,
-  });
+  const res = await dsPaperFromDsName(traceId, folder).performMulti(
+    vars,
+    trials,
+    {
+      maxConvAttempts: 3,
+      maxTurnRetries: 3,
+    }
+  );
 
   for (const r of res.experiments) {
     logger.info(
       { ...r.results.aggregated?.resultTypes },
-      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${
-        r.results.aggregated?.okDataAvg
+      `${r.meta.name} ${JSON.stringify(getVarIds(r.variables))} ${r.results.aggregated?.okDataAvg
       }`
     );
   }

@@ -37,6 +37,7 @@ export * from "./types";
 /** Class representing an experiment. */
 export default class Experiment<T extends GenericExpTypes> {
   name: string;
+  traceId: string;
   folder: string;
   description: string;
   queryData: QueryData<T>;
@@ -144,6 +145,7 @@ export default class Experiment<T extends GenericExpTypes> {
    */
   constructor(
     name: string,
+    traceId: string,
     folder: string,
     description: string,
     queryData: QueryData<T>,
@@ -176,6 +178,7 @@ export default class Experiment<T extends GenericExpTypes> {
   ) {
     // parameters
     this.name = name;
+    this.traceId = traceId;
     this.folder = folder;
     this.description = description;
     this.queryData = queryData;

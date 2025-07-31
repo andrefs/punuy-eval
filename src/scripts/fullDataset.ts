@@ -17,12 +17,13 @@ import fullDataset from "src/lib/experiments/full-dataset";
 import datasets from "../lib/dataset-partitions";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const traceId = process.argv[3] || Date.now().toString();
 const folder =
-  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
+  process.argv[4] || path.join(".", "results", `exp_${Date.now()}`);
 
 const fullDs = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await fullDataset(folder).performMulti(vars, trials, {
+  const res = await fullDataset(traceId, folder).performMulti(vars, trials, {
     maxConvAttempts: 5,
     maxTurnRetries: 5,
   });

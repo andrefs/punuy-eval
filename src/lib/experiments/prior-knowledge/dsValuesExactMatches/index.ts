@@ -212,8 +212,17 @@ function expDataToExpScore(
   };
 }
 
-export default (folder: string) =>
-  new Experiment(name, folder, description, query, runTrial, evaluateTrial, {
-    expDataToExpScore,
-    prompts: [promptGen],
-  });
+export default (traceId: string, folder: string) =>
+  new Experiment(
+    name,
+    traceId,
+    folder,
+    description,
+    query,
+    runTrial,
+    evaluateTrial,
+    {
+      expDataToExpScore,
+      prompts: [promptGen],
+    }
+  );

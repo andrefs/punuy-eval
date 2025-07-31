@@ -16,7 +16,7 @@ describe("dsSampleFromDsName", () => {
   //  });
   //});
 
-  const exp = dsSampleFromDsName("dummy-folder");
+  const exp = dsSampleFromDsName("dummy-traceId", "dummy-folder");
 
   describe("runTrials", () => {
     it("should call model.makeRequest", async () => {

@@ -53,21 +53,25 @@ for (const [dsId, parts] of Object.entries(partsByDs)) {
 }
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const traceId = process.argv[3] || Date.now().toString();
 const folder =
-  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
+  process.argv[4] || path.join(".", "results", `exp_${Date.now()}`);
 
 const sampleFromName = async (vars: ExpVarMatrix) => {
   logger.info("🚀 Starting");
-  const res = await dsSampleFromDsName(folder).performMulti(vars, trials, {
-    maxConvAttempts: 3,
-    maxTurnRetries: 3,
-  });
+  const res = await dsSampleFromDsName(traceId, folder).performMulti(
+    vars,
+    trials,
+    {
+      maxConvAttempts: 3,
+      maxTurnRetries: 3,
+    }
+  );
 
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
-        exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(

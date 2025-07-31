@@ -155,9 +155,10 @@ export function fixParsedJson(
   return parsed;
 }
 
-export default (folder: string) =>
+export default (traceId: string, folder: string) =>
   new Experiment<PCExpTypes>(
     name,
+    traceId,
     folder,
     description,
     query,

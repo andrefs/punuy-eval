@@ -130,9 +130,10 @@ export async function evaluateTrial(
   }
 }
 
-export default (folder: string) =>
+export default (traceId: string, folder: string) =>
   new Experiment(
     name,
+    traceId,
     folder,
     description,
     query,

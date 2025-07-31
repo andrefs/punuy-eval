@@ -7,14 +7,15 @@ TRACE_ID="${3:-$(date +%s%3N)}"
 
 # sanity check (SCRIPT is mandatory, TRIALS is optional)
 if [ -z "$SCRIPT" ]; then
-	echo "Usage: $0 <script> [trials=3] [trace_id]"
+	echo "Usage: $0 <script> [trials=3] [trace_id] [results_folder]"
 	exit 1
 fi
 
-FOLDER="./results/exp_$TRACE_ID"
+# $4 OR ./results/exp_<trace_id>
+RES_FOLDER="${4:-./results/exp_$TRACE_ID}"
 
 # create the folder
-mkdir -p "$FOLDER"
+mkdir -p "$RES_FOLDER"
 
 # Forward SIGINT and SIGTERM to Node.js process
 #
@@ -25,13 +26,23 @@ function handleExit {
 
 trap handleExit SIGINT SIGTERM
 
+INDEX=0
+if [[ -f "$RES_FOLDER/experiment.log" ]]; then
+	INDEX='001'
+fi
+while [[ -f "$RES_FOLDER/experiment_$INDEX.log" ]]; do
+	INDEX=$(printf "%03d" $((10#$INDEX + 1)))
+done
+
+LOGFILE="$RES_FOLDER/experiment_$INDEX.log"
+
 # run the experiment (unbuffer is used to preserve color codes)
-unbuffer tsx "$SCRIPT" "$TRIALS" "$FOLDER" >>"$FOLDER/experiment.log" 2>&1 &
+unbuffer tsx "$SCRIPT" "$TRIALS" "$TRACE_ID" "$RES_FOLDER" >>"$LOGFILE" 2>&1 &
 NODE_PID=$!
 
 echo "NODE_PID: $NODE_PID"
 
-tail -F "$FOLDER/experiment.log" --pid=$NODE_PID &
+tail -F "$LOGFILE" --pid=$NODE_PID &
 
 wait $NODE_PID
 sleep 5

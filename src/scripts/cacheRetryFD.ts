@@ -17,12 +17,12 @@ import cacheRetry from "src/lib/experiments/cache-retry-fd";
 import datasets from "../lib/dataset-partitions";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
-const folder =
-  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
+const traceId = process.argv[3] || Date.now().toString();
+const folder = process.argv[4] || path.join(".", "results", `exp_${traceId}`);
 
 const cacheRetryFD = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await cacheRetry(folder).performMulti(vars, trials, {
+  const res = await cacheRetry(traceId, folder).performMulti(vars, trials, {
     maxConvAttempts: 1,
     maxTurnRetries: 1,
   });
@@ -30,7 +30,8 @@ const cacheRetryFD = async (vars: ExpVarMatrix) => {
   for (const exp of res.experiments) {
     logger.info(
       { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
+      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${
+        exp.results.aggregated?.okDataAvg
       }`
     );
     logger.debug(

@@ -23,15 +23,20 @@ import batchVsSinglePair from "src/lib/experiments/batch-vs-single-pair";
 import datasets from "../lib/dataset-partitions";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
+const traceId = process.argv[3] || Date.now().toString();
 const folder =
-  process.argv[3] || path.join(".", "results", `exp_${Date.now()}`);
+  process.argv[4] || path.join(".", "results", `exp_${Date.now()}`);
 
 const bvsp = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
-  const res = await batchVsSinglePair(folder).performMulti(vars, trials, {
-    maxConvAttempts: 3,
-    maxTurnRetries: 3,
-  });
+  const res = await batchVsSinglePair(traceId, folder).performMulti(
+    vars,
+    trials,
+    {
+      maxConvAttempts: 3,
+      maxTurnRetries: 3,
+    }
+  );
 
   for (const exp of res.experiments) {
     logger.info(

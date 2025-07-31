@@ -153,9 +153,10 @@ function expDataToExpScore(
   };
 }
 
-export default (folder: string) =>
+export default (traceId: string, folder: string) =>
   new Experiment<SFNExpTypes>(
     name,
+    traceId,
     folder,
     description,
     query,
