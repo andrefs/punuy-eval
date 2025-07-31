@@ -107,7 +107,16 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   await fs.writeFile(filename, json);
 }
 
-export async function saveExpVarCombData<T extends GenericExpTypes>(
+async function genNextFileIndex(
+  folder: string,
+  patterns: (string | RegExp)[] = []
+) {
+  const files = await fs.readdir(folder);
+  const cacheFiles = files.filter(f => patterns.every(p => f.match(p)));
+  return cacheFiles.length;
+}
+
+async function genExpVCFileName<T extends GenericExpTypes>(
   data: ExperimentData<T>
 ) {
   const traceId = data.meta.traceId;
@@ -115,10 +124,23 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
   const promptId = data.variables.prompt.id;
   const expName = data.meta.name;
   const modelId = data.variables.model.id;
-  const filename = path.join(
-    data.meta.folder,
-    `expVC_${traceId}_${expName}_${promptId}_${dpartId}_${modelId}.json`
-  );
+  return `expVC_${traceId}_${expName}_${promptId}_${dpartId}_${modelId}.json`;
+}
+
+export async function saveExpVarCombData<T extends GenericExpTypes>(
+  data: ExperimentData<T>
+) {
+  const traceId = data.meta.traceId;
+  const fnIndex = (
+    await genNextFileIndex(data.meta.folder, [
+      /^(?:\d{3}-)?expVC_/, // match files starting with XXX-expVC_ or expVC_
+      /\.json$/, // match files ending with .json
+    ])
+  )
+    .toString()
+    .padStart(3, "0");
+  const fn = await genExpVCFileName(data);
+  const filename = path.join(data.meta.folder, `${fnIndex}-${fn}`);
   const json = JSON.stringify(data, null, 2);
   const name = data.meta.name;
 

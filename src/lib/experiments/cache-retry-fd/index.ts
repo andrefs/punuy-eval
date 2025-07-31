@@ -20,7 +20,10 @@ import {
 } from "src/lib/evaluation";
 import { trialEvalScores } from "../prediction-correlation/aux";
 import { getPairScoreListFromDPart } from "../experiment/aux";
-import { loadFailedPairsCache } from "../experiment/failed-pairs-cache";
+import {
+  getLastCacheFileName,
+  loadFailedPairsCache,
+} from "../experiment/failed-pairs-cache";
 
 export const name = "cache-retry-fd";
 const description =
@@ -37,21 +40,19 @@ export interface CRExpTypes extends GenericExpTypes {
 
 async function tryLoadFailedPairsCache(
   this: Experiment<CRExpTypes>,
-  cacheFile: string
+  folder: string
 ): Promise<[string, string][]> {
-  const {
-    date,
-    traceId,
-    pairs: failedPairs,
-  } = await loadFailedPairsCache(cacheFile);
+  const lastCacheFile = await getLastCacheFileName(folder);
+  const { date, pairs: failedPairs } =
+    await loadFailedPairsCache(lastCacheFile);
 
   if (!failedPairs.length) {
     logger.info(
-      `  ❗ No failed pairs found in cache file ${cacheFile} (date: ${date}, traceId: ${traceId})`
+      `  ❗ No failed pairs found in cache file ${lastCacheFile} (date: ${date})`
     );
   } else {
     logger.info(
-      `  🫣 Found ${failedPairs.length} failed pairs in cache file ${cacheFile} (date: ${date}, traceId: ${traceId})`
+      `  🫣 Found ${failedPairs.length} failed pairs in cache file ${lastCacheFile} (date: ${date})`
     );
   }
   return failedPairs;

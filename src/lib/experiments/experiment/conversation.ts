@@ -76,7 +76,7 @@ export async function iterateConversation<T extends GenericExpTypes>(
       ? vars.prompt.pairs[0]
       : vars.prompt.pairs
   ) as [string, string][];
-  await saveFailedPairsCache(failedPairs, "exp_1753955299146_test");
+  await saveFailedPairsCache(failedPairs, this.folder);
 
   const res: TrialResult<T["Data"]> = {
     promptId: vars.prompt.id,
@@ -102,7 +102,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
   const failedAttempts = [];
   logger.info(
     `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
-    prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
+      prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
   );
   while (failedAttempts.length < maxTurnRetries) {
     const faCount = failedAttempts.length;
