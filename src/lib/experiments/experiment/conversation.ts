@@ -32,7 +32,10 @@ export async function iterateConversation<T extends GenericExpTypes>(
   const prompts = vars.prompt.turns;
 
   const failedAttempts: TurnResponseNotOk<T>[][] = [];
-  ATTEMPTS_LOOP: while (failedAttempts.length < opts.maxConvAttempts) {
+  const failedPairs: [string, string][][] = [];
+
+  //CONV_ATTEMPTS_LOOP:
+  while (failedAttempts.length < opts.maxConvAttempts) {
     const faCount = failedAttempts.length;
     logger.info(`    💬 conversation attempt #${faCount + 1}`);
     const turnsRes = [];
@@ -44,16 +47,19 @@ export async function iterateConversation<T extends GenericExpTypes>(
         opts.maxTurnRetries // max turn response attempts
       );
       addUsage(totalUsage, tRes.usage);
-      if (tRes.ok) {
-        turnsRes.push(tRes);
-        continue TURNS_LOOP; // continue next turn
+      //if (tRes.ok) {
+      if (!tRes.ok) {
+        failedPairs.push(tRes.turnPrompt.pairs);
       }
-      logger.warn(
-        `    ❗ conversation attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
-      );
-      failedAttempts[faCount] = failedAttempts[faCount] || [];
-      failedAttempts[faCount].push(tRes);
-      continue ATTEMPTS_LOOP; // start new attempt
+      turnsRes.push(tRes);
+      continue TURNS_LOOP; // continue next turn
+      //}
+      //logger.warn(
+      //  `    ❗ conversation attempt #${faCount + 1} failed: ${tRes.failedAttempts.map(fa => fa.type)}`
+      //);
+      //failedAttempts[faCount] = failedAttempts[faCount] || [];
+      //failedAttempts[faCount].push(tRes);
+      //continue CONV_ATTEMPTS_LOOP; // start new conversation attempt
     }
     logger.info(`    ✅ conversation attempt #${faCount + 1} succeeded.`);
 
@@ -67,15 +73,12 @@ export async function iterateConversation<T extends GenericExpTypes>(
       failedAttempts,
       ok: true,
     };
+
+    await saveFailedPairsCache(failedPairs, this.folder);
     return res;
   }
 
   // reached max attempts, conversation failed
-  const failedPairs = (
-    Array.isArray(vars.prompt.pairs[0])
-      ? vars.prompt.pairs[0]
-      : vars.prompt.pairs
-  ) as [string, string][];
   await saveFailedPairsCache(failedPairs, this.folder);
 
   const res: TrialResult<T["Data"]> = {
@@ -102,7 +105,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
   const failedAttempts = [];
   logger.info(
     `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
-      prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
+    prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
   );
   while (failedAttempts.length < maxTurnRetries) {
     const faCount = failedAttempts.length;

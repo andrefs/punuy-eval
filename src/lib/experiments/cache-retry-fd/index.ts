@@ -94,6 +94,7 @@ async function runTrial(
   };
 
   const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
+  console.log("XXXXXXXXXXXXXXXX", JSON.stringify(res, null, 2));
   //const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
   return res;
 }

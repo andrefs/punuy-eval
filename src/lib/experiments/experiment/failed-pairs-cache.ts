@@ -50,7 +50,7 @@ export interface FailedPairsCache {
   date: string;
 
   // The pairs of words that failed
-  pairs: [string, string][];
+  pairs: [string, string][][];
 }
 
 /**
@@ -62,7 +62,7 @@ export interface FailedPairsCache {
  * @throws Error if the folder does not exist or if there is an error writing the file.
  **/
 export async function saveFailedPairsCache(
-  pairs: [string, string][],
+  pairs: [string, string][][],
   folder: string
 ): Promise<string> {
   const cache: FailedPairsCache = {
