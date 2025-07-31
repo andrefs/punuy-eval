@@ -5,7 +5,7 @@ import { ExpVarsFixedPrompt, PromptGenerator } from "../..";
 import { DsPartition } from "../../../dataset-partitions/DsPartition";
 
 describe("dsNameFromDsSample", () => {
-  const exp = dsNameFromDsSample("dummy-traceId", "dummy-folder");
+  const exp = dsNameFromDsSample(0, "dummy-folder");
   describe("evaluateTrial", () => {
     // TODO migrate to getResponse tests
     //

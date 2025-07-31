@@ -37,7 +37,7 @@ export * from "./types";
 /** Class representing an experiment. */
 export default class Experiment<T extends GenericExpTypes> {
   name: string;
-  traceId: string;
+  traceId: number;
   folder: string;
   description: string;
   queryData: QueryData<T>;
@@ -100,7 +100,6 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVars,
     trials: number,
-    traceId: number,
     opts: TrialOpts
   ) => Promise<ExperimentData<T>>;
   performMulti: (
@@ -145,7 +144,7 @@ export default class Experiment<T extends GenericExpTypes> {
    */
   constructor(
     name: string,
-    traceId: string,
+    traceId: number,
     folder: string,
     description: string,
     queryData: QueryData<T>,

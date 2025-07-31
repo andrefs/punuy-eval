@@ -2,6 +2,7 @@ import Experiment from ".";
 import {
   addUsage,
   calcUsageCost,
+  genNextFileIndex,
   getVarIds,
   saveExpVarCombData,
   splitVarCombsMTL,
@@ -21,7 +22,6 @@ export async function perform<T extends GenericExpTypes>(
   this: Experiment<T>,
   vars: ExpVars,
   trials: number,
-  traceId: number,
   opts: TrialOpts = {
     maxConvAttempts: 3,
     maxTurnRetries: 3,
@@ -34,7 +34,7 @@ export async function perform<T extends GenericExpTypes>(
       folder: this.folder,
       trials,
       name: this.name,
-      traceId: traceId ?? Date.now(),
+      traceId: this.traceId,
       queryData: this.queryData,
     },
     variables: vars,
@@ -67,7 +67,7 @@ export async function performMulti<T extends GenericExpTypes>(
     variables.prompt = this.prompts;
   }
   const varCombs = splitVarCombsMTL(variables);
-  startUpLogs(this.name, varCombs, trials, this.folder);
+  await startUpLogs(this.name, varCombs, trials, this.folder);
 
   // main loop
   const res = [] as ExperimentData<T>[];
@@ -75,12 +75,12 @@ export async function performMulti<T extends GenericExpTypes>(
   for (const [index, vc] of varCombs.entries()) {
     logger.info(
       "⚗️  " +
-        pc.inverse(
-          `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
-        ) +
-        ` with variables ${JSON.stringify(getVarIds(vc))}.`
+      pc.inverse(
+        `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
+      ) +
+      ` with variables ${JSON.stringify(getVarIds(vc))}.`
     );
-    res.push(await this.perform(vc, trials, Date.now(), opts));
+    res.push(await this.perform(vc, trials, opts));
     addUsage(this.totalUsage, res[res.length - 1].usage);
   }
 
@@ -92,7 +92,7 @@ export async function performMulti<T extends GenericExpTypes>(
   };
 }
 
-function startUpLogs(
+async function startUpLogs(
   name: string,
   varCombs: ExpVars[],
   trials: number,
@@ -105,13 +105,16 @@ function startUpLogs(
     throw "🧐 No variable combinations to run experiments with, aborting.";
   }
   logger.info(
-    `🔬 Preparing to run experiment ${
-      name
+    `🔬 Preparing to run experiment ${name
     }, ${trials} times on each variable combination (${trials}x${varCombs.length}): \n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
   );
+  const fnIndex = await genNextFileIndex(folder, [
+    /^(?:\d{3}-)?experiment\.json$/,
+  ]);
+  const logFile = `${fnIndex.toString().padStart(3, "0")}-experiment.log`;
   logger.info(
-    `📂 Saving experiment results to folder: ${folder} and 📜 log to ${folder}/experiment.log`
+    `📂 Saving experiment results to folder: ${folder} and 📜 log to ${folder}/${logFile}`
   );
 }

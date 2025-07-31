@@ -26,15 +26,15 @@ function handleExit {
 
 trap handleExit SIGINT SIGTERM
 
-INDEX=0
+INDEX='000'
 if [[ -f "$RES_FOLDER/experiment.log" ]]; then
 	INDEX='001'
 fi
 while [[ -f "$RES_FOLDER/experiment_$INDEX.log" ]]; do
-	INDEX=$(printf "%03d" $((10#$INDEX + 1)))
+	INDEX=$(printf "%03d" "$($INDEX + 1)")
 done
 
-LOGFILE="$RES_FOLDER/experiment_$INDEX.log"
+LOGFILE="$RES_FOLDER/${INDEX}-experiment.log"
 
 # run the experiment (unbuffer is used to preserve color codes)
 unbuffer tsx "$SCRIPT" "$TRIALS" "$TRACE_ID" "$RES_FOLDER" >>"$LOGFILE" 2>&1 &

@@ -122,11 +122,11 @@ async function main(dirPath: string, expName?: string) {
     const expVCData = await readFile(file);
     const fixedExpVCData = await reEvalExperiment(
       expVCData,
-      exp("dummy-traceId", "dummy-folder")
+      exp(0, "dummy-folder")
     );
     if (
       expVCData.results.aggregated?.allDataAvg !==
-        fixedExpVCData.results.aggregated?.allDataAvg &&
+      fixedExpVCData.results.aggregated?.allDataAvg &&
       isNumber(expVCData.results.aggregated?.allDataAvg) &&
       isNumber(fixedExpVCData.results.aggregated?.allDataAvg)
     ) {

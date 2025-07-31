@@ -84,7 +84,7 @@ async function evaluateTrial(
   return new NonEvaluatedData(got[0].data, res);
 }
 
-export default (traceId: string, folder: string) =>
+export default (traceId: number, folder: string) =>
   new Experiment<NFSExpTypes>(
     name,
     traceId,

@@ -2,6 +2,7 @@ import oldFs from "node:fs";
 import fs from "node:fs/promises";
 import logger from "../../logger";
 import path from "node:path";
+import { genNextFileIndex } from "./aux";
 
 /**
  * Generate the next cache file name in the specified folder.
@@ -10,19 +11,14 @@ import path from "node:path";
  * @return The next available cache file name.
  * @throws Error if the folder does not exist or if there is an error accessing the file system.
  **/
-export function genNextCacheFileName(folder: string): string {
-  let n = 0;
-  // increment n until we find a file that does not exist
-  while (true) {
-    const fnCandidate = path.join(
-      folder,
-      `failed-${n.toString().padStart(3, "0")}.json`
-    );
-    if (!oldFs.existsSync(fnCandidate)) {
-      return fnCandidate;
-    }
-    n++;
-  }
+export async function genNextCacheFileName(folder: string): Promise<string> {
+  const fnIndex = await genNextFileIndex(folder, [
+    /^(?:\d{3}-)?experiment\.json$/,
+  ]);
+  return path.join(
+    folder,
+    `${fnIndex.toString().padStart(3, "0")}-failed.json`
+  );
 }
 
 /**
@@ -75,7 +71,7 @@ export async function saveFailedPairsCache(
     pairs,
   };
   console.log("XXXXXXXXXXXXXXXXXXXXX", { cache });
-  const fileName = genNextCacheFileName(folder);
+  const fileName = await genNextCacheFileName(folder);
   console.log("XXXXXXXXXXXXXXXXXXXXX", { fileName });
   logger.warn(` 🚧 Saving failed pairs cache to ${fileName}`);
   await fs.writeFile(fileName, JSON.stringify(cache, null, 2), "utf-8");

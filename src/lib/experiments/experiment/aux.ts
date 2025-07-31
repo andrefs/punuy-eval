@@ -84,7 +84,13 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   exitedEarly: boolean
 ) {
   let newData = [];
-  const filename = path.join(folder, "experiment.json");
+  const fnIndex = await genNextFileIndex(folder, [
+    /^(?:\d{3}-)?experiment\.json$/,
+  ]);
+  const filename = path.join(
+    folder,
+    `${fnIndex.toString().padStart(3, "0")}-experiment.json`
+  );
   // read existing data
   // if it exists, merge the new data with the old one
   if (oldFs.existsSync(filename)) {
@@ -107,7 +113,7 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   await fs.writeFile(filename, json);
 }
 
-async function genNextFileIndex(
+export async function genNextFileIndex(
   folder: string,
   patterns: (string | RegExp)[] = []
 ) {
@@ -132,10 +138,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
 ) {
   const traceId = data.meta.traceId;
   const fnIndex = (
-    await genNextFileIndex(data.meta.folder, [
-      /^(?:\d{3}-)?expVC_/, // match files starting with XXX-expVC_ or expVC_
-      /\.json$/, // match files ending with .json
-    ])
+    await genNextFileIndex(data.meta.folder, [/^(?:\d{3}-)?experiment\.json$/])
   )
     .toString()
     .padStart(3, "0");

@@ -25,7 +25,7 @@ async function main(dirPath: string) {
   const exps = await Promise.all(
     files.map(file => readFile(path.join(dirPath, file)))
   );
-  dsSampleFromDsSample("dummy-traceId", "dummy-folder").printExpResTable(exps);
+  dsSampleFromDsSample(0, "dummy-folder").printExpResTable(exps);
 }
 
 main(DIR_PATH)

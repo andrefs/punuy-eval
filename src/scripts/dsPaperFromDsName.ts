@@ -10,7 +10,7 @@ import { getVarIds } from "src/lib/experiments/experiment/aux";
 import path from "path";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
-const traceId = process.argv[3] || Date.now().toString();
+const traceId = parseInt(process.argv[3]) || Date.now();
 const folder =
   process.argv[4] || path.join(".", "results", `exp_${Date.now()}`);
 

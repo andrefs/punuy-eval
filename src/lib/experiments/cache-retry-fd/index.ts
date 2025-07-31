@@ -192,7 +192,7 @@ export function fixParsedJson(
   return parsed;
 }
 
-export default (traceId: string, folder: string) =>
+export default (traceId: number, folder: string) =>
   new Experiment<CRExpTypes>(
     name,
     traceId,
