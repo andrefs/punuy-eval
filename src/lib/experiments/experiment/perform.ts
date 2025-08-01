@@ -18,6 +18,12 @@ import pc from "picocolors";
 import { wrapUp } from "./exit";
 import { genNextFileIndex } from "./file-index";
 
+/** * Perform a single experiment with the given variables and number of trials.
+ * @param vars - The variable combinations to run the experiment with.
+ * @param numTrials - The number of trials to run for the variable combination.
+ * @param opts - Options for the trials, such as maximum attempts.
+ * @returns An object containing the results of the experiment and the total usage.
+ * */
 export async function perform<T extends GenericExpTypes>(
   this: Experiment<T>,
   vars: ExpVars,
@@ -49,10 +55,17 @@ export async function perform<T extends GenericExpTypes>(
   return expData;
 }
 
+/** * Perform multiple trials for each variable combination in the provided matrix.
+ * @param variables - The variable combinations to run the experiments with.
+ * @param numTrials - The number of trials to run for each variable combination.
+ * @param opts - Options for the trials, such as maximum attempts.
+ * @returns An object containing the results of the experiments and the total usage.
+ */
+
 export async function performMulti<T extends GenericExpTypes>(
   this: Experiment<T>,
   variables: ExpVarMatrix,
-  trials: number,
+  numTrials: number,
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ) {
   await this.sanityCheck(this.folder);
@@ -61,7 +74,7 @@ export async function performMulti<T extends GenericExpTypes>(
     variables.prompt = this.prompts;
   }
   const varCombs = splitVarCombsMTL(variables);
-  await startUpLogs(this.name, varCombs, trials, this.folder);
+  await startUpLogs(this.name, varCombs, numTrials, this.folder);
 
   // main loop
   const res = [] as ExperimentData<T>[];
@@ -74,7 +87,7 @@ export async function performMulti<T extends GenericExpTypes>(
       ) +
       ` with variables ${JSON.stringify(getVarIds(vc))}.`
     );
-    res.push(await this.perform(vc, trials, opts));
+    res.push(await this.perform(vc, numTrials, opts));
     addUsage(this.totalUsage, res[res.length - 1].usage);
   }
 
@@ -86,10 +99,16 @@ export async function performMulti<T extends GenericExpTypes>(
   };
 }
 
+/** * Log the startup information for the experiment, including the name, variable combinations, number of trials, and folder.
+ * @param name - The name of the experiment.
+ * @param varCombs - The variable combinations to run the experiment with.
+ * @param numTrials - The number of trials to run for each variable combination.
+ * @param folder - The folder where the experiment results will be saved.
+ **/
 async function startUpLogs(
   name: string,
   varCombs: ExpVars[],
-  trials: number,
+  numTrials: number,
   folder: string
 ) {
   if (!varCombs?.length) {
@@ -100,7 +119,7 @@ async function startUpLogs(
   }
   logger.info(
     `🔬 Preparing to run experiment ${name
-    }, ${trials} times on each variable combination (${trials}x${varCombs.length}): \n${varCombs
+    }, ${numTrials} times on each variable combination (${numTrials}x${varCombs.length}): \n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`
   );
