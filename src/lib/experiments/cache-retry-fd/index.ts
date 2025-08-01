@@ -107,7 +107,7 @@ async function runTrial(
       : prompt.pairs.length
   );
 
-  logger.info(`   ❔ Tool schema:\n${JSON.stringify(toolSchema, null, 2)}`);
+  // logger.info(`   ❔ Tool schema:\n${JSON.stringify(toolSchema, null, 2)}`);
 
   const tool = {
     name: "evaluate_pair_scores",

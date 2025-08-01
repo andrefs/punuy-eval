@@ -43,7 +43,6 @@ import {
   buildExpVCFileName,
   genNextExpIndex,
   getCurExpIndex,
-  getCurExpVCFileName,
 } from "./exp-cache";
 
 /** Class representing an experiment. */
