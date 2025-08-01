@@ -34,9 +34,17 @@ import { printExpResTable, printUsage } from "./print";
 import { handleEarlyExit } from "./exit";
 import { perform, performMulti } from "./perform";
 import { evaluate, validateSchema } from "./val-eval";
-import { addUsage, sanityCheck } from "./aux";
-import { buildExpVCFileName } from "./file-index";
+import { addUsage, getAttemptFailedPairs, sanityCheck } from "./aux";
+import path from "node:path";
 export * from "./types";
+import oldFs from "fs";
+import fs from "node:fs/promises";
+import {
+  buildExpVCFileName,
+  genNextExpIndex,
+  getCurExpIndex,
+  getCurExpVCFileName,
+} from "./exp-cache";
 
 /** Class representing an experiment. */
 export default class Experiment<T extends GenericExpTypes> {
@@ -136,6 +144,10 @@ export default class Experiment<T extends GenericExpTypes> {
     this: Experiment<T>,
     vars: ExpVars
   ) => Promise<ExperimentData<T> | undefined>;
+  getResFileName: (
+    this: Experiment<T>,
+    vars: ExpVars
+  ) => Promise<string | null>;
 
   /**
    * Create an experiment.
@@ -211,31 +223,46 @@ export default class Experiment<T extends GenericExpTypes> {
     this.printExpResTable = printExpResTable;
     this.printUsage = printUsage;
 
-    this.loadExpCache = async function (
+    this.getResFileName = async function (
       this: Experiment<T>,
       vars: ExpVars
-    ): Promise<ExperimentData<T> | undefined> {
-      const expFN = buildExpVCFileName(
+    ): Promise<string | null> {
+      console.log("XXXXXXXXXXXX indexes", [
+        await getCurExpIndex(this.folder),
+        await genNextExpIndex(this.folder),
+      ]);
+      const index = await getCurExpIndex(this.folder);
+      const fn = buildExpVCFileName(
         this.traceId,
         this.name,
         vars.prompt.id,
         vars.dpart.id,
         vars.model.id
       );
-      if (!expFN) {
+      return path.join(this.folder, `${index}-${fn}`);
+    };
+
+    this.loadExpCache = async function (
+      this: Experiment<T>,
+      vars: ExpVars
+    ): Promise<ExperimentData<T> | undefined> {
+      const expFP = await this.getResFileName(vars);
+      console.log("XXXXXXXXXXXXXXXX", { expFP });
+      if (!expFP) {
         return undefined;
       }
-      logger.info(`🗃️ Loading experiment cache from ${expFN}.`);
-      try {
-        const res = await import(expFN);
-        if (res.default) {
-          return res.default as ExperimentData<T>;
+      if (oldFs.existsSync(expFP)) {
+        logger.info(`🗃️ Loading experiment cache from ${expFP}.`);
+        try {
+          const json = await fs.readFile(expFP, "utf-8");
+          const exp = JSON.parse(json) as ExperimentData<T>;
+          return exp;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          logger.info(`🗃️ Failed to load experiment cache from ${expFP}.`);
         }
-        return undefined;
-      } catch (e) {
-        logger.info(`🗃️ No experiment cache found for ${expFN}.`);
-        return undefined;
       }
+      return undefined;
     };
 
     this.runTrials = async function (
@@ -245,35 +272,29 @@ export default class Experiment<T extends GenericExpTypes> {
       opts: TrialOpts = { maxTrialAttempts: 3 }
     ) {
       const totalUsage: Usages = {};
-
-      const expFN = buildExpVCFileName(
-        this.traceId,
-        this.name,
-        vars.prompt.id,
-        vars.dpart.id,
-        vars.model.id
-      );
-
-      if (expFN) {
-        logger.info(
-          `🗃️ Experiment cache found: ${expFN}. Will load previous results.`
-        );
-      }
-
-      // todo
+      const trials: TrialData<T["Data"]>[] = [];
 
       logger.info(
         `🧪 Running experiment ${this.name} ${numTrials} times on model ${vars.model.id}.`
       );
 
-      const trials: TrialData<T["Data"]>[] = [];
+      // load cache
+      const cache = await this.loadExpCache(vars);
+
       for (let i = 0; i < numTrials; i++) {
-        const trialUsage: Usages = {};
         logger.info(`  ⚔️  trial #${i + 1} of ${numTrials} `);
+        const trialUsage: Usages = {};
+
+        let prevFailedPairs: [string, string][] | undefined;
+        if (cache) {
+          const lastAttempt = cache.results.raw[i].attempts.at(-1);
+          prevFailedPairs = getAttemptFailedPairs(lastAttempt!);
+        }
+
         const attempts = await this.runTrial(
           vars,
           this.queryData.genToolSchema,
-          opts
+          { ...opts, prevFailedPairs } // pass previous failed pairs if available
         );
         for (const attempt of attempts) {
           for (const turn of attempt) {

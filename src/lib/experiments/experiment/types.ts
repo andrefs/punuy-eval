@@ -50,7 +50,7 @@ export interface ExpVars {
   relationType?: {
     id: RelationType;
   };
-  prompt: Prompt | PromptGenerator;
+  prompt: PromptGenerator;
   jobType?: { id: PromptJobType };
 }
 
@@ -58,7 +58,10 @@ export interface PromptGenerator {
   id: string;
   relationType?: RelationType;
   language: "pt" | "en";
-  generate: (vars: Omit<ExpVars, "prompt">) => Prompt;
+  generate: (
+    vars: Omit<ExpVars, "prompt">,
+    pairs?: [string, string][]
+  ) => Prompt;
 }
 
 /*
@@ -229,6 +232,16 @@ export interface ExpScore {
   score: number | null;
 }
 
+/** Options for running a trial */
 export interface TrialOpts {
+  /**
+   * Maximum number of attempts to retry the failed pairs of a trial
+   */
   maxTrialAttempts: number;
+
+  /**
+   * Previous failed pairs to retry
+   * This is used when a trial has already been attempted and we want to retry the failed pairs
+   */
+  prevFailedPairs?: [string, string][];
 }

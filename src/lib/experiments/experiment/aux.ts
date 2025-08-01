@@ -9,6 +9,7 @@ import Experiment, {
   PairScoreList,
   PromptJobType,
   TurnPrompt,
+  TurnResponses,
   Usage,
   Usages,
   jobTypes,
@@ -18,7 +19,19 @@ import { ModelId, getModelById } from "src/lib/models";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import { normalizeScale, pairsToHash } from "../aux";
 import { PartitionData, PartitionScale } from "punuy-datasets/src/lib/types";
-import { genNextExpVCFileName, genNextFileIndex } from "./file-index";
+import { genNextFileIndex } from "./file-index";
+import { genNextExpVCFileName } from "./exp-cache";
+
+export function getAttemptFailedPairs(
+  att: TurnResponses<{
+    scores: {
+      words: string[];
+      score: number;
+    }[];
+  }>
+): [string, string][] {
+  return att.filter(turn => !turn.ok).flatMap(turn => turn.turnPrompt.pairs);
+}
 
 export function calcUsageCost(usage: Usages | undefined) {
   if (!usage) {
@@ -126,7 +139,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.numTrials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 

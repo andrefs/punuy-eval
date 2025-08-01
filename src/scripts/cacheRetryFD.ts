@@ -25,7 +25,7 @@ const folder = process.argv[4] || path.join(".", "results", `exp_${traceId}`);
 const cacheRetryFD = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await cacheRetry(traceId, folder).performMulti(vars, trials, {
-    maxTrialAttempts: 1,
+    maxTrialAttempts: 2,
   });
 
   //for (const exp of res.experiments) {

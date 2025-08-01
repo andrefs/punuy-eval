@@ -49,7 +49,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
 ) {
   const totalUsage: Usages = {};
   logger.info(
-    `      👥 ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
+    `      👥 ${prompt.pairs.length} ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
     prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
   );
   const { result: attemptResult, usage } = await this.tryResponse(

@@ -60,11 +60,17 @@ const prompts: PromptGenerator[] = [];
 for (const pp of protoPrompts) {
   prompts.push({
     ...pp,
-    generate: (vars: Omit<ExpVars, "prompt">): Prompt => {
+    generate: (
+      vars: Omit<ExpVars, "prompt">,
+      pairs?: [string, string][] // allow passing pairs directly
+    ): Prompt => {
       const jt: PromptJobType = "batches";
-      const pairList = shuffle(vars.dpart.data).map(
-        ({ term1, term2 }) => [term1, term2] as [string, string]
-      );
+      const sourcePairs =
+        pairs ||
+        vars.dpart.data.map(
+          ({ term1, term2 }) => [term1, term2] as [string, string]
+        );
+      const pairList = shuffle(sourcePairs);
       const dp = distributePairs(pairList, jt, batchSize);
 
       const prompt = {

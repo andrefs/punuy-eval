@@ -5,6 +5,8 @@ import Experiment, {
   ExperimentData,
   GenToolSchema,
   GenericExpTypes,
+  Prompt,
+  PromptGenerator,
   TrialAttemptData as TrialAttempts,
   TrialOpts,
   TrialResult,
@@ -21,7 +23,10 @@ import {
   NonUsableData,
 } from "src/lib/evaluation";
 import { trialEvalScores } from "../prediction-correlation/aux";
-import { getPairScoreListFromDPart } from "../experiment/aux";
+import {
+  getAttemptFailedPairs,
+  getPairScoreListFromDPart,
+} from "../experiment/aux";
 import {
   getLastCacheFileName,
   loadFailedPairsCache,
@@ -84,12 +89,16 @@ async function tryLoadFailedPairsCache(
  */
 async function runTrial(
   this: Experiment<CRExpTypes>,
-  vars: ExpVars | ExpVarsFixedPrompt,
+  vars: ExpVars,
   genToolSchema: GenToolSchema,
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<TrialAttempts<CRExpTypes["Data"]>> {
-  const prompt =
-    "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
+  if (opts.prevFailedPairs) {
+    logger.info(
+      `  🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
+    );
+  }
+  let prompt = vars.prompt.generate(vars, opts.prevFailedPairs);
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const toolSchema = genToolSchema(
@@ -111,13 +120,16 @@ async function runTrial(
   const attempts: TrialAttempts<CRExpTypes["Data"]> = [];
 
   while (notDone && i < opts.maxTrialAttempts) {
-    const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
-    attempts.push(res);
-    if (res.every(r => r.ok)) {
+    const att = await this.iterateConversation({ ...vars, prompt }, tool, opts);
+    attempts.push(att);
+    if (att.every(turn => turn.ok)) {
       logger.info(`    ✅ All pairs scored successfully.`);
       notDone = false;
       continue;
     }
+
+    const failedPairs = getAttemptFailedPairs(att);
+    prompt = vars.prompt.generate(vars, failedPairs);
     logger.warn(
       `    ❗ Some pairs failed to score (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
     );
