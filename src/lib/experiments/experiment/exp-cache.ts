@@ -3,6 +3,8 @@ import fs from "node:fs/promises";
 import logger from "../../logger";
 import path from "node:path";
 import { genNextFileIndex } from "./aux";
+import { buildExpVCFileName, getCurExpVCFileName } from "./file-index";
+import Experiment, { ExperimentData, ExpVars, GenericExpTypes } from ".";
 
 /**
  * Generate the next cache file name in the specified folder.
@@ -70,9 +72,8 @@ export async function saveFailedPairsCache(
     date: new Date().toISOString(),
     pairs,
   };
-  console.log("XXXXXXXXXXXXXXXXXXXXX", { cache });
   const fileName = await genNextCacheFileName(folder);
-  console.log("XXXXXXXXXXXXXXXXXXXXX", { fileName });
+  console.error(` 🚧 Saving failed pairs cache to ${fileName}`);
   logger.warn(` 🚧 Saving failed pairs cache to ${fileName}`);
   await fs.writeFile(fileName, JSON.stringify(cache, null, 2), "utf-8");
   return fileName;
@@ -96,4 +97,31 @@ export async function loadFailedPairsCache(
     throw new Error(`Invalid failed pairs cache format in ${fileName} `);
   }
   return cache;
+}
+export async function loadExpCache<T extends GenericExpTypes>(
+  this: Experiment<T>,
+  vars: ExpVars
+): Promise<ExperimentData<T> | undefined> {
+  const expFN = buildExpVCFileName(
+    this.traceId,
+    this.name,
+    vars.prompt.id,
+    vars.dpart.id,
+    vars.model.id
+  );
+  if (!expFN) {
+    return undefined;
+  }
+  logger.info(`🗃️ Loading experiment cache from ${expFN}.`);
+  const exp = await fs.readFile(expFN, "utf-8");
+  try {
+    const res = JSON.parse(exp);
+    if (res && typeof res === "object") {
+      return res as ExperimentData<T>;
+    }
+    return undefined;
+  } catch (e) {
+    logger.info(`🗃️ No experiment cache found for ${expFN}.`);
+    return undefined;
+  }
 }

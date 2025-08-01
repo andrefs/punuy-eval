@@ -8,7 +8,14 @@ export async function evaluate<T extends GenericExpTypes>(
   exp: ExperimentData<T>
 ) {
   const trialEvaluationResults = await Promise.all(
-    exp.results.raw.map(d => this.evaluateTrial(exp.variables.dpart, d.turns))
+    exp.results.raw.map(trial => {
+      const turnData = trial.attempts.flatMap(attempt =>
+        attempt.flatMap(turn =>
+          turn.ok ? [{ prompt: turn.turnPrompt, data: turn.result?.data }] : []
+        )
+      );
+      return this.evaluateTrial(exp.variables.dpart, turnData);
+    })
   );
   return {
     evaluation: trialEvaluationResults,

@@ -14,11 +14,14 @@ import {
   Prompt,
   PromptGenerator,
   QueryData,
+  TrialAttempts,
+  TrialData,
   TrialOpts,
-  TrialResult,
   TrialsResultData,
+  TurnData,
   TurnPrompt,
   TurnResponse,
+  TurnResponses,
   Usage,
   Usages,
 } from "./types";
@@ -32,6 +35,7 @@ import { handleEarlyExit } from "./exit";
 import { perform, performMulti } from "./perform";
 import { evaluate, validateSchema } from "./val-eval";
 import { addUsage, sanityCheck } from "./aux";
+import { buildExpVCFileName } from "./file-index";
 export * from "./types";
 
 /** Class representing an experiment. */
@@ -54,13 +58,12 @@ export default class Experiment<T extends GenericExpTypes> {
     vars: ExpVarsFixedPrompt,
     tool: ModelTool,
     opts?: TrialOpts
-  ) => Promise<TrialResult<T["Data"]>>;
+  ) => Promise<TurnResponses<T["Data"]>>;
   getTurnResponse: (
     this: Experiment<T>,
     model: Model,
     prompt: TurnPrompt,
-    tool: ModelTool,
-    maxAttempts: number
+    tool: ModelTool
   ) => Promise<TurnResponse<T["Data"]>>;
   tryResponse: (
     this: Experiment<T>,
@@ -81,7 +84,7 @@ export default class Experiment<T extends GenericExpTypes> {
     vars: ExpVars | ExpVarsFixedPrompt,
     genToolSchema: GenToolSchema,
     opts?: TrialOpts
-  ) => Promise<TrialResult<T["Data"]>>;
+  ) => Promise<TrialAttempts<T["Data"]>>;
   runTrials: (
     this: Experiment<T>,
     vars: ExpVars,
@@ -90,7 +93,7 @@ export default class Experiment<T extends GenericExpTypes> {
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
     dpart: DsPartition,
-    got: { data: T["Data"]; prompt: TurnPrompt }[]
+    got: TurnData<T["Data"]>[] // Array of turns with data and prompt
   ) => Promise<EvaluationResult<T["Data"], T["Evaluation"]>>;
   evaluate: (exp: ExperimentData<T>) => Promise<{
     evaluation: EvaluationResult<T["Data"], T["Evaluation"]>[];
@@ -129,6 +132,10 @@ export default class Experiment<T extends GenericExpTypes> {
    * @throws - Error if the folder already exists with a different experiment
    */
   sanityCheck: (folder: string) => Promise<void>;
+  loadExpCache: (
+    this: Experiment<T>,
+    vars: ExpVars
+  ) => Promise<ExperimentData<T> | undefined>;
 
   /**
    * Create an experiment.
@@ -153,7 +160,7 @@ export default class Experiment<T extends GenericExpTypes> {
       vars: ExpVars | ExpVarsFixedPrompt,
       genToolSchema: GenToolSchema,
       opts?: TrialOpts
-    ) => Promise<TrialResult<T["Data"]>>,
+    ) => Promise<TrialAttempts<T["Data"]>>,
     evaluateTrial: (
       dpart: DsPartition,
       got: { data: T["Data"]; prompt: TurnPrompt }[]
@@ -204,39 +211,81 @@ export default class Experiment<T extends GenericExpTypes> {
     this.printExpResTable = printExpResTable;
     this.printUsage = printUsage;
 
+    this.loadExpCache = async function (
+      this: Experiment<T>,
+      vars: ExpVars
+    ): Promise<ExperimentData<T> | undefined> {
+      const expFN = buildExpVCFileName(
+        this.traceId,
+        this.name,
+        vars.prompt.id,
+        vars.dpart.id,
+        vars.model.id
+      );
+      if (!expFN) {
+        return undefined;
+      }
+      logger.info(`🗃️ Loading experiment cache from ${expFN}.`);
+      try {
+        const res = await import(expFN);
+        if (res.default) {
+          return res.default as ExperimentData<T>;
+        }
+        return undefined;
+      } catch (e) {
+        logger.info(`🗃️ No experiment cache found for ${expFN}.`);
+        return undefined;
+      }
+    };
+
     this.runTrials = async function (
       this: Experiment<T>,
       vars: ExpVars,
       numTrials: number,
-      opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
+      opts: TrialOpts = { maxTrialAttempts: 3 }
     ) {
       const totalUsage: Usages = {};
+
+      const expFN = buildExpVCFileName(
+        this.traceId,
+        this.name,
+        vars.prompt.id,
+        vars.dpart.id,
+        vars.model.id
+      );
+
+      if (expFN) {
+        logger.info(
+          `🗃️ Experiment cache found: ${expFN}. Will load previous results.`
+        );
+      }
+
+      // todo
 
       logger.info(
         `🧪 Running experiment ${this.name} ${numTrials} times on model ${vars.model.id}.`
       );
 
-      const trials: T["Data"][] = [];
+      const trials: TrialData<T["Data"]>[] = [];
       for (let i = 0; i < numTrials; i++) {
+        const trialUsage: Usages = {};
         logger.info(`  ⚔️  trial #${i + 1} of ${numTrials} `);
-        const trialRes = await this.runTrial(
+        const attempts = await this.runTrial(
           vars,
           this.queryData.genToolSchema,
           opts
         );
-        addUsage(totalUsage, trialRes.usage);
-        const turns = [];
-        if (trialRes.ok) {
-          for (const [i, turnRes] of trialRes.result!.entries()) {
-            turns.push({
-              data: turnRes.data,
-              prompt: trialRes.turnPrompts[i],
-            });
+        for (const attempt of attempts) {
+          for (const turn of attempt) {
+            addUsage(trialUsage, turn.usage);
           }
-          trials.push({ turns });
-        } else {
-          logger.warn(`  🤦 trial #${i + 1} failed all conversations`);
         }
+        trials.push({
+          promptId: vars.prompt.id,
+          usage: trialUsage,
+          attempts,
+        });
+        addUsage(totalUsage, trialUsage);
       }
       return {
         variables: vars,

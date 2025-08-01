@@ -5,9 +5,11 @@ import Experiment, {
   ExperimentData,
   GenToolSchema,
   GenericExpTypes,
+  TrialAttemptData as TrialAttempts,
   TrialOpts,
   TrialResult,
   TurnPrompt,
+  TurnResponses,
 } from "../experiment";
 import query from "../prediction-correlation/query";
 import logger from "src/lib/logger";
@@ -23,7 +25,7 @@ import { getPairScoreListFromDPart } from "../experiment/aux";
 import {
   getLastCacheFileName,
   loadFailedPairsCache,
-} from "../experiment/failed-pairs-cache";
+} from "../experiment/exp-cache";
 
 export const name = "cache-retry-fd";
 const description =
@@ -36,6 +38,25 @@ export interface CRExpTypes extends GenericExpTypes {
   Data: Static<typeof query.responseSchema>;
   Evaluation: Static<typeof query.responseSchema>;
   DataSchema: typeof query.responseSchema;
+}
+
+async function tryLoadLastTry(
+  this: Experiment<CRExpTypes>,
+  folder: string
+): Promise<[string, string][]> {
+  const lastCacheFile = await getLastCacheFileName(folder);
+  const { date, pairs } = await loadFailedPairsCache(lastCacheFile);
+
+  if (!pairs.length) {
+    logger.info(
+      `  ❗ No pairs found in cache file ${lastCacheFile} (date: ${date})`
+    );
+  } else {
+    logger.info(
+      `  🫣 Found ${pairs.length} pairs in cache file ${lastCacheFile} (date: ${date})`
+    );
+  }
+  return pairs;
 }
 
 async function tryLoadFailedPairsCache(
@@ -65,19 +86,11 @@ async function runTrial(
   this: Experiment<CRExpTypes>,
   vars: ExpVars | ExpVarsFixedPrompt,
   genToolSchema: GenToolSchema,
-  opts: TrialOpts = { maxConvAttempts: 3, maxTurnRetries: 3 }
-): Promise<TrialResult<CRExpTypes["Data"]>> {
+  opts: TrialOpts = { maxTrialAttempts: 3 }
+): Promise<TrialAttempts<CRExpTypes["Data"]>> {
   const prompt =
     "generate" in vars.prompt ? vars.prompt.generate(vars) : vars.prompt;
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
-
-  if (opts.cacheFile) {
-    const failedPairs = await tryLoadFailedPairsCache.call(
-      this,
-      opts.cacheFile
-    );
-    prompt.pairs = failedPairs;
-  }
 
   const toolSchema = genToolSchema(
     Array.isArray(prompt.pairs[0])
@@ -85,7 +98,7 @@ async function runTrial(
       : prompt.pairs.length
   );
 
-  console.log(`  ❔ Tool schema: ${JSON.stringify(toolSchema, null, 2)}`);
+  logger.info(`   ❔ Tool schema:\n${JSON.stringify(toolSchema, null, 2)}`);
 
   const tool = {
     name: "evaluate_pair_scores",
@@ -93,10 +106,25 @@ async function runTrial(
     schema: toolSchema,
   };
 
-  const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
-  console.log("XXXXXXXXXXXXXXXX", JSON.stringify(res, null, 2));
-  //const res = await this.getTurnResponse({ ...vars, prompt }, tool, maxRetries);
-  return res;
+  let i = 0;
+  let notDone = true;
+  const attempts: TrialAttempts<CRExpTypes["Data"]> = [];
+
+  while (notDone && i < opts.maxTrialAttempts) {
+    const res = await this.iterateConversation({ ...vars, prompt }, tool, opts);
+    attempts.push(res);
+    if (res.every(r => r.ok)) {
+      logger.info(`    ✅ All pairs scored successfully.`);
+      notDone = false;
+      continue;
+    }
+    logger.warn(
+      `    ❗ Some pairs failed to score (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
+    );
+    i++;
+  }
+
+  return attempts;
 }
 
 function expDataToExpScore(

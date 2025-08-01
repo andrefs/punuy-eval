@@ -18,6 +18,7 @@ import { ModelId, getModelById } from "src/lib/models";
 import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
 import { normalizeScale, pairsToHash } from "../aux";
 import { PartitionData, PartitionScale } from "punuy-datasets/src/lib/types";
+import { genNextExpVCFileName, genNextFileIndex } from "./file-index";
 
 export function calcUsageCost(usage: Usages | undefined) {
   if (!usage) {
@@ -113,37 +114,11 @@ export async function saveExperimentsData<T extends GenericExpTypes>(
   await fs.writeFile(filename, json);
 }
 
-export async function genNextFileIndex(
-  folder: string,
-  patterns: (string | RegExp)[] = []
-) {
-  const files = await fs.readdir(folder);
-  const cacheFiles = files.filter(f => patterns.every(p => f.match(p)));
-  return cacheFiles.length;
-}
-
-async function genExpVCFileName<T extends GenericExpTypes>(
-  data: ExperimentData<T>
-) {
-  const traceId = data.meta.traceId;
-  const dpartId = data.variables.dpart.id;
-  const promptId = data.variables.prompt.id;
-  const expName = data.meta.name;
-  const modelId = data.variables.model.id;
-  return `expVC_${traceId}_${expName}_${promptId}_${dpartId}_${modelId}.json`;
-}
-
 export async function saveExpVarCombData<T extends GenericExpTypes>(
   data: ExperimentData<T>
 ) {
   const traceId = data.meta.traceId;
-  const fnIndex = (
-    await genNextFileIndex(data.meta.folder, [/^(?:\d{3}-)?experiment\.json$/])
-  )
-    .toString()
-    .padStart(3, "0");
-  const fn = await genExpVCFileName(data);
-  const filename = path.join(data.meta.folder, `${fnIndex}-${fn}`);
+  const filename = await genNextExpVCFileName(data);
   const json = JSON.stringify(data, null, 2);
   const name = data.meta.name;
 
@@ -151,8 +126,7 @@ export async function saveExpVarCombData<T extends GenericExpTypes>(
     `💾 Saving experiment ${name} with traceId ${traceId} to ${filename}.`
   );
   logger.info(
-    `🥇 It ran successfully ${data.results.raw.length}/${
-      data.meta.trials
+    `🥇 It ran successfully ${data.results.raw.length}/${data.meta.trials
     } times with variables ${JSON.stringify(getVarIds(data.variables))}.`
   );
 

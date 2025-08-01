@@ -2,7 +2,6 @@ import Experiment from ".";
 import {
   addUsage,
   calcUsageCost,
-  genNextFileIndex,
   getVarIds,
   saveExpVarCombData,
   splitVarCombsMTL,
@@ -17,22 +16,20 @@ import {
 import logger from "../../logger";
 import pc from "picocolors";
 import { wrapUp } from "./exit";
+import { genNextFileIndex } from "./file-index";
 
 export async function perform<T extends GenericExpTypes>(
   this: Experiment<T>,
   vars: ExpVars,
-  trials: number,
-  opts: TrialOpts = {
-    maxConvAttempts: 3,
-    maxTurnRetries: 3,
-  }
+  numTrials: number,
+  opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<ExperimentData<T>> {
-  const trialsRes = await this.runTrials(vars, trials, opts);
+  const trialsRes = await this.runTrials(vars, numTrials, opts);
   calcUsageCost(trialsRes.usage);
   const expData: ExperimentData<T> = {
     meta: {
       folder: this.folder,
-      trials,
+      numTrials,
       name: this.name,
       traceId: this.traceId,
       queryData: this.queryData,
@@ -56,10 +53,7 @@ export async function performMulti<T extends GenericExpTypes>(
   this: Experiment<T>,
   variables: ExpVarMatrix,
   trials: number,
-  opts: TrialOpts = {
-    maxConvAttempts: 3,
-    maxTurnRetries: 3,
-  }
+  opts: TrialOpts = { maxTrialAttempts: 3 }
 ) {
   await this.sanityCheck(this.folder);
 

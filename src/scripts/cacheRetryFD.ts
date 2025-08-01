@@ -15,6 +15,8 @@ import { getVarIds } from "src/lib/experiments/experiment/aux";
 import prompts from "src/lib/experiments/full-dataset/prompts";
 import cacheRetry from "src/lib/experiments/cache-retry-fd";
 import datasets from "../lib/dataset-partitions";
+import { DsPartition } from "src/lib/dataset-partitions/DsPartition";
+import simlex999_main from "src/lib/dataset-partitions/simlex999_main";
 
 const trials = process.argv[2] ? parseInt(process.argv[2]) : 3;
 const traceId = parseInt(process.argv[3]) || Date.now();
@@ -23,26 +25,33 @@ const folder = process.argv[4] || path.join(".", "results", `exp_${traceId}`);
 const cacheRetryFD = async (vars: ExpVarMatrix) => {
   logger.info("Starting");
   const res = await cacheRetry(traceId, folder).performMulti(vars, trials, {
-    maxConvAttempts: 1,
-    maxTurnRetries: 1,
+    maxTrialAttempts: 1,
   });
 
-  for (const exp of res.experiments) {
-    logger.info(
-      { ...exp.results.aggregated?.resultTypes },
-      `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
-      }`
-    );
-    logger.debug(
-      exp.results.raw
-        .map(r =>
-          r.turns.flatMap(({ data }) =>
-            data.scores.map(s => `[${s.words[0]}, ${s.words[1]}]`)
-          )
-        )
-        .join("\n")
-    );
-  }
+  //for (const exp of res.experiments) {
+  //  logger.info(
+  //    { ...exp.results.aggregated?.resultTypes },
+  //    `${exp.meta.name} ${JSON.stringify(getVarIds(exp.variables))} ${exp.results.aggregated?.okDataAvg
+  //    }`
+  //  );
+  //  logger.debug(
+  //    exp.results.raw
+  //      .map(r =>
+  //        r.turns.flatMap(({ data }) =>
+  //          data.scores.map(s => `[${s.words[0]}, ${s.words[1]}]`)
+  //        )
+  //      )
+  //      .join("\n")
+  //  );
+  //}
+};
+
+// slSample is a sample of the full simlex999 dataset
+const slSample: DsPartition = {
+  ...simlex999_main,
+  id: simlex999_main.dataset.id + "#sample",
+  partitionId: "sample",
+  data: simlex999_main.data.slice(0, 50), // taking the first 50 pairs as a sample
 };
 
 const evm: ExpVarMatrix = {
@@ -53,7 +62,7 @@ const evm: ExpVarMatrix = {
     //datasets.pap900_rel,
     //datasets.pap900_sim,
     //datasets.tr9856_main,
-    datasets.simlex999_main,
+    slSample,
   ],
   prompt: prompts,
   model: [

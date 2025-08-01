@@ -95,7 +95,7 @@ export interface AllPairsPrompt extends BasePrompt {
 export type Prompt = SinglePairPrompt | BatchesPrompt | AllPairsPrompt;
 
 export interface ExpMeta<T extends GenericExpTypes> {
-  trials: number;
+  numTrials: number;
   folder: string;
   name: string;
   traceId: number;
@@ -104,12 +104,7 @@ export interface ExpMeta<T extends GenericExpTypes> {
 
 export interface ExpResults<DataType, ExpectedType> {
   /** Raw results from the trials */
-  raw: {
-    turns: {
-      data: DataType;
-      prompt: TurnPrompt;
-    }[];
-  }[];
+  raw: TrialData<DataType>[];
   /** Evaluation results for each trial */
   evaluation?: EvaluationResult<DataType, ExpectedType>[];
   /** Aggregated evaluation results */
@@ -123,6 +118,12 @@ export interface ExperimentData<T extends GenericExpTypes> {
   usage?: Usages;
 }
 
+export interface TrialsResultData<DataType> {
+  variables: ExpVars;
+  usage?: Usages;
+  trials: TrialData<DataType>[];
+}
+
 export interface TrialResult<DataType> {
   promptId: string;
   turnPrompts: TurnPrompt[];
@@ -131,6 +132,23 @@ export interface TrialResult<DataType> {
   ok: boolean;
   usage?: Usages;
   result?: ValidData<DataType>[];
+}
+
+/** Data for a single trial */
+export interface TrialData<DataType> {
+  /** The prompt ID used for this trial */
+  promptId: string;
+
+  /** The usages of each try and turn */
+  usage?: Usages;
+
+  /** The data for all turns of each attempt of this trial */
+  attempts: TurnResponses<DataType>[];
+}
+
+export interface TurnData<DataType> {
+  data: DataType;
+  prompt: TurnPrompt;
 }
 
 export interface TurnPrompt {
@@ -142,7 +160,6 @@ export interface BaseTurnResponse<DataType> {
   turnPrompt: TurnPrompt;
   usage: Usages;
   result?: ValidationResult<DataType>;
-  failedAttempts: ValidationResult<DataType>[];
   ok: boolean;
 }
 export interface TurnResponseOk<DataType> extends BaseTurnResponse<DataType> {
@@ -159,16 +176,9 @@ export type TurnResponse<DataType> =
   | TurnResponseOk<DataType>
   | TurnResponseNotOk<DataType>;
 
-export interface TrialsResultData<DataType> {
-  variables: ExpVars;
-  usage?: Usages;
-  trials: {
-    turns: {
-      data: DataType;
-      prompt: TurnPrompt;
-    }[];
-  }[];
-}
+export type TurnResponses<DataType> = TurnResponse<DataType>[];
+
+export type TrialAttempts<DataType> = TurnResponses<DataType>[];
 
 export interface AggregatedEvaluationResult {
   /*
@@ -220,7 +230,5 @@ export interface ExpScore {
 }
 
 export interface TrialOpts {
-  maxConvAttempts: number;
-  maxTurnRetries: number;
-  cacheFile?: string;
+  maxTrialAttempts: number;
 }
