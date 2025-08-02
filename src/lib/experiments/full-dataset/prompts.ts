@@ -65,9 +65,9 @@ for (const pp of protoPrompts) {
       pairs?: [string, string][] // allow passing pairs directly
     ): Prompt => {
       const jt: PromptJobType = "batches";
-      const sourcePairs =
-        pairs ||
-        vars.dpart.data.map(
+      const sourcePairs = pairs?.length
+        ? pairs
+        : vars.dpart.data.map(
           ({ term1, term2 }) => [term1, term2] as [string, string]
         );
       const pairList = shuffle(sourcePairs);

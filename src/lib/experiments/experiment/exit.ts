@@ -18,7 +18,13 @@ export async function wrapUp<T extends GenericExpTypes>(
     exp.exitedEarly
   );
   if (exp.expDataToExpScore) {
-    exp.printExpResTable(res);
+    if (res.some(e => !("evaluation" in e.results))) {
+      logger.warn(
+        "Some experiments do not have evaluation results, skipping expDataToExpScore."
+      );
+    } else {
+      exp.printExpResTable(res);
+    }
   }
   exp.printUsage(exp.totalUsage, true);
 }

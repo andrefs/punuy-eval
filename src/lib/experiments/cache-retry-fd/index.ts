@@ -1,17 +1,12 @@
 import { Static } from "@sinclair/typebox";
 import Experiment, {
   ExpVars,
-  ExpVarsFixedPrompt,
   ExperimentData,
   GenToolSchema,
   GenericExpTypes,
-  Prompt,
-  PromptGenerator,
-  TrialAttemptData as TrialAttempts,
+  TrialAttempts,
   TrialOpts,
-  TrialResult,
   TurnPrompt,
-  TurnResponses,
 } from "../experiment";
 import query from "../prediction-correlation/query";
 import logger from "src/lib/logger";
@@ -23,14 +18,7 @@ import {
   NonUsableData,
 } from "src/lib/evaluation";
 import { trialEvalScores } from "../prediction-correlation/aux";
-import {
-  getPreviousResults,
-  getPairScoreListFromDPart,
-} from "../experiment/aux";
-import {
-  getLastCacheFileName,
-  loadFailedPairsCache,
-} from "../experiment/exp-cache";
+import { getPairScoreListFromDPart } from "../experiment/aux";
 
 export const name = "cache-retry-fd";
 const description =
@@ -45,47 +33,8 @@ export interface CRExpTypes extends GenericExpTypes {
   DataSchema: typeof query.responseSchema;
 }
 
-async function tryLoadLastTry(
-  this: Experiment<CRExpTypes>,
-  folder: string
-): Promise<[string, string][]> {
-  const lastCacheFile = await getLastCacheFileName(folder);
-  const { date, pairs } = await loadFailedPairsCache(lastCacheFile);
-
-  if (!pairs.length) {
-    logger.info(
-      `  ❗ No pairs found in cache file ${lastCacheFile} (date: ${date})`
-    );
-  } else {
-    logger.info(
-      `  🫣 Found ${pairs.length} pairs in cache file ${lastCacheFile} (date: ${date})`
-    );
-  }
-  return pairs;
-}
-
-async function tryLoadFailedPairsCache(
-  this: Experiment<CRExpTypes>,
-  folder: string
-): Promise<[string, string][]> {
-  const lastCacheFile = await getLastCacheFileName(folder);
-  const { date, pairs: failedPairs } =
-    await loadFailedPairsCache(lastCacheFile);
-
-  if (!failedPairs.length) {
-    logger.info(
-      `  ❗ No failed pairs found in cache file ${lastCacheFile} (date: ${date})`
-    );
-  } else {
-    logger.info(
-      `  🫣 Found ${failedPairs.length} failed pairs in cache file ${lastCacheFile} (date: ${date})`
-    );
-  }
-  return failedPairs;
-}
-
 /**
- *
+ * Runs a trial for the CacheRetryFD experiment.
  */
 async function runTrial(
   this: Experiment<CRExpTypes>,
@@ -93,6 +42,7 @@ async function runTrial(
   genToolSchema: GenToolSchema,
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<TrialAttempts<CRExpTypes["Data"]>> {
+  logger.debug("XXXXXXXXXXX 0 runTrial opts: " + JSON.stringify(opts));
   if (opts.prevFailedPairs?.length) {
     logger.info(
       `  🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
@@ -128,9 +78,12 @@ async function runTrial(
       continue;
     }
 
-    prompt = vars.prompt.generate(vars, opts.prevFailedPairs);
+    const failedPairs = att
+      .filter(turn => !turn.ok)
+      .flatMap(turn => turn.turnPrompt.pairs);
+    prompt = vars.prompt.generate(vars, failedPairs);
     logger.warn(
-      `    ❗ Some pairs failed to score (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
+      `    ❗ Some pairs could not be scored (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
     );
     i++;
   }

@@ -34,16 +34,12 @@ import { printExpResTable, printUsage } from "./print";
 import { handleEarlyExit } from "./exit";
 import { perform, performMulti } from "./perform";
 import { evaluate, validateSchema } from "./val-eval";
-import { addUsage, getPreviousResults, sanityCheck } from "./aux";
+import { addUsage, sanityCheck } from "./aux";
 import path from "node:path";
 export * from "./types";
 import oldFs from "fs";
 import fs from "node:fs/promises";
-import {
-  buildExpVCFileName,
-  genNextExpIndex,
-  getCurExpIndex,
-} from "./exp-cache";
+import { buildExpVCFileName, getCurExpIndex } from "./exp-cache";
 
 /** Class representing an experiment. */
 export default class Experiment<T extends GenericExpTypes> {

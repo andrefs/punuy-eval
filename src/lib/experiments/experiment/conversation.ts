@@ -31,6 +31,7 @@ export async function iterateConversation<T extends GenericExpTypes>(
   const totalUsage: Usages = {};
   const prompts = vars.prompt.turns;
   const turnsRes = [];
+  logger.debug("XXXXXXXXXX 1 prompts " + prompts.length);
 
   for (const turnPrompt of prompts) {
     const tRes = await this.getTurnResponse(vars.model, turnPrompt, tool);
