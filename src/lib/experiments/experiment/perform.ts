@@ -35,6 +35,7 @@ export async function perform<T extends GenericExpTypes>(
 ): Promise<ExperimentData<T>> {
   // load cache
   const cache = await this.loadExpCache(vars);
+  const useCache = !!cache;
   if (cache && cache.results.raw.length !== numTrials) {
     logger.warn(
       `⚠️  The number of trials in the cache (${cache.results.raw.length}) does not match the number of trials requested (${numTrials}).`
@@ -48,9 +49,9 @@ export async function perform<T extends GenericExpTypes>(
   const trialsFailedPairs = cache?.results.raw.map(trial =>
     trial.attempts.length
       ? trial.attempts
-        .at(-1)!
-        .filter(turn => !turn.ok)
-        .flatMap(turn => turn.turnPrompt.pairs)
+          .at(-1)!
+          .filter(turn => !turn.ok)
+          .flatMap(turn => turn.turnPrompt.pairs)
       : []
   );
 
@@ -59,7 +60,7 @@ export async function perform<T extends GenericExpTypes>(
     vars,
     numTrials,
     trialsFailedPairs || [],
-    opts
+    { ...opts, useCache }
   );
   calcUsageCost(trialsRes.usage);
 
@@ -169,10 +170,10 @@ export async function performMulti<T extends GenericExpTypes>(
   for (const [index, vc] of varCombs.entries()) {
     logger.info(
       "⚗️  " +
-      pc.inverse(
-        `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
-      ) +
-      ` with variables ${JSON.stringify(getVarIds(vc))}.`
+        pc.inverse(
+          `Running experiment ${index + 1}/${varCombs.length}: ${this.name}`
+        ) +
+        ` with variables ${JSON.stringify(getVarIds(vc))}.`
     );
     res.push(await this.perform(vc, numTrials, opts));
     addUsage(this.totalUsage, res[res.length - 1].usage);
@@ -205,7 +206,8 @@ async function startUpLogs(
     throw "🧐 No variable combinations to run experiments with, aborting.";
   }
   logger.info(
-    `🔬 Preparing to run experiment ${name
+    `🔬 Preparing to run experiment ${
+      name
     }, ${numTrials} times on each variable combination (${numTrials}x${varCombs.length}): \n${varCombs
       .map(vc => "\t" + JSON.stringify(getVarIds(vc)))
       .join(",\n")}.`

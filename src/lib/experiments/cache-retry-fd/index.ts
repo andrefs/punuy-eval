@@ -43,12 +43,22 @@ async function runTrial(
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<TrialAttempts<CRExpTypes["Data"]>> {
   logger.debug("XXXXXXXXXXX 0 runTrial opts: " + JSON.stringify(opts));
-  if (opts.prevFailedPairs?.length) {
-    logger.info(
-      `  🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
-    );
+  if (opts.useCache) {
+    if (!opts.prevFailedPairs?.length) {
+      logger.warn(
+        `⚠️  Using cache but no previous failed pairs provided, doing nothing.`
+      );
+      return [];
+    } else {
+      logger.info(
+        `  🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
+      );
+    }
   }
-  let prompt = vars.prompt.generate(vars, opts.prevFailedPairs);
+  let prompt = vars.prompt.generate(
+    vars,
+    opts.useCache ? opts.prevFailedPairs : []
+  );
   logger.debug(`  ❔ Prompt: ${prompt.id}`);
 
   const toolSchema = genToolSchema(

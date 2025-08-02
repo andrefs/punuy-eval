@@ -345,4 +345,7 @@ export interface TrialOpts {
    * This is used when a trial has already been attempted and we want to retry the failed pairs
    */
   prevFailedPairs?: [string, string][];
+
+  /** Whether to use cached results if available */
+  useCache?: boolean;
 }
