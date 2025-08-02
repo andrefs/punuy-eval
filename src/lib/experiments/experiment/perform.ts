@@ -11,7 +11,10 @@ import {
   ExpVarMatrix,
   ExpVars,
   GenericExpTypes,
+  TrialData,
   TrialOpts,
+  TrialsResultData,
+  Usages,
 } from "./types";
 import logger from "../../logger";
 import pc from "picocolors";
@@ -30,9 +33,37 @@ export async function perform<T extends GenericExpTypes>(
   numTrials: number,
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<ExperimentData<T>> {
-  const trialsRes = await this.runTrials(vars, numTrials, opts);
+  // load cache
+  const cache = await this.loadExpCache(vars);
+  if (cache && cache.results.raw.length !== numTrials) {
+    logger.warn(
+      `⚠️  The number of trials in the cache (${cache.results.raw.length}) does not match the number of trials requested (${numTrials}).`
+    );
+    throw new Error(
+      `The number of trials in the cache (${cache.results.raw.length}) does not match the number of trials requested (${numTrials}).`
+    );
+  }
+
+  // get failed pairs from previous runs
+  const trialsFailedPairs = cache?.results.raw.map(trial =>
+    trial.attempts.length
+      ? trial.attempts
+        .at(-1)!
+        .filter(turn => !turn.ok)
+        .flatMap(turn => turn.turnPrompt.pairs)
+      : []
+  );
+
+  // run trials
+  const trialsRes = await this.runTrials(
+    vars,
+    numTrials,
+    trialsFailedPairs || [],
+    opts
+  );
   calcUsageCost(trialsRes.usage);
-  const expData: ExperimentData<T> = {
+
+  const protoExpData = {
     meta: {
       folder: this.folder,
       numTrials,
@@ -41,18 +72,74 @@ export async function perform<T extends GenericExpTypes>(
       queryData: this.queryData,
     },
     variables: vars,
-    usage: trialsRes.usage,
-    results: {
-      raw: trialsRes.trials,
-    },
   };
-  const { evaluation, aggregated } = await this.evaluate(expData);
-  expData.results.evaluation = evaluation;
-  expData.results.aggregated = aggregated;
+  let expData: ExperimentData<T>;
+
+  // no cache, use new trials only
+  if (!cache) {
+    expData = {
+      ...protoExpData,
+      usage: trialsRes.usage,
+      results: {
+        raw: trialsRes.trials,
+      },
+    };
+  } else {
+    // merge results from previous runs with this one
+    const fullTrials: TrialData<T["Data"]>[] = [];
+    const fullUsage: Usages = {};
+
+    for (let i = 0; i < trialsRes.trials.length; i++) {
+      const cachedTrial = cache?.results.raw[i];
+      const newTrial = trialsRes.trials[i];
+      if (!cachedTrial) {
+        fullTrials.push(newTrial);
+        continue;
+      }
+      const fullTrialUsage: Usages = {};
+      addUsage(fullTrialUsage, cachedTrial.usage);
+      addUsage(fullTrialUsage, newTrial.usage);
+      addUsage(fullUsage, fullTrialUsage);
+      fullTrials.push({
+        promptId: newTrial.promptId,
+        usage: fullTrialUsage,
+        attempts: [...cachedTrial.attempts, ...newTrial.attempts],
+      });
+    }
+
+    expData = {
+      ...protoExpData,
+      usage: fullUsage,
+      results: {
+        raw: fullTrials,
+      },
+    };
+  }
+
+  if (anyTrialWasUnsuccessful(trialsRes.trials)) {
+    logger.warn(
+      `⚠️  Some trials failed to complete successfully, skipping evaluation and saving results.`
+    );
+  } else {
+    logger.info(
+      `✅ All trials completed successfully, proceeding to evaluation.`
+    );
+    const { evaluation, aggregated } = await this.evaluate(expData);
+    expData.results.evaluation = evaluation;
+    expData.results.aggregated = aggregated;
+  }
 
   this.printUsage(expData.usage, false);
   await saveExpVarCombData(expData);
   return expData;
+}
+
+function anyTrialWasUnsuccessful<T extends GenericExpTypes>(
+  trials: TrialData<T>[]
+): boolean {
+  return trials.some(trial =>
+    trial.attempts.some(attempt => attempt.some(turn => !turn.ok))
+  );
 }
 
 /** * Perform multiple trials for each variable combination in the provided matrix.

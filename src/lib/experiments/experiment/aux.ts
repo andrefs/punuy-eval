@@ -8,8 +8,8 @@ import Experiment, {
   GenericExpTypes,
   PairScoreList,
   PromptJobType,
+  TrialAttempts,
   TurnPrompt,
-  TurnResponses,
   Usage,
   Usages,
   jobTypes,
@@ -22,15 +22,30 @@ import { PartitionData, PartitionScale } from "punuy-datasets/src/lib/types";
 import { genNextFileIndex } from "./file-index";
 import { genNextExpVCFileName } from "./exp-cache";
 
-export function getAttemptFailedPairs(
-  att: TurnResponses<{
-    scores: {
-      words: string[];
-      score: number;
-    }[];
-  }>
-): [string, string][] {
-  return att.filter(turn => !turn.ok).flatMap(turn => turn.turnPrompt.pairs);
+export function getPreviousResults<DataType>(
+  attempts: TrialAttempts<DataType>
+) {
+  const okResults = []; // scored pairs from all attempts
+
+  for (const attempt of attempts) {
+    for (const turn of attempt) {
+      if (turn.ok) {
+        okResults.push({
+          data: turn.result.data,
+          prompt: turn.turnPrompt,
+        });
+      }
+    }
+  }
+
+  const failedPairs = attempts?.length
+    ? attempts
+      .at(-1)!
+      .filter(turn => !turn.ok)
+      .flatMap(turn => turn.turnPrompt.pairs)
+    : [];
+
+  return { okResults, failedPairs };
 }
 
 export function calcUsageCost(usage: Usages | undefined) {

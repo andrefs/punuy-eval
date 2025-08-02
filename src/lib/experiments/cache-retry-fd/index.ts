@@ -24,7 +24,7 @@ import {
 } from "src/lib/evaluation";
 import { trialEvalScores } from "../prediction-correlation/aux";
 import {
-  getAttemptFailedPairs,
+  getPreviousResults,
   getPairScoreListFromDPart,
 } from "../experiment/aux";
 import {
@@ -93,7 +93,7 @@ async function runTrial(
   genToolSchema: GenToolSchema,
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<TrialAttempts<CRExpTypes["Data"]>> {
-  if (opts.prevFailedPairs) {
+  if (opts.prevFailedPairs?.length) {
     logger.info(
       `  🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
     );
@@ -128,8 +128,7 @@ async function runTrial(
       continue;
     }
 
-    const failedPairs = getAttemptFailedPairs(att);
-    prompt = vars.prompt.generate(vars, failedPairs);
+    prompt = vars.prompt.generate(vars, opts.prevFailedPairs);
     logger.warn(
       `    ❗ Some pairs failed to score (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
     );

@@ -34,7 +34,7 @@ import { printExpResTable, printUsage } from "./print";
 import { handleEarlyExit } from "./exit";
 import { perform, performMulti } from "./perform";
 import { evaluate, validateSchema } from "./val-eval";
-import { addUsage, getAttemptFailedPairs, sanityCheck } from "./aux";
+import { addUsage, getPreviousResults, sanityCheck } from "./aux";
 import path from "node:path";
 export * from "./types";
 import oldFs from "fs";
@@ -95,7 +95,8 @@ export default class Experiment<T extends GenericExpTypes> {
   runTrials: (
     this: Experiment<T>,
     vars: ExpVars,
-    trials: number,
+    numTrials: number,
+    trialsFailedPairs: [string, string][][],
     opts?: TrialOpts
   ) => Promise<TrialsResultData<T["Data"]>>;
   evaluateTrial: (
@@ -226,10 +227,6 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars
     ): Promise<string | null> {
-      console.log("XXXXXXXXXXXX indexes", [
-        await getCurExpIndex(this.folder),
-        await genNextExpIndex(this.folder),
-      ]);
       const index = await getCurExpIndex(this.folder);
       const fn = buildExpVCFileName(
         this.traceId,
@@ -246,7 +243,6 @@ export default class Experiment<T extends GenericExpTypes> {
       vars: ExpVars
     ): Promise<ExperimentData<T> | undefined> {
       const expFP = await this.getResFileName(vars);
-      console.log("XXXXXXXXXXXXXXXX", { expFP });
       if (!expFP) {
         return undefined;
       }
@@ -268,6 +264,7 @@ export default class Experiment<T extends GenericExpTypes> {
       this: Experiment<T>,
       vars: ExpVars,
       numTrials: number,
+      trialsFailedPairs: [string, string][][],
       opts: TrialOpts = { maxTrialAttempts: 3 }
     ) {
       const totalUsage: Usages = {};
@@ -277,23 +274,17 @@ export default class Experiment<T extends GenericExpTypes> {
         `🧪 Running experiment ${this.name} ${numTrials} times on model ${vars.model.id}.`
       );
 
-      // load cache
-      const cache = await this.loadExpCache(vars);
-
       for (let i = 0; i < numTrials; i++) {
         logger.info(`  ⚔️  trial #${i + 1} of ${numTrials} `);
         const trialUsage: Usages = {};
 
-        let prevFailedPairs: [string, string][] | undefined;
-        if (cache) {
-          const lastAttempt = cache.results.raw[i].attempts.at(-1);
-          prevFailedPairs = getAttemptFailedPairs(lastAttempt!);
-        }
-
         const attempts = await this.runTrial(
           vars,
           this.queryData.genToolSchema,
-          { ...opts, prevFailedPairs } // pass previous failed pairs if available
+          {
+            ...opts,
+            prevFailedPairs: trialsFailedPairs[i] || [],
+          }
         );
         for (const attempt of attempts) {
           for (const turn of attempt) {
