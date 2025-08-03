@@ -31,14 +31,15 @@ export async function iterateConversation<T extends GenericExpTypes>(
   const totalUsage: Usages = {};
   const prompts = vars.prompt.turns;
   const turnsRes = [];
-  logger.debug("XXXXXXXXXX 1 prompts " + prompts.length);
+  logger.debug(`    🛞 ${prompts.length} turns.`);
 
-  for (const turnPrompt of prompts) {
+  for (const [i, turnPrompt] of prompts.entries()) {
+    logger.info(`       ↪️ turn ${i + 1}/${prompts.length}`);
     const tRes = await this.getTurnResponse(vars.model, turnPrompt, tool);
     addUsage(totalUsage, tRes.usage);
     turnsRes.push(tRes);
   }
-  logger.info(`    ✅ conversation finished.`);
+  logger.info(`     💬✔️ trial attempt finished.`);
   return turnsRes;
 }
 
@@ -50,8 +51,8 @@ export async function getTurnResponse<T extends GenericExpTypes>(
 ) {
   const totalUsage: Usages = {};
   logger.info(
-    `      👥 ${prompt.pairs.length} ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
-    prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
+    `         👥 ${prompt.pairs.length} ${prompt.pairs.length === 1 ? "pair" : "pairs"} ` +
+      prompt.pairs.map(p => `[${p[0]}, ${p[1]}]`).join(", ")
   );
   const { result: attemptResult, usage } = await this.tryResponse(
     model,
@@ -60,7 +61,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
   );
   addUsage(totalUsage, usage);
   if (attemptResult instanceof ValidData) {
-    logger.info(`          pairs scoring succeeded.`);
+    logger.info(`         pairs scoring succeeded.`);
     const res: TurnResponseOk<T["Data"]> = {
       turnPrompt: prompt,
       ok: true,
@@ -74,7 +75,7 @@ export async function getTurnResponse<T extends GenericExpTypes>(
       ? attemptResult.data
       : JSON.stringify(attemptResult.data);
   logger.warn(
-    `        ✖  pairs scoring failed: ${attemptResult.type} (data: ${dataStr?.substring(0, 10_000)}${dataStr?.length > 10_000 ? "..." : ""})`
+    `       ✖  pairs scoring failed: ${attemptResult.type} (data: ${dataStr?.substring(0, 10_000)}${dataStr?.length > 10_000 ? "..." : ""})`
   );
 
   const res: TurnResponseNotOk<T["Data"]> = {

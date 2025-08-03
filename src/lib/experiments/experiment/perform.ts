@@ -13,7 +13,6 @@ import {
   GenericExpTypes,
   TrialData,
   TrialOpts,
-  TrialsResultData,
   Usages,
 } from "./types";
 import logger from "../../logger";
@@ -38,10 +37,10 @@ export async function perform<T extends GenericExpTypes>(
   const useCache = !!cache;
   if (cache && cache.results.raw.length !== numTrials) {
     logger.warn(
-      `⚠️  The number of trials in the cache (${cache.results.raw.length}) does not match the number of trials requested (${numTrials}).`
+      `⚠️  The number of trials (${numTrials}) does not match the number in the cache (${cache.results.raw.length}).`
     );
     throw new Error(
-      `The number of trials in the cache (${cache.results.raw.length}) does not match the number of trials requested (${numTrials}).`
+      `The number of trials (${numTrials}) does not match the number in the cache (${cache.results.raw.length}).`
     );
   }
 

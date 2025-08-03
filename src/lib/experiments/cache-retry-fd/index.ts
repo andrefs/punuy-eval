@@ -42,16 +42,16 @@ async function runTrial(
   genToolSchema: GenToolSchema,
   opts: TrialOpts = { maxTrialAttempts: 3 }
 ): Promise<TrialAttempts<CRExpTypes["Data"]>> {
-  logger.debug("XXXXXXXXXXX 0 runTrial opts: " + JSON.stringify(opts));
+  logger.debug("   runTrial opts: " + JSON.stringify(opts));
   if (opts.useCache) {
     if (!opts.prevFailedPairs?.length) {
       logger.warn(
-        `⚠️  Using cache but no previous failed pairs provided, doing nothing.`
+        `   ⚠️  Using cache but no previous failed pairs provided, doing nothing.`
       );
       return [];
     } else {
       logger.info(
-        `  🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
+        `   🫣 Using previous failed pairs: ${opts.prevFailedPairs.length} pairs`
       );
     }
   }
@@ -80,10 +80,17 @@ async function runTrial(
   const attempts: TrialAttempts<CRExpTypes["Data"]> = [];
 
   while (notDone && i < opts.maxTrialAttempts) {
+    logger.info(`     💬 trial attempt ${i + 1}/${opts.maxTrialAttempts}.`);
     const att = await this.iterateConversation({ ...vars, prompt }, tool, opts);
     attempts.push(att);
     if (att.every(turn => turn.ok)) {
-      logger.info(`    ✅ All pairs scored successfully.`);
+      const numPairs = att.reduce(
+        (acc, turn) => acc + turn.turnPrompt.pairs.length,
+        0
+      );
+      logger.info(
+        `    🫂✔️ all ${att.length} turns (${numPairs} pairs) scored successfully.`
+      );
       notDone = false;
       continue;
     }
@@ -93,7 +100,7 @@ async function runTrial(
       .flatMap(turn => turn.turnPrompt.pairs);
     prompt = vars.prompt.generate(vars, failedPairs);
     logger.warn(
-      `    ❗ Some pairs could not be scored (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
+      `     👥❗ ${failedPairs.length} pairs could not be scored (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
     );
     i++;
   }
