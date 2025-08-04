@@ -97,8 +97,6 @@ export async function tryResponse<T extends GenericExpTypes>(
   let data;
   let usage;
 
-  console.log("XXXXXXXXXXXXX params", JSON.stringify(params, null, 2));
-
   if (model?.reqDelayMs) {
     logger.trace(
       `       ⏳ waiting for ${model.reqDelayMs} ms (provider rate limit) before making request.`
@@ -107,7 +105,6 @@ export async function tryResponse<T extends GenericExpTypes>(
   }
   try {
     result = await model.makeRequest(prompt, params);
-    console.log("XXXXXXXXXXXXX result", JSON.stringify(result, null, 2));
     usage = result?.usage;
     data = result.getDataText();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
