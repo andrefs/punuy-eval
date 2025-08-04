@@ -62,8 +62,9 @@ const evm: ExpVarMatrix = {
     //datasets.pap900_rel,
     //datasets.pap900_sim,
     //datasets.tr9856_main,
-    datasets.simlex999_main,
-    //slSample,
+    //datasets.simlex999_main,
+    //datasets.men3000_full,
+    slSample,
   ],
   prompt: prompts,
   model: [

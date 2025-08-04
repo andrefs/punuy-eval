@@ -6,6 +6,7 @@ import { FunctionParameters } from "openai/resources/shared.mjs";
 import { Usage } from "../experiments";
 import { RequestError } from "../evaluation";
 import { ModelId, ModelProvider } from ".";
+import { ChatCompletionCreateParamsNonStreaming } from "openai/resources/index.mjs";
 
 const configuration: ClientOptions = {
   apiKey: process.env.NODE_ENV === "test" ? "test" : process.env.OPENAI_API_KEY,
@@ -42,7 +43,7 @@ const buildModel = (
   pricing?: ModelPricing
 ) => {
   const makeRequest = async function (prompt: string, toolParams: ModelTool) {
-    const req = {
+    const req: ChatCompletionCreateParamsNonStreaming = {
       model: modelId,
       messages: [
         {
@@ -59,6 +60,12 @@ const buildModel = (
           content: prompt,
         },
       ],
+      tool_choice: {
+        type: "function" as const,
+        function: {
+          name: toolParams.name,
+        },
+      },
       tools: [
         {
           type: "function" as const,

@@ -83,11 +83,11 @@ async function runTrial(
     logger.info(`     💬 trial attempt ${i + 1}/${opts.maxTrialAttempts}.`);
     const att = await this.iterateConversation({ ...vars, prompt }, tool, opts);
     attempts.push(att);
+    const numPairs = att.reduce(
+      (acc, turn) => acc + turn.turnPrompt.pairs.length,
+      0
+    );
     if (att.every(turn => turn.ok)) {
-      const numPairs = att.reduce(
-        (acc, turn) => acc + turn.turnPrompt.pairs.length,
-        0
-      );
       logger.info(
         `    🫂✔️ all ${att.length} turns (${numPairs} pairs) scored successfully.`
       );
@@ -100,7 +100,7 @@ async function runTrial(
       .flatMap(turn => turn.turnPrompt.pairs);
     prompt = vars.prompt.generate(vars, failedPairs);
     logger.warn(
-      `     👥❗ ${failedPairs.length} pairs could not be scored (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
+      `     👥❗ ${failedPairs.length}/${numPairs} pairs could not be scored (attempt #${i + 1} of ${opts.maxTrialAttempts}).`
     );
     i++;
   }
